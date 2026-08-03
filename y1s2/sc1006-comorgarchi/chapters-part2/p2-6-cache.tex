@@ -1,0 +1,136 @@
+\documentclass[10pt]{article}
+
+% --- Page Setup ---
+% \usepackage[a4paper, margin=0.5cm]{geometry}
+\usepackage[a4paper, left=0.5cm, right=0.5cm, top=0.3cm, bottom=0.3cm]{geometry}
+\usepackage{multicol}
+
+% \allowdisplaybreaks
+
+\usepackage{booktabs} % Required for professional horizontal rules (\toprule, \midrule, \bottomrule)
+\usepackage{array}    % Required for better column formatting
+
+% --- Math and Code ---
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+
+% --- Spacing Adjustments ---
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\usepackage{nicematrix, tikz}
+
+\usepackage{graphicx}
+
+\usepackage{float}
+
+\usepackage[hidelinks]{hyperref} % hidelinks removes ugly red boxes around links
+
+% 1. Remove space between list items
+\setlist{nosep, leftmargin=*} 
+
+% 2. Shrink space around section headers
+\titlespacing*{\section}{0pt}{0pt}{0pt}
+\titlespacing*{\subsection}{0pt}{1ex plus .2ex minus .2ex}{0.5ex plus .1ex}
+
+% --- NEW: Reduce header font sizes ---
+\titleformat*{\section}{\normalsize\bfseries\color{blue!75!black}}
+\titleformat*{\subsection}{\small\bfseries\color{magenta}}
+
+% 3. Add a thin line between columns for readability
+\setlength{\columnseprule}{0.4pt}
+\setlength{\columnsep}{1.5em}
+
+% --- Custom Code Formatting ---
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+\usepackage{xcolor}
+% \newcommand{\sectionbox}[1]{%
+%      \colorbox{blue!75!black}{\color{white}\small\bfseries~#1~}%
+%    }
+%    \titleformat{\section}{}{}{0em}{\sectionbox}
+%    \titleformat*{\subsection}{\normalsize\bfseries}
+
+\raggedbottom
+
+\setlength{\parskip}{0pt}
+\setlength{\baselineskip}{0pt plus 0.2pt} 
+
+
+\begin{document}
+
+\section*{Cache}
+
+
+\begin{center}
+    \includegraphics[width=0.4\textwidth]{images/cache.png}
+\end{center}
+Cache is a fast memory, act as buffer between CPU and MM.
+\begin{itemize}
+    \item Best implemented with SRAM. DRAM is too slow and its trf procedure is too complex for cache ops. Flash is not suitable due to finite erase cycles and slower speed.
+\end{itemize}
+CPU first checks cache, then main memory and finally system memory.\\
+A subset of the code and data that is frequently used is stored in cache.\\
+\subsection*{Principle of Locality}
+When a byte of code/data is accessed in a program, it is very likely that nearby code or data will be needed soon.
+
+
+\begin{itemize}
+    \item Locality of space: code/data near each tgt likely to be accessed tgt, so transfers between cache and main memory happen in blocks.
+    \item Locality of time: recently used code/data likely to be used again. Used when designing cache replacement policy.
+\end{itemize}
+\subsection*{Direct mapped cache}
+
+
+\begin{figure}[H]
+    \centering
+    % First image minipage
+    \begin{minipage}[b]{0.2\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/direct-map-cache.png}
+        % \caption{Caption for Figure 1}
+    \end{minipage}
+    \hfill % Pushes the minipages apart
+    % Second image minipage
+    \begin{minipage}[b]{0.2\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/direct-map-cache-2.png}
+        % \caption{Caption for Figure 2}
+    \end{minipage}
+\end{figure}
+\begin{itemize}
+    \item Each main memory block can only go to 1 specific block in cache.
+    \item The main memory address can be partitioned into TAG:BLK:OFFSET.
+    \begin{itemize}
+        \item OFFSET = no. of bits needed to represent cache block size. 4 byte block size = 2 bits for OFFSET.
+        \item BLK = no. of bits to represent no. of cache blocks. 4 cache blocks = 2 bits for BLK.
+        \item TAG = the remaning no. of bits. The unique identifier for each MM block. 
+    \end{itemize}
+    \item Note that MM physical address is used as the basis. 
+    \item Data retrieval from cache:
+    \begin{enumerate}
+        \item Derive the block number from address.
+        \item Check the TAG associated with that block. If it matches the address we want to retrieve from, it is Cache Hit. Otherwise, it's a Cache Miss.
+        \begin{itemize}
+            \item If Cache Hit, CPU will retrieve the data and proceed.
+            \item If Cache Miss, the corresponding MM block will be trf into the block.
+        \end{itemize}
+    \end{enumerate}
+    \item DMC does not need cache replacement policy as the mapping is one-to-one.
+    Some policies are Least Recently Used algorithm and FIFO approach.
+    \item When the CPU writes to the cache (causing Dirty Blocks), it can either be Write Hit or Write Miss.
+    \begin{itemize}
+        \item Write Hit: Can implement Write Through (update cache and MM simultaneously) or Write Back (update MM only when cache block selected for replacement).\\
+        Trade off between overloading system bus and cache coherency issue.
+        \item Write Miss: Can implement Write Allocate (corresponding MM block will be loaded into Cache, allowing future R/W) or Write-no-allocate (CPU just writes directly to MM block, and cache is not updated).
+    \end{itemize}
+    \item Effective Access Time: With $H$ as the Cache Hit Rate, and assuming a sequential access of cache and MM,
+    $EAT = H \times \text{Access}_C + (1-H) \times (\text{Access}_C + \text{Access}_{MM})$
+\end{itemize}
+
+\end{document}

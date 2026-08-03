@@ -1,0 +1,298 @@
+# Flow Control Constructs
+
+## IF statements & Reversion
+
+Translating a high-level IF condition directly into assembly is inefficient. Instead, compilers reverse the high-level test condition.\
+Reversing the condition avoids the need for an additional unconditional jump instruction, saving execution time and code space.\
+Note: Reverse the condition correctly. The reverse of "Higher or Same" (HS) is "Lower" (LO), and the reverse of "Less Than" (LT) is "Greater Than or Equal" (GE).
+
+``` ARM
+; High-level: if (R2 >= R3) { R3 = R2 }
+        CMP     R2, R3      ; Compare R2 and R3
+        BLO     Skip        ; Branch if Lower (reversed condition)
+        MOV     R3, R2      ; Execute IF block: update current max
+Skip:   SUBS    R1, R1, #1  ; Resume normal execution
+        ...
+```
+
+## IF-ELSE Statements
+
+IF-ELSE constructs are implemented using a combination of conditional and unconditional jump instructions.\
+Unlike simple IF statements, reversing the test condition here does not inherently improve efficiency. It is only beneficial if the code segment in the ELSE block is more likely to execute than the IF block.
+
+``` ARM
+; High-level: if (R0 == 1) { R1 = 3; } else { R1 = 5; }
+        CMP     R0, #1      ; Compare R0 with 1
+        BNE     ELSE        ; Branch if Not Equal to the ELSE block
+        MOV     R1, #3      ; Execute IF block: R1 = 3
+        B       SKIP        ; Unconditional jump over the ELSE block
+ELSE:   MOV     R1, #5      ; Execute ELSE block: R1 = 5
+SKIP:   ...
+```
+
+<div class="minipage">
+
+## Conditional Execution
+
+Instructions can execute conditionally based on the CC flags.\
+This eliminates jump instructions entirely, which significantly reduces code size and greatly improves flow-control efficiency.\
+**Constraint**: Conditional execution works for multiple consecutive instructions as long as the status registers are not altered by the initial comparison instruction.
+
+``` ARM
+; High-level: if (R2 >= R3) { R3 = R2 }
+CMP     R2, R3      ; Compare R2 and R3
+MOVGE   R3, R2      ; Move only if Greater or Equal
+SUBS    R1, R1, #1  ; Resume normal execution
+```
+
+``` ARM
+; High-level: if (R0 == 1) { R1 = 3; } else { R1 = 5; }
+CMP     R0, #1      ; Compare R0 with 1
+MOVEQ   R1, #3      ; Execute conditionally: move 3 if Equal
+MOVNE   R1, #5      ; Execute conditionally: move 5 if Not Equal
+```
+
+</div>
+
+## Compound AND conditions
+
+Elementary conditions bound by the logical AND are tested from left to right, matching the order given in the high-level program. If the first condition evaluates to false, the remaining conditions are skipped entirely. To ensure the most efficient execution, the condition that is least likely to be true should be placed leftmost in your code.
+
+``` ARM
+; High-level: if (R2 >= R3 && R2 > 0) { R3 = R2 }
+        CMP     R2, R3      ; Test condition 1: Compare R2 and R3
+        BLO     Skip        ; Skip immediately if R2 is lower
+        CMP     R2, #0      ; Test condition 2: Compare R2 and 0
+        BLE     Skip        ; Reverse last test: Skip if R2 <= 0
+        MOV     R3, R2      ; Execute IF block: update current max
+Skip:   SUBS    R1, R1, #1  ; Resume execution
+```
+
+<div class="minipage">
+
+## Compound OR conditions
+
+When handling compound OR conditions, most compilers eliminate an unconditional jump at the very end of the series by reversing the final conditional test. To maximize execution speed, the conditional test that is most likely to be true should be placed leftmost.
+
+``` ARM
+; High-level: if (R2 >= R3 || R2 == 100) { R3 = R2 }
+          CMP     R2, R3      ; Test condition 1: Compare R2 and R3
+          BHS     DoUpdate    ; Jump to IF block if Higher or Same
+          CMP     R2, #100    ; Test condition 2: Compare R2 and 100
+          BNE     Skip        ; Reverse last test: Skip if Not Equal
+DoUpdate: MOV     R3, R2      ; Execute IF block: update current max
+Skip:     SUBS    R1, R1, #1  ; Resume execution
+```
+
+</div>
+
+<div class="minipage">
+
+## Branchless Logic
+
+Branchless logic is a technique used to implement logical constructs without relying on conditional jump instructions (like Bcc). This is typically achieved by exploiting arithmetic relationships or using conditional execution to directly transform a test condition into a desired outcome (usually a Boolean value).
+
+``` ARM
+; High-level: is_new_max = 0;
+; if (R2 >= R3) { is_new_max = 1; R3 = R2; }
+MOV     R4, #0      ; Initialize is_new_max flag to 0 (false)
+CMP     R2, R3      ; Compare new number (R2) with current max (R3)
+MOVGE   R4, #1      ; Branchless: Set flag to 1 if Greater or Equal
+MOVGE   R3, R2      ; Branchless: Update max if Greater or Equal
+SUBS    R1, R1, #1  ; Resume execution seamlessly
+```
+
+</div>
+
+## SWITCH statements
+
+### Running & Narrow Values - Jump tables
+
+If cases are consecutive narrow range values, a Jump Table is used to avoid testing each case in turn.\
+A Jump table contains a list of start addresses for the code segments that are associated with each case value. The variable on which the switch is decided acts as an offset into the table to access the corresponding start address. This start address is then loaded into the Program Counter (PC) to execute the required code segment.\
+**Advantage**: The time taken is on average less than the equivalent if-else-if cascade and is independent of the number of cases in the switch construct.\
+**Example**: Consider this C program:
+
+``` objectivec
+char grade;
+
+switch (x) {
+    case 0:
+        grade = 'F';    // ASCII 70 (C1 in assembly)
+        break;
+    case 1:
+        grade = 'D';    // ASCII 68 (C2 in assembly)
+        break;
+    case 2:
+        grade = 'C';    // ASCII 67 (C3 in assembly)
+        break;
+    case 3:
+        grade = 'B';    // ASCII 66 (C4 in assembly)
+        break;
+    default:
+        grade = 'X';    // ASCII 88 (Handled by initial check in assembly)
+        break;
+}
+```
+
+We can use a jump table like this:
+
+``` ARM
+; Setup and Bounds Check
+        LDR     R1, [R2]             ; Load switch variable x -> R1
+        MOV     R0, #88          ; Pre-load default grade 'X' -> R0
+        CMP     R1, #3               ; Check for max valid case
+        BGT     RES                  ; If greater, jump to RES
+; Jump Table Routing
+        ADR     R3, TBL      ; Load base address of Jump Table -> R3
+        LDR     PC, [R3, R1, LSL #2] ; PC = TBL + (x * 4).
+; Resume Execution
+RES:    STR     R0, [R2, #4]         ; Store final grade character
+        
+; (Program execution continues from here)
+
+; Code Segments for Each Case
+C1:     MOV     R0, #70              ; case 0: G = 'F'
+        B       RES                  ; Jump to RES
+C2:     MOV     R0, #68              ; case 1: G = 'D'
+        B       RES                  ; Jump to RES
+C3:     MOV     R0, #67              ; case 2: G = 'C'
+        B       RES                  ; Jump to RES
+C4:     MOV     R0, #66              ; case 3: G = 'B'
+        B       RES                  ; Jump to RES
+
+; Jump Table Address Data
+TBL:    ; Memory contains the start addresses of C1, C2, C3, and C4 sequentially
+        ; TBL + 0  contains Address of C1
+        ; TBL + 4  contains Address of C2
+        ; TBL + 8  contains Address of C3
+        ; TBL + 12 contains Address of C4
+```
+
+### Random & Wide Values - Forked Cascade
+
+If cases are random wide range values (e.g., when $`x=1000`$), a fork algorithm is used to speed up the average search time and avoid testing every case sequentially.\
+Due to the wide value spread, the jump table size will be too large. Instead, a cascade of if-else-if comparisons is more efficient.
+
+**Example**: Handling error codes:
+
+``` objectivec
+// Variable 'status' contains the HTTP code
+int flag;
+
+if (status <= 404) {
+    if (status == 200)       flag = 1;  // Success
+    else if (status == 404)  flag = 2;  // Not Found
+    else                     flag = 0;  // Default/Unknown
+} 
+else {
+    if (status == 500)       flag = 3;  // Server Error
+    else if (status == 503)  flag = 4;  // Unavailable
+    else                     flag = 0;  // Default/Unknown
+}
+```
+
+``` ARM
+; R1 contains the 'status' code to check
+; R0 will store our output 'flag'
+
+; 1. The Initial Fork
+        CMP     R1, #404        ; Fork point: is status <= 404?
+        BGT     CheckHigh       ; If Greater Than, branch to the high-value checks
+
+; 2. The Low-Value Checks
+CheckLow:
+        CMP     R1, #200        ; Check first low case (200)
+        BEQ     Case200         ; Branch if Equal
+        CMP     R1, #404        ; Check second low case (404)
+        BEQ     Case404         ; Branch if Equal
+        B       Default         ; If neither matched, go to Default
+
+; 3. The High-Value Checks
+CheckHigh:
+        CMP     R1, #500        ; Check first high case (500)
+        BEQ     Case500         ; Branch if Equal
+        CMP     R1, #503        ; Check second high case (503)
+        BEQ     Case503         ; Branch if Equal
+        B       Default         ; If neither matched, go to Default
+
+; 4. The Action Blocks (Cases)
+Case200:
+        MOV     R0, #1          ; Set flag to 1 (Success)
+        B       Done            ; Exit switch
+Case404:
+        MOV     R0, #2          ; Set flag to 2 (Not Found)
+        B       Done            ; Exit switch
+Case500:
+        MOV     R0, #3          ; Set flag to 3 (Server Error)
+        B       Done            ; Exit switch
+Case503:
+        MOV     R0, #4          ; Set flag to 4 (Unavailable)
+        B       Done            ; Exit switch
+Default:
+        MOV     R0, #0          ; Set flag to 0 (Unknown)
+
+Done:
+        ; Resume normal program execution here
+```
+
+## Loop Constructs
+
+### Pre-test loops (WHILE)
+
+Pre-test loops evaluate the test condition before executing the loop segment.\
+If the condition evaluates to false right away, the loop code segment might never be executed at all.\
+This structure requires two jump instructions: a conditional branch at the top to exit the loop, and an unconditional branch (B) at the bottom to jump back to the test condition.
+
+``` ARM
+; High-level: WHILE (VarX > 0) { ... }
+Back    CMP     R1, #0      ; Test condition
+        BLE     Exit        ; Branch to Exit if <= 0
+        
+        ; --- Loop segment executes here ---
+        
+        B       Back        ; Unconditional jump back to test
+Exit    ; Resume normal execution
+```
+
+### Post-test loops (DO-WHILE)
+
+Post-test loops evaluate the test condition after executing the loop segment.\
+The code inside the loop is guaranteed to execute at least once, regardless of the condition.\
+Post-test loops are inherently more efficient than pre-test loops in assembly. They require only a single conditional branch instruction at the bottom of the loop to return to the top, completely eliminating the need for an extra unconditional jump.
+
+``` ARM
+; High-level: DO { ... } WHILE (VarX > 0)
+Back    ; Loop segment executes here (guaranteed at least once)
+        CMP     R1, #0      ; Test condition
+        BGT     Back        ; Branch back up only if > 0
+        ; Resume execution, falls through if condition is false
+```
+
+### FOR loops
+
+A standard FOR loop naturally operates as a pre-test loop because it evaluates its condition before executing.\
+Because post-test loops are faster, optimizing compilers will often transform a standard FOR loop into a highly efficient post-test loop.\
+The "Decrement & Test" Trick: If the loop counter variable is not actively used inside the loop segment itself, the compiler will reverse the logic: it initializes the counter to the maximum value, uses a SUBS instruction to decrement it, and loops until the zero flag is set.
+
+``` ARM
+; High-level: Sum = 0; for(i=0; i<=N; i++) Sum=Sum+i;
+        MOV     R2, #0      ; i = 0
+        MOV     R0, #0      ; Sum = 0
+Loop    CMP     R2, #10     ; Compare i with N (N=10)
+        BGT     END         ; Exit loop if i > N
+        ADD     R0, R0, R2  ; Sum = Sum + i
+        ADD     R2, R2, #1  ; i++
+        B       Loop        ; Unconditional jump back to test
+END     STR     R0, [R3]    ; Store final Sum to memory
+```
+
+``` ARM
+; The compiler rewrites the logic to count down.
+        MOV     R2, #10     ; Initialize counter to N
+        MOV     R0, #0      ; Sum = 0
+Loop    ADD     R0, R0, R2  ; Sum = Sum + counter
+        SUBS    R2, R2, #1  ; Decrement counter + update flags
+        BNE     Loop        ; Branch back to loop if counter is != 0
+        STR     R0, [R3]    ; Store final Sum to memory
+```

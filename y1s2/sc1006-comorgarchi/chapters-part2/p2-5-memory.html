@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Memory · SC1006 Computer Organisation and Architecture</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') {
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Memory</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <p class="course-code">SC1006</p>
+  <p class="site-title">Computer Organisation and Architecture</p>
+  <h1 class="page-title">Memory</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+            <li><a href="../chapters-part1/cheatsheet.html"
+                   data-nav="chapters-part1/cheatsheet.html">General
+Reference</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 1 · Foundations</h2>
+          <ul>
+            <li><a href="../chapters-part1/1-introduction.html"
+                   data-nav="chapters-part1/1-introduction.html">1.
+Introduction</a></li>
+            <li><a href="../chapters-part1/2-dataorganisation.html"
+                   data-nav="chapters-part1/2-dataorganisation.html">2.
+Data Organisation in Memory</a></li>
+            <li><a href="../chapters-part1/3-instructionorganisation.html"
+                   data-nav="chapters-part1/3-instructionorganisation.html">3.
+Instruction Organisation in Memory</a></li>
+            <li><a href="../chapters-part1/4-addressingmodes.html"
+                   data-nav="chapters-part1/4-addressingmodes.html">4.
+Addressing Modes</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 1 · ARM Programming</h2>
+          <ul>
+            <li><a href="../chapters-part1/5-instructionset.html"
+                   data-nav="chapters-part1/5-instructionset.html">5.
+Instruction Set</a></li>
+            <li><a href="../chapters-part1/6-modularprogramming.html"
+                   data-nav="chapters-part1/6-modularprogramming.html">6.
+Modular Programming</a></li>
+            <li><a href="../chapters-part1/7-flowcontrolconstructs.html"
+                   data-nav="chapters-part1/7-flowcontrolconstructs.html">7.
+Flow Control Constructs</a></li>
+            <li><a href="../chapters-part1/8-instructionencoding.html"
+                   data-nav="chapters-part1/8-instructionencoding.html">8.
+Instruction Encoding and ISA</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 2 · Arithmetic and Interfaces</h2>
+          <ul>
+            <li><a href="../chapters-part2/p2-1-arithmetic.html"
+                   data-nav="chapters-part2/p2-1-arithmetic.html">Computer
+Arithmetic</a></li>
+            <li><a href="../chapters-part2/p2-2-interfaces.html"
+                   data-nav="chapters-part2/p2-2-interfaces.html">Interfaces</a></li>
+            <li><a href="../chapters-part2/p2-3-peripherals.html"
+                   data-nav="chapters-part2/p2-3-peripherals.html">Peripherals</a></li>
+            <li><a href="../chapters-part2/p2-4-datatransfer.html"
+                   data-nav="chapters-part2/p2-4-datatransfer.html">Data
+Transfer Mechanisms</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 2 · Memory Systems</h2>
+          <ul>
+            <li><a href="../chapters-part2/p2-5-memory.html"
+                   data-nav="chapters-part2/p2-5-memory.html">Memory</a></li>
+            <li><a href="../chapters-part2/p2-6-cache.html"
+                   data-nav="chapters-part2/p2-6-cache.html">Cache</a></li>
+            <li><a href="../chapters-part2/p2-7-virtualmemory.html"
+                   data-nav="chapters-part2/p2-7-virtualmemory.html">Virtual
+Memory</a></li>
+            <li><a href="../chapters-part2/p2-8-pipeline.html"
+                   data-nav="chapters-part2/p2-8-pipeline.html">Pipeline</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+</header>
+
+<main id="content">
+<h1 class="unnumbered unlisted" id="memory">Memory</h1>
+<div class="table-wrap">
+<table>
+<caption>Volatile Memory Summary</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Memory</strong></th>
+<th style="text-align: left;"><strong>Layout &amp; Cost</strong></th>
+<th style="text-align: left;"><strong>Speed</strong></th>
+<th style="text-align: left;"><strong>Implementation
+Insights</strong></th>
+<th style="text-align: left;"><strong>Transistor Function</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>SRAM</strong></td>
+<td style="text-align: left;">Larger (6T)<br />
+High Cost</td>
+<td style="text-align: left;">Very Fast</td>
+<td style="text-align: left;"><strong>CPU Cache:</strong> Demands raw
+speed. Small capacity (KB/MB) justifies cost. High R/W endurance.</td>
+<td style="text-align: left;">Store data &amp; control signal
+transfer.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>DRAM</strong></td>
+<td style="text-align: left;">Smaller (1T, 1C)<br />
+Low Cost</td>
+<td style="text-align: left;">Slower<br />
+(Refresh)</td>
+<td style="text-align: left;"><strong>System RAM:</strong> OS/Apps need
+massive capacity (GBs); SRAM is too expensive. Handles heavy R/W
+cycles.</td>
+<td style="text-align: left;">Access switch to charge/discharge data
+capacitor.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<caption>Non-Volatile Memory Summary</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Memory</strong></th>
+<th style="text-align: left;"><strong>Layout &amp; Arch.</strong></th>
+<th style="text-align: left;"><strong>Cost / Cap.</strong></th>
+<th style="text-align: left;"><strong>Erasure /
+Granularity</strong></th>
+<th style="text-align: left;"><strong>Implementation
+Insights</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>EPROM</strong></td>
+<td style="text-align: left;"><strong>1T</strong>. Needs quartz window
+for UV.</td>
+<td style="text-align: left;">High<br />
+Low Cap.</td>
+<td style="text-align: left;">Very Slow
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∼</mo><annotation encoding="application/x-tex">\sim</annotation></semantics></math>15m)<br />
+Full Chip Erase</td>
+<td style="text-align: left;">Legacy storage; rarely used today.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>EEPROM</strong></td>
+<td style="text-align: left;"><strong>2T</strong> (Storage + Access).
+Large footprint.</td>
+<td style="text-align: left;">Very High<br />
+Very Low</td>
+<td style="text-align: left;">Slow
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∼</mo><annotation encoding="application/x-tex">\sim</annotation></semantics></math>5ms/byte)<br />
+Byte-level erase</td>
+<td style="text-align: left;"><strong>Micro-storage:</strong> Saves
+small system variables. 2T isolates bytes.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>NOR Flash</strong></td>
+<td style="text-align: left;"><strong>1T</strong>.
+<strong>Parallel</strong> wiring. Dedicated buses.</td>
+<td style="text-align: left;">Medium<br />
+Medium Cap.</td>
+<td style="text-align: left;">Moderate
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∼</mo><annotation encoding="application/x-tex">\sim</annotation></semantics></math>1s/blk)<br />
+Block Erase</td>
+<td style="text-align: left;"><strong>Boot Memory:</strong> Parallel
+wiring allows random access &amp; XIP.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>NAND Flash</strong></td>
+<td style="text-align: left;"><strong>1T</strong>.
+<strong>Series</strong> strings. Multiplexed I/O.</td>
+<td style="text-align: left;">Very Low<br />
+Very High</td>
+<td style="text-align: left;">Fast
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∼</mo><annotation encoding="application/x-tex">\sim</annotation></semantics></math>1.5ms/blk)<br />
+Page write, Block erase</td>
+<td style="text-align: left;"><strong>SSDs/Storage:</strong> Series
+wiring maximizes density. No XIP.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<caption>Storage Architecture Comparison: SSD vs. HDD</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Feature</strong></th>
+<th style="text-align: left;"><strong>Solid-State Drive
+(SSD)</strong></th>
+<th style="text-align: left;"><strong>Hard Disk Drive
+(HDD)</strong></th>
+<th style="text-align: left;"><strong>Implementation
+Insights</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Mechanics &amp;
+Weight</strong></td>
+<td style="text-align: left;"><strong>Lighter</strong>, with less/no
+moving parts.</td>
+<td style="text-align: left;">Heavier, relies on mechanical spinning
+platters and read/write heads.</td>
+<td style="text-align: left;"><strong>SSD Advantage:</strong> Highly
+resistant to physical shock and ideal for portable electronics
+(laptops/phones).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Transfer Rate</strong></td>
+<td style="text-align: left;"><strong>Higher</strong> (purely electronic
+memory access).</td>
+<td style="text-align: left;">Lower (bottlenecked by mechanical seek
+time and disk RPM).</td>
+<td style="text-align: left;"><strong>SSD Advantage:</strong>
+Drastically faster OS boot times and application loading.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Cost per Bit</strong></td>
+<td style="text-align: left;">Higher.</td>
+<td style="text-align: left;"><strong>Lower</strong>.</td>
+<td style="text-align: left;"><strong>HDD Advantage:</strong> The most
+cost-effective solution for massive, terabyte-scale bulk storage and
+backups.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Erase Cycles</strong></td>
+<td style="text-align: left;"><strong>Finite</strong> (Flash memory
+cells physically degrade with repeated writes).</td>
+<td style="text-align: left;"><strong>Infinite</strong> (Magnetic
+polarity can be flipped endlessly without wear).</td>
+<td style="text-align: left;"><strong>HDD Advantage:</strong> Superior
+for systems that require constant, heavy, 24/7 data rewriting (e.g.,
+security camera DVRs).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 class="unnumbered unlisted" id="volatile">Volatile</h2>
+<p>Data lost when electric power is removed. Used as system memory.</p>
+<ul>
+<li><p><strong>Static Random Access Memory (SRAM)</strong></p>
+<ul>
+<li><p>Large, 4-6 transistors per cell.</p></li>
+<li><p>Fast, optimised for speed/access latency.</p></li>
+<li><p>Low power consumption.</p></li>
+<li><p>One chip can contain 1M SRAM cells. Each SRAM contains 6
+transistors.</p>
+<ul>
+<li><p>Word Line (WL) controls which cells are enabled for read &amp;
+write.</p></li>
+<li><p>Bit Lines (BL) carry the actual data.</p></li>
+<li><p>M1, M2, M3, M4 stores the data bit (equivalent to the 2
+invertors: the logic state that is stored remains unchanged so long as
+the gates are powered).</p></li>
+<li><p>M5, M6 are pass (switch) transistors, controls the cell to be
+connected for read/write operation.</p></li>
+</ul>
+<div class="center">
+<p><img width="573" height="405" src="media/images/sram-transistors.webp" style="width:30.0%"
+loading="lazy" decoding="async" alt="image" /></p>
+</div>
+<div class="center">
+<p><img width="572" height="211" src="media/images/sram-logic.webp" style="width:25.0%"
+loading="lazy" decoding="async" alt="image" /></p>
+</div></li>
+<li><p>Best for implementing cache as cache needs fast memory.</p></li>
+</ul></li>
+<li><p><strong>Dynamic RAM (DRAM)</strong></p>
+<ul>
+<li><p>Small, 1-3 transistors per cell. (Less transistors doesn’t imply
+simpler interface design!)</p></li>
+<li><p>Slower, optimised for density/higher capacity.</p></li>
+<li><p>Requires periodic refresh (because of capacitor), higher power
+consumption.</p>
+<div class="center">
+<p><img width="580" height="200" src="media/images/dram.webp" style="width:40.0%" loading="lazy"
+decoding="async" alt="image" /></p>
+</div></li>
+<li><p>DRAM cell contains 1 transistor &amp; 1 capacitor.</p>
+<ul>
+<li><p>Store logic ’1’ (blue): enable transistor, transfer charge into
+capacitor.</p></li>
+<li><p>Store logic ’0’ (red): enable transistor, discharge
+capacitor.</p></li>
+<li><p>Read: enable transistor, measure capacitor charge using sense
+amplifier.</p></li>
+</ul></li>
+<li><p>Reading process destroys data, so the original data has to be
+written back after every read.</p></li>
+<li><p>Periodic refresh is needed as the charges leak over
+time.</p></li>
+<li><p>Modern version of DRAM is SynchronousDRAM (SDRAM)</p>
+<ul>
+<li><p>uses clock signal from host to synchronise data
+transfer.</p></li>
+<li><p>employs pipeline architecture that allows faster, overlapping
+operations.</p></li>
+</ul></li>
+</ul></li>
+</ul>
+<h2 class="unnumbered unlisted" id="non-volatile">Non-volatile</h2>
+<p>Data is retained even if electric power is removed. Used as storage
+memory.<br />
+<strong>Floating Gate Transistor (FGT)</strong><br />
+</p>
+<div class="center">
+<p><img width="282" height="180" src="media/images/fgt.webp" style="width:20.0%" loading="lazy"
+decoding="async" alt="image" /></p>
+</div>
+<div class="center">
+<p><img width="745" height="186" src="media/images/fgt-states.webp" style="width:50.0%"
+loading="lazy" decoding="async" alt="image" /></p>
+</div>
+<ul>
+<li><p>To program the FGT, a large +ve voltage is applied to the
+gate.</p></li>
+<li><p>Some electrons tunnel through the oxide and embed into the
+floating gate.</p></li>
+<li><p>In the programmed state, the excess electrons in the floating
+gate will continue to be trapped there even if the power is
+removed.</p></li>
+</ul>
+<div class="center">
+<p><img width="304" height="224" src="media/images/fgt-threshold.webp" style="width:20.0%"
+loading="lazy" decoding="async" alt="image" /></p>
+</div>
+<ul>
+<li><p>FGT becomes conductive when gate voltage
+(V<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mtext mathvariant="normal">GS</mtext></msub><annotation encoding="application/x-tex">_{\text{GS}}</annotation></semantics></math>)
+above the threshold voltage
+(V<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi></mi><mtext mathvariant="normal">T</mtext></msub><annotation encoding="application/x-tex">_{\text{T}}</annotation></semantics></math>).</p></li>
+<li><p>In the programmed state, the excess -trons in the floatg gate
+lower the voltage potential, so a larger voltage is needed to attract
+enough electrons to form the conductive layer.</p></li>
+<li><p>Hence we can perform these operations on FGT:</p>
+<ul>
+<li><p>Read content: apply voltage between the two thresholds. If FGT
+ON, it is in erased state (bit ’1’). If OFF, it is programmed state (bit
+’0’).</p></li>
+<li><p>To write ’1’: erase the FGT (using UV light or
+electrically).</p></li>
+<li><p>To write ’0’: program the FGT.</p></li>
+</ul></li>
+<li><p>In practice, after a flash is erased, it contains all ’1’s in
+memory. Programming stores ’0’s.</p></li>
+<li><p>To write data to a memory location and bits need to be changed,
+the whole block (multiple bytes) is erased to ’1’s, then programming
+sets some of the ’1’s to ’0’s.</p></li>
+</ul>
+<p><strong>Erasable Programmable Read-Only Memory (EPROM) / Electrically
+Erasable PROM (EEPROM)</strong><br />
+Implementation of the FGT.<br />
+</p>
+<ul>
+<li><p>EPROM requires UV light to erase the stored program. Legacy
+technology.</p></li>
+<li><p>EEPROM can be electrically erased.</p></li>
+<li><p>Compared to Flash, smaller page size (tens of bytes) and larger
+erase cycle endurance (can tolerate larger no. of erasures before
+failing).</p></li>
+<li><p>Higher cost per bit.</p></li>
+</ul>
+<p><strong>Flash</strong><br />
+Uses FGT technology.<br />
+</p>
+<ul>
+<li><p>Can be erased in larger blocks compared to EEPROM.</p></li>
+<li><p>Faster speed than EEPROM when performing write
+operations.</p></li>
+<li><p>Costs less per bit.</p></li>
+</ul>
+<p><strong>NOR Flash</strong><br />
+Used mainly as system memory.<br />
+Has multiple Address and Data lines.</p>
+<div class="center">
+<p><img width="756" height="179" src="media/images/nor-flash.webp" style="width:40.0%"
+loading="lazy" decoding="async" alt="image" /></p>
+</div>
+<p>FGT cells are connected to resemble NOR gate logic.<br />
+To read, the CPU sends voltage down the specific Word Line, and the
+transistor either turns ON or stays OFF, depending on erased or
+programmed state.</p>
+<ul>
+<li><p>If erased state, current flows from Bit Line into Ground, so the
+sense amplifier detects this as logic 1.</p></li>
+<li><p>If programmed state, no current flows from Bit Line, detected as
+Logic 0.</p></li>
+</ul>
+<p>NOR flash supports XIP (execute-in-place): Code can be executed
+directly from flash memory without loading the code into RAM (main
+memory).</p>
+<ul>
+<li><p>This is possible as NOR flash allows random reading, i.e. can
+read data using only address information.</p></li>
+</ul>
+<p>So we have the following operations for NOR flash:</p>
+<ul>
+<li><p>Reading: Very fast.</p></li>
+<li><p>Writing (programming): require the high voltages to program the
+FGTs, one byte at a time.</p></li>
+<li><p>Erasing: Done at block level.</p></li>
+</ul>
+<p><strong>NAND Flash</strong><br />
+Has only one I/O bus so all Commands, Addresses, Data has to go through
+this bus.<br />
+Data is accessed a page at a time. Command used to open a particular
+page followed by the individual bytes read/write.</p>
+<div class="center">
+<p><img width="997" height="248" src="media/images/nand-flash.webp" style="width:40.0%"
+loading="lazy" decoding="async" alt="image" /></p>
+</div>
+<p>FGT cells are connected to resemble NAND gate logic.<br />
+To read Word Line 3,</p>
+<ul>
+<li><p>the system first applies a huge voltage to the transistors we
+don’t want to read.</p></li>
+<li><p>This voltage is so high that it forces them to turn ON,
+regardless of what data they are holding.</p></li>
+<li><p>Then, it applies the normal "Read Voltage" to the specific
+transistor you do want to read (Word Line 3) to see if it turns on or
+stays off.</p></li>
+</ul>
+<p>NAND does not support XIP. E.g. for read op,</p>
+<ul>
+<li><p>CPU first sends a Command telling the NAND flash what operation
+to be carried out.</p></li>
+<li><p>CPU then sends the address.</p></li>
+<li><p>The NAND chip reads an entire page. (page contains multiple
+bytes, block contains multiples pages).</p></li>
+</ul>
+<p>Why use NAND flash? Less connecting wires, higher density, lower cost
+per bit, used for main storage like SSD, USB.<br />
+<strong>Hard Disk Drive (HDD)</strong></p>
+<div class="center">
+<p><img width="654" height="392" src="media/images/hdd.webp" style="width:40.0%" loading="lazy"
+decoding="async" alt="image" /></p>
+</div>
+<div class="center">
+<p><img width="522" height="562" src="media/images/hdd-sectors.webp" style="width:20.0%"
+loading="lazy" decoding="async" alt="image" /></p>
+</div>
+<p>Platters rotate on the spindle. Each platter has two surfaces. Each
+surface is served by a R/W head.<br />
+Data is stored on the platters, which is organised in concentric rings
+called <strong>tracks</strong> or <strong>cylinders</strong>.<br />
+Tracks are divided into <strong>sectors</strong>, each containing
+header, data and trailer.</p>
+<div class="center">
+<p><img width="333" height="350" src="media/images/hdd-times.webp" style="width:20.0%"
+loading="lazy" decoding="async" alt="image" /></p>
+</div>
+<p>Note that the platter is always spinning.</p>
+<ul>
+<li><p>Define RPS = RPM / 60.</p></li>
+<li><p>Seek Time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>S</mi></msub><annotation encoding="application/x-tex">T_S</annotation></semantics></math>:
+Time taken for RW head to swing such that it hovers over the specific
+Track.</p></li>
+<li><p>Rotational Delay
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>R</mi></msub><annotation encoding="application/x-tex">T_R</annotation></semantics></math>:
+Time taken for platter to spin until the target sector pass under the RW
+head.<br />
+On average,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mi>R</mi></msub><mo>=</mo><mfrac><mn>0.5</mn><mrow><mi>R</mi><mi>P</mi><mi>S</mi></mrow></mfrac><mi>s</mi></mrow><annotation encoding="application/x-tex">T_R = \frac{0.5}{RPS}s</annotation></semantics></math></p></li>
+<li><p>Access Time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>A</mi></msub><annotation encoding="application/x-tex">T_A</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>S</mi></msub><annotation encoding="application/x-tex">T_S</annotation></semantics></math>
++
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>R</mi></msub><annotation encoding="application/x-tex">T_R</annotation></semantics></math></p></li>
+<li><p>Transfer Time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>T</mi></msub><annotation encoding="application/x-tex">T_T</annotation></semantics></math>:
+Time taken for the sector to sweep past the head, during which the RW
+head interacts with the magnetic fields of the magnetic domains to
+read/write.<br />
+Defining the track density
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mi>T</mi></msub><annotation encoding="application/x-tex">D_T</annotation></semantics></math>
+(no. of sectors/track) and sector density
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mi>S</mi></msub><annotation encoding="application/x-tex">D_S</annotation></semantics></math>
+(no. of bytes/sector), and the no. of bytes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+for the transfer, then
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mi>T</mi></msub><mo>=</mo><mfrac><mi>N</mi><mrow><mi>R</mi><mi>P</mi><mi>S</mi><mo>×</mo><msub><mi>D</mi><mi>T</mi></msub><mo>×</mo><msub><mi>D</mi><mi>S</mi></msub></mrow></mfrac></mrow><annotation encoding="application/x-tex">T_T = \frac{N}{RPS\times D_T \times D_S}</annotation></semantics></math></p></li>
+<li><p>Usually,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mi>A</mi></msub><mo>≫</mo><msub><mi>T</mi><mi>T</mi></msub></mrow><annotation encoding="application/x-tex">T_A \gg T_T</annotation></semantics></math>,
+so if data is spread across different sectors in diff tracks, the
+effective HDD trf rate drops a lot. Defragmentation will bytes of a file
+in consecutive sectors.</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mi>T</mi></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mi>R</mi><mi>P</mi><mi>S</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">T_T=\frac{1}{RPS}</annotation></semantics></math>
+for one full track.</p></li>
+</ul>
+<div class="center">
+<p><img width="326" height="273" src="media/images/hdd-modern-layout.webp" style="width:20.0%"
+loading="lazy" decoding="async" alt="image" /></p>
+</div>
+<ul>
+<li><p>Early HDD had equal no. of sectors per track, which wastes space
+as bit density of those sectors are not optimal.</p></li>
+<li><p>Logical layout used Cylinder-Head-Sector (CHS), but obselete now
+due to limitation in HDD capacity it can support.</p></li>
+<li><p>Modern HDD implements zone bit recording, where tracks are
+divided into zones, with differing no. of sectors per track for diff
+zones.</p></li>
+<li><p>Modern logical layout uses Logical Block Addressing (LBA): the
+first block in HDD has addr LBA0, next LBA1, so on. 48 bits allocated to
+specify this number.</p></li>
+</ul>
+<p><strong>Solid state drive (SSD)</strong></p>
+<div class="center">
+<p><img width="820" height="356" src="media/images/ssd.webp" style="width:40.0%" loading="lazy"
+decoding="async" alt="image" /></p>
+</div>
+<ul>
+<li><p>Main storage element in SSD is NAND flash.</p></li>
+<li><p>Flash memory has limited program-erase cycles. Techniques to
+extend life of SSD:</p>
+<ul>
+<li><p>Wear levelling: distributing data erase/write operations evenly
+over the entire disk.</p></li>
+<li><p>Use external RAM as buffer to minimise the no. of writes to
+Flash.</p></li>
+<li><p>Error correction code: ability to recover from one or more bits
+of error in media.</p></li>
+</ul></li>
+<li><p>The SSD controller is a microprocessor, which handles address
+translation b/w logical &amp; physical layout, caching and buffering out
+of the SSD, and wear levelling algorithm.</p></li>
+<li><p>External SRAM and cache improve the trf rate for r/w
+ops.</p></li>
+</ul>
+<p><strong>HDD vs SSD</strong>:</p>
+<ul>
+<li><p>HDD has lower cost per bit and almost infinite erasure
+cycles.</p></li>
+<li><p>But HDD has many moving parts, vulnerable.</p></li>
+<li><p>SSD more expensive, but higher trf rate and smaller form factor
+than HDD.</p></li>
+<li><p>But SSD has limit on no. of erasure cycles. Some techniques to
+mitigate:</p>
+<ul>
+<li><p>Wear levelling - extend life of SSD by distributing erase/write
+ops evenly over the entire disk.</p></li>
+<li><p>use ext RAM as buffer to minimise no. or writes to flash in
+SSD.</p></li>
+</ul></li>
+<li><p>HDD is still the dominant storage in data centres, because there
+is huge cost difference.</p></li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../chapters-part2/p2-4-datatransfer.html">← Data
+Transfer Mechanisms</a>
+  <a class="next-page" href="../chapters-part2/p2-6-cache.html">Cache →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

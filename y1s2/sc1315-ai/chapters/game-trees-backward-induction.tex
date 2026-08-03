@@ -1,0 +1,125 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[linesnumbered, ruled]{algorithm2e}
+\usepackage{subcaption}
+\usepackage[hidelinks]{hyperref}
+% Each algorithm is written twice: the algorithm2e block (what the PDF typesets)
+% and a plain-text Verbatim block right after it (what the web shows — pandoc
+% renders Verbatim as a copyable <pre> code block). \excludecomment makes pdflatex
+% SKIP the Verbatim blocks, so the PDF shows only the algorithm2e version; pandoc
+% conversely drops each algorithm2e to an (empty, CSS-hidden) div and keeps the
+% Verbatim. Because pdflatex never sees the Verbatim, its Unicode maths glyphs
+% (⟨⟩ ← τ ∈ ∞ …) need no inputenc/literate setup.
+\usepackage{comment}
+\excludecomment{Verbatim}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\hypersetup{linktoc=all}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{codegreen},
+    stringstyle=\color{codepurple},
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    frame=single,
+    showstringspaces=false
+}
+
+\title{AI Masterclass Test 1}
+\author{}
+\date{}
+
+
+\begin{document}
+
+\section{Game Trees - Backward Induction}
+
+\begin{algorithm}[H]
+\caption{Zermelo's Algorithm}
+\DontPrintSemicolon
+
+$done \leftarrow leaves((S, E))$\;
+\While{$done \neq S$}{
+    $next \leftarrow \{s' \in S \setminus done \mid children(s', (S, E)) \subseteq done\}$\;
+    \For{$s \in next$}{
+        $i \leftarrow owner(s)$\;
+        $C \leftarrow children(s, (S, E))$\;
+        $O \leftarrow \arg \max_{s' \in C} u_i(s')$ \tcp*[r]{optimal choices}
+        $s'' \leftarrow$ any element of $O$\;
+        \For{$j \in N$}{
+            $u_j(s) \leftarrow u_j(s'')$ \tcp*[r]{back utilities up}
+        }
+        $done \leftarrow done \cup \{s\}$ \tcp*[r]{we have processed $s$}
+    }
+}
+\end{algorithm}
+\begin{Verbatim}
+# Zermelo's Algorithm
+done ← leaves((S, E))
+while done ≠ S:
+    next ← { s' ∈ S ∖ done | children(s', (S, E)) ⊆ done }
+    for s ∈ next:
+        i ← owner(s)
+        C ← children(s, (S, E))
+        O ← arg max_{s' ∈ C} uᵢ(s')          # optimal choices
+        s'' ← any element of O
+        for j ∈ N:
+            uⱼ(s) ← uⱼ(s'')                   # back utilities up
+        done ← done ∪ {s}                     # we have processed s
+\end{Verbatim}
+
+\medskip
+\noindent Extensive form games are games that are played sequentially. It can be defined by
+\[G = (N, (S, E, s_0), owner, a, u_1,\ldots,u_n)\]
+\begin{itemize}
+        \item $N = \{1,\ldots,n\}$ is the set of players
+        \item $(S, E, s_0)$ is a finite tree with vertex set $S$,
+        edge set $E \subset S \times S$, and root $s_0 \in S$.
+        \item $owner: interior((S, E))\rightarrow N$ specifies the owner of each decision node
+        \item $a: E \rightarrow A$ associates each edge $(s, s') \in E$ with an action
+        \item $u_i : leaves((S, E))\rightarrow\mathbb{R}$ is $i$'s utility function.
+\end{itemize}
+
+\noindent Zermelo's Algorithm / backward induction can solve extensive form games
+\begin{itemize}
+    \item Is guaranteed to terminate
+    \item runs in time polynomial in the size of the game tree, $O(b^d)$
+    \item finds optimal strategies for both players
+\end{itemize}
+
+
+\noindent\textbf{Example} Centipede Game
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/centipede-game.png} 
+    % \caption{$h(s)$ = number of misplaced tiles or sum of Manatten distances of each tile to their goal position}
+    \label{fig:my_handwritten_notes}
+\end{figure}
+\noindent Based on Zermelo's Algorithm,
+\begin{enumerate}
+    \item At $v_3$, Player 2 chooses $R$, since 4>3.
+    $v_3$ effectively becomes the payoff (1, 4).
+    \item At $v_2$, Player 1 chooses $R$, since 2>1.
+    $v_2$ effectively becomes the payoff (2, 2).
+    \item At $v_1$, Player 2 chooses $R$, since 3>2.
+    $v_1$ effectively becomes the payoff (0, 3).
+    \item At $v_0$, Plyaer 1 chooses $R$, since 1>0.
+    $v_0$ effectively becomes the payoff (1, 1).
+\end{enumerate}
+Based on backward induction, when both players are perfectly rational and can predict each other's moves,
+Player 1 just chooses $R$ and stops the game.\newline
+The paradox is that they could each have had a greater payoff of (3, 3) if they trusted each other (deviating from the rational path) 
+and played $D$ all the way.
+
+\end{document}

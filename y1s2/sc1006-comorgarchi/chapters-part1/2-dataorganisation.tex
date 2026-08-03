@@ -1,0 +1,244 @@
+\documentclass[../comorg-part1.tex]{subfiles}
+
+\begin{document}
+\section{Data Organisation in Memory}
+
+\subsection{Memory Hierarchy}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/memory-hierarchy.png}
+    % \caption*{}
+\end{figure}
+\begin{enumerate}
+    \item \textbf{Registers} Very fast access, but limited numbers within the CPU (2-128 registers). Operates at CPU clock rate.
+    \item \textbf{Cache memory} Fast access static RAM close to CPU. Typical access time 3-20ns, size up to 512kB.
+    \item \textbf{Main memory} Dynamic RAM or ROM. Typical access time 30-70nS, size up to 16GB.
+    \item \textbf{Secondary memory} Not always random access but non-volatile. Maybe be based on magnetic or flash technology. Typical access time 0.03-100mS, size: up to 4TB.
+\end{enumerate}
+
+\subsubsection{Main Memory}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{images/main-mem.png}
+    \caption*{Main memory}
+\end{figure}
+\begin{itemize}
+    \item Each address location is byte-size (8 bits).
+    \item The memory size (the number of addresses) i.e. $2^n$ bytes, is dependent on the number of lines $n$ in the address bus.
+    \item Based on Von Neumann's architecture, the memory stores both code (instructions) and data.
+\end{itemize}
+
+\subsection{Number representation}
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{r c c l} 
+        \hline
+        \textbf{Type} & \textbf{Bytes} & \textbf{Bits} & \textbf{\quad Range} \\ 
+        \hline
+        signed char & 1 & 8 & $-128 \to +127$ \\ 
+        unsigned char & 1 & 8 & $0 \to +255$ \\ 
+        short int & 2 & 16 & $-32,768 \to +32,767 \quad (\pm 32\text{KB})$ \\ 
+        unsigned short int & 2 & 16 & $0 \to +65,535 \quad\qquad (64\text{KB})$ \\ 
+        unsigned int & 4 & 32 & $0 \to +4,294,967,295 \quad (4\text{GB})$ \\ 
+        int & 4 & 32 & $-2,147,483,648 \to +2,147,483,647 \ (\pm 2\text{GB})$ \\ 
+        long int & 4 & 32 & $-2,147,483,648 \to +2,147,483,647 \ (\pm 2\text{GB})$ \\ 
+        long long int & 8 & 64 & $-(2^{63}) \to (2^{63})-1$ \\ 
+        float & 4 & 32 &  \\ 
+        double & 8 & 64 &  \\ 
+        long double & 12 & 96 &  \\ 
+        \hline
+    \end{tabular}
+\end{table}
+Note:
+\begin{itemize}
+    \item Integers can be signed or unsigned.
+    \item Floating point numbers are always signed.
+\end{itemize}
+
+\subsubsection{Two ways of storing a multi-byte number}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/32bit-Endianess.png}
+    \caption*{Little vs Big Endian format}
+\end{figure}
+\begin{itemize}
+    \item Little Endian - LSB at lowest address.
+    \item Big Endian - MSB at lowest address.
+\end{itemize}
+
+\subsection{Character Representation}
+A char requires one byte (8 bits) of memory.
+The binary data is transformed to some representative characters through some encoding standard.\newline
+Some encoding standards:
+\begin{itemize}
+    \item 7-bit ASCII code
+    \item DEC's Sixbit (6-bit)
+    \item IBM's EBCDIC (8-bit)
+    \item Unicode (16-bit)
+\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/ascii.png}
+    \caption*{7-bit ASCII table}
+\end{figure}
+Note that lower and upper case characters and digits are contiguous.\newline
+
+\bigskip
+
+\noindent Boolean variables have 2 states:
+\begin{enumerate}
+    \item False = 0
+    \item True = non-zero
+\end{enumerate}
+\noindent Most implementations use one byte (8 bits) to store a 1-bit Boolean value (inefficient).
+Some processors like the 8051 support a small portion of bit-addressable memory.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/8051.png}
+    \caption*{8051 processor supports bit-addressable memory.}
+\end{figure}
+
+\subsection{Array, String and Structure Representations}
+\subsubsection{Arrays}
+A linear array is a consecutive area in memory storing a homogenous data type.\newline
+Elements are accessed through some offset from the base address.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/array-storage.png}
+    \caption*{Offset calculated from number of elements and size of the data type.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/nested-array.png}
+    \caption*{Nested arrays}
+\end{figure}
+
+\subsubsection{Strings}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/c-string.png}
+    \caption*{Strings are initialised as array of characters.}
+\end{figure}
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/c-vs-pascal-string.png}
+    \caption*{C string terminates with null character, 
+    Pascal string stores the length of the string at the start of the string.}
+\end{figure}
+\begin{itemize}
+    \item C strings have no length limit, whereas Pascal strings are limited to number of bytes used to store the length (e.g. 1 byte $\rightarrow$ max 255 characters.)
+    \item C strings have no overhead (only one byte for \textbackslash 0) for length metadata, Pascal strings require space to store the length prefix.
+    \item Determining length of C string is O(n), for Pascal string is O(1).
+\end{itemize}
+
+\subsubsection{Structures}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/struct-representation.png}
+    \caption*{Each data type is ordered according to declaration, and allocated their own data size based on their type.}
+\end{figure}
+
+\subsection{Pointer representation}
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/ptr-code.png}
+         \caption*{Initialising pointer}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.45\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/ptr-visual.png}
+         \caption*{Assuming addresses are 16 bits.}
+     \end{subfigure}
+        \caption{Size of pointer is fixed regardless of data type.}
+\end{figure}
+\noindent Use \texttt{*ptr} to dereference a pointer.
+
+\subsection{Data Alignment}
+\begin{table}[H]
+    \centering
+    \renewcommand{\arraystretch}{1.5} % Increases row height for readability
+    \begin{tabular}{|l|c|l|}
+        \hline
+        % \rowcolor[HTML]{B4D5E1} % Approximate light blue from your slide
+        \textbf{Data Type} & \textbf{Size (Byte)} & \textbf{Example of allowable start addresses due to alignment} \\ \hline
+        char    & 1 & 0x..0000, 0x..0001, 0x..0002 \\ \hline
+        short   & 2 & 0x..0000, 0x..0002, 0x..0004 \\ \hline
+        int     & 4 & 0x..0000, 0x..0004, 0x..0008 \\ \hline
+        float   & 4 & 0x..0000, 0x..0004, 0x..0008 \\ \hline
+        double  & 8 & 0x..0000, 0x..0008, 0x..0010 \\ \hline
+        pointer & 8 & 0x..0000, 0x..0008, 0x..0010 \\ \hline
+    \end{tabular}
+    \caption*{Multi-byte data should be aligned to addresses that are multiples of their data type size.}
+\end{table}
+\textit{Assuming} a 64-bit processor that uses 64-bits to represent an address.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/intel-pentium-4.png}
+    \caption*{Intel Pentium 4}
+\end{figure}
+\begin{itemize}
+    \item 64-bit data bus $\rightarrow$ The CPU fetches 64-bits every memory cycle.
+    \item 33 address pins $\rightarrow$ There are $2^33$ 8 byte "blocks".
+    \item 8 Bank Enable pins select which 8-bits in that 64-bits block to read from.
+    \item The CPU has a 64-bit data word size.
+\end{itemize}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{images/8-byte-alignment.png}
+    \caption*{8-byte data should be aligned to addresses that are multiples of 8.}
+\end{figure}
+\begin{itemize}
+    \item Since the CPU fetches 8 bytes at a time, any 8-byte data that is not aligned
+    needs two memory cycles to be fetched.
+    \item If a processor has an 8 bit (1 byte) data bus, there won't be any alignment issues.\newline
+    Multi-byte data takes the same number of cycles to be fetched, regardless of the memory address.
+    \item If a processor has a 16 bit (2 bytes) data bus, then 2, 4 or 8 byte data
+    should be aligned to even addresses.
+\end{itemize}
+
+\subsubsection{Data alignment in structures}
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.25\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/struct-1.png}
+         \caption*{Defining struct in C}
+     \end{subfigure}
+     \hspace{1cm}
+     \begin{subfigure}[b]{0.65\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/struct-padding.png}
+         \caption*{Padded bytes are added to maintain alignment for each data type.}
+     \end{subfigure}
+        % \caption{}
+\end{figure}
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.3\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/struct-2.png}
+         \caption*{Rearranging order of data objects}
+     \end{subfigure}
+     \hspace{1cm}
+     \begin{subfigure}[b]{0.3\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/struct-optimised.png}
+         \caption*{New struct takes 8 bytes instead of 12 previously.}
+     \end{subfigure}
+        % \caption{Size of pointer is fixed regardless of data type.}
+\end{figure}
+
+
+
+\end{document}

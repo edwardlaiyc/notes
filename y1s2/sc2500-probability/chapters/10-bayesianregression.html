@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Bayesian Regression · SC2500 Probability &amp;
+Statistics</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') {
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Bayesian
+Regression</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <p class="course-code">SC2500</p>
+  <p class="site-title">Probability &amp; Statistics</p>
+  <h1 class="page-title">Bayesian Regression</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Foundations</h2>
+          <ul>
+            <li><a href="../chapters/1-intro.html"
+                   data-nav="chapters/1-intro.html">1.
+Introduction</a></li>
+            <li><a href="../chapters/2-conditionalprob.html"
+                   data-nav="chapters/2-conditionalprob.html">2.
+Conditional Probability</a></li>
+            <li><a href="../chapters/3-randomvariablesanddistributions.html"
+                   data-nav="chapters/3-randomvariablesanddistributions.html">3.
+Random Variables &amp; Distributions</a></li>
+            <li><a href="../chapters/4-expectation.html"
+                   data-nav="chapters/4-expectation.html">4.
+Expectation</a></li>
+            <li><a href="../chapters/5-variance.html"
+                   data-nav="chapters/5-variance.html">5.
+Variance</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Concentration &amp; Estimation</h2>
+          <ul>
+            <li><a href="../chapters/6-concentration.html"
+                   data-nav="chapters/6-concentration.html">6.
+Concentration Inequalities</a></li>
+            <li><a href="../chapters/7-estimation.html"
+                   data-nav="chapters/7-estimation.html">7.
+Estimation</a></li>
+            <li><a href="../chapters/8-estimation2.html"
+                   data-nav="chapters/8-estimation2.html">8. Estimation
+II</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Statistical Learning</h2>
+          <ul>
+            <li><a href="../chapters/9-linearlogregression.html"
+                   data-nav="chapters/9-linearlogregression.html">9.
+Linear &amp; Logistic Regression</a></li>
+            <li><a href="../chapters/10-bayesianregression.html"
+                   data-nav="chapters/10-bayesianregression.html">10.
+Bayesian Regression</a></li>
+            <li><a href="../chapters/11-statisticalml.html"
+                   data-nav="chapters/11-statisticalml.html">11.
+Statistical Machine Learning</a></li>
+            <li><a href="../chapters/12-samplingoptimise.html"
+                   data-nav="chapters/12-samplingoptimise.html">12.
+Optimisation &amp; Sampling</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#bayesian-regression" id="toc-bayesian-regression"><span
+class="toc-section-number">10</span> Bayesian Regression</a>
+<ul>
+<li><a href="#recap" id="toc-recap"><span
+class="toc-section-number">10.1</span> Recap</a>
+<ul>
+<li><a href="#bayes-rule" id="toc-bayes-rule"><span
+class="toc-section-number">10.1.1</span> Bayes’ Rule</a></li>
+<li><a href="#unnormalised-density-functions"
+id="toc-unnormalised-density-functions"><span
+class="toc-section-number">10.1.2</span> Unnormalised density
+functions</a></li>
+<li><a href="#frequentist-vs-bayesian"
+id="toc-frequentist-vs-bayesian"><span
+class="toc-section-number">10.1.3</span> Frequentist vs
+Bayesian</a></li>
+<li><a href="#regression" id="toc-regression"><span
+class="toc-section-number">10.1.4</span> Regression</a></li>
+</ul></li>
+<li><a href="#bayesian-linear-regression"
+id="toc-bayesian-linear-regression"><span
+class="toc-section-number">10.2</span> Bayesian Linear Regression</a>
+<ul>
+<li><a href="#d-case" id="toc-d-case"><span
+class="toc-section-number">10.2.1</span> 1-D case</a></li>
+<li><a href="#derivation" id="toc-derivation"><span
+class="toc-section-number">10.2.2</span> Derivation</a></li>
+<li><a href="#d-dimension-case" id="toc-d-dimension-case"><span
+class="toc-section-number">10.2.3</span>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>-dimension
+case</a></li>
+</ul></li>
+<li><a href="#predictive-distribution"
+id="toc-predictive-distribution"><span
+class="toc-section-number">10.3</span> Predictive Distribution</a>
+<ul>
+<li><a href="#basis-functions" id="toc-basis-functions"><span
+class="toc-section-number">10.3.1</span> Basis Functions</a></li>
+</ul></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 data-number="10" id="bayesian-regression"><span
+class="header-section-number">10</span> Bayesian Regression</h1>
+<h2 data-number="10.1" id="recap"><span
+class="header-section-number">10.1</span> Recap</h2>
+<h3 data-number="10.1.1" id="bayes-rule"><span
+class="header-section-number">10.1.1</span> Bayes’ Rule</h3>
+<p>Bayes’ Rule (assuming
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">P(B)&gt;0</annotation></semantics></math>):
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>∣</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo>∣</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">P(A \mid B) = \frac{P(B \mid A)\, P(A)}{P(B)}</annotation></semantics></math></p>
+<ul>
+<li><p>The prior
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(A)</annotation></semantics></math>:
+Belief about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+before seeing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>.</p></li>
+<li><p>The likelihood
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo stretchy="false" form="prefix">|</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(B|A)</annotation></semantics></math>:
+If A true, how probable is the observed evidence
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>.</p></li>
+<li><p>The marginal likelihood
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(B)</annotation></semantics></math>:
+Total probability of observing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+across all scenarios. Acts as normalisation constant.</p></li>
+<li><p>The posterior
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="prefix">|</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(A|B)</annotation></semantics></math>:
+Updated belief about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+after seeing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>.</p></li>
+</ul>
+<p>The PDF version:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>∣</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>∣</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">f(x \mid y) = \frac{f(y \mid x)\, f(x)}{f(y)}</annotation></semantics></math>
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo>∫</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mi mathvariant="normal">d</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">f(y) = \int f(y | x)f(x) \mathrm{d}x</annotation></semantics></math>
+is the normalising constant.<br />
+The point is that in Bayesian inference and regression, we will use the
+form
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">posterior</mtext><mo>∝</mo><mtext mathvariant="normal">likelihood</mtext><mo>×</mo><mtext mathvariant="normal">prior</mtext></mrow><annotation encoding="application/x-tex">\text{posterior} \propto \text{likelihood} \times \text{prior}</annotation></semantics></math>
+ignoring the normalisation constant.</p>
+<h3 data-number="10.1.2" id="unnormalised-density-functions"><span
+class="header-section-number">10.1.2</span> Unnormalised density
+functions</h3>
+<p>A PDF is defined as:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>Z</mi></mfrac><mo>,</mo><mspace width="1.0em"></mspace><mi>Z</mi><mo>=</mo><mo>∫</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>d</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">f(x) = \frac{g(x)}{Z}, \quad Z = \int g(x)\, dx</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
+is the normalising constant. If two functions
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>g</mi><mn>1</mn></msub><annotation encoding="application/x-tex">g_1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>g</mi><mn>2</mn></msub><annotation encoding="application/x-tex">g_2</annotation></semantics></math>
+differ by only a constant, i.e.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>g</mi><mn>1</mn></msub><mo>∝</mo><msub><mi>g</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">g_1 \propto g_2</annotation></semantics></math>,
+then they define the exact same PDF.<br />
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Z</mi><annotation encoding="application/x-tex">Z</annotation></semantics></math>
+is often intractable to compute, hence we can just write
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo>∝</mo><mi>g</mi></mrow><annotation encoding="application/x-tex">f \propto g</annotation></semantics></math>
+and work with the unnormalised form
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>.</p>
+<h4 data-number="10.1.2.1" id="example"><span
+class="header-section-number">10.1.2.1</span> Example</h4>
+<p>The full PDF of a 1D Gaussian
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">𝒩</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{N}(\mu, \sigma^2)</annotation></semantics></math>
+is
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><msqrt><mrow><mn>2</mn><mi>π</mi><msup><mi>σ</mi><mn>2</mn></msup></mrow></msqrt></mfrac><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mfrac><mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>−</mo><mi>μ</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)</annotation></semantics></math>
+Expanding the square in the exponent:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>∝</mo><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mfrac><mn>1</mn><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><msup><mi>x</mi><mn>2</mn></msup><mo>+</mo><mfrac><mi>μ</mi><msup><mi>σ</mi><mn>2</mn></msup></mfrac><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(x) \propto \exp\!\left(-\frac{1}{2\sigma^2}x^2 + \frac{\mu}{\sigma^2}x\right)</annotation></semantics></math>
+We dropped terms not involving
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>.<br />
+Hence if we observe this quadratic form in the exponent, we know it’s
+Gaussian.</p>
+<h3 data-number="10.1.3" id="frequentist-vs-bayesian"><span
+class="header-section-number">10.1.3</span> Frequentist vs Bayesian</h3>
+<p>Frequentist approach treats Parameters like
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
+as fixed, unknown constants, wuth no distributions.<br />
+MLE is frequentist approach. It finds the parameter that makes the
+observed data most probable.</p>
+<h4 data-number="10.1.3.1" id="example-1"><span
+class="header-section-number">10.1.3.1</span> Example</h4>
+<p>A factory produces products labeled 100g. The actual weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+follows a Gaussian distribution with known variance 1, but unknown mean
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>.
+Three products are sampled with weights 99g, 110g, 107g. What is the
+best estimate of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>?<br />
+Given variance = 1 and the independent samples, the likelihood is
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>∣</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><msqrt><mrow><mn>2</mn><mi>π</mi></mrow></msqrt></mfrac><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mfrac><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><mn>2</mn></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">p(x_i \mid \mu) = \frac{1}{\sqrt{2\pi}} \exp\left(-\frac{(x_i - \mu)^2}{2}\right)</annotation></semantics></math>
+The joint likelihood of all observations is (by independence):
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">ℒ</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>∣</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mfrac><mn>1</mn><msqrt><mrow><mn>2</mn><mi>π</mi></mrow></msqrt></mfrac><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mfrac><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><mn>2</mn></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{L}(\mu) = \prod_{i=1}^n p(x_i \mid \mu) = \prod_{i=1}^n \frac{1}{\sqrt{2\pi}} \exp\left(-\frac{(x_i - \mu)^2}{2}\right)</annotation></semantics></math>
+Taking the log-likelihood:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi mathvariant="script">ℒ</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>−</mi><mfrac><mi>n</mi><mn>2</mn></mfrac><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>π</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\log \mathcal{L}(\mu) = -\frac{n}{2}\log(2\pi) - \frac{1}{2}\sum_{i=1}^n (x_i - \mu)^2</annotation></semantics></math>
+Maximising this is equivalent to minimising
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\sum_{i=1}^n (x_i - \mu)^2</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>d</mi><mrow><mi>d</mi><mi>μ</mi></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>=</mo><mi>−</mi><mn>2</mn><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>−</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\frac{d}{d\mu} \sum_{i=1}^n (x_i - \mu)^2 = -2\sum_{i=1}^n (x_i - \mu) = 0</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>x</mi><mi>i</mi></msub></mrow></menclose><annotation encoding="application/x-tex">\boxed{\hat{\mu}_n = \frac{1}{n}\sum_{i=1}^n x_i}</annotation></semantics></math>
+MLE says that the sample mean is the best estimate for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>.
+However, this approach says nothing about our confidence in this
+estimate. Also, we cannot incorporate any prior knowledge we may
+have.<br />
+<br />
+Bayesian approach treats parameters as random variables with its own
+distribution. We can encode our prior beliefs about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
+and then update those beliefs.<br />
+Treating each observation as Gaussian around
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>,
+the likelihood is:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mi>i</mi></msub><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">X_i \sim N(\mu, \sigma^2), \quad i = 1, 2, \ldots, n</annotation></semantics></math>
+Our prior Gaussian belief about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
+before seeing data:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>μ</mi><mo>∼</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>μ</mi><mn>0</mn></msub><mo>,</mo><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mu \sim p(\mu) = N(\mu_0, \sigma_0^2)</annotation></semantics></math>
+Here
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\mu_0</annotation></semantics></math>
+is our prior best guess for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_0^2</annotation></semantics></math>
+is our uncertainty about that guess.<br />
+Applying Bayes’ Rule,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo>∣</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>x</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>∝</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mi>i</mi></msub><mo>∣</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(\mu \mid x_1, \ldots, x_n) \propto \prod_{i=1}^n p(x_i \mid \mu)\, p(\mu)</annotation></semantics></math>
+This is the posterior, i.e. the update belief about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
+after
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+observations.<br />
+The posterior is also Gaussian. Its parameters are
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mo>=</mo><mfrac><mrow><msup><mi>σ</mi><mn>2</mn></msup><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mrow><mrow><mi>n</mi><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>x</mi><mi>i</mi></msub></mrow><msup><mi>σ</mi><mn>2</mn></msup></mfrac><mo>+</mo><mfrac><msub><mi>μ</mi><mn>0</mn></msub><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow></menclose><annotation encoding="application/x-tex">\boxed{\hat{\mu}_n = \frac{\sigma^2 \sigma_0^2}{n\sigma_0^2 + \sigma^2}\left(\frac{\sum_{i=1}^n x_i}{\sigma^2} + \frac{\mu_0}{\sigma_0^2}\right)}</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mi>n</mi><mn>2</mn></msubsup><mo>=</mo><mfrac><mrow><msup><mi>σ</mi><mn>2</mn></msup><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mrow><mrow><mi>n</mi><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac></mrow></menclose><annotation encoding="application/x-tex">\boxed{\hat{\sigma}_n^2 = \frac{\sigma^2 \sigma_0^2}{n\sigma_0^2 + \sigma^2}}</annotation></semantics></math>
+The posterior mean can be rewritten as
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mo>=</mo><mfrac><mrow><mi>n</mi><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mrow><mrow><mi>n</mi><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><mover><mi>x</mi><mo accent="true">‾</mo></mover><mo>+</mo><mfrac><msup><mi>σ</mi><mn>2</mn></msup><mrow><mi>n</mi><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><msub><mi>μ</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\hat{\mu}_n = \frac{n\sigma_0^2}{n\sigma_0^2 + \sigma^2}\bar{x} + \frac{\sigma^2}{n\sigma_0^2 + \sigma^2}\mu_0</annotation></semantics></math>
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>x</mi><mo accent="true">‾</mo></mover><mo>=</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><mi mathvariant="normal">Σ</mi><msub><mi>x</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\bar{x} = \frac{1}{n}\Sigma x_i</annotation></semantics></math>
+is the MLE estimate. Note that this is just the weighted average of the
+MLE estimate and the prior mean. The weights depend on the relative
+uncertainty.<br />
+If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_0^2</annotation></semantics></math>
+is large, there is more weight on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>x</mi><mo accent="true">‾</mo></mover><annotation encoding="application/x-tex">\bar{x}</annotation></semantics></math>.
+If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>
+is large, more weight on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\mu_0</annotation></semantics></math>.
+As
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>→</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">n\to\infty</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mo>→</mo><mover><mi>x</mi><mo accent="true">‾</mo></mover></mrow><annotation encoding="application/x-tex">\hat{\mu}_n \to \bar{x}</annotation></semantics></math>.<br />
+The posterior variance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mi>n</mi><mn>2</mn></msubsup><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\hat{\sigma}^2_n \to 0</annotation></semantics></math>
+as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>→</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">n \to \infty</annotation></semantics></math>.
+Compared to MLE, where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mi>n</mi><mn>2</mn></msubsup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\hat{\sigma}^2_n = 0</annotation></semantics></math>
+always.</p>
+<h3 data-number="10.1.4" id="regression"><span
+class="header-section-number">10.1.4</span> Regression</h3>
+<p>Recall that Least Squares Method (LSM) finds a linear function of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+that best predicts
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>,
+given
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+data points, each consisting of input
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>i</mi></msub><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>d</mi></msup></mrow><annotation encoding="application/x-tex">x_i \in \mathbb{R}^d</annotation></semantics></math>
+and output
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>∈</mo><mi mathvariant="double-struck">ℝ</mi></mrow><annotation encoding="application/x-tex">y_i \in \mathbb{R}</annotation></semantics></math>.<br />
+Organising the inputs and outputs:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝒚</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>y</mi><mi>n</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mi>⊤</mi></msup><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{y} = (y_1, \ldots, y_n)^\top \in \mathbb{R}^n</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>x</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mrow><mi>d</mi><mo>×</mo><mi>n</mi></mrow></msup></mrow><annotation encoding="application/x-tex">\mathbf{X}^\top = (x_1, \ldots, x_n) \in \mathbb{R}^{d \times n}</annotation></semantics></math>
+We want a weight vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝒘</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>d</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{w} \in \mathbb{R}^d</annotation></semantics></math>
+such that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="bold-italic">𝑿</mi><mi mathvariant="bold-italic">𝒘</mi></mrow><mo>≈</mo><mi mathvariant="bold-italic">𝒚</mi></mrow><annotation encoding="application/x-tex">\mathbf{Xw} \approx \mathbf{y}</annotation></semantics></math>.<br />
+LSM finds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒘</mi><annotation encoding="application/x-tex">\mathbf{w}</annotation></semantics></math>
+by minimising the total squared error:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>w</mi><mo accent="true">̂</mo></mover><mo>=</mo><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><munder><mi mathvariant="normal">min</mi><mrow><mi>w</mi><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>d</mi></msup></mrow></munder><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝒚</mi><mo>−</mo><mi mathvariant="bold-italic">𝑿</mi><mi>w</mi><msup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\hat{w} = \arg\min_{w \in \mathbb{R}^d} \|\mathbf{y} - \mathbf{X}w\|^2</annotation></semantics></math>
+By differentiating and setting to zero, we get
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><mover><mi>w</mi><mo accent="true">̂</mo></mover><mo>=</mo><msup><mover><mi mathvariant="normal">Σ</mi><mo accent="true">̂</mo></mover><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝒚</mi></mrow></menclose><annotation encoding="application/x-tex">\boxed{\hat{w} = \hat{\Sigma}^{-1}\mathbf{X}^\top\mathbf{y}}</annotation></semantics></math>
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi mathvariant="normal">Σ</mi><mo accent="true">̂</mo></mover><mo>=</mo><msup><mi mathvariant="bold-italic">𝑿</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝑿</mi></mrow><annotation encoding="application/x-tex">\hat{\Sigma} = \mathbf{X}^T\mathbf{X}</annotation></semantics></math>
+and assuming it is invertible. This is the normal equation, the
+closed-form solution to least squares.<br />
+If we use MLE by supposing the true relationship between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+is linear and corrupted by Gaussian noise,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><msup><mi>w</mi><mrow><mi>*</mi><mi>⊤</mi></mrow></msup><mi>x</mi><mo>+</mo><mi>ε</mi><mo>,</mo><mspace width="1.0em"></mspace><mi>ε</mi><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y = w^{*\top}x + \varepsilon, \quad \varepsilon \sim N(0, \sigma^2 I)</annotation></semantics></math>
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>w</mi><mo>*</mo></msup><mo>∈</mo><msup><mi mathvariant="double-struck">ℝ</mi><mi>d</mi></msup></mrow><annotation encoding="application/x-tex">w^* \in \mathbb{R}^d</annotation></semantics></math>
+is the true unknown weight vector.<br />
+The output
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+is Gaussian:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>∣</mo><mi>w</mi><mo>,</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>w</mi><mi>⊤</mi></msup><mi>x</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mi>I</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(y \mid w, x) = N(w^\top x, \sigma^2 I)(y)</annotation></semantics></math>
+By MLE we will also get
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>w</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">MLE</mtext></msub><mo>=</mo><msup><mover><mi mathvariant="normal">Σ</mi><mo accent="true">̂</mo></mover><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝒚</mi></mrow><annotation encoding="application/x-tex">\hat{w}_{\text{MLE}} = \hat{\Sigma}^{-1}\mathbf{X}^\top\mathbf{y}</annotation></semantics></math>
+The implication is that LSM has the same limitation as MLE. It just
+gives a single estimate without the uncertainty about the prediction. It
+also doesn’t incorporate prior beliefs. This leads into Bayesian Linear
+Regression which address these gaps.</p>
+<h2 data-number="10.2" id="bayesian-linear-regression"><span
+class="header-section-number">10.2</span> Bayesian Linear
+Regression</h2>
+<h3 data-number="10.2.1" id="d-case"><span
+class="header-section-number">10.2.1</span> 1-D case</h3>
+<p>Applying Bayesian inference to the regression setting. Start with 1-D
+inputs,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>i</mi></msub><mo>∈</mo><mi mathvariant="double-struck">ℝ</mi></mrow><annotation encoding="application/x-tex">x_i\in\mathbb{R}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo>∈</mo><mi mathvariant="double-struck">ℝ</mi></mrow><annotation encoding="application/x-tex">w\in\mathbb{R}</annotation></semantics></math>.<br />
+<strong>Likelihood</strong>: Each output is Gaussian around
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><msub><mi>x</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">wx_i</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>∼</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>∣</mo><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mi>w</mi><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">y_i \sim p(y_i \mid x_i, w) = N(wx_i, \sigma^2), \quad i = 1, 2, \ldots, n</annotation></semantics></math>
+<strong>Prior</strong>: Treat
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+as a random variable with a Gaussian prior:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo>∼</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w \sim p(w) = N(0, \sigma_0^2)</annotation></semantics></math>
+The prior is centered at 0, encoding a belief that weights are
+small.<br />
+<strong>The posterior</strong>: By Bayes’ Rule,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo>∣</mo><mi mathvariant="bold-italic">𝒚</mi><mo stretchy="false" form="postfix">)</mo><mo>∝</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒚</mi><mo>∣</mo><mi>w</mi><mo>,</mo><mi mathvariant="bold-italic">𝑿</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mi>p</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>∣</mo><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(w \mid \mathbf{y}) \propto p(\mathbf{y} \mid w, \mathbf{X})\, p(w) = \prod_{i=1}^n p(y_i \mid x_i, w)\, p(w)</annotation></semantics></math>
+The result is that the posterior is Gaussian with
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mo>+</mo><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝑿</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝒚</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msup><mi>σ</mi><mn>2</mn></msup><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mi>I</mi><mo>+</mo><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝑿</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝒚</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align*}
+    \hat{\mu}_n &amp;= \frac{1}{\sigma^2}\left(\frac{1}{\sigma_0^2} + \frac{1}{\sigma^2}\mathbf{X}^\top\mathbf{X}\right)^{-1}\mathbf{X}^\top\mathbf{y}\\
+    &amp;= \left(\frac{\sigma^2}{\sigma_0^2}I + \mathbf{X}^\top\mathbf{X}\right)^{-1}\mathbf{X}^\top\mathbf{y}
+\end{align*}</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mi>n</mi><mn>2</mn></msubsup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mo>+</mo><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝑿</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\hat{\sigma}_n^2 = \left(\frac{1}{\sigma_0^2} + \frac{1}{\sigma^2}\mathbf{X}^\top\mathbf{X}\right)^{-1}</annotation></semantics></math>
+Comparing with ridge regression which solves
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">arg</mi><mo>&#8289;</mo></mrow><msub><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mi>w</mi></msub><mo stretchy="false" form="postfix">∥</mo><mi mathvariant="bold-italic">𝒚</mi><mo>−</mo><mi mathvariant="bold-italic">𝑿</mi><mi>w</mi><msup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msup><mo>+</mo><mi>λ</mi><mo stretchy="false" form="postfix">∥</mo><mi>w</mi><msup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\arg \min_w \|\mathbf{y} - \mathbf{X}w\|^2 + \lambda \|w\|^2</annotation></semantics></math>,
+giving:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>w</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">ridge</mtext></msub><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>λ</mi><mi>I</mi><mo>+</mo><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝑿</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝒚</mi></mrow><annotation encoding="application/x-tex">\hat{w}_{\text{ridge}} = \left(\lambda I + \mathbf{X}^\top\mathbf{X}\right)^{-1}\mathbf{X}^\top\mathbf{y}</annotation></semantics></math>
+Note that they are identical with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mo>=</mo><mfrac><msup><mi>σ</mi><mn>2</mn></msup><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac></mrow><annotation encoding="application/x-tex">\lambda = \frac{\sigma^2}{\sigma^2_0}</annotation></semantics></math>.
+So the Gaussion prior
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="script">𝒩</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\mathcal{N}(0,\sigma_0^2)</annotation></semantics></math>
+is mathematically equivalent to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>L</mi><mn>2</mn></msub><annotation encoding="application/x-tex">L_2</annotation></semantics></math>
+regularisation.</p>
+<ul>
+<li><p>Large
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>
+(noisy data): Large
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>,
+pulls
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+towards 0.</p></li>
+<li><p>Small
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup><annotation encoding="application/x-tex">\sigma_0^2</annotation></semantics></math>
+(strong prior): large
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>λ</mi><annotation encoding="application/x-tex">\lambda</annotation></semantics></math>.</p></li>
+<li><p>Large
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi mathvariant="bold-italic">𝑿</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝑿</mi><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><msub><mi>x</mi><mi>i</mi></msub><msubsup><mi>x</mi><mi>i</mi><mi>⊤</mi></msubsup></mrow><annotation encoding="application/x-tex">\mathbf{X}^T\mathbf{X} = \sum_{i=1}^n x_i x_i^\top</annotation></semantics></math>
+dominates,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>λ</mi><mi>I</mi></mrow><annotation encoding="application/x-tex">\lambda I</annotation></semantics></math>
+negligible, prior fades away.</p></li>
+</ul>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mi>n</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\hat{\sigma}^2_n</annotation></semantics></math>
+represents the remaining uncertainty about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+after the observations. It shrinks as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+increases.<br />
+Also, as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup><mo>→</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">\sigma_0^2 \to \infty</annotation></semantics></math>
+(no prior conviction),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><msup><mi>σ</mi><mn>2</mn></msup><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\frac{\sigma^2}{\sigma_0^2} \to 0</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mo>→</mo><msub><mover><mi>w</mi><mo accent="true">̂</mo></mover><mtext mathvariant="normal">LSM</mtext></msub></mrow><annotation encoding="application/x-tex">\hat{\mu}_n \to \hat{w}_{\text{LSM}}</annotation></semantics></math>.
+Hence LSM is just a special case of Bayesian regression with an
+infintely weak prior.</p>
+<h3 data-number="10.2.2" id="derivation"><span
+class="header-section-number">10.2.2</span> Derivation</h3>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="prefix">|</mo><mi mathvariant="bold-italic">𝒚</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>∝</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒚</mi><mo stretchy="false" form="prefix">|</mo><mi mathvariant="bold-italic">𝑿</mi><mo>,</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>∝</mo><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mfrac><mn>1</mn><mrow><mn>2</mn><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mrow></mfrac><msup><mi>w</mi><mn>2</mn></msup><mo>−</mo><mfrac><mn>1</mn><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>−</mo><mi>w</mi><msub><mi>x</mi><mi>i</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>∝</mo><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>S</mi><mi>n</mi></msub><msup><mi>w</mi><mn>2</mn></msup><mo>+</mo><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>x</mi><mi>i</mi></msub><msub><mi>y</mi><mi>i</mi></msub><mi>w</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>S</mi><mi>n</mi></msub><mo>=</mo><mfrac><mn>1</mn><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mo>+</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msubsup><mi>x</mi><mi>i</mi><mn>2</mn></msubsup></mrow><msup><mi>σ</mi><mn>2</mn></msup></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>∝</mo><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>−</mi><mfrac><mn>1</mn><mn>2</mn></mfrac><msub><mi>S</mi><mi>n</mi></msub><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>w</mi><mo>−</mo><mfrac><msubsup><mi>S</mi><mi>n</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><msup><mi>σ</mi><mn>2</mn></msup></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>x</mi><mi>i</mi></msub><msub><mi>y</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mspace width="2.0em"></mspace><mtext mathvariant="normal">(completing the square)</mtext></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>∝</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mo>,</mo><msub><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align*}
+p(w|\mathbf{y}) &amp;\propto p(w)p(\mathbf{y}|\mathbf{X}, w) \\
+&amp;\propto \exp\left(-\frac{1}{2\sigma_0^2}w^2 - \frac{1}{2\sigma^2}\sum_{i=1}^n(y_i - wx_i)^2\right) \\
+&amp;\propto \exp\left(-\frac{1}{2}S_n w^2 + \frac{1}{\sigma^2}\sum_{i=1}^n x_i y_i w\right), 
+\qquad S_n = \frac{1}{\sigma_0^2} + \frac{\sum_{i=1}^n x_i^2}{\sigma^2} \\
+&amp;\propto \exp\left(-\frac{1}{2}S_n\left(w - \frac{S_n^{-1}}{\sigma^2}\sum_{i=1}^n x_i y_i\right)^2\right) 
+\qquad \text{(completing the square)} \\
+&amp;\propto N(\hat{\mu}_n, \hat{\sigma}_n)
+\end{align*}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>S</mi><mi>n</mi></msub><annotation encoding="application/x-tex">S_n</annotation></semantics></math>
+collects the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>w</mi><mn>2</mn></msup><annotation encoding="application/x-tex">w^2</annotation></semantics></math>
+coefficients from both the prior and likelihood:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>n</mi></msub><mo>=</mo><mfrac><mn>1</mn><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mo>+</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msubsup><mi>x</mi><mi>i</mi><mn>2</mn></msubsup></mrow><msup><mi>σ</mi><mn>2</mn></msup></mfrac><mo>=</mo><mfrac><mn>1</mn><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mo>+</mo><mfrac><mrow><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝑿</mi></mrow><msup><mi>σ</mi><mn>2</mn></msup></mfrac></mrow><annotation encoding="application/x-tex">S_n = \frac{1}{\sigma_0^2} + \frac{\sum_{i=1}^n x_i^2}{\sigma^2} = \frac{1}{\sigma_0^2} + \frac{\mathbf{X}^\top\mathbf{X}}{\sigma^2}</annotation></semantics></math>
+Since a Gaussian has the form
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">exp</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mfrac><mn>1</mn><mrow><mn>2</mn><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mi>n</mi><mn>2</mn></msubsup></mrow></mfrac><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo>−</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\exp (-\frac{1}{2\hat{\sigma}_n^2}(w - \hat{\mu}_n)^2)</annotation></semantics></math>,
+by matching
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>n</mi></msub><mo>=</mo><mfrac><mn>1</mn><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mi>n</mi><mn>2</mn></msubsup></mfrac></mrow><annotation encoding="application/x-tex">S_n = \frac{1}{\hat{\sigma}_n^2}</annotation></semantics></math>
+and reading off
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><annotation encoding="application/x-tex">\hat{\mu}_n</annotation></semantics></math>,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mo>=</mo><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mo>+</mo><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝑿</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝒚</mi><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msup><mi>σ</mi><mn>2</mn></msup><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mi>I</mi><mo>+</mo><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝑿</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝒚</mi></mrow><annotation encoding="application/x-tex">\hat{\mu}_n = \frac{1}{\sigma^2}\left(\frac{1}{\sigma_0^2} + \frac{1}{\sigma^2}\mathbf{X}^\top\mathbf{X}\right)^{-1}\mathbf{X}^\top\mathbf{y} = \left(\frac{\sigma^2}{\sigma_0^2}I + \mathbf{X}^\top\mathbf{X}\right)^{-1}\mathbf{X}^\top\mathbf{y}</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mi>n</mi><mn>2</mn></msubsup><mo>=</mo><msubsup><mi>S</mi><mi>n</mi><mrow><mi>−</mi><mn>1</mn></mrow></msubsup><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mo>+</mo><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝑿</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\hat{\sigma}_n^2 = S_n^{-1} = \left(\frac{1}{\sigma_0^2} + \frac{1}{\sigma^2}\mathbf{X}^\top\mathbf{X}\right)^{-1}</annotation></semantics></math></p>
+<h3 data-number="10.2.3" id="d-dimension-case"><span
+class="header-section-number">10.2.3</span>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>-dimension
+case</h3>
+<p>For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+dimensions, scalars just become vectors and scalars.<br />
+The likelihood and prior become:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>w</mi><mi>⊤</mi></msup><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mi>I</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><mi>w</mi><mo>∼</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn mathvariant="bold">𝟎</mn><mo>,</mo><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y_i \sim N(w^\top x_i, \sigma^2 I), \quad w \sim N(\mathbf{0}, \sigma_0^2 I)</annotation></semantics></math>
+The posterior is a multivariate Gaussian.
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mo>=</mo><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mi>I</mi><mo>+</mo><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝑿</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝒚</mi></mrow><annotation encoding="application/x-tex">\hat{\mu}_n = \frac{1}{\sigma^2}\left(\frac{1}{\sigma_0^2}I + \frac{1}{\sigma^2}\mathbf{X}^\top\mathbf{X}\right)^{-1}\mathbf{X}^\top\mathbf{y}</annotation></semantics></math>
+The variance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mover><mi>σ</mi><mo accent="true">̂</mo></mover><mi>n</mi><mn>2</mn></msubsup><annotation encoding="application/x-tex">\hat{\sigma}_n^2</annotation></semantics></math>
+becomes a covariance matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi mathvariant="normal">Σ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><annotation encoding="application/x-tex">\hat{\Sigma}_n</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi mathvariant="normal">Σ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mo>=</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mn>1</mn><msubsup><mi>σ</mi><mn>0</mn><mn>2</mn></msubsup></mfrac><mi>I</mi><mo>+</mo><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><msup><mi mathvariant="bold-italic">𝑿</mi><mi>⊤</mi></msup><mi mathvariant="bold-italic">𝑿</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\hat{\Sigma}_n = \left(\frac{1}{\sigma_0^2}I + \frac{1}{\sigma^2}\mathbf{X}^\top\mathbf{X}\right)^{-1}</annotation></semantics></math>
+Again, as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>→</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">n \to \infty</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><msup><mi>σ</mi><mn>2</mn></msup></mfrac><msup><mi mathvariant="bold-italic">𝑿</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝑿</mi></mrow><annotation encoding="application/x-tex">\frac{1}{\sigma^2}\mathbf{X}^T \mathbf{X}</annotation></semantics></math>
+dominates and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi mathvariant="normal">Σ</mi><mo accent="true">̂</mo></mover><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\hat{\Sigma} \to 0</annotation></semantics></math>.
+The uncertainty drops with more data.</p>
+<h2 data-number="10.3" id="predictive-distribution"><span
+class="header-section-number">10.3</span> Predictive Distribution</h2>
+<p>So far Bayesian Linear Regression gives the posterior distribution
+over weights
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="prefix">|</mo><mi mathvariant="bold-italic">𝒚</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(w | \mathbf{y})</annotation></semantics></math>.
+But we want to make predictions for new inputs.<br />
+Given a new input
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>,
+we want to know the distribution of its output
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>.
+This is the predictive distribution
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi mathvariant="bold-italic">𝒚</mi><mo>,</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(y | \mathbf{y}, x)</annotation></semantics></math>
+(probability of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+given all the training data).<br />
+<br />
+Here
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+is a distribution, so every plausible value of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+gives a different prediction for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>.
+We need to average over all of them, weighted by how probable each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+is:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>∣</mo><mi mathvariant="bold-italic">𝒚</mi><mo>,</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo>∫</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>∣</mo><mi>w</mi><mo>,</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo>∣</mo><mi mathvariant="bold-italic">𝒚</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>d</mi><mi>w</mi></mrow><annotation encoding="application/x-tex">p(y \mid \mathbf{y}, x) = \int p(y \mid w, x)\, p(w \mid \mathbf{y})\, dw</annotation></semantics></math>
+This is also called marginalising out
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>.<br />
+Since both
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="prefix">|</mo><mi>w</mi><mo>,</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="script">𝒩</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>w</mi><mi>⊤</mi></msup><mi>x</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(y | w,x) = \mathcal{N}(w^\top x, \sigma^2)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo stretchy="false" form="prefix">|</mo><mi mathvariant="bold-italic">𝒚</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="script">𝒩</mi><mo stretchy="false" form="prefix">(</mo><msub><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mo>,</mo><msub><mover><mi mathvariant="normal">Σ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">p(w | \mathbf{y}) = \mathcal{N}(\hat{\mu}_n, \hat{\Sigma}_n)</annotation></semantics></math>
+are Gaussian, the result is Gaussian and can be computed as:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>∣</mo><mi mathvariant="bold-italic">𝒚</mi><mo>,</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>N</mi><mo stretchy="false" form="prefix">(</mo><msubsup><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi><mi>⊤</mi></msubsup><mi>x</mi><mo>,</mo><mspace width="0.222em"></mspace><msup><mi>σ</mi><mn>2</mn></msup><mo>+</mo><msup><mi>x</mi><mi>⊤</mi></msup><msub><mover><mi mathvariant="normal">Σ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow></menclose><annotation encoding="application/x-tex">\boxed{p(y \mid \mathbf{y}, x) = N(\hat{\mu}_n^\top x,\ \sigma^2 + x^\top \hat{\Sigma}_n x)}</annotation></semantics></math></p>
+<ul>
+<li><p>Predictive mean
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mover><mi>μ</mi><mo accent="true">̂</mo></mover><mi>n</mi><mi>⊤</mi></msubsup><mi>x</mi></mrow><annotation encoding="application/x-tex">\hat{\mu}^\top_n x</annotation></semantics></math>:
+This is simply the posterior mean weights applied to the new input - the
+same as what LSM would give using
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mover><mi>w</mi><mo accent="true">̂</mo></mover><mi>⊤</mi></msup><mi>x</mi></mrow><annotation encoding="application/x-tex">\hat{w}^\top x</annotation></semantics></math>.
+The best single prediction is unchanged.</p></li>
+<li><p>Predictive variance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>σ</mi><mn>2</mn></msup><mo>+</mo><msup><mi>x</mi><mi>⊤</mi></msup><msub><mover><mi mathvariant="normal">Σ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mi>x</mi></mrow><annotation encoding="application/x-tex">\sigma^2 + x^\top \hat{\Sigma}_n x</annotation></semantics></math>:</p>
+<ul>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>
+is the irreducible noise. Even if we knew
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+exactly, there is inherent randomness in the data generating process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><msup><mi>w</mi><mi>⊤</mi></msup><mi>x</mi><mo>+</mo><mi>ϵ</mi></mrow><annotation encoding="application/x-tex">y = w^\top x + \epsilon</annotation></semantics></math>.</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mi>⊤</mi></msup><msub><mover><mi mathvariant="normal">Σ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><mi>x</mi></mrow><annotation encoding="application/x-tex">x^\top \hat{\Sigma}_n x</annotation></semantics></math>
+is the model uncertainty. This reflects our uncertainty about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+itself, projected onto the new input
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>.
+It depends on where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+sits relative to the training data. If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+is far from any training point,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi mathvariant="normal">Σ</mi><mo accent="true">̂</mo></mover><mi>n</mi></msub><annotation encoding="application/x-tex">\hat{\Sigma}_n</annotation></semantics></math>
+is large in that direction and this term is large.</p></li>
+</ul></li>
+</ul>
+<h3 data-number="10.3.1" id="basis-functions"><span
+class="header-section-number">10.3.1</span> Basis Functions</h3>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+can be replaced by basis functions
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\phi(x)</annotation></semantics></math>.
+First transform the raw input:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>↦</mo><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>ϕ</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><msub><mi>ϕ</mi><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>ϕ</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><msup><mo stretchy="false" form="postfix">)</mo><mi>⊤</mi></msup></mrow><annotation encoding="application/x-tex">x \mapsto \phi(x) = (\phi_1(x), \phi_2(x), \ldots, \phi_k(x))^\top</annotation></semantics></math>
+Then the model is still linear in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\phi(x)</annotation></semantics></math>
+but can still capture nonlinear relationships in the original
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>.</p>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../chapters/9-linearlogregression.html">← Linear
+&amp; Logistic Regression</a>
+  <a class="next-page" href="../chapters/11-statisticalml.html">Statistical
+Machine Learning →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+# Eigenvectors/values
+
+## Definitions
+
+Eigenvalues and eigenvector apply only to square matrices.
+
+#### Eigenvector
+
+An eigenvector of an $`n \times n`$ matrix $`A`$ is a nonzero vector $`\mathbf{x}`$ such that the equation
+``` math
+A\mathbf{x}=\lambda \mathbf{x}
+```
+holds true for some scalar $`\lambda`$, called the **eigenvalue**.\
+By definition, an eigenvector must be nonzero to avoid the trivial and unimportant case where $`A\mathbf{0}=\lambda\mathbf{0}`$, which is always true for any matrix and scalar.\
+The valid vector $`\mathbf{x}`$ is referred to as the eigenvector corresponding to that specific $`\lambda`$.\
+Geoemetrically, when an eigenvector is multiplied by matrix $`A`$, its direction remains completely unchanged. It can be stretched or compressed.
+
+## Eigenvalue can be 0
+
+If $`\lambda = 0`$, the core equation becomes $`A\mathbf{x} = 0\mathbf{x}`$, which simplifies to $`A\mathbf{x} = \mathbf{0}`$.\
+Because eigenvectors must be nonzero, this means $`A\mathbf{x} = \mathbf{0}`$ has a nontrivial solution.\
+Therefore, an $`n \times n`$ matrix $`A`$ having an eigenvalue of 0 means $`A`$ is not invertible.\
+\
+Geometrically, there is at least one non-zero direction in space (the eigenvector) that gets completely crushed down to the origin during the transformation. So the matrix $`A`$ represents transformation that crushes space and loses a dimension.\
+An invertible matrix represents a transformation that can be perfectly reversed or undone. For matrix with eigenvalue of 0, we cannot reverse the operation of crushing the eigenvectors down to $`\mathbf{0}`$, because the unique starting points are lost. Hence it ties in with matrix being singular.\
+\
+The eigenspace for an eigenvalue of $`0`$ is the same thing as the null space of the matrix.
+
+## Finding eigenvectors from known eigenvalue
+
+Solving for nontrivial $`\mathbf{x}`$ to $`A\mathbf{x} = \lambda\mathbf{x}`$, rewrite it as
+``` math
+(A-\lambda I)\mathbf{x}=\mathbf{0}
+```
+The set of all possible solutions to $`(A-\lambda I)\mathbf{x}=\mathbf{0}`$ forms the null space of the matrix $`(A-\lambda I)`$. This set is a subspace of $`\mathbb{R}^n`$ and is formally called the eigenspace of $`A`$ corresponding to $`\lambda`$. The eigenspace contains the zero vector and all the eigenvectors tied to that specific eigenvalue.
+
+#### Example
+
+Given a $`3 \times 3`$ matrix $`A = \begin{bmatrix}4 & -1 & 6 \\ 2 & 1 & 6 \\ 2 & -1 & 8\end{bmatrix}`$ with an eigenvalue of $`\lambda=2`$,
+``` math
+A - 2I = \begin{bmatrix} 4-2 & -1 & 6 \\ 2 & 1-2 & 6 \\ 2 & -1 & 8-2 \end{bmatrix} = \begin{bmatrix} 2 & -1 & 6 \\ 2 & -1 & 6 \\ 2 & -1 & 6 \end{bmatrix}
+```
+``` math
+\left[ \begin{array}{ccc|c} 2 & -1 & 6 & 0 \\ 2 & -1 & 6 & 0 \\ 2 & -1 & 6 & 0 \end{array} \right] \sim \left[ \begin{array}{ccc|c} 2 & -1 & 6 & 0 \\ 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 \end{array} \right]
+```
+``` math
+2x_1 - x_2 + 6x_3 = 0 \implies x_1 = \frac{1}{2}x_2 - 3x_3
+```
+Hence the general solution for the eigenvector $`\mathbf{x}`$ is:
+``` math
+\mathbf{x} = \begin{bmatrix} x_1 \ x_2 \\ x_3 \end{bmatrix} = \begin{bmatrix} \frac{1}{2}x_2 - 3x_3 \\ x_2 \\ x_3 \end{bmatrix} = x_2 \begin{bmatrix} 1/2 \\ 1 \\ 0 \end{bmatrix} + x_3 \begin{bmatrix} -3 \\ 0 \\ 1 \end{bmatrix}
+```
+The eigenspace is a two-dimensional subspace (a plane) of $`\mathbb{R}^3`$. A basis is
+``` math
+\left\{\begin{bmatrix} 1/2 \\ 1 \\ 0 \end{bmatrix}, \quad \begin{bmatrix} -3 \\ 0 \\ 1 \end{bmatrix}\right\}
+```
+
+## Finding eigenvalues
+
+We have the foundational equation
+``` math
+A\mathbf{x} = \lambda\mathbf{x}
+```
+And we want a nontrivial solution $`\mathbf{x}`$ to
+``` math
+(A - \lambda I)\mathbf{x} = \mathbf{0}
+```
+By Invertible Matrix Theorem, the matrix equation has nontrivial solutions only if
+``` math
+\det(A - \lambda I) = 0
+```
+We can then derive the characteristic polynomial where the only unknown is $`\lambda`$. The roots of this polynomial are the eigenvalues.
+
+#### Example
+
+Find eigenvalues for matrix $`A = \begin{bmatrix} 2 & 3 \\ 3 & -6 \end{bmatrix}`$.\
+``` math
+A - \lambda I = \begin{bmatrix} 2-\lambda & 3 \\ 3 & -6-\lambda \end{bmatrix}
+```
+For $`2\times 2`$ matrix, determinant is $`ad-bc`$.
+``` math
+\begin{align*}
+    \det(A - \lambda I) &= (2-\lambda)(-6-\lambda) - (3)(3)\\
+    &= \lambda^2 + 4\lambda - 21\\
+    &= (\lambda - 3)(\lambda + 7)
+\end{align*}
+```
+Setting the characteristic polynomial to zero, we get the eigenvalues $`\lambda = 3`$ and $`\lambda = -7`$.
+
+### Special case - triangular matrices
+
+The eigenvalues of a triangular matrix (upper, lower or pure diagonal) are simply the entries on its main diagonal.\
+**Example** For lower triangular matrix,
+``` math
+B = \begin{bmatrix} \mathbf{2} & 0 & 0 \\ 4 & \mathbf{2} & 0 \\ -1 & 6 & \mathbf{9} \end{bmatrix}
+```
+The eigenvalues are $`\lambda_1 = 2`$ and $`\lambda_2 = 9`$.\
+*Proof*
+``` math
+\det \begin{bmatrix} 2-\lambda & 0 & 0 \\ 4 & 2-\lambda & 0 \\ -1 & 6 & 9-\lambda \end{bmatrix} = (2-\lambda)^2\:(9-\lambda) = 0
+```
+Note that $`\lambda = 2`$ has an algebraic multiplicity of 2. To find the actual number of independent eigenvectors (geometric multiplicity), you would still need to row reduce $`(B - 2I)\mathbf{x} = \mathbf{0}`$.\
+\
+**Example** For pure diagonal matrix,
+``` math
+C = \begin{bmatrix} \mathbf{4} & 0 \\ 0 & \mathbf{-1} \end{bmatrix}
+```
+The eigenvalues are $`\lambda_1 = 4`$ and $`\lambda_2 = -1`$.\
+In addition for pure diagonal matrices, the standard basis vectors are automatically their eigenvectors.\
+For $`\lambda = 4`$, the eigenvector is $`\mathbf{v_1} = \begin{bmatrix} 1 \\ 0 \end{bmatrix}`$ and For $`\lambda = -1`$, the eigenvector is $`\mathbf{v_2} = \begin{bmatrix} 0 \\ 1 \end{bmatrix}`$.
+
+## Diagonalisation
+
+Two $`n \times n`$ matrices $`A`$ and $`B`$ are similar if there exists some invertible matrix $`P`$ such that $`B = P^{-1}AP`$.\
+Similar matrices represent the same linear transformation, just viewed from different coordinate systems (bases).\
+Importantly, similar matrices share the same
+
+1.  Determinant
+
+2.  Invertibility
+
+3.  Rank (dimension of column space)
+
+4.  Nullity (dimension of null space)
+
+5.  Trace
+
+6.  Characteristic polynomial
+
+7.  Eigenvalues
+
+8.  Eigenspace dimension. The eigenspace of $`A`$ corresponding to $`\lambda`$ and the eigenspace of $`P^{-1}AP`$ corresponding to $`\lambda`$ have the same dimension.
+
+In the context of eigenvectors, we want to find a $`P`$ that transforms $`A`$ into a diagonal matrix $`D`$ (all non-zero elements are on the main diagonal).\
+Why diagonalise?
+
+1.  Eigenvalues of $`D`$ = the diagonal elements = Eigenvalues of $`A`$ (by similarity).
+
+2.  $`\det(D)`$ = product of diagonal entries.
+
+3.  Rank of $`D`$ = number of non-zero entries on the main diagonal.
+
+4.  Easy multiplication:
+
+    1.  $`DA`$: rows of $`A`$ are multiplied by diagonal elements of $`D`$.
+
+    2.  $`AD`$: columns of $`A`$ are multiplied by diagonal elements of $`D`$.
+
+5.  $`D^k`$ just raises each diagonal entry to $`k`$-th power.
+
+6.  Inverse of $`D`$ is reciprocal of diagonal elements, i.e. for $`A = \begin{bmatrix}a & 0 \\ 0 & b\end{bmatrix}`$, $`A^{-1} = \begin{bmatrix}\frac{1}{a} & 0 \\ 0 & \frac{1}{b}\end{bmatrix}`$.
+
+### Diagonalisation Theorem
+
+#### Theorem
+
+An $`n \times n`$ matrix $`A`$ is diagonalizable if and only if it has $`n`$ linearly independent eigenvectors $`\mathbf{v}`$. If it does, you have enough eigenvectors to form a complete basis for $`\mathbb{R}^n`$. $`A`$ can then be rewriten as $`A = PDP^{-1}`$.
+
+1.  $`P`$ is constructed using the $`n`$ linearly independent eigenvectors $`\mathbf{v}`$ as the columns of the matrix.
+
+2.  $`D`$ is the diagonal matrix built by placing the corresponding eigenvalues on the main diagonal.
+
+3.  The order matters. If $`\lambda_1`$ is in the first column of $`D`$, its corresponding eigenvector $`\mathbf{v}_1`$ must be the first column of $`P`$.
+
+### $`n`$ Distinct Eigenvalues - sufficient condition for diagonalisablility
+
+#### Theorem
+
+An $`n \times n`$ matrix $`A`$ with $`n`$ distinct eigenvalues is guaranteed to be diagonalizable.\
+This is because:\
+**Theorem** If $`\mathbf{v}_1,\ldots,\mathbf{v}_r`$ are eigenvectors that correspond to distinct eigenvalues $`\lambda_1,\ldots,\lambda_r`$ of an $`n\times n`$ matrix $`A`$, then the set $`\{\mathbf{v}_1,\ldots,\mathbf{v}_r\}`$ is linearly independent.\
+Therefore, $`n`$ unique eigenvalues gives $`n`$ linearly independent eigenvectors $`\mathbf{v}`$, fulfilling the condition for the diagonalisation theorem.\
+
+### Repeated eigenvalues - algebraic vs geometric multiplicity
+
+A matrix with repeated eigenvalues can still be diagonalisable.\
+First define terms:
+
+- Algebraic multiplicity: The number of times an eigenvalue $`\lambda_k`$ appears as a root in the characteristic equation.
+
+- Geometric multiplicity: The actual dimension of the eigenspace (i.e., the number of linearly independent eigenvectors $`\mathbf{v}`$) corresponding to some eigenvalue $`\lambda_k`$.\
+  It is calculated as the nullity of ($`A - \lambda_k I`$), or the number of free variables (columns with no pivots) after row reducing the augmented matrix of $`(A - \lambda_k I) \mathbf{v} = \mathbf{0}`$
+
+For any eigenvalue,
+``` math
+1 \leq \text{Geometric multiplicity} \leq \text{Algebraic multiplicity}
+```
+For a matrix to be diagonalisable, its geometric multiplicity must exactly equal its algebraic multiplicity for every single eigenvalue.
+
+#### Example - diagonalisable w/ repeated roots
+
+Given the matrix
+``` math
+A = \begin{bmatrix} 1 & 3 & 3 \\ -3 & -5 & -3 \\ 3 & 3 & 1 \end{bmatrix}
+```
+Skipping the mechanics of finding the determinant,
+``` math
+0 = \det(A - \lambda I) = -\lambda^3 - 3\lambda^2 + 4 = -(\lambda - 1)(\lambda + 2)^2
+```
+The eigenvalue -2 has multiplicity of 2.\
+For $`\lambda = 1`$: Solving $`(A - 1I)\mathbf{x} = \mathbf{0}`$ yields one basis vector: $`\mathbf{v_1} = \begin{bmatrix} 1 \\ -1 \\ 1 \end{bmatrix}`$.\
+For $`\lambda = -2`$: Solving $`(A - (-2)I)\mathbf{x} = \mathbf{0}`$ yields two free variables, which allows us to extract two linearly independent basis vectors: $`\mathbf{v_2} = \begin{bmatrix} -1 \\ 1 \\ 0 \end{bmatrix} \quad \text{and} \quad \mathbf{v_3} = \begin{bmatrix} -1 \\ 0 \\ 1 \end{bmatrix}`$.\
+So we get 3 indepedent eigenvectors, forming a basis for $`\mathbf{R}^3`$. $`A`$ is diagonalisable.\
+To diagonalise $`A`$,
+``` math
+P = \begin{bmatrix} \mathbf{v_1} & \mathbf{v_2} & \mathbf{v_3} \end{bmatrix} = \begin{bmatrix} 1 & -1 & -1 \\ -1 & 1 & 0 \\ 1 & 0 & 1 \end{bmatrix}
+```
+``` math
+D = \begin{bmatrix} 1 & 0 & 0 \\ 0 & -2 & 0 \\ 0 & 0 & -2 \end{bmatrix}
+```
+
+#### Example - Defective matrix
+
+Given the matrix
+``` math
+A = \begin{bmatrix} 2 & 4 & 3 \\ -4 & -6 & -3 \\ 3 & 3 & 1 \end{bmatrix}
+```
+Again skipping the mechanics, the characteristic equation is:
+``` math
+0 = \det(A - \lambda I) = -(\lambda - 1)(\lambda + 2)^2
+```
+For $`\lambda = 1`$: The basis yields one vector: $`\mathbf{v_1} = \begin{bmatrix} 1 \\ -1 \\ 1 \end{bmatrix}`$.\
+For $`\lambda = -2`$: When we solve $`(A - (-2)I)\mathbf{x} = \mathbf{0}`$ for this new matrix, row reduction only yields one free variable. This means the eigenspace is only one-dimensional, giving us a single basis vector: $`\mathbf{v_2} = \begin{bmatrix} -1 \\ 1 \\ 0 \end{bmatrix}`$.\
+Geometric multiplicity of $`\lambda = -2`$ is 1 $`\leq`$ its the algebraic multiplicity of 2.\
+Hence $`A`$ is not diagonalisable (also called a defective matrix).
+
+## Powers of $`A`$ - advantage of diagonal matrices
+
+For a diagonal matrix $`D`$ and any power $`k`$,
+``` math
+D^k = \begin{bmatrix} 5^k & 0 \\ 0 & 3^k \end{bmatrix}
+```
+We can derive that for a diagonalisable matrix $`A`$ and any power $`k \geq 1`$,
+``` math
+A^k = PD^kP^{-1}
+```
+
+#### Example
+
+Compute $`A^8`$ for the matrix $`A = \begin{bmatrix} 4 & -3 \\ 2 & -1 \end{bmatrix}`$.\
+Find eigenvalues:
+``` math
+\det(A - \lambda I) = \lambda^2 - 3\lambda + 2 = (\lambda - 2)(\lambda - 1) = 0
+```
+The eigenvalues are $`\lambda = 2`$ and $`\lambda = 1`$.\
+Then finding the null space for each $`\lambda`$, we get the basis vectors v$`_1 = \begin{bmatrix} 3 \\ 2 \end{bmatrix}`$ and v$`_2 = \begin{bmatrix} 1 \\ 1 \end{bmatrix}`$.\
+Constructing $`P`$ and $`D`$:
+``` math
+P = \begin{bmatrix} 3 & 1 \\ 2 & 1 \end{bmatrix}, \quad D = \begin{bmatrix} 2 & 0 \\ 0 & 1 \end{bmatrix}
+```
+Also,
+``` math
+P^{-1} = \begin{bmatrix} 1 & -1 \\ -2 & 3 \end{bmatrix}
+```
+So $`A^8 = PD^8P^{-1}`$. By simple matrix multiplication we get $`\begin{bmatrix} 766 & -765 \\ 510 & -509 \end{bmatrix}`$.
+
+## Linear transformation, Eigenbasis
+
+Applying a linear transformation to a vector $`\mathbf{x}`$ can be represented as
+``` math
+\mathbf{y} = A\mathbf{x}
+```
+The problem is that in the standard basis, the matrix $`A`$ is a "coupled" system. When you multiply $`A\mathbf{x}`$, the rows of $`A`$ mix the individual $`x_1`$, $`x_2`$, and $`x_n`$ components together. If you need to apply this transformation multiple times (like $`A^{100}`$), this coupled mixing requires an enormous amount of computational operations.\
+Instead, we can change the basis to the Eigenbasis, i.e. a basis for a vector space consisting entirely of eigenvectors of a linear transformation or matrix.\
+We use the fact that $`A = PDP^{-1}`$ to rewrite the linear transformation:
+``` math
+A\mathbf{x} = PDP^{-1}\mathbf{x}
+```
+
+1.  $`P^{-1}\mathbf{x}`$ (Change of basis). $`P^{-1}`$ is the inverse of the matrix containing the eigenvectors.\
+    This calculates $`[\mathbf{x}]_\mathcal{B}`$, which are the coordinates of the vector relative to the Eigenbasis. (Recall the change of basis formula $`\mathbf{x} = P_\mathcal{B}[\mathbf{x}]_\mathcal{B}`$).
+
+2.  $`D(P^{-1}\mathbf{x})`$ (Transformation). Mulitplying the new coordinates by $`D`$, the diagonal matrix of eigenvalues.\
+    Because the vector is now defined in terms of eigenvectors, this transformation is strictly a scaling operation. By definition, a transformation only scales eigenvectors by their eigenvalues ($`A\mathbf{v} = \lambda\mathbf{v}`$). The matrix $`D`$ executes this decoupled scaling by multipliying the first coordinate by $`\lambda_1`$, the second by $`\lambda_2`$ etc.
+
+3.  $`P(DP^{-1}\mathbf{x})`$ (Change back the basis). After the transformation, convert back to standard basis using $`P`$.
+
+Overall, performing linear algebra operations on a diagonal matrix is supposedly more efficient than operating on a dense, coupled matrix.

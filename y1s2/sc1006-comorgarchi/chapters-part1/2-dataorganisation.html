@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Data Organisation in Memory · SC1006 Computer Organisation and
+Architecture</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') {
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Data Organisation
+in Memory</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <p class="course-code">SC1006</p>
+  <p class="site-title">Computer Organisation and Architecture</p>
+  <h1 class="page-title">Data Organisation in Memory</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+            <li><a href="../chapters-part1/cheatsheet.html"
+                   data-nav="chapters-part1/cheatsheet.html">General
+Reference</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 1 · Foundations</h2>
+          <ul>
+            <li><a href="../chapters-part1/1-introduction.html"
+                   data-nav="chapters-part1/1-introduction.html">1.
+Introduction</a></li>
+            <li><a href="../chapters-part1/2-dataorganisation.html"
+                   data-nav="chapters-part1/2-dataorganisation.html">2.
+Data Organisation in Memory</a></li>
+            <li><a href="../chapters-part1/3-instructionorganisation.html"
+                   data-nav="chapters-part1/3-instructionorganisation.html">3.
+Instruction Organisation in Memory</a></li>
+            <li><a href="../chapters-part1/4-addressingmodes.html"
+                   data-nav="chapters-part1/4-addressingmodes.html">4.
+Addressing Modes</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 1 · ARM Programming</h2>
+          <ul>
+            <li><a href="../chapters-part1/5-instructionset.html"
+                   data-nav="chapters-part1/5-instructionset.html">5.
+Instruction Set</a></li>
+            <li><a href="../chapters-part1/6-modularprogramming.html"
+                   data-nav="chapters-part1/6-modularprogramming.html">6.
+Modular Programming</a></li>
+            <li><a href="../chapters-part1/7-flowcontrolconstructs.html"
+                   data-nav="chapters-part1/7-flowcontrolconstructs.html">7.
+Flow Control Constructs</a></li>
+            <li><a href="../chapters-part1/8-instructionencoding.html"
+                   data-nav="chapters-part1/8-instructionencoding.html">8.
+Instruction Encoding and ISA</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 2 · Arithmetic and Interfaces</h2>
+          <ul>
+            <li><a href="../chapters-part2/p2-1-arithmetic.html"
+                   data-nav="chapters-part2/p2-1-arithmetic.html">Computer
+Arithmetic</a></li>
+            <li><a href="../chapters-part2/p2-2-interfaces.html"
+                   data-nav="chapters-part2/p2-2-interfaces.html">Interfaces</a></li>
+            <li><a href="../chapters-part2/p2-3-peripherals.html"
+                   data-nav="chapters-part2/p2-3-peripherals.html">Peripherals</a></li>
+            <li><a href="../chapters-part2/p2-4-datatransfer.html"
+                   data-nav="chapters-part2/p2-4-datatransfer.html">Data
+Transfer Mechanisms</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 2 · Memory Systems</h2>
+          <ul>
+            <li><a href="../chapters-part2/p2-5-memory.html"
+                   data-nav="chapters-part2/p2-5-memory.html">Memory</a></li>
+            <li><a href="../chapters-part2/p2-6-cache.html"
+                   data-nav="chapters-part2/p2-6-cache.html">Cache</a></li>
+            <li><a href="../chapters-part2/p2-7-virtualmemory.html"
+                   data-nav="chapters-part2/p2-7-virtualmemory.html">Virtual
+Memory</a></li>
+            <li><a href="../chapters-part2/p2-8-pipeline.html"
+                   data-nav="chapters-part2/p2-8-pipeline.html">Pipeline</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#data-organisation-in-memory"
+id="toc-data-organisation-in-memory"><span
+class="toc-section-number">2</span> Data Organisation in Memory</a>
+<ul>
+<li><a href="#memory-hierarchy" id="toc-memory-hierarchy"><span
+class="toc-section-number">2.1</span> Memory Hierarchy</a>
+<ul>
+<li><a href="#main-memory" id="toc-main-memory"><span
+class="toc-section-number">2.1.1</span> Main Memory</a></li>
+</ul></li>
+<li><a href="#number-representation"
+id="toc-number-representation"><span
+class="toc-section-number">2.2</span> Number representation</a>
+<ul>
+<li><a href="#two-ways-of-storing-a-multi-byte-number"
+id="toc-two-ways-of-storing-a-multi-byte-number"><span
+class="toc-section-number">2.2.1</span> Two ways of storing a multi-byte
+number</a></li>
+</ul></li>
+<li><a href="#character-representation"
+id="toc-character-representation"><span
+class="toc-section-number">2.3</span> Character Representation</a></li>
+<li><a href="#array-string-and-structure-representations"
+id="toc-array-string-and-structure-representations"><span
+class="toc-section-number">2.4</span> Array, String and Structure
+Representations</a>
+<ul>
+<li><a href="#arrays" id="toc-arrays"><span
+class="toc-section-number">2.4.1</span> Arrays</a></li>
+<li><a href="#strings" id="toc-strings"><span
+class="toc-section-number">2.4.2</span> Strings</a></li>
+<li><a href="#structures" id="toc-structures"><span
+class="toc-section-number">2.4.3</span> Structures</a></li>
+</ul></li>
+<li><a href="#pointer-representation"
+id="toc-pointer-representation"><span
+class="toc-section-number">2.5</span> Pointer representation</a></li>
+<li><a href="#data-alignment" id="toc-data-alignment"><span
+class="toc-section-number">2.6</span> Data Alignment</a>
+<ul>
+<li><a href="#data-alignment-in-structures"
+id="toc-data-alignment-in-structures"><span
+class="toc-section-number">2.6.1</span> Data alignment in
+structures</a></li>
+</ul></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 data-number="2" id="data-organisation-in-memory"><span
+class="header-section-number">2</span> Data Organisation in Memory</h1>
+<h2 data-number="2.1" id="memory-hierarchy"><span
+class="header-section-number">2.1</span> Memory Hierarchy</h2>
+<figure data-latex-placement="H">
+<img width="780" height="174" src="media/images/memory-hierarchy.webp" style="width:80.0%"
+loading="lazy" decoding="async" />
+</figure>
+<ol>
+<li><p><strong>Registers</strong> Very fast access, but limited numbers
+within the CPU (2-128 registers). Operates at CPU clock rate.</p></li>
+<li><p><strong>Cache memory</strong> Fast access static RAM close to
+CPU. Typical access time 3-20ns, size up to 512kB.</p></li>
+<li><p><strong>Main memory</strong> Dynamic RAM or ROM. Typical access
+time 30-70nS, size up to 16GB.</p></li>
+<li><p><strong>Secondary memory</strong> Not always random access but
+non-volatile. Maybe be based on magnetic or flash technology. Typical
+access time 0.03-100mS, size: up to 4TB.</p></li>
+</ol>
+<h3 data-number="2.1.1" id="main-memory"><span
+class="header-section-number">2.1.1</span> Main Memory</h3>
+<figure data-latex-placement="H">
+<img width="182" height="258" src="media/images/main-mem.webp" style="width:30.0%" loading="lazy"
+decoding="async" />
+<figcaption>Main memory</figcaption>
+</figure>
+<ul>
+<li><p>Each address location is byte-size (8 bits).</p></li>
+<li><p>The memory size (the number of addresses) i.e.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>n</mi></msup><annotation encoding="application/x-tex">2^n</annotation></semantics></math>
+bytes, is dependent on the number of lines
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+in the address bus.</p></li>
+<li><p>Based on Von Neumann’s architecture, the memory stores both code
+(instructions) and data.</p></li>
+</ul>
+<h2 data-number="2.2" id="number-representation"><span
+class="header-section-number">2.2</span> Number representation</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th style="text-align: right;"><strong>Type</strong></th>
+<th style="text-align: center;"><strong>Bytes</strong></th>
+<th style="text-align: center;"><strong>Bits</strong></th>
+<th style="text-align: left;"><strong>Range</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">signed char</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">8</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>128</mn><mo>→</mo><mi>+</mi><mn>127</mn></mrow><annotation encoding="application/x-tex">-128 \to +127</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: right;">unsigned char</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">8</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>→</mo><mi>+</mi><mn>255</mn></mrow><annotation encoding="application/x-tex">0 \to +255</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: right;">short int</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">16</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>32</mn><mo>,</mo><mn>768</mn><mo>→</mo><mi>+</mi><mn>32</mn><mo>,</mo><mn>767</mn><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>±</mi><mn>32</mn><mtext mathvariant="normal">KB</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">-32,768 \to +32,767 \quad (\pm 32\text{KB})</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: right;">unsigned short int</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">16</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>→</mo><mi>+</mi><mn>65</mn><mo>,</mo><mn>535</mn><mspace width="1.0em"></mspace><mspace width="2.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>64</mn><mtext mathvariant="normal">KB</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">0 \to +65,535 \quad\qquad (64\text{KB})</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: right;">unsigned int</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">32</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>→</mo><mi>+</mi><mn>4</mn><mo>,</mo><mn>294</mn><mo>,</mo><mn>967</mn><mo>,</mo><mn>295</mn><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mtext mathvariant="normal">GB</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">0 \to +4,294,967,295 \quad (4\text{GB})</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: right;">int</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">32</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2</mn><mo>,</mo><mn>147</mn><mo>,</mo><mn>483</mn><mo>,</mo><mn>648</mn><mo>→</mo><mi>+</mi><mn>2</mn><mo>,</mo><mn>147</mn><mo>,</mo><mn>483</mn><mo>,</mo><mn>647</mn><mspace width="0.222em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>±</mi><mn>2</mn><mtext mathvariant="normal">GB</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">-2,147,483,648 \to +2,147,483,647 \ (\pm 2\text{GB})</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: right;">long int</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">32</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2</mn><mo>,</mo><mn>147</mn><mo>,</mo><mn>483</mn><mo>,</mo><mn>648</mn><mo>→</mo><mi>+</mi><mn>2</mn><mo>,</mo><mn>147</mn><mo>,</mo><mn>483</mn><mo>,</mo><mn>647</mn><mspace width="0.222em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>±</mi><mn>2</mn><mtext mathvariant="normal">GB</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">-2,147,483,648 \to +2,147,483,647 \ (\pm 2\text{GB})</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: right;">long long int</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">64</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mn>63</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>→</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mn>63</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">-(2^{63}) \to (2^{63})-1</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: right;">float</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">32</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: right;">double</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">64</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: right;">long double</td>
+<td style="text-align: center;">12</td>
+<td style="text-align: center;">96</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Note:</p>
+<ul>
+<li><p>Integers can be signed or unsigned.</p></li>
+<li><p>Floating point numbers are always signed.</p></li>
+</ul>
+<h3 data-number="2.2.1"
+id="two-ways-of-storing-a-multi-byte-number"><span
+class="header-section-number">2.2.1</span> Two ways of storing a
+multi-byte number</h3>
+<figure data-latex-placement="H">
+<img width="1000" height="434" src="media/images/32bit-Endianess.webp" style="width:90.0%"
+loading="lazy" decoding="async" />
+<figcaption>Little vs Big Endian format</figcaption>
+</figure>
+<ul>
+<li><p>Little Endian - LSB at lowest address.</p></li>
+<li><p>Big Endian - MSB at lowest address.</p></li>
+</ul>
+<h2 data-number="2.3" id="character-representation"><span
+class="header-section-number">2.3</span> Character Representation</h2>
+<p>A char requires one byte (8 bits) of memory. The binary data is
+transformed to some representative characters through some encoding
+standard.<br />
+Some encoding standards:</p>
+<ul>
+<li><p>7-bit ASCII code</p></li>
+<li><p>DEC’s Sixbit (6-bit)</p></li>
+<li><p>IBM’s EBCDIC (8-bit)</p></li>
+<li><p>Unicode (16-bit)</p></li>
+</ul>
+<figure data-latex-placement="H">
+<img width="1400" height="955" src="media/images/ascii.webp" style="width:90.0%" loading="lazy"
+decoding="async" />
+<figcaption>7-bit ASCII table</figcaption>
+</figure>
+<p>Note that lower and upper case characters and digits are
+contiguous.<br />
+</p>
+<p>Boolean variables have 2 states:</p>
+<ol>
+<li><p>False = 0</p></li>
+<li><p>True = non-zero</p></li>
+</ol>
+<p>Most implementations use one byte (8 bits) to store a 1-bit Boolean
+value (inefficient). Some processors like the 8051 support a small
+portion of bit-addressable memory.</p>
+<figure data-latex-placement="H">
+<img width="421" height="437" src="media/images/8051.webp" style="width:40.0%" loading="lazy"
+decoding="async" />
+<figcaption>8051 processor supports bit-addressable memory.</figcaption>
+</figure>
+<h2 data-number="2.4"
+id="array-string-and-structure-representations"><span
+class="header-section-number">2.4</span> Array, String and Structure
+Representations</h2>
+<h3 data-number="2.4.1" id="arrays"><span
+class="header-section-number">2.4.1</span> Arrays</h3>
+<p>A linear array is a consecutive area in memory storing a homogenous
+data type.<br />
+Elements are accessed through some offset from the base address.</p>
+<figure data-latex-placement="H">
+<img width="830" height="323" src="media/images/array-storage.webp" style="width:90.0%"
+loading="lazy" decoding="async" />
+<figcaption>Offset calculated from number of elements and size of the
+data type.</figcaption>
+</figure>
+<figure data-latex-placement="H">
+<img width="884" height="324" src="media/images/nested-array.webp" style="width:90.0%"
+loading="lazy" decoding="async" />
+<figcaption>Nested arrays</figcaption>
+</figure>
+<h3 data-number="2.4.2" id="strings"><span
+class="header-section-number">2.4.2</span> Strings</h3>
+<figure data-latex-placement="H">
+<img width="377" height="99" src="media/images/c-string.webp" style="width:50.0%" loading="lazy"
+decoding="async" />
+<figcaption>Strings are initialised as array of characters.</figcaption>
+</figure>
+<figure data-latex-placement="H">
+<img width="489" height="351" src="media/images/c-vs-pascal-string.webp" style="width:60.0%"
+loading="lazy" decoding="async" />
+<figcaption>C string terminates with null character, Pascal string
+stores the length of the string at the start of the string.</figcaption>
+</figure>
+<ul>
+<li><p>C strings have no length limit, whereas Pascal strings are
+limited to number of bytes used to store the length (e.g. 1 byte
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+max 255 characters.)</p></li>
+<li><p>C strings have no overhead (only one byte for \0) for length
+metadata, Pascal strings require space to store the length
+prefix.</p></li>
+<li><p>Determining length of C string is O(n), for Pascal string is
+O(1).</p></li>
+</ul>
+<h3 data-number="2.4.3" id="structures"><span
+class="header-section-number">2.4.3</span> Structures</h3>
+<figure data-latex-placement="H">
+<img width="743" height="350" src="media/images/struct-representation.webp" style="width:90.0%"
+loading="lazy" decoding="async" />
+<figcaption>Each data type is ordered according to declaration, and
+allocated their own data size based on their type.</figcaption>
+</figure>
+<h2 data-number="2.5" id="pointer-representation"><span
+class="header-section-number">2.5</span> Pointer representation</h2>
+<figure data-latex-placement="H">
+<figure>
+<img width="344" height="173" src="media/images/ptr-code.webp" loading="lazy" decoding="async" />
+<figcaption>Initialising pointer</figcaption>
+</figure>
+<figure>
+<img width="343" height="197" src="media/images/ptr-visual.webp" loading="lazy"
+decoding="async" />
+<figcaption>Assuming addresses are 16 bits.</figcaption>
+</figure>
+<figcaption>Size of pointer is fixed regardless of data
+type.</figcaption>
+</figure>
+<p>Use <code>*ptr</code> to dereference a pointer.</p>
+<h2 data-number="2.6" id="data-alignment"><span
+class="header-section-number">2.6</span> Data Alignment</h2>
+<div class="table-wrap">
+<table>
+<caption>Multi-byte data should be aligned to addresses that are
+multiples of their data type size.</caption>
+<thead>
+<tr>
+<th style="text-align: left;"><strong>Data Type</strong></th>
+<th style="text-align: center;"><strong>Size (Byte)</strong></th>
+<th style="text-align: left;"><strong>Example of allowable start
+addresses due to alignment</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">char</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">0x..0000, 0x..0001, 0x..0002</td>
+</tr>
+<tr>
+<td style="text-align: left;">short</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: left;">0x..0000, 0x..0002, 0x..0004</td>
+</tr>
+<tr>
+<td style="text-align: left;">int</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: left;">0x..0000, 0x..0004, 0x..0008</td>
+</tr>
+<tr>
+<td style="text-align: left;">float</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: left;">0x..0000, 0x..0004, 0x..0008</td>
+</tr>
+<tr>
+<td style="text-align: left;">double</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: left;">0x..0000, 0x..0008, 0x..0010</td>
+</tr>
+<tr>
+<td style="text-align: left;">pointer</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: left;">0x..0000, 0x..0008, 0x..0010</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><em>Assuming</em> a 64-bit processor that uses 64-bits to represent
+an address.</p>
+<figure data-latex-placement="H">
+<img width="529" height="241" src="media/images/intel-pentium-4.webp" style="width:80.0%"
+loading="lazy" decoding="async" />
+<figcaption>Intel Pentium 4</figcaption>
+</figure>
+<ul>
+<li><p>64-bit data bus
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+The CPU fetches 64-bits every memory cycle.</p></li>
+<li><p>33 address pins
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+There are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>33</mn></msup><annotation encoding="application/x-tex">2^33</annotation></semantics></math>
+8 byte "blocks".</p></li>
+<li><p>8 Bank Enable pins select which 8-bits in that 64-bits block to
+read from.</p></li>
+<li><p>The CPU has a 64-bit data word size.</p></li>
+</ul>
+<figure data-latex-placement="H">
+<img width="177" height="329" src="media/images/8-byte-alignment.webp" style="width:30.0%"
+loading="lazy" decoding="async" />
+<figcaption>8-byte data should be aligned to addresses that are
+multiples of 8.</figcaption>
+</figure>
+<ul>
+<li><p>Since the CPU fetches 8 bytes at a time, any 8-byte data that is
+not aligned needs two memory cycles to be fetched.</p></li>
+<li><p>If a processor has an 8 bit (1 byte) data bus, there won’t be any
+alignment issues.<br />
+Multi-byte data takes the same number of cycles to be fetched,
+regardless of the memory address.</p></li>
+<li><p>If a processor has a 16 bit (2 bytes) data bus, then 2, 4 or 8
+byte data should be aligned to even addresses.</p></li>
+</ul>
+<h3 data-number="2.6.1" id="data-alignment-in-structures"><span
+class="header-section-number">2.6.1</span> Data alignment in
+structures</h3>
+<figure data-latex-placement="H">
+<figure>
+<img width="165" height="198" src="media/images/struct-1.webp" loading="lazy" decoding="async" />
+<figcaption>Defining struct in C</figcaption>
+</figure>
+<figure>
+<img width="529" height="339" src="media/images/struct-padding.webp" loading="lazy"
+decoding="async" />
+<figcaption>Padded bytes are added to maintain alignment for each data
+type.</figcaption>
+</figure>
+</figure>
+<figure data-latex-placement="H">
+<figure>
+<img width="188" height="156" src="media/images/struct-2.webp" loading="lazy" decoding="async" />
+<figcaption>Rearranging order of data objects</figcaption>
+</figure>
+<figure>
+<img width="175" height="272" src="media/images/struct-optimised.webp" loading="lazy"
+decoding="async" />
+<figcaption>New struct takes 8 bytes instead of 12
+previously.</figcaption>
+</figure>
+</figure>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../chapters-part1/1-introduction.html">← Introduction</a>
+  <a class="next-page" href="../chapters-part1/3-instructionorganisation.html">Instruction
+Organisation in Memory →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

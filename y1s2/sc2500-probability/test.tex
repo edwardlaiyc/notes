@@ -1,0 +1,986 @@
+% \documentclass[10pt]{article}
+\documentclass[9pt]{extarticle}
+
+% --- Page Setup ---
+% \usepackage[a4paper, margin=0.5cm]{geometry}
+% \usepackage[a4paper, landscape, margin=0.2in]{geometry}
+\usepackage[
+    a4paper, 
+    landscape, 
+    margin=0.20in,      % Shrink margin to printer absolute limits
+    headheight=0pt,    % Kill header space
+    headsep=0pt,       % Kill header separation
+    footskip=0pt       % Kill footer space
+]{geometry}
+\usepackage{multicol}
+
+% \allowdisplaybreaks
+
+% --- Math and Code ---
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+
+% --- Spacing Adjustments ---
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\usepackage{nicematrix, tikz}
+
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+
+\usepackage{caption}
+\usepackage{graphicx}
+
+% 1. Remove space between list items
+\setlist{nosep, leftmargin=*} 
+
+% 2. Shrink space around section headers
+\titlespacing*{\section}{0pt}{0pt}{0pt}
+\titlespacing*{\subsection}{0pt}{0pt}{0pt}
+
+% 1. Define wrapper commands with customized padding (\fboxsep)
+\newcommand{\fullwidthsection}[1]{{% <-- Extra brace starts local group
+  \setlength{\fboxsep}{1pt}% <-- ADJUST THIS VALUE (0pt to 2pt)
+  \colorbox{blue!80!black}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{\color{white}#1}}%
+}}
+
+\newcommand{\fullwidthsubsection}[1]{{
+  \setlength{\fboxsep}{1pt}% 
+  \colorbox{red!70!black}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{\color{white}#1}}%
+}}
+
+\definecolor{sectBlue}{RGB}{0, 76, 153}
+\definecolor{sectGreen}{RGB}{0, 102, 51}
+\definecolor{sectRed}{RGB}{153, 0, 0}
+\tcbset{colback=white, colframe=black, arc=1mm, boxrule=0.5mm, fonttitle=\bfseries}
+
+% 2. Apply them to titleformat
+\titleformat{\section}[hang]{\normalsize\bfseries}{}{0pt}{\fullwidthsection}
+\titleformat{\subsection}[hang]{\small\bfseries\itshape}{}{0pt}{\fullwidthsubsection}
+
+% 3. Add a thin line between columns for readability
+\setlength{\columnseprule}{1pt}
+\setlength{\columnsep}{0.7em}
+
+% --- Custom Code Formatting ---
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+
+\setlength{\parskip}{0pt}
+\setlength{\baselineskip}{0pt plus 0.2pt}
+
+\pagestyle{empty}
+
+\begin{document}
+\small 
+
+\raggedright
+\raggedbottom
+
+\begin{multicols*}{4}
+
+% \section*{Intro}
+% Sample space $\Omega$ is the set of all possible outcomes. An event $A$ is a subset of $\Omega$.\\
+% De Morgan: $(A \cup B)^c = A^c \cap B^c$, $(A \cap B)^c = A^c \cup B^c$.\\
+% \textbf{Probability Distribution} $P: A \to [0,1]$.
+% \begin{enumerate}
+%   \item $0 \le P(A) \le 1$ for every $A$.
+%   \item $P(\Omega) = 1$.
+%   \item For disjoint $A_1, A_2, ...$ ($A_i \cap A_j = \emptyset$ for $i \ne j$), then $P(\cup_{i=1}^{\infty}A_i) = \sum_{i=1}^{\infty}P(A_i)$.
+% \end{enumerate}
+% Other properties:
+% \begin{itemize}
+%   \item $P(\emptyset) = 0$.
+%   \item $P(A \cup B) = P(A) + P(B) - P(A \cap B)$.
+%   % \item If $A \cap B = \emptyset \Rightarrow P(A \cup B) = P(A) + P(B)$.
+%   \item $P(A^c) = 1 - P(A)$.
+%   \item $A \subset B \Rightarrow P(A) \le P(B)$.
+% \end{itemize}
+
+% \textbf{Disjoint vs. Independent:}
+% \begin{itemize}
+%     \item \textbf{Disjoint (Mutually Exclusive):} $A \cap B = \emptyset \Rightarrow P(A \cap B) = 0$
+%     \item \textbf{Independent:} $P(A \cap B) = P(A)P(B)$ 
+%     \item Disjoint events are NOT independent (and vice versa) unless $P(A)=0$ or $P(B)=0$.
+% \end{itemize}
+% \vspace{1em}
+
+% \textbf{Joint probability}: $P(A \cap B)$.\\
+% \textbf{Conditional Probability}:\\
+% $P(A|B) = \frac{P(A \cap B)}{P(B)}$, provided $P(B) > 0$. Re-normalizes the sample space to $B$;\\
+% \textbf{Multiplicative Rule}: $P(A \cap B) = P(A|B)P(B)$.\\
+% $P(A \cap B \cap C) = P(A|B \cap C) \cdot P(B|C) \cdot P(C)$.\\
+% \textbf{Law of Total Probability}: If $B_1, B_2, ..., B_k$ partition $\Omega$, then for any event $A$:\\
+% $P(A) = \sum_{i=1}^k P(A|B_i)P(B_i)$.\\
+% \textbf{Independence:} $P(A \cap B) = P(A)P(B) \iff P(A|B) = P(A)$.
+% \begin{itemize}
+%     \item \textbf{Not Transitive:} If A \& B are dependent, and B \& C are dependent, A \& C are NOT necessarily dependent.
+%     \item \textbf{Pairwise vs. Mutual:} Pairwise independence (A \& B indep, B \& C indep, A \& C indep) does \textbf{NOT} guarantee mutual independence ($P(A \cap B \cap C) = P(A)P(B)P(C)$).
+% \end{itemize}
+
+% \section*{Bayes' Theorem}
+% \textbf{Bayes' Theorem}: Updates prior beliefs about $A$ after observing new evidence $B$:\\
+% $P(A_i|B) = \frac{P(B|A_i)P(A_i)}{P(B)} = \frac{P(B|A_i)P(A_i)}{\sum_j P(B|A_j)P(A_j)}$\\
+% \textbf{Naive Bayes Classifier:} Classify $X = (x_1, ..., x_d)$ into class $C$. 
+% \textit{Core Assumption:} All features are conditionally independent given the class label.
+% \begin{itemize}
+%     \item \textbf{1. Calculate Score:} $\text{Score}(c) = P(c) \prod_{i=1}^d P(x_i|c)$
+%     \item \textbf{2. Classify:} $\hat{c} = \arg\max_c \text{Score}(c)$
+%     \item \textbf{Zero-Frequency Trap:} If a feature $x_i$ never appears in class $c$ during training, $P(x_i|c) = 0$. This zeroes out the entire score for that class.
+% \end{itemize}
+
+% \section*{Random variables}
+% $X: \Omega \to \mathbb{R}$.\\
+% \textbf{Probability law} (Push-forward measureof $P$ by $X$): Prob dist of $X$ measures how likely an event $A \subset \mathbb{R}$ is to occur, i.e.
+% $P_X(A) = P(X \in A) = P(X^{-1}(A)) = P(\{\omega \in \Omega: X(\omega) \in A\})$.\\
+% The corresponding sample space $\Omega' =$ Range($X$) $=\{X(\omega) | \omega \in \Omega\}$.\\
+
+% \subsection*{Distributions \& Functions}
+% \begin{itemize}
+%     \item \textbf{CDF $F_X$}: $F_X(t) = P(X \le t)$. Non-decreasing, right-continuous. $F(-\infty)=0$, $F(\infty)=1$. $P(a < X \le b) = F_X(b) - F_X(a)$.
+%     \item \textbf{Discrete PMF $p_X$}: $p_X(x) = P(X=x)$. $\sum p_X(x) = 1$. $F_X(x) = \sum_{t \le x} p_X(t)$.
+%     \begin{itemize}
+%         \item \textit{Bernoulli:} $X \in \{0,1\}$, $P(1)=p$.
+%         \item \textit{Categorical:} $X \in \{1..K\}$, $\sum p_i = 1$.
+%         \item \textit{Indicator $\mathbb{I}_E$:} Bernoulli RV mapping event $E$ to 1 or 0. $P(\mathbb{I}_E=1)=P(E)$.
+%     \end{itemize}
+%     \item \textbf{Continuous PDF $f_X$}: $f_X(x) = \frac{d}{dx}F_X(x)$. $\int_{-\infty}^{\infty} f_X(x)dx = 1$. $P(X \in A) = \int_A f_X(x)dx$.
+%     \begin{itemize}
+%         \item \textit{Unnormalised PDF}: If $p(x) \propto g(x)$, then $p(x) = g(x)/Z$ where $Z = \int g(x)dx$.
+%         \item \textit{Gaussian $\mathcal{N}(\mu, \sigma^2)$:} $f(x) = \frac{1}{\sqrt{2\pi\sigma^2}}\exp(-\frac{(x-\mu)^2}{2\sigma^2})$. 
+%         \item \textit{Gaussian Integral}: $\int_{-\infty}^{\infty} e^{-ax^2} dx = \sqrt{\frac{\pi}{a}}$.
+%         \item \textit{By Inspection}: $p(x) \propto \exp(-\frac{1}{2\sigma^2}x^2 + \frac{\mu}{\sigma^2}x) \Rightarrow X \sim \mathcal{N}(\mu, \sigma^2)$.
+%     \end{itemize}
+% \end{itemize}
+
+% \subsection*{Multivariate RVs}
+% \begin{itemize}
+%     \item \textbf{Joint:} Discrete: $p_{X,Y}(x,y) = P(X=x, Y=y)$. Cont: $\iint_A f_{X,Y}(x,y)dxdy$.
+%     \item \textbf{Marginal:} Sum/integrate out the other variable: $p_X(x) = \sum_y p_{X,Y}(x,y)$ \quad or \quad $f_X(x) = \int_{-\infty}^{\infty} f_{X,Y}(x,y)dy$.
+%     \item \textbf{Multiplicative Rule:} $p_{X,Y}(x,y) = p_{X|Y}(x|y)p_Y(y)$.
+%     \item \textbf{Conditional:} $p_{X|Y}(x|y) = \frac{p_{X,Y}(x,y)}{p_Y(y)}$ or $f_{X|Y}(x|y) = \frac{f_{X,Y}(x,y)}{f_Y(y)}$.    
+%     \item \textbf{Independence ($X \perp Y$):} $p(x,y) = p(x)p(y)$ \quad or \quad $f(x,y) = f(x)f(y)$. \textit{(Also holds true for CDFs).}
+% \end{itemize}
+
+% \subsection*{Bayesian Inference (Gaussian)}
+% Updates prior $\mu$ with $n$ independent data samples ($x_1, ..., x_n$) where $X \sim \mathcal{N}(\mu, \sigma^2)$.
+% \begin{itemize}
+%     \item \textbf{Prior $P(\mu)$:} Initial belief of the mean. $\mu \sim \mathcal{N}(\mu_0, \sigma_0^2)$.
+%     \item \textbf{Likelihood $P(X | \mu)$:} Probability of the data given a mean. $\propto \exp(-\frac{1}{2\sigma^2}\sum_{i=1}^n(x_i - \mu)^2)$.
+%     \item \textbf{Posterior $P(\mu | X)$:} Updated belief. Proportional to Likelihood $\times$ Prior. $P(\mu | X) \propto P(X | \mu)P(\mu)$.
+%     \item \textbf{Posterior Variance:} $\frac{1}{\sigma_n^2} = \frac{n}{\sigma^2} + \frac{1}{\sigma_0^2} \Rightarrow \hat{\sigma}_n^2 = \frac{\sigma^2\sigma_0^2}{n\sigma_0^2 + \sigma^2}$
+%     \item \textbf{Posterior Mean:} $\hat{\mu}_n = \hat{\sigma}_n^2(\frac{\sum x_i}{\sigma^2} + \frac{\mu_0}{\sigma_0^2})$
+%     \item \textbf{Limits:} 
+%     \begin{itemize}
+%         \item \textit{Infinite Data ($n \rightarrow \infty$):} Prior belief is erased by data. $\hat{\sigma}_n^2 \rightarrow 0$, $\hat{\mu}_n \rightarrow \bar{x}$ (converges to empirical average).
+%         \item \textit{Zero Prior Confidence ($\sigma_0^2 \rightarrow \infty$):} Recovers frequentist result. $\hat{\sigma}_n^2 \rightarrow \frac{\sigma^2}{n}$, $\hat{\mu}_n \rightarrow \bar{x}$.
+%     \end{itemize}
+% \end{itemize}
+
+% \section*{Concentration}
+% \textbf{Markov's Inequality}: $P(X \ge t) \le \frac{\mathbb{E}[X]}{t}$.\\
+% Used to bound the one-sided probability that a random variable is exceptionally large using only its mean. Bound decays as $1/t$.\\
+% Constraint: The random variable must be strictly non-negative ($X \ge 0$) and $t > 0$.\\
+% \textbf{Chebyshev's Inequality}: $P(|X - \mathbb{E}[X]| \ge t) \le \frac{\mathbb{V}[X]}{t^2}$.\\
+% Used to bound the two-sided probability that a variable deviates far from its mean, providing a tighter estimate than Markov's. Bound decays as $1/t^2$.\\
+% Alternative ($\sigma$-form): $P(|X - \mu| \ge k\sigma) \le \frac{1}{k^2}$\\
+% At least ($1 - 1/k^2$) of data lies within k standard deviations of the mean, for any distribution.\\
+% Constraint: Requires both a finite mean ($\mu$) and variance ($\sigma^2$).\\
+% \textbf{Weak Law of Large Numbers}: $X_1,\ldots,X_n$ i.i.d, $\overline{X}_n = \frac{1}{n}\sum_{i=1}^nX_i$, $\mathbb{E}[\overline{X}_n]=\mu$, $\mathbb{V}[\overline{X}_n]=\sigma^2/n$.\\
+% $\lim_{n\rightarrow\infty}P(|\overline{X}_n - \mu| \ge \epsilon) \le 0$.\\
+% States that as the sample size $n \to$ infinity, the sample mean $\overline{X}_n$ will converge to the true mean $\mu$ with certainty.\\
+% \textbf{Hoeffding's Inequality}: $P(|\overline{X}_n - \mathbb{E}[\overline{X}_n]| \ge t) \le 2 \exp\left(-\frac{2n^2t^2}{\sum_{i=1}^n(b_i - a_i)^2}\right)$.\\
+% Strongest - Bound decays exponentially ($e$\textasciicircum$(-n)$) on the probability that an average deviates from its expected value.\\
+% Constraint: Requires the independent $X_1,\ldots,X_n$ to be strictly bounded within an interval $a_i \le X_i \le b_i$.\\
+% \textbf{Central Limit Theorem}: $X_1,\ldots,X_n$ i.i.d, standardised sample mean = $Z_n = \frac{\overline{X}_n - \mu}{\sigma/\sqrt{n}}$.\\
+% As $n\to\infty$, $\overline{X}_n\sim\mathcal{N}(\mu,\sigma^2/n)$, $Z_n\sim\mathcal{N}(0,1)$.\\
+% $\lim_{n\rightarrow\infty}P(Z_n \le t) = \Phi(t)$.\\
+% Regardless of the original distribution of X, the sample mean becomes approximately Gaussian for large n. Justifies using normal distribution for inference.\\
+% \textbf{Normal Approximation to Binomial}: When $n$ large and exact binomial computation intractable.\\
+% $S_n = \Sigma X_i$, $X_i\sim Ber(p)$: $\frac{S_n - np}{\sqrt{np(1-p)}}\approx \mathcal{N}(0,1)$.\\
+% $P(k \le S_n \le k') \approx \Phi\left(\frac{k'-np}{\sqrt{np(1-p)}}\right) - \Phi\left(\frac{k-np}{\sqrt{np(1-p)}}\right)$.\\
+% Used to estimate the probability of $S_n$ successes in a Binomial distribution. $S_n$ is sum of i.i.d. Bernoulli trials with large $n$.
+
+% \section*{Estimation}
+% \textbf{Estimator} A random variable $\hat{\theta}(X_1, ..., X_n)$ dependent on data. An estimate is the acutal value obtained by plugging in data points.\\
+% \textbf{A good estimator} is unbiased ($\mathbb{E}[\hat{\theta}] = \theta$), consistent ($\forall \epsilon > 0, \lim\limits_{n\to\infty}P(|\hat{\theta} - \theta^*|\leq\epsilon)=1$),
+% efficient (unbiased estimator with lowest possible variance), \& asymptotically normal ($n\to\infty$, $\hat{\theta}\sim\mathcal{N}(\theta^*,\cdot)$ by CLT).\\
+% \textbf{Bias-variance decomp} $\mathbb{E}[||\hat{\theta} - \theta_*||^2] = \mathbb{E}[||\hat{\theta} - \mathbb{E}[\hat{\theta}]||^2] + ||\mathbb{E}[\hat{\theta}] - \theta_*||^2$.\\
+% Total expected square error = Variance + Bias$^2$.\\
+% \textbf{Fisher info} $\mathcal{I}(\theta_*) = \mathbb{E}[(\frac{\partial}{\partial\theta} \log p_\theta(X))^2] = -\mathbb{E}\left[\frac{\partial^2}{\partial \theta^2} \log p_\theta(X)\right]$.\\
+% Measures how much information data $X$ carries about $\theta^*$. Large $\mathcal{I}(\theta^*)$ means the data is highly sensitive to changes in $\theta$ — easier to estimate precisely.\\
+% \textbf{Cramer-Rao Lower Bound} $\mathbb{V}[\hat{\theta}] \ge \frac{1}{n \cdot \mathcal{I}(\theta_*)}$.\\
+% The absolute minimum variance any unbiased estimator can achieve. An estimator achieving this bound is efficient. As $n\to\infty$ or $\mathcal{I}(\theta^*) \to$ large, bound $\to$ 0.\\
+% \textbf{Mean estimation} $\hat{\mu} = \frac{1}{n}\sum_{i=1}^n X_i$. Unbiased ($\mathbb{E}[\hat{\mu}]=\mu$) and consistent ($\mathbb{V}[\hat{\mu}]=\sigma^2/n$).\\
+% Best estimator for the true mean. Also directly estimates the parameter for Bernoulli ($p$) and Poisson ($\lambda$) since their means equal their parameters.\\
+% \textbf{Variance estimation} Biased: $\hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n(X_i - \hat{\mu}_1)^2$, $\mathbb{E}[\sigma^2]=\frac{n-1}{n}\sigma^2$.\\
+% Unbiased: $\hat{\tau}^2 = \frac{1}{n-1}\sum_{i=1}^n(X_i - \hat{\mu}_1)^2$, $\mathbb{E}[\hat{\tau}^2]=\sigma^2$.\\
+% Both are consistent -- difference vanishes as $n\to\infty$.\\
+% \textbf{MLE} Find parameters $\theta$ that make observed data most probable.\\
+% $\theta_{\text{MLE}} = \arg\max\limits_{\theta \in \Theta} \sum_{i=1}^n \log p_\theta(X_i)$.\\
+% i.i.d. assumption converts joint prob to sum of logs. For complex distributions, direct MLE is intractable, use EM instead.\\
+% \textbf{KL Divergence} $D_{KL}(p||q) = \int p(x)\log\frac{p(x)}{q(x)}\mathrm{d}x = \mathbb{E}_{X \sim p}[\log\frac{p(X)}{q(X)}]$\\
+% $D_{KL}(p||q) \geq 0$, $D_{KL}(p||q)=0 \iff p=q$, $D_{KL}(p||q)\neq D_{KL}(q||p)$.\\ 
+% Measure how much an estimated distribution $q$ differs from a true distribution $p$, and maximizing MLE is equivalent to minimizing this divergence.\\
+% \textbf{MLE for multivariate Gaussian} For $X_i\in\mathbb{R}^d$, MLE gives: $\hat{\mu} = \frac{1}{n}\sum_{i=1}^n X_i$ and $\hat{\Sigma} = \frac{1}{n}\sum_{i=1}^n (X_i - \hat{\mu})(X_i - \hat{\mu})^\top$.\\
+% MLE naturally recovers sample mean and sample covariance for Gaussian data. These converge to true $\mu$ and $\Sigma$ as $n \to \infty$.\\
+% \textbf{Bayesian Inference} Treat $\theta$ as a random variable with its own distribution, updated as data arrives.\\
+% Posterior Dist $p(\theta|X_1, ..., X_n) = \frac{\prod_i p(X_i|\theta)p(\theta)}{\int \prod_i p(X_i|\theta')p(\theta')d\theta'}$, numerator is likelihood ($P(X|\theta)$) times prior ($P(\theta)$). Denominator integrates out the observed data likelihood.\\
+% Posterior predictive dist $\hat{p}(x) = \mathbb{E}_{\theta \sim p(\theta|X_1, ..., X_n)}[p(x|\theta)]$. Averages predictions over all possible $\theta$ weighted by their posterior probability — more robust than MLE especially for small $n$.\\
+% \textbf{Bayesian Inf w/ Gaussian} Prior: $\theta \sim \mathcal{N}(\mu_0,\sigma_0^2)$ -- the belief about $\theta$ before seeing data.\\
+% Likelihood: $X_i\sim\mathcal{N}(\theta, \sigma^2)$ -- each data point generated by Gaussian centered at true $\theta$ with known noise $\sigma^2$.\\
+% The posterior is also Gaussian. After observing $n$ data points,
+% $\hat{\sigma}^2_n = \frac{\sigma^2\sigma_0^2}{n\sigma_0^2 + \sigma^2}$, $\hat{\mu}_n = \hat{\sigma}^2_n(\frac{\Sigma X_i}{\sigma^2} + \frac{\mu_0}{\sigma_0^2})$. Posterior mean is a weighted average — data pulls toward sample mean (weighted by $1/\sigma^2$), prior pulls toward $\mu_0$ (weighted by $1/\sigma_0^2$).\\
+% As $n \to\infty$, Bayesian inference becomes identical to MLE — prior belief is completely overwhelmed by data.\\
+% \textbf{Maximum A Posteriori (MAP) Estimation} $\hat{\theta}_{MAP} = \arg \max_\theta \{ \sum_{i=1}^n \log p(X_i|\theta) + \log p(\theta) \}$.\\
+% MAP = MLE + prior regularisation. Finds the single most likely parameter when full Bayesian integration is intractable. As $n \to \infty$, prior term is overwhelmed by data and MAP $\to$ MLE.
+
+% \section*{Estimation II}
+% Real-world data (images, text) is multimodal — simple single-peak distributions like Gaussian are insufficient.\\
+% \textbf{Latent variable models} Observable data x is generated by hidden, lower-dimensional factors z.\\
+% Joint dist $p(x,z) = p(x|z)p(z)$. Conditional $p(x|z)$ acts as decoder, generates $x$ given $z$. Posterior $p(z|x)$ acts as encoder, infers $z$ given $x$.\\
+% Data generation process: sample $z \sim p(z)$, then sample $x \sim p(x|z)$.\\
+% \textbf{Manifold Hypothesis} High-dimensional real-world data actually clusters along a much lower-dimensional structured manifold, reducing the space the model needs to learn.\\
+% \textbf{GMM} $p(x|\mu,\Sigma) = \sum_{t=1}^K \pi_t \cdot p(x|\mu_t, \Sigma_t)$. We choose $K$ Gaussians to combine (hyperparameter). Requires learning the mean $\mu_t$, the covariance matrix $\Sigma_t$, and the mixing proportion $\pi_t$ (where $\sum \pi_t = 1$) for each of the $K$ clusters.\\
+% Latent variable: $z = (\zeta_t)_{t=1}^K \in \{0,1\}^K, \sum_t \zeta_t=1$. $z$ is one hot vector indicating cluster membership.\\
+% \textbf{EM algorithm} Find MLE parameters $\theta$ = ($\pi, \mu, \Sigma$) for latent variable models where direct MLE is intractable.\\
+% Direct MLE intractablility: $\sum \log(\sum p(x,z|\theta)) = \sum \log(\sum\limits_{t=1}^K \pi_t p(x|\mu_t, \Sigma_t)$ summation trapped inside log.\\
+% Complete-data MLE tractable: $\sum\limits_{i=1}^n \log p(x_i, z_i|\theta)$. If we knew $z$, MLE would be easy. EM iteratively estimates $z$ and updates $\theta$.\\
+% \textbf{E-step}: Q-func $Q(\theta, \theta^{(k)}) = \sum_{i=1}^n \sum_{z_i} p(z_i|x_i, \theta^{(k)}) \log p(x_i, z_i|\theta)$.\\
+% Uses current parameter guesses $\theta^{(k)}$ to evaluate the hidden variables and construct the surrogate lower-bound function.\\
+% GMM Responsibilities: $\gamma_{t,i}^{(k)} = \frac{\pi_t^{(k)} p(x_i|\theta_t^{(k)})}{\sum_{s=1}^K \pi_s^{(k)} p(x_i|\theta_s^{(k)})}$. Calculates the probability that data point $x_i$ belongs to cluster $t$.\\
+% \textbf{M-step}: Find improved params $\theta^{(k+1)} = \arg \max_\theta Q(\theta, \theta^{(k)})$ by taking derivative of Q-func and setting to 0.\\
+% For GMM, first calc effective cluster size: $n_t^{(k+1)} = \sum_{i=1}^n \gamma_{t,i}^{(k)}$.\\
+% Then update parameters: mixing weight $\pi_t^{(k+1)} = \frac{n_t^{(k+1)}}{n}$,\\
+% means $\mu_t^{(k+1)} = \frac{1}{n_t^{(k+1)}} \sum_{i=1}^n \gamma_{t,i}^{(k)} x_i$,\\
+% covariances $\Sigma_t^{(k+1)} = \frac{1}{n_t^{(k+1)}} \sum_{i=1}^n \gamma_{t,i}^{(k)} (x_i - \mu_t^{(k+1)})(x_i - \mu_t^{(k+1)})^\top$.
+
+% \section*{Linear/logistic regression}
+% \textbf{Linear Regression model}: $y \approx w^T x + b$.
+% Predicts a continuous label $y$ by combining a vector of input features $x$ with learnable weights $w$ and a bias $b$.\\
+% \textbf{With basis functions}: $y \approx w^T \phi(x) + b$.
+% Transforms $x$ before applying linear model — allows curved fits while keeping model linear in $w$. Polynomial eg: $\phi_j(x)=x^j$.\\
+% \textbf{Least squares method}: Objective: $\hat{w}=\arg\min\limits_{w\in\mathbb{R}^d}\sum\limits_{i=1}^n (y_i-w^T x_i)^2$.\\
+% Matrix form: $\hat{w} = \arg\min\limits_{w\in\mathbb{R}^d}\|y-Xw\|^2$.\\
+% Closed-form soln: $\hat{w} = \hat{\Sigma}^{-1} X^T y$ (where $\hat{\Sigma} = X^T X$ is invertible, else no unique solution).
+% (linearly independent features and more training examples than features).\\
+% \textbf{MLE for linear regression}: Data generation assumption: $y=w_*^T x+\varepsilon,\varepsilon\sim\mathcal{N}(0,\sigma^2)$.\\
+% Probabilistic model: $P(y|w,x) = \mathcal{N}(w^Tx,\sigma^2)(y)$.\\
+% MLE objective: $\hat{w} = \arg \max_w \{-\frac{n}{2}\log(2\pi\sigma^2) - \sum_{i=1}^n \frac{1}{2\sigma^2}(y_i - w^T x_i)^2\}$.\\
+% First term is constant w.r.t w — dropping it gives exactly LSM. Therefore LSM = MLE under Gaussian noise.\\
+% Note that Gaussian is $L_2$ regularisation (squared error), while Laplace is $L_1$ regularisation (absolute error).\\
+% Laplace loss function: $\hat{w} = \arg \min_w \sum_{i=1}^n |y_i - w^T x_i|$\\
+% \textbf{Ridge regression, $L_2$ regularisation}: Objective $\hat{w} = \arg\min\limits_{w\in\mathbb{R}^d}\{\|y-Xw\|^2+\lambda\|w\|^2\}$.\\
+% Closed-form solution: $\hat{w}=(\lambda I + \hat{\Sigma})^{-1}X^T y$.\\
+% Adding $\lambda I$ always makes matrix invertible for any $\lambda > 0$ — works even when $n < d$ unlike LSM. Penalises large weights to prevent overfitting.\\
+% \textbf{Bias-variance decomp} $\frac{1}{n}\mathbb{E}[||X(\hat{w} - w_*)||^2] = \text{Variance} + \text{Bias}^2$.\\
+% For ridge regression, Bias$^2$ $= \frac{\lambda^2}{n}w_*^T (\lambda I + \hat{\Sigma})^{-2}\hat{\Sigma}w_*$, Variance $= \frac{\sigma^2}{n}Tr((\lambda I + \hat{\Sigma})^{-2}\hat{\Sigma}^2)$.\\
+% Bias increases with $\lambda$, as regularisation pulls $\hat{w}$ away from $w_*$. Variance decreases with $\lambda$, less sensitive to noise.\\
+% $\lambda=0$ yields an unbiased model with high variance $= \frac{\sigma^2 d}{n}$(overfitting risk), while $\lambda \to \infty$ drives variance to zero but causes massive bias $\to \frac{1}{n}\|Xw_*\|^2$ (underfitting).\\
+% $n>>d$ required for LSM to work well otherwise variance is huge.\\
+% \textbf{Logistic Regression} Binary classification: $y\in\{-1,+1\}$.\\
+% Sigmoid function: $\sigma(z) = \frac{1}{1 + \exp(-z)}$. Squashes a continuous linear output into a valid probability between 0 and 1.\\
+% Unified probabilistic model: $p(y|x,w) = \frac{1}{1 + \exp(-yw^T x)}$.\\
+% Multiplying $y\cdot w^Tx$ automatically handles both classes — same sign = correct prediction, opposite sign = wrong prediction.\\
+% Decision boundary: $w^T x = 0$. Represents a hyperplane in the input space; predictions greater than 0 yield a $>50\%$ probability (classify as $+1$), while predictions less than 0 classify as $-1$.\\
+% \textbf{MLE for logistic regression}: Logistic loss: $\hat{w} = \arg \min\limits_{w\in\mathbb{R}^d} \{\sum_{i=1}^n \log(1 + \exp(-y_i w^T x_i))\}$.\\
+% With $L_2$ regularisation: $\hat{w} = \arg \min\limits_{w\in\mathbb{R}^d} \{\frac{1}{n}\sum_{i=1}^n \log(1 + \exp(-y_i w^T x_i)) + \lambda||w||^2\}$.\\
+% Because the logistic loss function is not quadratic, there is no closed-form solution; it must be solved iteratively using numerical methods like gradient descent.
+
+% \newpage
+
+%==============================================================
+% THEME 1: PROBABILITY FOUNDATIONS
+%==============================================================
+ 
+\section*{Foundations \& Events}
+% \textbf{De Morgan}: $(A \cup B)^c = A^c \cap B^c$, $(A \cap B)^c = A^c \cup B^c$
+ 
+\textbf{Probability Axioms \& Properties:} $P: A \to [0,1]$.
+\begin{itemize}
+    \item 1) $P(A) \ge 0$ \quad 2) $P(\Omega) = 1$ \quad 3) Disjoint $A_i$: $P(\cup_{i=1}^{\infty}A_i) = \sum_{i=1}^{\infty}P(A_i)$
+    \item $P(\emptyset) = 0 \;|\; P(A^c) = 1 - P(A) \;|\; A \subset B \Rightarrow P(A) \le P(B)$
+    \item $P(A \cup B) = P(A) + P(B) - P(A \cap B)$
+\end{itemize}
+ 
+\textbf{Conditionals \& Independence:}
+\begin{itemize}
+    \item \textbf{Conditional:} $P(A|B) = \frac{P(A \cap B)}{P(B)}$ ($P(B)>0$).
+    \item \textbf{Multiplicative:} $P(A \cap B) = P(A|B)P(B)$. 
+    \item \textbf{Law of Total Prob:} If $B_i$ partition $\Omega$, $P(A) = \sum_{i} P(A|B_i)P(B_i)$.
+    \item \textbf{Disjoint:} $A \cap B = \emptyset \Rightarrow P(A \cap B) = 0$.
+    \item \textbf{Independence ($A \perp B$):} $P(A \cap B) = P(A)P(B) \iff P(A|B) = P(A)$.
+    \begin{itemize}
+        \item Disjoint $\neq$ Independent (unless $P(A)$ or $P(B) = 0$).
+        \item \textit{Not Transitive:} $A\perp B, B\perp C \nRightarrow A\perp C$.
+        \item Pairwise $\nRightarrow$ Mutual $P(A{\cap}B{\cap}C) \neq P(A)P(B)P(C)$.
+    \end{itemize}
+    \item \textbf{Bayes' Theorem}: Update prior $A$ w/ evidence $B$.\\
+    $P(A_i|B) = \frac{P(B|A_i)P(A_i)}{P(B)} = \frac{P(B|A_i)P(A_i)}{\sum_j P(B|A_j)P(A_j)}$
+\end{itemize}
+
+\section*{Random Variables}
+$X: \Omega \to \mathbb{R}$. \textit{Prob Law} $P_X(A) = P(X \in A)$.
+
+\textbf{1D Functions (Discrete vs. Continuous):}
+\begin{itemize}
+    \item \textbf{CDF:} $F_X(t) = P(X \le t)$. Non-decreasing, right-continuous. $F(-\infty)=0$, $F(\infty)=1$. $P(a < X \le b) = F_X(b) - F_X(a)$.
+    \item \textbf{PMF:} $p_X(x) = P(X=x)$. $\sum p_X(x) = 1$. $F_X(x) = \sum_{t \le x} p_X(t)$.
+    \item \textbf{PDF:} $f_X(x) = \frac{d}{dx}F_X(x)$, $F(x) = \int_{-\infty}^{x}f(t) dt$ $\int f_X(x)dx = 1$. $P(X \in A) = \int_A f_X(x)dx$.
+    \item \textit{Unnormalized:} If $p(x) \propto g(x)$, then $p(x) = g(x)/Z$ where $Z = \int g(x)dx$.
+\end{itemize}
+
+\textbf{PDF/CDF Blueprint ($Y = g(X)$):} \\
+\textit{For any function (1-to-1, many-to-1, $X^2$, $|X|$, etc.)}
+\begin{enumerate}
+    \item \textbf{Define:} Always start with $F_Y(y) = P(Y \le y)$.
+    \item \textbf{Substitute:} Plug in the given function: $P(g(X) \le y)$.
+    \item \textbf{Isolate $X$:} Use algebra to get $X$ alone on one side (e.g., $P(-\sqrt{y} \le X \le \sqrt{y})$).
+    \item \textbf{Evaluate:} Integrate the \textit{original} $f_X(x)$ PDF using your newly isolated $X$ limits as the integral bounds to find $F_Y(y)$.
+    \item \textbf{Differentiate:} If asked for PDF, just derive: $f_Y(y) = \frac{d}{dy}F_Y(y)$.
+\end{enumerate}
+
+\textbf{Order Statistics ($X_1, ..., X_n$ i.i.d.):}
+\begin{itemize}
+    \item \textbf{Max ($Y_n = \max X_i$):} $F_{\max}(y) = [F_X(y)]^n$. \textit{(Logic: For the max to be $\le y$, every $X_i$ must be $\le y$)}.
+    \item \textbf{Min ($Y_1 = \min X_i$):} $F_{\min}(y) = 1 - [1 - F_X(y)]^n$. \textit{(Logic: $1 - P(\text{all } X_i > y)$)}.
+    \item \textit{PDF:} Differentiate the resulting CDFs using the chain rule.
+\end{itemize}
+
+\textbf{Multivariate RVs (2D Recipes):}
+\begin{itemize}
+    \item \textbf{Normalize:} $\iint f(x,y)\,dxdy = 1$ (Use to solve for constants).
+    \item \textbf{Marginalize:} $f_X(x) = \int f(x,y)dy$. \textit{(Integrate out what you don't want).}
+    \item \textbf{Conditional:} $f_{X|Y}(x|y) = \frac{f(x,y)}{f_Y(y)}$. \quad \textbf{Multiplicative:} $f(x,y) = f_{X|Y}(x|y)f_Y(y)$.
+    \item \textbf{Independence Check:} Explicitly test if $f(x,y) \stackrel{?}{=} f_X(x)f_Y(y)$ algebraically.
+\end{itemize}
+
+\section*{Expectation, Variance \& Covariance}
+\textbf{Expectation $\mathbb{E}[X]$:}
+\begin{itemize}
+    \item Discrete $\sum x p_X(x)$; Continuous $\int x f_X(x)dx$.
+    \item $\mathbb{E}[g(X)] = \int g(x)f_X(x)dx$
+    \item \textbf{Linearity:} $\mathbb{E}[c_1X + c_2Y + c_3] = c_1\mathbb{E}[X] + c_2\mathbb{E}[Y] + c_3$.
+\end{itemize}
+
+\textbf{Variance \& Covariance:}
+\begin{itemize}
+    \item $\mathbb{V}[X] =  \mathbb{E}[(X - \mathbb{E}[X])^2] = \mathbb{E}[X^2] - (\mathbb{E}[X])^2$.\\
+    SD $\sigma = \sqrt{\mathbb{V}[X]}$.
+    \item $Cov(X,Y) = \mathbb{E}[XY] - \mathbb{E}[X]\mathbb{E}[Y]$. \quad \textit{(Compute $\mathbb{E}[XY] = \iint xy \cdot f(x,y) dxdy$)}.
+    \item \textbf{Properties:} $\mathbb{V}[aX+c] = a^2\mathbb{V}[X]$. $Cov(aX, bY) = ab \cdot Cov(X,Y)$. $Cov(X+Y, Z) = Cov(X,Z) + Cov(Y,Z)$. $Cov(X, c) = 0$.
+    \item $\mathbb{V}[X+Y] = \mathbb{V}[X] + \mathbb{V}[Y] + 2Cov(X,Y)$.
+    \item \textbf{Correlation:} $\rho_{X,Y} = \frac{Cov(X,Y)}{\sigma_X \sigma_Y} \in [-1, 1]$.
+    \item \textbf{Independence}: $X \perp Y \Rightarrow Cov=0$. \quad $Cov=0 \nRightarrow X \perp Y$ (only tests linear).
+\end{itemize}
+\textbf{Iterated Expectations (Hierarchical RVs):}
+\begin{itemize}
+    \item \textbf{Total Exp}: $\mathbb{E}[X] = \mathbb{E}[\mathbb{E}[X|Y]]$
+    \item \textbf{Total Var}: $\mathbb{V}[X] = \mathbb{E}[\mathbb{V}[X|Y]] + \mathbb{V}[\mathbb{E}[X|Y]]$
+    \item \textbf{Continuous:} $\mathbb{E}[Y|X{=}x] = \int y \cdot f_{Y|X}(y|x) dy$
+    \item \textbf{Discrete:} $\mathbb{E}[Y|X{=}x] = \sum y \cdot P(Y{=}y|X{=}x)$
+    \item \textbf{Cond. Variance:} $\mathbb{V}[Y|X{=}x] = \mathbb{E}[Y^2|X{=}x] - (\mathbb{E}[Y|X{=}x])^2$
+    \item \textbf{Bivariate Normal Shortcut:} If $X,Y \sim \mathcal{N}$, then $\mathbb{E}[Y|X{=}x] = \mu_Y + \rho \frac{\sigma_Y}{\sigma_X} (x - \mu_X)$
+\end{itemize}
+
+\section*{Change of Variables \& Moments}
+\textbf{Change of Variables ($Y = g(X)$):}
+\begin{itemize}
+    \item \textbf{Discrete PMF:} $p_Y(y) = \sum_{x:g(x)=y} p_X(x)$.
+    \item \textbf{Cont 1D PDF:} Absolute derivative is the area scaling factor. Two equivalent forms:
+    \begin{itemize}
+        \item \textit{If $y=g(x)$:} $f_X(x) = f_Y(y) \cdot \left| \frac{dy}{dx} \right|$
+        \item \textit{If $x=g^{-1}(y)$:} $f_Y(y) = f_X(x) \cdot \left| \frac{dx}{dy} \right|$
+    \end{itemize}
+    \item \textbf{Cont nD PDF (General):} $f_Y(y) = f_X(x) \cdot |\det J_{x/y}|$, where $J_{i,j} = \frac{\partial x_i}{\partial y_j}$.
+\end{itemize}
+
+\textbf{2D Change of Variables ($U,V \to X,Y$):} \\
+\textit{Note: Only use for strict 1-to-1 transformations.}
+\begin{enumerate}
+    \item \textbf{Find Inverses:} Express the old variables ($x, y$) strictly in terms of the new variables ($u, v$): $x = h_1(u,v)$ and $y = h_2(u,v)$.
+    \item \textbf{Compute Jacobian ($|J|$):} Build the $2 \times 2$ matrix of partial derivatives and find the absolute value of its determinant:
+    \begin{itemize}
+        \item $J = \begin{bmatrix} \frac{\partial x}{\partial u} & \frac{\partial x}{\partial v} \\ \frac{\partial y}{\partial u} & \frac{\partial y}{\partial v} \end{bmatrix}$
+        \item $|J| = |\det(J)| = \left| \frac{\partial x}{\partial u}\frac{\partial y}{\partial v} - \frac{\partial x}{\partial v}\frac{\partial y}{\partial u} \right|$.
+    \end{itemize}
+    \item \textbf{Find New PDF:} Substitute the inverses and multiply by $|J|$: \\
+    $f_{U,V}(u,v) = f_{X,Y}(h_1(u,v), h_2(u,v)) \cdot |J|$.
+    \item \textbf{Determine New Bounds:} Substitute the inverse equations from Step 1 into the original inequalities for $x$ and $y$ (e.g., if $x > 0$, then $h_1(u,v) > 0$). Solve these inequalities to find the new valid ranges for $u$ and $v$.
+\end{enumerate}
+
+\textbf{Moments \& MGF:}
+\begin{itemize}
+    \item \textbf{$k$-th Moment:} $\mu_k = \mathbb{E}[X^k]$ ($\mathbb{E}[X] = \mu_1 \;|\; \mathbb{V}[X] = \mu_2 - \mu_1^2$).
+    \item \textbf{MGF ($M_X(t)$):} $M_X(t) = \mathbb{E}[e^{tX}]$. Unique.
+    \begin{itemize}
+        \item Discrete: $\sum_x e^{tx} p_X(x)$; Continuous: $\int e^{tx} f_X(x) dx$.
+        \item \textbf{Generate Moments (Derivative Method):} $\mu_k = M_X^{(k)}(0)$ ($k$-th derivative evaluated at $t=0$).
+        \item \textbf{Generate Moments (Series Expansion Method):} Expand the MGF into a Taylor series to bypass derivatives.
+        \begin{itemize}
+            \item \textit{General Form:} $M_X(t) = \sum_{k=0}^{\infty} \frac{\mathbb{E}[X^k]}{k!} t^k$. The coefficient attached to $t^k$ is always $\frac{\mu_k}{k!}$.
+            \item \textit{Coefficient Matching:} Expand via Taylor ($e^u = \sum u^n/n!$), match $t^k$ coeff to $\frac{\mu_k}{k!}$. Missing powers $\Rightarrow$ moment=0.
+            \item \textit{Zero Moments:} If the expansion lacks certain powers of $t$ (e.g., $e^{at^2}$ yields only even powers $t^{2n}$), the moments for the missing powers (e.g., odd moments like $\mathbb{E}[X], \mathbb{E}[X^3]$) are exactly 0.
+        \end{itemize}
+        \item \textbf{Linear Transformation:} If $Z = aX + b$, then $M_Z(t) = e^{bt}M_X(at)$.
+        \item \textbf{Sums of Independent Variables:} If $X \perp Y$, then $M_{X+Y}(t) = M_X(t)M_Y(t)$.
+        \begin{itemize}
+            \item \textit{Same Family:} Product often yields the same family (e.g., $Po(\lambda_1) + Po(\lambda_2) = Po(\lambda_1+\lambda_2)$).
+            \item \textit{Mixed Families:} Valid distribution, but generally not a standard "named" one (e.g., Poisson + Binomial).
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\section*{General stuff; Common distributions}
+
+
+
+\subsection*{Distributions}
+{\setlength{\tabcolsep}{2pt}
+\scriptsize
+\noindent\begin{tabular}{@{} l | c | l | c | c @{}}
+\textbf{Dist} & \textbf{Supp.} & \textbf{PMF / PDF} & $\mathbb{E}$ & $\mathbb{V}$ \\ \hline
+\textbf{Bern} & $\{0,1\}$ & $p^x(1-p)^{1-x}$ & $p$ & $p(1-p)$ \\ \hline
+\textbf{Binom} & $\{0..n\}$ & $\binom{n}{x}p^x(1-p)^{n-x}$ & $np$ & $np(1-p)$ \\ \hline
+\textbf{Pois} & $\{0..\}$ & $e^{-\lambda} \lambda^x / x!$ & $\lambda$ & $\lambda$ \\ \hline
+\textbf{Exp} & $[0, \infty)$ & $\lambda e^{-\lambda x}$ & $1/\lambda$ & $1\lambda^2$ \\ \hline
+\textbf{Unif} & $[a, b]$ & $\frac{1}{b-a}$ & $a+b/2$ & $(b-a)^2/12$ \\ \hline
+\textbf{Gauss} & $\mathbb{R}$ & $\frac{1}{\sigma\sqrt{2\pi}}\exp(-\frac{(x-\mu)^2}{2\sigma^2})$ & $\mu$ & $\sigma^2$ \\ 
+\textit{Std Norm} & $z \in \mathbb{R}$ & $\frac{1}{\sqrt{2\pi}}\exp(-z^2/2)$ & $0$ & $1$ \\
+\end{tabular}
+}
+
+\vspace{0.1cm}
+{\setlength{\tabcolsep}{2pt}
+\scriptsize
+\noindent\begin{tabular}{@{} l | l | c | l @{}}
+\textbf{Dist} & \textbf{MGF ($M_X(t)$)} & \textbf{MLE} & \textbf{Sums To} \\ \hline
+\textbf{Bern} & $1 - p + p e^t$ & $\bar{x}$ & $B(n, p)$ \\ \hline
+\textbf{Binom} & $(1 - p + p e^t)^n$ & $\bar{x}/n$ & $B(\Sigma n_i, p)$ \\ \hline
+\textbf{Pois} & $e^{\lambda(e^t - 1)}$ & $\bar{x}$ & $Po(\Sigma \lambda_i)$ \\ \hline
+\textbf{Exp} & $\frac{\lambda}{\lambda - t}, t < \lambda$ & $1/\bar{x}$ & $Gamma(n, \lambda)$ \\ \hline
+\textbf{Unif} & $\frac{e^{tb}-e^{ta}}{t(b-a)}$ & $\hat{a}{=}x_{min}, \hat{b}{=}x_{max}$ & - \\ \hline
+\textbf{Gauss} & $e^{\mu t + \frac{\sigma^2 t^2}{2}}$ & $\bar{x}, \hat{\sigma}^2$ & $\mathcal{N}(\Sigma\mu_i, \Sigma\sigma_i^2)$ \\ 
+\textit{Std Norm} & $e^{t^2/2}$ & - & $\mathcal{N}(0, n)$ \\
+\end{tabular}
+}
+
+\textbf{1D Gaussian Pattern Matching}: \\
+If $f(x) \propto e^{Q(x)}$ where $Q(x)$ is a negative quadratic, $X$ is exactly Gaussian. Drop any constants outside the exponent.
+\begin{itemize}
+    \item \textbf{Completed Square Form:} $e^{-\frac{1}{2\sigma^2}(x-\mu)^2} \implies \text{Read } \mu \text{ and } \sigma^2 \text{ directly.}$
+    \item \textbf{Expanded Form ($e^{-ax^2 + bx + c}$):} Ensure $a > 0$.
+    \begin{itemize}
+        \item \textit{Variance:} $\sigma^2 = \frac{1}{2a}$ \qquad \textit{Mean:} $\mu = \frac{b}{2a}$
+        \item \textit{Derivation:} $-ax^2+bx = -\frac{1}{2(1/2a)}(x^2 - 2(\frac{b}{2a})x)$.
+    \end{itemize}
+\end{itemize}
+\vspace{0.3cm}
+
+\textbf{Multivariate Gaussian:} If $X \sim \mathcal{N}(0, I_d)$ and $Y = AX + \mu$, then $Y \sim \mathcal{N}(\mu, \Sigma)$, $\Sigma = AA^T$.
+\begin{itemize}
+    \item PDF: $f_Y(y) = \frac{1}{(2\pi)^{d/2}\sqrt{|\det \Sigma|}} \exp(-\frac{1}{2}(\mathbf{y}-\boldsymbol{\mu})^T \Sigma^{-1} (\mathbf{y}-\boldsymbol{\mu}))$.
+    \item \textit{MLE ($X_i\in\mathbb{R}^d$):} $\hat{\mu} = \frac{1}{n}\sum X_i$, $\hat{\Sigma} = \frac{1}{n}\sum (X_i - \hat{\mu})(X_i - \hat{\mu})^\top$.
+    
+    \item \textbf{\textit{Pattern Matching (Polynomial Form):}} \\
+        If $f(x,y) = c \cdot \exp\left( -\frac{1}{2} (Ax^2 + Bxy + Dy^2 + Ex + Fy + G) \right)$:
+        \begin{enumerate}
+            \item \textbf{Matrices (Shape):} Build $\Sigma^{-1}$, then invert for $\Sigma$. Let $\det = AD - (B/2)^2$.
+            $ \Sigma^{-1} = \begin{bmatrix} A & B/2 \\ B/2 & D \end{bmatrix}$, $\Sigma = \frac{1}{\det} \begin{bmatrix} D & -B/2 \\ -B/2 & A \end{bmatrix}$ 
+            % $= \begin{bmatrix} Var(X) & Cov(X,Y) \\ Cov(X, Y) & Var(Y)\end{bmatrix}$
+            \item \textbf{Mean Vector (Location):} Multiply $\Sigma$ by the linear terms divided by $-2$.
+            $ \boldsymbol{\mu} = \Sigma \begin{bmatrix} -E/2 \\ -F/2 \end{bmatrix} = \begin{bmatrix} \mu_x \\ \mu_y \end{bmatrix} $
+            \item \textbf{Normalizer ($c$):} 
+            $ c = \frac{1}{2\pi \sqrt{|\Sigma|}} \exp\left(-\frac{1}{2}(G - \boldsymbol{\mu}^T \Sigma^{-1} \boldsymbol{\mu})\right) $
+            \textit{(Note: If the exponent perfectly completes the square, $G = \boldsymbol{\mu}^T \Sigma^{-1} \boldsymbol{\mu}$, simplifying to $c = \frac{1}{2\pi \sqrt{|\Sigma|}}$).}
+        \end{enumerate}
+\end{itemize}
+\textbf{Random stuff:}
+\begin{itemize}
+    \item \textbf{Indicator}: $I_i \in \{0,1\}$. $\mathbb{E}[\sum I_i] = \sum P(I_i=1)$.
+    \item \textbf{Gaussian Symmetry:} For $Z \sim \mathcal{N}(0,1)$, all odd central moments are exactly zero ($\mathbb{E}[Z^3] = \mathbb{E}[Z^5] = 0$).
+    \item \textbf{Gaussian Integral:} $\int_{-\infty}^{\infty} e^{-ax^2} dx = \sqrt{\pi/a}$.
+    \item \textbf{Integration by parts}: $\int u \,dv = uv - \int v \,du$
+\end{itemize}
+\textbf{Finding covariance matrix}: For any joint density function $f(x,y)$,
+\begin{enumerate}
+    \item Find marginals: $f_X(x) = \int f(x,y) dy$
+    \item Find means: $\mu_X = \mathbb{E}[X] = \int x \cdot f_X(x) dx$
+    \item Find variances: $\mathbb{E}[X^2] = \int x^2 \cdot f_X(x) dx$\\
+    $\text{Var}(X) = \mathbb{E}[X^2] - (\mu_X)^2$
+    \item Find joint expectation: $\mathbb{E}[XY] = \iint xy \cdot f(x,y) dx dy$
+    \item Covariance: $\text{Cov}(X,Y) = \mathbb{E}[XY] - \mu_X\mu_Y$
+    \item Then $\Sigma = \begin{bmatrix} \text{Var}(X) & \text{Cov}(X,Y) \\ \text{Cov}(X,Y) & \text{Var}(Y) \end{bmatrix}$.
+\end{enumerate}
+ 
+%==============================================================
+% THEME 2: LIMIT THEOREMS
+%==============================================================
+ 
+\section*{Concentration Inequalities} 
+\vspace{0.3em}
+\noindent\begin{tabular}{@{} p{0.13\linewidth} | p{0.27\linewidth} | p{0.48\linewidth} @{}}
+\textbf{Ineq} & \textbf{Constraints} & \textbf{Decay \& Use} \\ \hline
+\textbf{Markov} & $X \ge 0$, $t > 0$. Needs $\mu$. & $\propto 1/t$. Loose 1-sided. \\ \hline
+\textbf{Cheby} & $t > 0$. Needs $\mu, \sigma^2$. & $\propto 1/t^2$. 2-sided. \\ \hline
+\textbf{Hoeff} & Indep $X_i$, $a \le X_i \le b$. & $\propto e^{-nt^2}$. Tight 2-sided. \\
+\end{tabular}
+\vspace{0.3em}
+ 
+\begin{itemize}
+    \item \textbf{Markov:} $P(X \ge t) \le \frac{\mathbb{E}[X]}{t}$.
+    \item \textbf{Chebyshev:} $P(|X - \mu| \ge t) \le \frac{\mathbb{V}[X]}{t^2}$.
+    \begin{itemize}
+        \item \textit{$\sigma$-form:} $P(|X - \mu| \ge k\sigma) \le \frac{1}{k^2}$.
+    \end{itemize}
+    \item \textbf{Hoeffding (sample mean):} $P(|\overline{X}_n - \mathbb{E}[\overline{X}_n]| \ge t) \le 2 \exp\!\left(-\frac{2n^2t^2}{\sum(b_i - a_i)^2}\right)$.
+    \begin{itemize}
+        \item \textit{1-sided:} drop the leading $2$.
+        \item \textit{Sum $S_n$:} $P(|S_n - \mathbb{E}[S_n]| \ge t) \le 2\exp\!\left(-\frac{2t^2}{\sum(b_i - a_i)^2}\right)$. \textit{(No $n^2$: $t$ is sum's deviation, not mean's.)}
+        \item \textit{Bernoulli ($X_i \in [0,1]$):} $P(|\overline{X}_n - \mathbb{E}[\overline{X}_n]| \ge t) \le 2 \exp(-2nt^2)$.
+    \end{itemize}
+\end{itemize}
+ 
+\section*{Limit Theorems}
+$X_1, ..., X_n$ i.i.d., mean $\mu$, variance $\sigma^2$. $\overline{X}_n = \frac{1}{n}\sum X_i$.
+\begin{itemize}
+    \item \textbf{WLLN:} $\overline{X}_n \to \mu$ in probability. $\lim_{n\to\infty}P(|\overline{X}_n - \mu| \ge \epsilon) = 0$.
+    \item \textbf{CLT:} For large $n$,
+    \begin{itemize}
+        \item $\overline{X}_n \approx \mathcal{N}(\mu, \sigma^2/n)$.
+        \item Standardized: $Z_n = \frac{\overline{X}_n - \mu}{\sigma/\sqrt{n}} \approx \mathcal{N}(0,1)$, $\lim P(Z_n \le t) = \Phi(t)$.
+    \end{itemize}
+    \item \textbf{Normal Approx to Binomial:} $S_n \sim B(n,p)$ for large $n$:
+    \begin{itemize}
+        \item $S_n \approx \mathcal{N}(np, np(1-p))$. \quad $Z = \frac{S_n - np}{\sqrt{np(1-p)}} \approx \mathcal{N}(0,1)$.
+        \item $P(k \le S_n \le k') \approx \Phi(\frac{k'-np}{\sqrt{np(1-p)}}) - \Phi(\frac{k-np}{\sqrt{np(1-p)}})$.
+    \end{itemize}
+\end{itemize}
+ 
+%==============================================================
+% THEME 3: ESTIMATION
+%==============================================================
+  
+\section*{Estimation Fundamentals}
+\textbf{Estimator $\hat{\theta}$:} a random variable $\hat{\theta}(X_1, ..., X_n)$ depending on data.
+\begin{itemize}
+    \item \textbf{Goodness Criteria:}
+    \begin{itemize}
+        \item \textit{Unbiased:} $\mathbb{E}[\hat{\theta}] = \theta_*$.
+        \item \textit{Consistent:} $\forall \epsilon > 0, \lim_{n\to\infty}P(|\hat{\theta} - \theta_*|\leq\epsilon)=1$.
+        \item \textit{Efficient:} Unbiased with lowest possible variance. 
+        \item \textit{Asymp. Normal:} As $n\to\infty$, $\hat{\theta} \sim \mathcal{N}(\theta_*,\cdot)$ via CLT. 
+    \end{itemize}
+    \item \textbf{Bias-Variance Decomp:} 
+    $\mathbb{E}[\|\hat{\theta} - \theta_*\|^2] = \underbrace{\mathbb{E}[\|\hat{\theta} - \mathbb{E}[\hat{\theta}]\|^2]}_{\text{Variance}} + \underbrace{\|\mathbb{E}[\hat{\theta}] - \theta_*\|^2}_{\text{Bias}^2}$.
+    \item \textbf{Fisher Information $\mathcal{I}(\theta_*)$:} Sensitivity of data to $\theta_*$. Equivalent forms:
+    $\mathcal{I}(\theta_*) = \mathbb{E}\!\left[\left(\frac{\partial \log p_\theta(X)}{\partial\theta}\right)^2\right] = -\mathbb{E}\!\left[\frac{\partial^2 \log p_\theta(X)}{\partial \theta^2}\right]$. 
+    \item \textbf{Cramér-Rao Lower Bound (CRLB):} Minimum variance for unbiased estimator. Reaching it $\Rightarrow$ efficient.
+    $\mathbb{V}[\hat{\theta}] \ge \frac{1}{n \cdot \mathcal{I}(\theta_*)}$. Bound $\to 0$ as $n \to \infty$.
+\end{itemize}
+ 
+\section*{Point Estimation}
+\begin{itemize}
+    \item \textbf{Mean:} $\hat{\mu} = \frac{1}{n}\sum X_i$. Unbiased, consistent ($\mathbb{V}[\hat{\mu}]=\sigma^2/n$). Also estimates $p$ for Bernoulli, $\lambda$ for Poisson. 
+    \item \textbf{Variance:} Both consistent. 
+    \begin{itemize}
+        \item \textit{Biased (Sample):} $\hat{\sigma}^2 = \frac{1}{n}\sum(X_i - \hat{\mu})^2$, $\mathbb{E}[\hat{\sigma}^2]=\frac{n-1}{n}\sigma^2$. (Underestimates.)
+        \item \textit{Unbiased (Bessel):} $\hat{\tau}^2 = \frac{1}{n-1}\sum(X_i - \hat{\mu})^2$, $\mathbb{E}[\hat{\tau}^2]=\sigma^2$.
+    \end{itemize}
+\end{itemize}
+ 
+\section*{Estimation Methods} 
+\begin{itemize}
+    \item \textbf{1. MLE (Frequentist):} Parameter $\theta$ that makes observed data most probable.
+    $\hat{\theta}_{\text{MLE}} = \arg\max_{\theta} \sum_{i=1}^n \log p_\theta(X_i)$.
+    \begin{itemize}
+        \item \textbf{Invariance:} If $\hat{\theta}$ is the MLE, the MLE of $g(\theta)$ is simply $g(\hat{\theta})$.
+        \item \textbf{MLE Calculation Blueprint:}
+        \begin{enumerate}
+            \item \textbf{Likelihood:} Write $L(\theta) = \prod_{i=1}^n f(x_i|\theta)$.
+            \item \textbf{Log-Likelihood:} Take the natural log: $\ell(\theta) = \sum_{i=1}^n \log f(x_i|\theta)$.
+            \item \textbf{Optimize:} Differentiate $\frac{d\ell}{d\theta}$ and set to $0$.
+            \item \textbf{Solve:} Solve for $\theta$ to find the estimator $\hat{\theta}$.
+        \end{enumerate}
+    \end{itemize}
+    
+    \item \textbf{2. Bayesian Inference:} Output a \textit{distribution} of likely parameters. Update prior with data.
+    \\
+    Posterior $p(\theta|X_{1:n}) = \frac{\prod p(X_i|\theta)p(\theta)}{\int \prod p(X_i|\theta')p(\theta')d\theta'} \propto \text{Lik} \times \text{Prior}$.
+    \begin{itemize}
+        \item \textit{Point Estimate:} take \textbf{Mean} of posterior.
+        \item \textit{Posterior Predictive:} $\hat{p}(x) = \mathbb{E}_{\theta \sim p(\theta|X_{1:n})}[p(x|\theta)]$. Robust for small $n$.
+    \end{itemize}
+    
+    \item \textbf{3. MAP (Bridge):} Finds the mode of the posterior $\equiv$ MLE + regularizer.
+    \ $\hat{\theta}_{\text{MAP}} = \arg \max_\theta \{ \sum \log p(x_i|\theta) + \log p(\theta) \}$
+    \begin{itemize}
+    \item \textbf{Calculation Blueprint (Success/Fail):}
+    \ $\hat{\theta}_{MAP} = \frac{\text{Real Successes} + \text{Imaginary Successes}}{\text{Total Real Trials} + \text{Total Imaginary Trials}}$
+    \item \textit{Ex (Coin):} 3 Heads in 3 flips. Prior = 1H, 1T.
+    \ \textbf{MLE:} $3/3 = \mathbf{1.0}$ \quad \textbf{MAP:} $\frac{3+1}{3+2} = \mathbf{0.8}$ (Prior pulls data toward 0.5).
+    \item \textbf{Asymptotics:} As $n \to \infty$, Imaginary Data weight $\to 0$, so $\hat{\theta}_{MAP} \to \hat{\theta}_{MLE}$.
+    \end{itemize}
+    \item \textbf{KL Divergence (Relative Entropy):} Measures how much an approximating distribution $q$ diverges from the true distribution $p$. Maximizing MLE $\equiv$ minimizing KL.
+    \\
+    $D_{KL}(p\|q) = \mathbb{E}_{X \sim p}\left[\log\frac{p(X)}{q(X)}\right] \ge 0$, $=0$ iff $p=q$.
+\end{itemize}
+ 
+\section*{Bayesian Methods} 
+\textbf{1. Naive Bayes Classifier:} Classify input $X = (x_1, ..., x_d)$ into class $C$.\\
+\textit{Core Assumption:} features conditionally independent given class.
+\begin{itemize}
+    \item \textbf{Step 1 (Priors):} $P(c)$ for each class.
+    \item \textbf{Step 2 (Likelihoods):} $P(x_i|c)$ for each feature.
+    \item \textbf{Step 3 (Score):} $\text{Score}(c) = P(c) \prod_i P(x_i|c) \propto P(c|X)$.
+    \item \textbf{Step 4 (Classify):} $\hat{c} = \arg\max_c \text{Score}(c)$.
+    \item \textbf{Zero Frequency:} If $P(x_i|c)=0$, score zeroes out.
+\end{itemize}
+ 
+\textbf{2. Gaussian Conjugate Inference:}
+Update prior on $\mu$ using $n$ samples from $X \sim \mathcal{N}(\mu, \sigma^2)$.\\
+\textit{Why $\propto$?} $P(\mu|X) = \frac{P(X|\mu)P(\mu)}{P(X)}$. Drop $P(X)$ and Gaussian coefficients to add exponents.
+\begin{itemize}
+    \item \textbf{Prior $P(\mu)$:} $\mu \sim \mathcal{N}(\mu_0, \sigma_0^2)$. $\propto \exp\!\left(-\frac{(\mu - \mu_0)^2}{2\sigma_0^2}\right)$.
+    \item \textbf{Likelihood $P(X|\mu)$:} $\propto \exp\!\left(-\frac{\sum(x_i - \mu)^2}{2\sigma^2}\right)$.
+    \item \textbf{Posterior $\propto$ Lik $\times$ Prior:} Add exponents:
+    $\propto \exp\!\left(-\frac{1}{2}\left[\frac{\sum(x_i - \mu)^2}{\sigma^2} + \frac{(\mu - \mu_0)^2}{\sigma_0^2}\right]\right)$. Match to a Gaussian:
+    \item \textbf{Posterior Variance:} $\frac{1}{\hat{\sigma}_n^2} = \frac{n}{\sigma^2} + \frac{1}{\sigma_0^2} \Rightarrow \hat{\sigma}_n^2 = \frac{\sigma^2\sigma_0^2}{n\sigma_0^2 + \sigma^2}$.
+    \item \textbf{Posterior Mean:} $\hat{\mu}_n = \hat{\sigma}_n^2(\frac{\sum x_i}{\sigma^2} + \frac{\mu_0}{\sigma_0^2})$.
+    \item \textbf{Limits:} \textit{($\sum x_i = n\bar{x}$)}
+    \begin{itemize}
+        \item \textit{No data ($n=0$):} $\hat{\sigma}_0^2 = \sigma_0^2$, $\hat{\mu}_0 = \mu_0$. (Fall back to prior.)
+        \item \textit{Infinite data ($n\to\infty$):} $\hat{\sigma}_n^2 \to 0$. Mean: divide $\hat{\mu}_n = \frac{n\sigma_0^2\bar{x} + \sigma^2\mu_0}{n\sigma_0^2 + \sigma^2}$ top \& bottom by $n$ $\Rightarrow \bar{x}$.
+        \item \textit{Zero prior conf ($\sigma_0^2 \to \infty$):} Recovers Frequentist: $\hat{\sigma}_n^2 \to \sigma^2/n$, $\hat{\mu}_n \to \bar{x}$.
+    \end{itemize}
+    \item \textbf{Gaussian MAP = Posterior Mean:} For symmetric Gaussian, mode $=$ mean. Reused in Bayesian Linear Regression.
+\end{itemize}
+ 
+\section*{Latent Variables \& EM}
+Joint: $p(x,z) = p(x|z)p(z)$.\\ 
+\textbf{Gaussian Mixture Model (GMM):} $K$ Gaussians blended:
+$p(x) = \sum_{t=1}^K \pi_t\, \mathcal{N}(x|\mu_t, \Sigma_t)$, $\sum_t \pi_t = 1$.\\
+Parameters to learn: weights $\pi_t$, means $\mu_t$, covariances $\Sigma_t$ for each cluster.
+ 
+\subsection*{EM algorithm}
+\textbf{E step}: Computes $\gamma_{t,i}$, which is the probability that cluster $t$ generated data point $x_i$.
+$\gamma_{t,i}^{(k)} = \frac{\pi_t^{(k)}\, \mathcal{N}(x_i|\mu_t^{(k)}, \Sigma_t^{(k)})}{\sum_{s=1}^K \pi_s^{(k)}\, \mathcal{N}(x_i|\mu_s^{(k)}, \Sigma_s^{(k)})}$\\
+% \begin{itemize}
+%     \item Numerator: $\pi_t$: The overall probability of picking cluster $t$ (the mixing weight); $\mathcal{N}(x_i | \mu_t, \Sigma_t)$: The likelihood of seeing this specific data point if it came from cluster $t$. This is calculated using the standard Normal (Gaussian) distribution formula.
+%     \item Denominator: Sum across all possible clusters.
+% \end{itemize}
+\textbf{M step}: Update the cluster parameters.
+\begin{itemize}
+    \item Effective size $n_t^{(k+1)} = \sum_{i=1}^n \gamma_{t,i}^{(k)}$, sum of the responsibilities for cluster $t$.
+    \item Mixing weight $\pi_t^{(k+1)} = \frac{n_t^{(k+1)}}{n}$.
+    \item Mean $\mu_t^{(k+1)} = \frac{1}{n_t^{(k+1)}} \sum_{i=1}^n \gamma_{t,i}^{(k)}\, x_i$.
+    \item Variance $(\sigma_t^2)^{(k+1)} = \frac{1}{n_t^{(k+1)}} \sum_{i=1}^n \gamma_{t,i}^{(k)}\, (x_i - \mu_t^{(k+1)})^2$.
+\end{itemize}
+
+\textbf{Theoretical Guarantees:}
+\begin{itemize}
+    \item Likelihood is mathematically guaranteed to \textbf{never decrease} after an EM step.
+    \item Guaranteed to converge, but only to a \textbf{local} optimum (highly sensitive to initialization), NOT necessarily the global optimum.
+\end{itemize}
+
+\subsection*{Q function}
+$Q(\theta, \theta^{(k)}) = \mathbb{E}_{Z|X, \theta^{(k)}} [\log p(X, Z | \theta)]$
+For two observations, $Q(\theta, \theta^{(k)}) = \sum_{z_1} \sum_{z_2} p(z_1, z_2 | x_1, x_2, \theta^{(k)}) \log p(x_1, x_2, z_1, z_2 | \theta)$
+% $ = \sum_{z_1} \sum_{z_2} p(z_1 | x_1, \theta^{(k)}) p(z_2 | x_2, \theta^{(k)}) \left[ \log p(x_1, z_1 | \theta) + \log p(x_2, z_2 | \theta) \right]$
+%==============================================================
+% THEME 4: SUPERVISED LEARNING
+%==============================================================
+
+\section*{Regressions}
+\textit{Goal: Fit $y \approx w^T x$. \textbf{Micro-Example:} No bias 1D data: $(1, 2)$ and $(2, 5)$. \\
+Sufficient Stats: $X^T X = 1^2 + 2^2 = \mathbf{5}$; \quad $X^T y = 1(2) + 2(5) = \mathbf{12}$.}
+
+\vspace{0.2cm}
+\subsection*{1. Least Squares (LSM) - Baseline}
+\begin{itemize}
+    \item \textit{Concept:} Minimizes squared error (assumes Gaussian noise). Unbiased, but risks overfitting and requires $n \ge d$ to invert the matrix.
+    \item \textit{Math:} $\hat{w}_{LSM} = (X^T X)^{-1} X^T y$ 
+    \item \textit{Ex Plug-in:} $\hat{w} = (5)^{-1}(12) = \mathbf{2.4}$. \textit{(The pure, unpenalized best fit).}
+\end{itemize}
+
+\subsection*{2. Ridge Regression ($L_2$) - Regularisation}
+\begin{itemize}
+    \item \textit{Concept:} Adds penalty $\lambda I$ to guarantee invertibility even if $n < d$. Prevents overfitting: $\uparrow \lambda \implies \uparrow$ bias, $\downarrow$ variance.
+    \item \textit{Math:} $\hat{w}_{Ridge} = (\lambda I + X^T X)^{-1} X^T y$ 
+    \item \textit{Ex Plug-in ($\lambda=1$):} $\hat{w} = (1 + 5)^{-1}(12) = 12/6 = \mathbf{2.0}$. \textit{(Penalty successfully shrinks $w$ down from 2.4 to prevent overfitting).}
+    \item \textbf{Scaling Trap:} Unlike LSM, Ridge is scale-dependent. You \textbf{must standardize} features ($x_{new} = \frac{x - \mu}{\sigma}$) before applying Ridge so the penalty treats all variables equally.
+\end{itemize}
+
+
+\subsection*{3. Bayesian Linear Regression - Uncertainty}
+\begin{itemize}
+    \item \textit{Concept:} Treats $w$ as a random variable ($w \sim \mathcal{N}(0, \sigma_0^2 I)$). Returns a \textit{distribution} of likely lines, not just one. $\text{Posterior} \propto \text{Likelihood} \times \text{Prior}$.
+    \item \textit{Covariance (Uncertainty):} $\Sigma_n = (\frac{1}{\sigma_0^2}I + \frac{1}{\sigma^2}X^T X)^{-1}$. \textit{(New Prec = Prior Prec + Data Prec)}
+    \item \textit{Mean (Best Guess):} $\mu_n = \frac{1}{\sigma^2}\Sigma_n X^T y$. \quad \textbf{MAP $\equiv$ Ridge} ($\lambda = \sigma^2/\sigma_0^2$).
+    \item \textit{Ex Plug-in ($\sigma_0^2=1, \sigma^2=1$):} Prec $= 1/1 + 5/1 = \mathbf{6} \implies \Sigma_n = \mathbf{1/6}$. Mean $= (1/6)(12/1) = \mathbf{2.0}$. \textit{(Mean perfectly matches Ridge, but now we know our uncertainty is $\pm 1/6$!)}
+\end{itemize}
+
+\textbf{Predictive Distribution (Bayesian):} 
+Marginalize over all possible lines to predict output for a new $x^*$:
+% $p(y^*|y, x^*) = \mathcal{N}\left(\mu_n^T x^*, \;\underbrace{\sigma^2}_{\text{Irreducible Noise}} + \underbrace{(x^*)^T \Sigma_n x^*}_{\text{Model Uncertainty}}\right)$\\
+% $p(y^*|y, x^*) = \mathcal{N}\left(\mu_n^T x^*, \;\sigma^2_{\text{noise}} + [(x^*)^T \Sigma_n x^*]_{\text{uncert.}}\right)$\\
+% $p(y^*|y, x^*) = \mathcal{N}(\mu_n^T x^*, \;\sigma^2 + (x^*)^T \Sigma_n x^*)$ \\
+% \textit{Variance = Irreducible Noise ($\sigma^2$) + Model Uncertainty ($(x^*)^T \Sigma_n x^*$)}\\
+$p(y^*|y, x^*) = \mathcal{N}\left(\mu_n^T x^*, \;\smash{\underbrace{\sigma^2}_{\text{Noise}}} + \smash{\underbrace{(x^*)^T \Sigma_n x^*}_{\text{Uncertainty}}}\right)$
+\vspace{1.5em}
+
+\begin{itemize}
+    \item \textit{Irreducible Noise:} Inherent data randomness.
+    \item \textit{Model Uncertainty:} Small near training data, flares out far from it.
+    \item \textbf{\textit{Ex Plug-in (Predict for $x^* = 3$):}} Using our prior model ($\mu_n=2.0$, $\Sigma_n=1/6$, $\sigma^2=1$):
+    \begin{itemize}
+        \item \textit{Mean:} $2.0 \times 3 = \mathbf{6.0}$. 
+        \item \textit{Variance:} $1 + 3(1/6)3 = 1 + 9/6 = \mathbf{2.5}$.
+        \item \textit{Result:} $y^* \sim \mathcal{N}(6.0, 2.5)$. \textit{(Model uncertainty grew from $1/6$ during training to $1.5$ when predicting this new point.)}
+    \end{itemize}
+\end{itemize}
+
+\subsection*{Logistic Regression (Binary Classification)}
+\textit{Goal: Predict probability $P(y=+1|x)$. \textbf{Micro-Example:} Model trained with $w=0.5$. Test point $x=2$.}
+\begin{itemize}
+    \item \textbf{Binary Classification:} $y \in \{-1, +1\}$.
+    \item \textbf{Sigmoid Function:} Squashes raw scores into $[0,1]$. $\sigma(z) = \frac{1}{1 + \exp(-z)}$.
+    \item \textbf{Prediction Step:} First compute linear score $z=w^T x$, then squash.
+    \begin{itemize}
+        \item \textit{Ex Plug-in:} Score $z = (0.5)(2) = \mathbf{1.0}$.
+        \item Prob of $+1$: $\sigma(1) = \frac{1}{1+e^{-1}} \approx \frac{1}{1+0.368} \approx \mathbf{0.73}$ \textbf{(73\%)}.
+    \end{itemize}
+    \item \textbf{Decision Boundary:} Hyperplane $w^T x = 0$. $>0 \Rightarrow +1$; $<0 \Rightarrow -1$.
+    \begin{itemize}
+        \item \textit{Ex Plug-in:} Since $z=1.0 > 0$, we classify $x=2$ as \textbf{Class +1}.
+    \end{itemize}
+    \item \textbf{MLE Objective (Logistic Loss):} $\hat{w} = \arg \min_w \sum \log(1 + \exp(-y_i w^T x_i))$.
+    \begin{itemize}
+        \item No closed-form solution exists; must use \textbf{Gradient Descent}.
+        \item Add $\lambda\|w\|^2$ for $L_2$ regularization (Ridge equivalent).
+    \end{itemize}
+\end{itemize}
+
+\newpage
+
+% \section*{EM algo example}
+% \textbf{Example}: 1D, K=2.\\
+% Data points: $x_1 = 1$, $x_2 = 2$, $x_3 = 9$.\\
+% Initial guesses (iteration $k=0$): Mixing weights: $\pi_1 = 0.5$, $\pi_2 = 0.5$, Means: $\mu_1 = 0$, $\mu_2 = 10$, Variances: $\sigma_1^2 = 1$, $\sigma_2^2 = 1$.\\
+% Normal dist formula (1D): $\mathcal{N}(x | \mu, \sigma^2) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}$.\\
+% \textit{E step}: Find $\gamma$ for $x_1 = 1$.\\
+% Cluster 1: $\mathcal{N}(x_1=1 | \mu_1=0, \sigma_1^2=1) = \frac{1}{\sqrt{2\pi(1)}} e^{-\frac{(1-0)^2}{2(1)}} = \frac{1}{\sqrt{2\pi}} e^{-0.5} \approx 0.242$\\
+% Cluster 2: $\mathcal{N}(x_1=1 | \mu_2=10, \sigma_2^2=1) = \frac{1}{\sqrt{2\pi(1)}} e^{-\frac{(1-10)^2}{2(1)}} = \frac{1}{\sqrt{2\pi}} e^{-40.5} \approx 0.000$\\
+% Sub into responsibility eqn for cluster 1: $\gamma_{1,1} = \frac{\pi_1 \cdot \mathcal{N}_1}{\pi_1 \cdot \mathcal{N}_1 + \pi_2 \cdot \mathcal{N}_2} = \frac{0.121}{0.121 + 0} = 1$\\
+% So, $\gamma_{1,1} = 1$ and $\gamma_{2,1} = 0$. Cluster 1 takes 100\% responsibility for data point $x_1=1$.\\
+% Repeating for $x_2=2$ and $x_3=9$, we get $\gamma_{1,2} \approx 1$ and $\gamma_{2,2} \approx 0$ and $\gamma_{1,3} \approx 0$ and $\gamma_{2,3} \approx 1$.\\
+% \textit{M step}:
+% \begin{itemize}
+%     \item Effective sizes: $n_1 = 1 + 1 + 0 = 2$ and $n_2 = 0 + 0 + 1 = 1$.
+%     \item New mixing weights: $\pi_1 = 2/3$ and $\pi_2 = 1/3$.
+%     \item New means: $\mu_1 = \frac{(1 \cdot 1) + (1 \cdot 2) + (0 \cdot 9)}{2} = 1.5$; $\mu_2 = \frac{(0 \cdot 1) + (0 \cdot 2) + (1 \cdot 9)}{1} = 9$
+%     \item New variances: $\sigma_1^2 = \frac{1 \cdot (1-1.5)^2 + 1 \cdot (2-1.5)^2 + 0}{2} = \frac{0.25 + 0.25}{2} = 0.25$; $\sigma_2^2 = \frac{0 + 0 + 1 \cdot (9-9)^2}{1} = 0$.
+% \end{itemize}
+
+% \section*{Recurring Concepts (Parallels)}
+ 
+% \textbf{Frequentist vs. Bayesian (the lens used everywhere):}
+ 
+% \noindent\begin{tabular}{@{} p{0.20\linewidth} | p{0.34\linewidth} | p{0.34\linewidth} @{}}
+% & \textbf{Frequentist} & \textbf{Bayesian} \\ \hline
+% View of $\theta$ & Fixed unknown & Random variable \\ \hline
+% Output & Single number & Full distribution \\ \hline
+% Uses prior? & No & Yes \\ \hline
+% Method & MLE & Posterior \\ \hline
+% Bridge & MAP (Bayesian prior, point estimate) & \\
+% \end{tabular}
+ 
+% \vspace{0.3em}
+% \textbf{Regularization (the same idea, three names):} Adding a penalty / prior pulls weights toward zero.
+ 
+% \noindent\begin{tabular}{@{} p{0.30\linewidth} | p{0.62\linewidth} @{}}
+% \textbf{Setting} & \textbf{Equivalent form} \\ \hline
+% MAP w/ Gaussian prior & MLE $+$ $L_2$ penalty \\ \hline
+% Ridge regression & LSM $+$ $\lambda\|w\|^2$ \\ \hline
+% Bayesian Linear Reg & MAP $\equiv$ Ridge with $\lambda = \sigma^2 / \sigma_0^2$ \\ \hline
+% $L_1$ loss MLE & Laplace noise assumption \\
+% \end{tabular}
+ 
+% \vspace{0.3em}
+% \textit{Punchline:} Adding a Gaussian prior on weights $\equiv$ adding $L_2$ penalty. Strong prior (small $\sigma_0^2$) or noisy data (large $\sigma^2$) $\Rightarrow$ large $\lambda$ $\Rightarrow$ more shrinkage.
+
+% \section*{Linear Regression \& LSM}
+% \begin{itemize}
+%     \item \textbf{Linear Model:} $y \approx w^T x + b$.
+%     \item \textbf{Basis Functions:} $y \approx w^T \phi(x) + b$. Allows curved fits while keeping model linear in $w$. (e.g., $\phi_j(x)=x^j$.)
+%     \item \textbf{Least Squares (LSM)}:
+%     \begin{itemize}
+%         \item \textit{Objective:} $\hat{w}=\arg\min_{w} \|y-Xw\|^2$.
+%         \item \textit{Closed-form:} $\hat{w} = \hat{\Sigma}^{-1} X^T y$, $\hat{\Sigma} = X^T X$.
+%         \item \textit{Requires:} $\hat{\Sigma}$ invertible (lin. indep. features, $n \ge d$).
+%     \end{itemize}
+%     \item \textbf{MLE Perspective:} Loss function = noise assumption (see Parallels table).
+%     \begin{itemize}
+%         \item Gaussian noise $\Rightarrow$ \textbf{LSM} (squared error).
+%         \item Laplace noise $\Rightarrow$ \textbf{$L_1$ loss} ($\arg\min \sum |y_i - w^T x_i|$).
+%     \end{itemize}
+% \end{itemize}
+ 
+% \section*{Ridge Regression \& Bias-Variance}
+% \begin{itemize}
+%     \item \textbf{Ridge ($L_2$):} Adds penalty $\lambda\|w\|^2$ to prevent overfitting.
+%     \begin{itemize}
+%         \item \textit{Objective:} $\hat{w} = \arg\min_w\{\|y-Xw\|^2+\lambda\|w\|^2\}$.
+%         \item \textit{Closed-form:} $\hat{w}=(\lambda I + \hat{\Sigma})^{-1}X^T y$.
+%         \item \textit{Advantage:} $\lambda I$ guarantees invertibility, even if $n < d$.
+%     \end{itemize}
+%     \item \textbf{Bias-Variance (Ridge):}
+%     \begin{itemize}
+%         \item Bias$^2$: $\frac{\lambda^2}{n}w_*^T (\lambda I + \hat{\Sigma})^{-2}\hat{\Sigma}w_*$. Increases with $\lambda$.
+%         \item Variance: $\frac{\sigma^2}{n}\text{Tr}((\lambda I + \hat{\Sigma})^{-2}\hat{\Sigma}^2)$. Decreases with $\lambda$.
+%     \end{itemize}
+%     \item \textbf{Limits:}
+%     \begin{itemize}
+%         \item $\lambda=0$ (Pure LSM): unbiased, var $\frac{\sigma^2 d}{n}$. Overfit risk if $n \approx d$.
+%         \item $\lambda \to \infty$: var $\to 0$, but $w \to 0$ (underfit).
+%     \end{itemize}
+% \end{itemize}
+ 
+% \section*{Logistic Regression}
+% \begin{itemize}
+%     \item \textbf{Binary Classification:} $y \in \{-1, +1\}$.
+%     \item \textbf{Sigmoid:} $\sigma(z) = \frac{1}{1 + \exp(-z)} \in [0,1]$.
+%     \item \textbf{Probabilistic Model:} $p(y|x,w) = \frac{1}{1 + \exp(-y\,w^T x)}$.
+%     \begin{itemize}
+%         \item \textit{Trick:} $y \cdot w^Tx$ same sign (correct) $\Rightarrow$ high prob; opposite (wrong) $\Rightarrow$ low prob.
+%     \end{itemize}
+%     \item \textbf{Decision Boundary:} hyperplane $w^T x = 0$. $>0 \Rightarrow +1$; $<0 \Rightarrow -1$.
+%     \item \textbf{MLE Objective (logistic loss):} $\hat{w} = \arg \min_w \sum \log(1 + \exp(-y_i w^T x_i))$.
+%     \begin{itemize}
+%         \item Add $\lambda\|w\|^2$ for $L_2$ regularization.
+%         \item No closed-form; use gradient descent.
+%     \end{itemize}
+% \end{itemize}
+ 
+% \section*{Bayesian Linear Regression}
+% Treats weights $w$ as a random variable. \textit{(See Bayesian Methods for the prior $\times$ lik framework, and Parallels table for MAP=Ridge.)}
+ 
+% \textbf{Setup (unnormalized):}
+% \begin{itemize}
+%     \item Posterior $\propto$ Likelihood $\times$ Prior (drop normalizer $P(y)$).
+%     \item Likelihood: $y_i \sim \mathcal{N}(w^T x_i, \sigma^2)$.
+%     \item Prior: $w \sim \mathcal{N}(0, \sigma_0^2 I)$.
+%     \item Quadratic form $\exp(-\frac{1}{2a}x^2 + \frac{b}{a}x)$ tells you it's Gaussian.
+% \end{itemize}
+ 
+% \textbf{Posterior:} $p(w|y) \sim \mathcal{N}(\hat{\mu}_n, \hat{\Sigma}_n)$:
+% \begin{itemize}
+%     \item Covariance: $\hat{\Sigma}_n = (\frac{1}{\sigma_0^2}I + \frac{1}{\sigma^2}X^T X)^{-1}$. (Shrinks as $n \to \infty$.)
+%     \item Mean: $\hat{\mu}_n = \frac{1}{\sigma^2}\hat{\Sigma}_n X^T y$.
+% \end{itemize}
+ 
+% \textbf{MAP = Ridge:} Taking $\log$ of posterior recovers Ridge with $\lambda = \sigma^2/\sigma_0^2$. \textit{Noisy data (large $\sigma^2$) or strong prior (small $\sigma_0^2$) $\Rightarrow$ large $\lambda$.}
+ 
+% \textbf{Sequential Learning:} Yesterday's posterior = today's prior. $p(w|y_1, y_2) \propto p(y_2|x_2,w)\,p(w|y_1)$. \textit{Permutation-invariant:} order doesn't change final posterior.
+
+% \section*{Predictive Distribution}
+% Marginalize over all weights to get distribution over outputs for new $x^*$:
+% \[p(y^*|y, x^*) = \int p(y^*|w, x^*)\,p(w|y)\,dw = \mathcal{N}(\hat{\mu}_n^T x^*, \;\sigma^2 + (x^*)^T \hat{\Sigma}_n x^*)\]
+% \begin{itemize}
+%     \item \textbf{Mean ($\hat{\mu}_n^T x^*$):} best point prediction. Same as evaluating model at MAP weights.
+%     \item \textbf{Variance:} two sources of uncertainty.
+%     \begin{itemize}
+%         \item $\sigma^2$: \textit{Irreducible noise} (data generation randomness).
+%         \item $(x^*)^T \hat{\Sigma}_n x^*$: \textit{Model uncertainty}. Small near training data, flares far from it.
+%     \end{itemize}
+% \end{itemize}
+
+% \section*{Common Distributions}
+% \textbf{Discrete:}
+% \begin{itemize}
+%     \item \textbf{Bernoulli $Ber(p)$:} 1 trial. $P(X=k) = p^k(1-p)^{1-k}$, $k \in \{0,1\}$. $\mathbb{E}=p$, $\mathbb{V}=p(1-p)$.
+%     \begin{itemize}
+%         \item \textit{Indicator $\mathbb{I}_E$:} Bernoulli mapping $E \to \{0,1\}$. $P(\mathbb{I}_E=1)=P(E)$.
+%         \item \textit{MGF:} $M_X(t) = \mathbb{E}[e^{tX}] = p e^{t(1)} + (1-p) e^{t(0)} = 1 - p + p e^t$.
+%         \item \textit{$\mu_1$ (Mean):} $M_X'(t) = p e^t$. At $t=0$: $\mu_1 = p$.
+%         \item \textit{$\mu_2$:} $M_X''(t) = p e^t$. At $t=0$: $\mu_2 = p$.
+%         \item \textit{$\mathbb{V}$:} $\mu_2 - \mu_1^2 = p - p^2 = p(1-p)$.
+%         \item \textit{MLE:} Log-likelihood $\ell(p) = \sum x_i \log p + (n-\sum x_i) \log(1-p)$. Setting $\ell'(p)=0 \Rightarrow \hat{p} = \frac{1}{n}\sum x_i = \bar{x}$.
+%     \end{itemize}
+    
+%     \item \textbf{Binomial $B(n,p)$:} $n$ indep Bernoullis. $P(X=k) = \binom{n}{k}p^k(1-p)^{n-k}$. Large $n$: approx Normal via CLT.
+%     \begin{itemize}
+%         \item \textit{MGF:} Sum of $n$ indep. Bernoullis $\Rightarrow M_X(t) = (1 - p + p e^t)^n$.
+%         \item \textit{$\mu_1$ (Mean):} $M_X'(t) = n(1 - p + p e^t)^{n-1} p e^t$. At $t=0$: $\mu_1 = np$.
+%         \item \textit{$\mu_2$:} $M_X''(t) = n(n-1)(1 - p + p e^t)^{n-2}(p e^t)^2 + n(1 - p + p e^t)^{n-1} p e^t$. At $t=0$: $\mu_2 = n(n-1)p^2 + np$.
+%         \item \textit{$\mathbb{V}$:} $\mu_2 - \mu_1^2 = n(n-1)p^2 + np - (np)^2 = np(1-p)$.
+%         \item \textit{MLE:} Same setup as Bernoulli $\Rightarrow \hat{p} = \frac{\bar{x}}{n}$.
+%     \end{itemize}
+    
+%     \item \textbf{Poisson $Po(\lambda)$:} Counts in fixed interval, rate $\lambda$. Limit of Binomial as $n \to \infty, p \to 0$ with $\lambda = np$. 
+%     \begin{itemize}
+%         \item $P(X=k) = \frac{e^{-\lambda} \lambda^k}{k!}$.
+%         \item \textit{MGF:} $M_X(t) = \sum_k e^{tk} \frac{e^{-\lambda} \lambda^k}{k!} = e^{-\lambda} \sum_k \frac{(e^t \lambda)^k}{k!} = \exp(\lambda(e^t - 1))$.
+%         \item \textit{$\mu_1$:} $M_X'(t) = \lambda e^t \exp(\lambda(e^t - 1))$. At $t=0$: $\mu_1 = \lambda$.
+%         \item \textit{$\mu_2$:} $M_X''(t) = [\lambda e^t + (\lambda e^t)^2] \exp(\lambda(e^t - 1))$. At $t=0$: $\mu_2 = \lambda + \lambda^2$.
+%         \item \textit{$\mathbb{V}$:} $\mu_2 - \mu_1^2 = \lambda$.
+%         \item \textit{MLE:} $\ell(\lambda) = -n\lambda + (\sum x_i)\log \lambda - \sum \log(x_i!)$. Setting $\ell'(\lambda)=0 \Rightarrow -n + \frac{\sum x_i}{\lambda} = 0 \Rightarrow \hat{\lambda} = \bar{x}$.
+%     \end{itemize}
+    
+%     \item \textbf{Categorical:} $X \in \{1,\ldots,K\}$, $P(X=k)=p_k$, $\sum p_k = 1$. (Generalises Bernoulli.)
+%     \begin{itemize}
+%         \item \textit{MLE:} Let $N_k$ be the count of category $k$ in $n$ trials. Maximize likelihood subject to constraint $\sum p_k = 1$ using Lagrange multiplier $\Rightarrow \hat{p}_k = \frac{N_k}{n}$.
+%     \end{itemize}
+% \end{itemize}
+
+% % \vspace{0.5cm}
+% \textbf{Continuous:}
+% \begin{itemize}
+%     \item \textbf{Gaussian $\mathcal{N}(\mu, \sigma^2)$:} $f(x) = \frac{1}{\sqrt{2\pi\sigma^2}}\exp(-\frac{(x-\mu)^2}{2\sigma^2})$. $\mathbb{E}=\mu$, $\mathbb{V}=\sigma^2$. Arises as limit of i.i.d. sums (CLT).
+%     \begin{itemize}
+%         \item \textit{Standard Normal $Z \sim \mathcal{N}(0,1)$:} $Z = \frac{X-\mu}{\sigma}$. CDF $\Phi(t) = P(Z \le t)$.
+%         \item \textit{Identify by Inspection:} If $p(x) \propto \exp(-\frac{1}{2\sigma^2}(x-\mu)^2)$ or expanded $\exp(-\frac{1}{2\sigma^2}x^2 + \frac{\mu}{\sigma^2}x)$ $\Rightarrow X \sim \mathcal{N}(\mu, \sigma^2)$.
+%         \item \textit{MGF:} For $Z \sim \mathcal{N}(0,1)$, $M_Z(t) = e^{t^2/2}$. With $X = \mu + \sigma Z$, pull $e^{\mu t}$ out:
+%         $M_X(t) = e^{\mu t} M_Z(\sigma t) = \exp(\mu t + \frac{1}{2}\sigma^2 t^2)$.
+%         \item \textit{$\mu_1$:} $M_X'(t) = (\mu + \sigma^2 t)\exp(\dots)$. At $t=0$: $\mu_1 = \mu$.
+%         \item \textit{$\mu_2$:} $M_X''(t) = [\sigma^2 + (\mu + \sigma^2 t)^2]\exp(\dots)$. At $t=0$: $\mu_2 = \sigma^2 + \mu^2$.
+%         \item \textit{$\mathbb{V}$:} $\mu_2 - \mu_1^2 = \sigma^2$.
+%       \end{itemize}
+      
+%     \item \textbf{Multivariate Gaussian:} If $X \sim \mathcal{N}(0, I_d)$ and $Y = AX + \mu$, then $Y \sim \mathcal{N}(\mu, \Sigma)$, $\Sigma = AA^T$.
+%     \begin{itemize}
+%         \item PDF: $f_Y(y) = \frac{1}{(2\pi)^{d/2}\sqrt{|\det \Sigma|}} \exp(-\frac{1}{2}(y-\mu)^T \Sigma^{-1} (y-\mu))$.
+%         \item \textit{MLE ($X_i\in\mathbb{R}^d$):} $\hat{\mu} = \frac{1}{n}\sum X_i$, $\hat{\Sigma} = \frac{1}{n}\sum (X_i - \hat{\mu})(X_i - \hat{\mu})^\top$.
+        
+%         \item \textbf{\textit{Pattern Matching (Polynomial Form):}} \\
+%                 If $f(x,y) = c \cdot \exp\left( -\frac{1}{2} (Ax^2 + Bxy + Dy^2 + Ex + Fy + G) \right)$:
+%                 \begin{enumerate}
+%                     \item \textbf{Matrices (Shape):} Halve the $xy$ coefficient to build $\Sigma^{-1}$, then invert for $\Sigma$. Let $\det = AD - (B/2)^2$.
+%                     $ \Sigma^{-1} = \begin{bmatrix} A & B/2 \\ B/2 & D \end{bmatrix}$ $\implies \Sigma = \frac{1}{\det} \begin{bmatrix} D & -B/2 \\ -B/2 & A \end{bmatrix} $
+%                     \item \textbf{Mean Vector (Location):} Multiply $\Sigma$ by the linear terms divided by $-2$.
+%                     $ \boldsymbol{\mu} = \Sigma \begin{bmatrix} -E/2 \\ -F/2 \end{bmatrix} = \begin{bmatrix} \mu_x \\ \mu_y \end{bmatrix} $
+%                     \item \textbf{Normalizer ($c$):} 
+%                     $ c = \frac{1}{2\pi \sqrt{|\Sigma|}} \exp\left(-\frac{1}{2}(G - \boldsymbol{\mu}^T \Sigma^{-1} \boldsymbol{\mu})\right) $
+%                     \textit{(Note: If the exponent perfectly completes the square, $G = \boldsymbol{\mu}^T \Sigma^{-1} \boldsymbol{\mu}$, simplifying to $c = \frac{1}{2\pi \sqrt{|\Sigma|}}$).}
+%                 \end{enumerate}
+%         \item \textit{Worked Example:} $f(x,y) = c \exp(-\frac{1}{2}(2x^2 - 2xy + 3y^2))$. 
+%         \begin{itemize}
+%             \item No linear terms $\Rightarrow$ Mean $\mu = \begin{pmatrix} 0 \\ 0 \end{pmatrix}$.
+%             \item Quadratic matrix $\Sigma^{-1} = \begin{pmatrix} 2 & -1 \\ -1 & 3 \end{pmatrix}$.
+%             \item Inverse gives Covariance $\Sigma = \frac{1}{2(3)-(-1)(-1)} \begin{pmatrix} 3 & 1 \\ 1 & 2 \end{pmatrix} = \frac{1}{5} \begin{pmatrix} 3 & 1 \\ 1 & 2 \end{pmatrix}$.
+%             \item Marginals (read off the diagonals): $X \sim \mathcal{N}(0, 3/5)$ and $Y \sim \mathcal{N}(0, 2/5)$.
+%             \item Normalizer: $d=2$, $|\det \Sigma| = 1/5 \Rightarrow c = \frac{1}{2\pi \sqrt{1/5}} = \frac{\sqrt{5}}{2\pi}$.
+%         \end{itemize}
+%     \end{itemize}
+    
+%     \item \textbf{Gaussian Integral:} $\int_{-\infty}^{\infty} e^{-ax^2} dx = \sqrt{\pi/a}$.
+% \end{itemize}
+
+\end{multicols*}
+\end{document}

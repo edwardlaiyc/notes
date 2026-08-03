@@ -1,0 +1,737 @@
+/* Course-notes book layout: static, sans-serif, reading-first.
+   Type mirrors Google's blog aesthetic with self-hosted DM Sans — a geometric-
+   humanist sans, the closest free stand-in for Google Sans. The woff2 files are
+   staged next to this stylesheet, so sites stay fully offline. */
+
+/* Self-hosted DM Sans — latin subset, variable weight (one file covers the whole
+   range). Staged into <course>/assets/fonts/ alongside this file by build.ps1. */
+@font-face {
+  font-family: "DM Sans";
+  font-style: normal;
+  font-weight: 100 1000;
+  font-display: swap;
+  src: url("fonts/dmsans-latin.woff2") format("woff2");
+}
+@font-face {
+  font-family: "DM Sans";
+  font-style: italic;
+  font-weight: 100 1000;
+  font-display: swap;
+  src: url("fonts/dmsans-latin-italic.woff2") format("woff2");
+}
+
+:root {
+  --content-width: 42em;
+  --font-body: "DM Sans", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  --font-heading: "DM Sans", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  --color-bg: #fefefe;
+  --color-bg-elevated: #f6f6f6;
+  --color-bg-subtle: #f8f8f8;
+  --color-text: #444;
+  --color-heading: #111;
+  --color-muted: #666;
+  --color-faint: #888;
+  --color-link: #0645ad;
+  --color-link-visited: #0b0080;
+  --color-link-hover: #06e;
+  --color-border: #ddd;
+  --color-border-strong: #aaa;
+  --color-code-bg: #f0f0f0;
+  --color-image-bg: #fff;
+  --color-button-bg: #fff;
+  --color-selection: rgba(255, 235, 59, .35);
+  --color-shadow: rgba(0, 0, 0, .12);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #1e293b;
+  --color-bg-elevated: #334155;
+  --color-bg-subtle: #243044;
+  --color-text: #cbd5e1;
+  --color-heading: #f1f5f9;
+  --color-muted: #94a3b8;
+  --color-faint: #64748b;
+  --color-link: #60a5fa;
+  --color-link-visited: #b89cff;
+  --color-link-hover: #93c5fd;
+  --color-border: #334155;
+  --color-border-strong: #475569;
+  --color-code-bg: #334155;
+  --color-image-bg: #fff;
+  --color-button-bg: #334155;
+  --color-selection: rgba(255, 235, 59, .2);
+  --color-shadow: rgba(0, 0, 0, .5);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  background: var(--color-bg);
+  color: var(--color-text);
+  overflow-x: hidden;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 1em;
+  overflow-x: hidden;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: break-word;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection { background: var(--color-selection); color: #111; }
+
+.skip-link {
+  position: fixed;
+  top: .5rem;
+  left: .5rem;
+  z-index: 100;
+  transform: translateY(-160%);
+  padding: .4rem .65rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-button-bg);
+}
+.skip-link:focus { transform: translateY(0); }
+
+a { color: var(--color-link); text-decoration: none; }
+a:visited { color: var(--color-link-visited); }
+a:hover { color: var(--color-link-hover); text-decoration: underline; }
+a:focus-visible { outline: 2px solid var(--color-link); outline-offset: 2px; }
+
+.theme-toggle {
+  position: fixed;
+  top: 0;                            /* share the reading bar's origin so the */
+  height: 3.4rem;                    /* rem, not em: a <button>'s UA font-size */
+                                     /* differs from the bar, so em would mismatch */
+  right: .7em;
+  z-index: 50;
+  display: grid;
+  width: 2.25rem;
+  padding: .5rem;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+.theme-toggle:hover { color: var(--color-heading); }
+.theme-icon { display: block; width: 1.1rem; height: 1.1rem; }
+.theme-icon-sun { display: none; }
+:root[data-theme="dark"] .theme-icon-sun { display: block; }
+:root[data-theme="dark"] .theme-icon-moon { display: none; }
+
+/* Reading chrome (Google-blog style): a title bar that slides in once you
+   scroll past the page header, with a slim scroll-progress bar riding along its
+   bottom edge. Progressive — with JS off, neither intrudes. */
+.reading-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;                     /* sit on the bar's bottom border */
+  height: 3px;
+  background: transparent;
+  pointer-events: none;
+}
+.reading-progress-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--color-link);
+  transition: width .1s linear;
+}
+.reading-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  min-height: 3.4em;
+  padding: .5em 3.5em;              /* keep the title clear of the theme toggle */
+  background: color-mix(in srgb, var(--color-bg) 85%, transparent);
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+  transform: translateY(-100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform .25s ease, opacity .25s ease, visibility .25s;
+}
+.reading-bar.is-visible {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+.reading-bar-title {
+  display: block;
+  width: 100%;
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--color-heading);
+  font-family: var(--font-heading);
+  font-size: 1em;
+  font-weight: 500;
+  line-height: 1.3;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.reading-bar-title:hover { color: var(--color-link, var(--color-heading)); }
+.reading-bar-title:focus-visible {
+  outline: 2px solid var(--color-link, currentColor);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.site-header { margin: 4.5em 0 3em; text-align: center; }
+.course-code {
+  margin: 0 0 .35em;
+  color: var(--color-heading);
+  font-size: 1.35em;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.site-title {
+  margin: 0;
+  color: var(--color-heading);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  letter-spacing: -.015em;
+  font-size: 2.5em;
+  line-height: 1.2;
+}
+.page-title {
+  margin: .65em 0 1.5em;
+  color: var(--color-muted);
+  font-size: 1.05em;
+  font-weight: normal;
+  line-height: 1.4;
+}
+
+.page-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .35em 1.2em;
+  margin: 0 auto 1.2em;
+  font-size: .95em;
+}
+.page-nav a { padding: .15em .1em; }
+.page-nav a[aria-current="page"] {
+  color: var(--color-heading);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .25em;
+}
+
+.site-navigation {
+  max-width: var(--content-width);
+  margin: 1em auto 0;
+  text-align: left;
+  font-size: .9em;
+}
+.site-navigation > details {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-bg-subtle);
+}
+.site-navigation summary {
+  padding: .45em .65em;
+  color: var(--color-heading);
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+}
+.site-navigation details[open] > summary {
+  border-bottom: 1px solid var(--color-border);
+}
+.navigation-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .55em;
+  padding: .6em;
+}
+.navigation-group {
+  min-width: 0;
+  padding: .55em .65em;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-button-bg);
+}
+.navigation-group h2 {
+  margin: 0 0 .2em;
+  font-size: .95em;
+  font-weight: 700;
+}
+.navigation-group ul {
+  margin: 0;
+  padding-left: 1.15em;
+}
+.navigation-group li {
+  margin: .08em 0;
+  line-height: 1.3;
+}
+/* A navigation entry with a label but no href: plain text, not a link. */
+.navigation-text { color: var(--color-muted); }
+.navigation-note {
+  margin: .2em 0 0;
+  color: var(--color-muted);
+  font-size: .9em;
+  line-height: 1.35;
+}
+
+.ecosystem {
+  display: flex;
+  flex-direction: column;
+  gap: .8em;
+  margin: 1em 0 2em;
+}
+.ecosystem-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  padding: .8em 1.2em;
+  border: 1px solid var(--color-border);
+  border-radius: .35em;
+  background: var(--color-bg-subtle);
+  box-shadow: 0 4px 12px var(--color-shadow);
+}
+.ecosystem-card-text { min-width: 0; }
+.ecosystem-card h3 {
+  margin: 0 0 .15em;
+  font-size: 1.05em;
+  font-weight: 700;
+}
+.ecosystem-card p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: .88em;
+}
+.ecosystem-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  padding: .35em .7em;
+  border: 1px solid;
+  border-radius: .3em;
+  font-size: .85em;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.ecosystem-btn svg { width: 14px; height: 14px; flex: none; }
+.ecosystem-btn-pending {
+  border-color: var(--color-border);
+  background: transparent;
+  color: var(--color-faint);
+  font-style: italic;
+  cursor: default;
+}
+.ecosystem-btn-icon { padding: .4em; font-style: normal; }
+.ecosystem-btn-icon svg { width: 20px; height: 20px; }
+/* Active state once a real URL replaces the pending span with an <a>. */
+.ecosystem-btn-primary,
+.ecosystem-btn-primary:link,
+.ecosystem-btn-primary:visited {
+  border-color: var(--color-link);
+  background: color-mix(in srgb, var(--color-link) 10%, transparent);
+  color: var(--color-link);
+  font-style: normal;
+}
+.ecosystem-btn-primary:hover { text-decoration: none; opacity: .85; }
+
+/* Semester hub: one card per subject, each linking to that course's overview.
+   Used by the landing page at the notes root; inert everywhere else. Each card
+   is authored on one line in index.md, so pandoc wraps it in a <p> — the grid
+   items are those paragraphs, hence the margin reset. */
+.subject-grid {
+  display: grid;
+  gap: .8em;
+  margin: 1em 0 2em;
+}
+.subject-grid > p { margin: 0; }
+.subject-card,
+.subject-card:link,
+.subject-card:visited {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1em;
+  padding: .9em 1.2em;
+  border: 1px solid var(--color-border);
+  border-radius: .35em;
+  background: var(--color-bg-subtle);
+  box-shadow: 0 4px 12px var(--color-shadow);
+  color: var(--color-text);
+}
+.subject-card:hover {
+  border-color: var(--color-link);
+  color: var(--color-text);
+  text-decoration: none;
+}
+.subject-card:hover .subject-name { color: var(--color-link); }
+.subject-card:hover .subject-go { transform: translateX(.2em); }
+.subject-card-text { min-width: 0; }
+.subject-code {
+  display: block;
+  color: var(--color-muted);
+  font-family: var(--font-heading);
+  font-size: 1.15em;
+  font-weight: 700;
+  letter-spacing: .08em;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+.subject-name {
+  display: block;
+  margin: .1em 0 0;
+  color: var(--color-heading);
+  font-family: var(--font-heading);
+  font-size: 1.15em;
+  font-weight: 500;
+  letter-spacing: -.01em;
+  line-height: 1.25;
+}
+.subject-go {
+  color: var(--color-faint);
+  font-size: 1.2em;
+  transition: transform .15s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .subject-go { transition: none; }
+  .subject-card:hover .subject-go { transform: none; }
+}
+
+.navigation-group a[aria-current="page"] {
+  color: var(--color-heading);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: .18em;
+}
+
+.page-contents {
+  margin: 1.2em 0 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+.page-contents-title {
+  margin: 0;
+  padding: .55em .15em;
+  color: var(--color-heading);
+  font-weight: 700;
+}
+
+#TOC { padding: .1em .25em 1em; }
+#TOC ul { margin: 0; padding-left: 1.4em; }
+#TOC > ul { padding-left: 1.1em; }
+#TOC li { margin: .12em 0; line-height: 1.45; }
+#TOC a { display: inline-block; padding: .05em 0; }
+#TOC ul ul { font-size: .92em; }
+#TOC ul ul ul { color: var(--color-muted); font-size: .94em; }
+.toc-section-number { color: var(--color-muted); }
+
+main { min-width: 0; }
+
+.course-pages {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+.course-page {
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-bg-subtle);
+}
+.course-page h2 { margin: 0 0 .35rem; font-size: 1.25em; }
+.course-page p { margin: .35rem 0; }
+
+h1, h2, h3, h4, h5, h6 {
+  position: relative;
+  color: var(--color-heading);
+  font-family: var(--font-heading);
+  font-weight: 500;
+  letter-spacing: -.01em;
+  line-height: 1.25;
+  hyphens: none;
+  overflow-wrap: anywhere;
+  scroll-margin-top: 3.75em;        /* clear the fixed reading bar on anchor jumps */
+}
+h1 { margin: 1.6em 0 .6em; font-size: 1.7em; }
+h2 { margin: 1.6em 0 .5em; font-size: 1.35em; }
+h3 { margin: 1.4em 0 .45em; font-size: 1.15em; }
+h4 { margin: 1.3em 0 .4em; font-size: 1.02em; font-weight: 700; }
+h5 { font-size: 1em; font-weight: 700; }
+h6 { font-size: .9em; font-weight: 700; }
+.header-section-number { color: var(--color-muted); margin-right: .25em; }
+
+p { margin: 1em 0; }
+ul, ol { padding-left: 1.8em; }
+li { margin: .2em 0; }
+dt { font-weight: 700; }
+dd { margin: 0 0 1em 1.5em; }
+
+/* Click-to-reveal answers on question pages. A list item's answer is authored
+   as an `answer` environment; qa-details.lua turns each into a native <details>
+   whose <summary> is the question (plus any options) and whose body is the
+   answer. JavaScript-free; degrades to a plain open list where unstyled. */
+.qa > summary {
+  cursor: pointer;
+  list-style: none;                 /* drop the browser's default triangle */
+}
+.qa > summary::-webkit-details-marker { display: none; }
+.qa > summary:focus-visible {
+  outline: 2px solid var(--color-link);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+/* Lettered options so answers referring to "a and d" line up with the choices. */
+.qa > summary ol { list-style: lower-alpha; }
+/* Our own caret, sitting at the end of the question stem. */
+.qa-caret {
+  display: inline-block;
+  width: .5em;
+  height: .5em;
+  margin-left: .15em;
+  border-right: 2px solid var(--color-faint);
+  border-bottom: 2px solid var(--color-faint);
+  transform: translateY(-.2em) rotate(45deg);      /* points down */
+  transition: transform .15s ease, border-color .15s ease;
+}
+.qa[open] > summary .qa-caret {
+  transform: translateY(.05em) rotate(-135deg);    /* points up */
+}
+.qa > summary:hover .qa-caret { border-color: var(--color-link); }
+.qa-answer {
+  margin: .5em 0 1em;
+  padding: .6em .85em;
+  border-left: 3px solid var(--color-border-strong);
+  border-radius: 0 4px 4px 0;
+  background: var(--color-bg-subtle);
+}
+.qa-answer > :first-child { margin-top: 0; }
+.qa-answer > :last-child { margin-bottom: 0; }
+
+blockquote {
+  margin: 1.5em 0;
+  padding-left: 1.5em;
+  border-left: .35em solid var(--color-border);
+  color: var(--color-muted);
+}
+
+hr {
+  margin: 2em 0;
+  border: 0;
+  border-top: 1px solid var(--color-border-strong);
+}
+
+code, pre, kbd, samp {
+  color: inherit;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: .87em;
+}
+p code, li code, td code {
+  padding: .12em .32em;
+  border-radius: 3px;
+  background: var(--color-code-bg);
+}
+pre {
+  margin: 1.5em 0;
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-bg-elevated);
+  line-height: 1.45;
+  white-space: pre;
+}
+pre code { padding: 0; background: none; }
+
+/* Raw algorithm2e blocks that pandoc can't convert come through as an empty
+   <div class="algorithm">. A course that keeps algorithm2e in the source for the
+   PDF (and ships a Verbatim code block for the web, e.g. sc1315) doesn't want the
+   leftover empty div taking vertical space — hide it. */
+.algorithm { display: none; }
+
+/* Copy-to-clipboard button injected into each code block. The .code-wrapper is
+   added at runtime by template.html's script (progressive enhancement — with JS
+   off there is simply no button). Sits top-right, revealed on hover/focus. */
+.code-wrapper { position: relative; }
+.code-copy {
+  position: absolute;
+  top: .5em;
+  right: .5em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .34em;
+  color: var(--color-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .12s ease, color .12s ease, border-color .12s ease;
+}
+.code-copy svg { display: block; width: 15px; height: 15px; }
+.code-wrapper:hover .code-copy,
+.code-copy:focus-visible { opacity: 1; }
+.code-copy:hover { color: var(--color-text); border-color: var(--color-border-strong); }
+.code-copy.is-copied { color: var(--color-link); border-color: var(--color-link); opacity: 1; }
+@media (hover: none) { .code-copy { opacity: 1; } }
+@media print { .code-copy { display: none; } }
+
+.table-wrap {
+  max-width: 100%;
+  margin: 1.5em auto 2em;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table {
+  width: max-content;
+  max-width: none;
+  margin: 0 auto;
+  border-collapse: collapse;
+  font-size: .92em;
+}
+th, td {
+  padding: .45em .7em;
+  border: 1px solid var(--color-border);
+  text-align: left;
+  vertical-align: top;
+}
+th { background: var(--color-bg-elevated); text-align: center; }
+
+img {
+  max-width: 100%;
+  height: auto;
+  border: 0;
+  background: var(--color-image-bg);
+  vertical-align: middle;
+}
+figure { display: block; margin: 1.5em 0 2em; text-align: center; }
+figure > img { display: block; margin: 0 auto; }
+figure > img[src$=".svg"] { width: 100%; background: transparent; }
+figcaption {
+  margin: .65em auto 0;
+  color: var(--color-muted);
+  font-size: .82em;
+  font-style: italic;
+  line-height: 1.45;
+}
+figure:has(> figure) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1em 3%;
+  justify-content: center;
+  align-items: flex-start;
+}
+figure:has(> figure) > figure { flex: 0 1 auto; max-width: 47%; margin: 0; }
+figure:has(> figure) > figure > img { width: auto; max-width: 100%; }
+figure:has(> figure) > figcaption { flex-basis: 100%; }
+
+.math.inline { white-space: normal; }
+.math.display {
+  display: block;
+  max-width: 100%;
+  margin: 1.35em 0;
+  padding: .25em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  text-align: center;
+}
+math { color: inherit; font-size: 1em; }
+
+.sequence-navigation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1em;
+  margin: 3em 0 1em;
+  padding-top: 1.25em;
+  border-top: 1px solid var(--color-border);
+}
+.sequence-navigation a {
+  overflow-wrap: anywhere;
+}
+.sequence-navigation .next-page { text-align: right; }
+
+.site-footer {
+  margin-top: 2em;
+  padding: 20px;
+  color: var(--color-faint);
+  font-size: .82em;
+  text-align: center;
+}
+.site-footer p { margin: 1.1em 0 0; color: var(--color-text); font-size: 1.2rem; }
+.footer-socials {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+.footer-socials a {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  color: var(--color-heading);
+}
+.footer-socials a:hover { opacity: .72; }
+.footer-socials svg { width: 40px; height: 40px; fill: currentColor; }
+
+@media (min-width: 480px) { body { font-size: 15px; } }
+@media (min-width: 768px) { body { padding-inline: 1.25em; font-size: 16px; } }
+
+@media (max-width: 520px) {
+  .site-header { margin-top: 3.75em; }
+  .site-title { font-size: 2.05em; }
+  h1 { font-size: 1.55em; }
+  h2 { font-size: 1.3em; }
+  figure:has(> figure) { flex-direction: column; align-items: center; }
+  figure:has(> figure) > figure { max-width: 92%; }
+  .navigation-grid { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 521px) and (max-width: 720px) {
+  .navigation-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .reading-bar, .reading-progress-fill { transition: none; }
+}
+
+@media print {
+  :root, :root[data-theme="dark"] { color-scheme: light; }
+  * { background: transparent !important; color: #000 !important; box-shadow: none !important; }
+  body { max-width: 100%; padding: 0; font-size: 11pt; }
+  .theme-toggle, .skip-link, .page-contents, .page-nav, .site-footer,
+  .reading-bar, .reading-progress { display: none !important; }
+  .site-header { margin: 0 0 2em; }
+  a { text-decoration: underline; }
+  pre, blockquote, figure, table { break-inside: avoid; }
+}

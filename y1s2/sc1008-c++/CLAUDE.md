@@ -52,9 +52,9 @@ Cards are titled by **file type only, with no `<p>` subtitle** — the house sty
 across all six courses. Don't add descriptive subtitles here; the earlier draft
 had them and they were removed to match.
 
-SC1008 is the **first** course to use the live `ecosystem-btn-primary` style —
-every other course still uses the non-clickable `ecosystem-btn-pending` span.
-When copying this pattern elsewhere, the live form is an `<a class="ecosystem-btn
+SC1008 was the **first** course to use the live `ecosystem-btn-primary` style;
+every course now uses it, and `ecosystem-btn-pending` is reserved for a button
+whose URL is not yet known. The live form is an `<a class="ecosystem-btn
 ecosystem-btn-primary ecosystem-btn-icon" href="…">`, matching the CSS comment in
 `../../web-pipeline/style.css` ("Active state once a real URL replaces the pending
 span with an `<a>`").
@@ -105,7 +105,7 @@ python -m http.server 8765   # → http://127.0.0.1:8765/index.html
 - **Built:** `index.html` + `final-summary.html`/`.md`. Sections numbered 1–6,
   22 code blocks, TOC and navigation present, no dropped tables
   (`class="tabular"` count is 0).
-- **Ecosystem links are placeholders.** `index.md` currently has
-  `href="REPLACE-WITH-DRIVE-OR-COLAB-URL"` and `href="REPLACE-WITH-GITHUB-URL"`.
-  Swap in the real URLs and re-run `publish.ps1`. Until then the buttons render
-  in the live blue style but go nowhere.
+- **Ecosystem links are live.** `index.md` points `.ipynb, .pdf` at this
+  course's Google Drive folder and `.tex, .md` at
+  `github.com/edwardlaiyc/school/tree/main/y1s2/sc1008-c%2B%2B` (the `+` signs
+  must stay percent-encoded).

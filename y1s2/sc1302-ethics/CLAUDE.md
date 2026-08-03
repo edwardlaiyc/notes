@@ -71,5 +71,6 @@ python -m http.server 8765   # → http://127.0.0.1:8765/index.html
   in the preamble). In the PDF the answer typesets inline; on the web the shared
   `qa-details.lua` filter turns it into a click-to-reveal dropdown with a
   down/up caret. Convention documented in `../../web-pipeline/README.md`.
-- **Ecosystem links** (`.pdf`, `.tex/.md`) are pending — non-clickable placeholder
-  buttons in `index.md`, same pattern as SC1006.
+- **Ecosystem links** (`.pdf`, `.tex/.md`) are live `ecosystem-btn-primary`
+  anchors in `index.md`, same pattern as SC1006 — Drive folder and the course's
+  GitHub tree.

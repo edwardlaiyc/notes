@@ -26,9 +26,10 @@ A standard `subfiles` project (see the root CLAUDE.md):
 Landing page + one reading page per chapter, exactly like the other wired-up
 courses. `index.html` (from `index.md` + `course.yml`) carries the grouped
 navigation, About, and the SC1305 Ecosystem section (two cards, `.pdf` on Google
-Drive and `.tex, .md` on GitHub — both **links pending**, same convention as
-sc1006; replace the `ecosystem-btn-pending` span with an `<a>` when a URL exists,
-never invent one). The nine `chapters/*.html` are the reading pages.
+Drive and `.tex, .md` on GitHub — both live `ecosystem-btn-primary` anchors,
+same convention as sc1006; a button with no known URL uses the non-clickable
+`ecosystem-btn-pending` span instead, and URLs are never invented). The nine
+`chapters/*.html` are the reading pages.
 
 ## The one course-specific wrinkle: inline TikZ
 Unlike sc1006 (bytefields + PNGs), this course draws figures inline with **TikZ /

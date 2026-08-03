@@ -160,13 +160,15 @@ horizontal cards, each with a short label on the left and an icon-only
 call-to-action button on the right (`.ecosystem` / `.ecosystem-card` /
 `.ecosystem-btn` / `.ecosystem-btn-icon` in `style.css`). It contains two cards:
 `.pdf` with the full-colour Google Drive logo, and `.tex, .md` with the GitHub
-logo. Their exact URLs are currently pending, so each button is a non-clickable
-`<span class="ecosystem-btn ecosystem-btn-pending ecosystem-btn-icon">` carrying
-an `aria-label`/`title` of "link pending". When a URL is supplied, replace that
-span with `<a href="URL" class="ecosystem-btn ecosystem-btn-primary
+logo. Both are live `<a href="…" class="ecosystem-btn ecosystem-btn-primary
 ecosystem-btn-icon" target="_blank" rel="noopener noreferrer" aria-label="…">`
-(same SVG inside) in `index.md` and rebuild the index. Do not move
-the Ecosystem into `course.yml` or the navigation panel, and never invent URLs.
+anchors — Drive points at this course's folder under `Y1S2 Notes`, GitHub at
+`github.com/edwardlaiyc/school/tree/main/y1s2/sc1006-comorgarchi`. A button whose
+URL is not yet known uses a non-clickable
+`<span class="ecosystem-btn ecosystem-btn-pending ecosystem-btn-icon">` with an
+`aria-label`/`title` of "link pending" instead; swap it for the anchor form above
+in `index.md` and rebuild the index. Do not move the Ecosystem into `course.yml`
+or the navigation panel, and never invent URLs.
 
 The content-page TOC (`.page-contents`) is an always-visible list under a
 `Contents` label — not a collapsible dropdown. It needs no JavaScript and works

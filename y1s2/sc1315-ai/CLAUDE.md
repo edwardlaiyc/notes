@@ -24,9 +24,10 @@ Landing page + one reading page per `\section` (16 total), numbered 1–16 acros
 the two documents. `index.html` (from `index.md` + `course.yml`) carries the
 grouped navigation (Search Strategies / Adversarial Search / Reinforcement
 Learning), About, and the SC1315 Ecosystem section (two cards, `.pdf` on Google
-Drive and `.tex, .md` on GitHub — both **links pending**, same convention as the
-other courses; replace the `ecosystem-btn-pending` span with an `<a>` when a URL
-exists, never invent one).
+Drive and `.tex, .md` on GitHub — both live `ecosystem-btn-primary` anchors,
+same convention as the other courses; a button with no known URL uses the
+non-clickable `ecosystem-btn-pending` span instead, and URLs are never
+invented).
 
 ## Algorithms: algorithm2e in the PDF, a Verbatim code block on the web
 Each of the eight search/game algorithms is written **twice** in `test1.tex`,

@@ -107,5 +107,5 @@ python -m http.server 8765   # → http://127.0.0.1:8765/index.html
   (`class="tabular"` count is 0).
 - **Ecosystem links are live.** `index.md` points `.ipynb, .pdf` at this
   course's Google Drive folder and `.tex, .md` at
-  `github.com/edwardlaiyc/school/tree/main/y1s2/sc1008-c%2B%2B` (the `+` signs
+  `github.com/edwardlaiyc/notes/tree/main/y1s2/sc1008-c%2B%2B` (the `+` signs
   must stay percent-encoded).

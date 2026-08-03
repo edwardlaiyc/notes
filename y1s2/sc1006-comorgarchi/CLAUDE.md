@@ -56,7 +56,7 @@ part of the publishing build.
 ## Pipeline package (shared: `../../web-pipeline/`)
 
 The build package is **shared and topic-independent** at
-`uni-notes-y1s2/web-pipeline/` — not a subdirectory of this course. See
+the repo root's `web-pipeline/` — not a subdirectory of this course. See
 `../../web-pipeline/README.md` for the scripts, the `site.psd1` schema, and the
 gotchas. This course supplies only three files in its own root:
 
@@ -163,7 +163,7 @@ call-to-action button on the right (`.ecosystem` / `.ecosystem-card` /
 logo. Both are live `<a href="…" class="ecosystem-btn ecosystem-btn-primary
 ecosystem-btn-icon" target="_blank" rel="noopener noreferrer" aria-label="…">`
 anchors — Drive points at this course's folder under `Y1S2 Notes`, GitHub at
-`github.com/edwardlaiyc/school/tree/main/y1s2/sc1006-comorgarchi`. A button whose
+`github.com/edwardlaiyc/notes/tree/main/y1s2/sc1006-comorgarchi`. A button whose
 URL is not yet known uses a non-clickable
 `<span class="ecosystem-btn ecosystem-btn-pending ecosystem-btn-icon">` with an
 `aria-label`/`title` of "link pending" instead; swap it for the anchor form above

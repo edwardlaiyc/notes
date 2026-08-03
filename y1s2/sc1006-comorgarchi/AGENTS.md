@@ -56,7 +56,7 @@ part of the publishing build.
 ## Pipeline package (shared: `../../web-pipeline/`)
 
 The build package is **shared and topic-independent** at
-`uni-notes-y1s2/web-pipeline/` — not a subdirectory of this course. See
+the repo root's `web-pipeline/` — not a subdirectory of this course. See
 `../../web-pipeline/README.md` for the scripts, the `site.psd1` schema, and the
 gotchas. This course supplies only three files in its own root:
 

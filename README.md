@@ -1,44 +1,47 @@
-# school
+# notes
 
-Personal university notes — NTU, CS.
+University lecture notes — NTU, CS.
 
-Notes are written in LaTeX and published as a static site: one readable page per
-topic, with native MathML (no JavaScript maths, no CDN), a light/dark theme, and a
-reading-progress bar.
+## Where the notes are
 
-## Semesters
+Every course lives in one folder. Pick a course, then open its chapter folder.
 
-| Semester | Courses | Site |
+| Course | Folder | Topics |
 |---|---|---|
-| Y1S2 | SC1006 Computer Organisation & Architecture · SC1008 C & C++ Programming · SC1302 Ethics · SC1305 Linear Algebra · SC1315 Artificial Intelligence · SC2500 Probability & Statistics | [`y1s2/index.html`](y1s2/index.html) |
+| SC1006 Computer Organisation & Architecture | [`y1s2/sc1006-comorgarchi/`](y1s2/sc1006-comorgarchi/) | 17 |
+| SC1008 C & C++ Programming | [`y1s2/sc1008-c++/`](y1s2/sc1008-c++/) | 1 |
+| SC1302 Ethics | [`y1s2/sc1302-ethics/`](y1s2/sc1302-ethics/) | 6 |
+| SC1305 Linear Algebra | [`y1s2/sc1305-linearalgebra/`](y1s2/sc1305-linearalgebra/) | 9 |
+| SC1315 Artificial Intelligence | [`y1s2/sc1315-ai/`](y1s2/sc1315-ai/) | 16 |
+| SC2500 Probability & Statistics | [`y1s2/sc2500-probability/`](y1s2/sc2500-probability/) | 12 |
+
+Each topic comes in three forms, same filename, different extension:
+
+| | |
+|---|---|
+| `.md` | reads directly on GitHub — start here |
+| `.html` | the formatted page, best on the [site](https://edwardlaiyc.github.io/notes/) |
+| `.tex` | the LaTeX source |
 
 ## Layout
 
 ```
-y1s2/                      one folder per course, plus the semester landing page
-└── sc1006-comorgarchi/    a course
-    ├── *.tex              LaTeX source
-    ├── chapters-part1/    chapters, and the .html / .md built from them
-    ├── images/            figures
-    └── index.md           course overview
+y1s2/
+├── index.html              all six courses
+└── sc1006-comorgarchi/     a course
+    ├── index.md            course overview
+    ├── chapters-part1/     the notes: 1-introduction.md / .html / .tex
+    ├── chapters-part2/
+    └── images/             figures
 ```
 
-Each course folder holds everything for that course: the `.tex` source, the
-figures, and the generated `.html` / `.md` pages. Read a topic three ways —
-the `.tex` to see how it was written, the `.md` for plain text on GitHub, or
-the [published site](https://edwardlaiyc.github.io/notes/) for the nice version.
+Chapters are in `chapters/` for most courses; SC1006 splits into
+`chapters-part1/` and `chapters-part2/`. Files are numbered in reading order.
 
-## Building
+SC1008 is the exception — its notes are a Colab notebook, linked from
+[its overview page](y1s2/sc1008-c++/index.md); only the cheat sheet
+(`final-summary`) is in the folder itself.
 
-The site is pre-built: the `.html` pages are committed and GitHub Pages serves
-them as-is, so nothing here needs a build step to read or to publish.
+## PDFs
 
-The LaTeX → HTML/Markdown converter that produces them (pandoc + MiKTeX +
-Pillow) is kept outside this repo, which holds the notes rather than the
-machinery. The `course.yml` and `site.psd1` in each course folder are its
-input: branding and navigation, and the ordered topic list.
-
-## Compiled PDFs
-
-PDFs are not tracked here — they are regenerated on every build and would bloat
-history. They live in Google Drive, linked from each course's overview page.
+Not in this repo. Each course's overview page links its PDF on Google Drive.

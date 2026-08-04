@@ -8,12 +8,26 @@ Course-wide formulae and identities, referred to throughout the notes below.
 
 [MF26](https://theculture.sg/wp-content/uploads/2017/07/MF26.pdf), [MF27](https://www.seab.gov.sg/files/A%20Level%20Syllabus%20Sch%20Cddts/2025/SEAB_Mathematics_MF27__2025__.pdf) 
 
-| Binomial expansion $(a + b)^n = a^n + \binom{n}{1}a^{n-1}b + \binom{n}{2}a^{n-2}b + \ldots + b^n$ |
-|---|
-| Sum of GP $\frac{a(1 - r^n)}{1 - r}$ |
-| Sum of AP $\frac{n}{2}(a_1 + a_n) = \frac{n}{2}(2a + (n - 1)d)$ |
-| Divisibility by 3: Sum of digits divisible by 3 4: Last 2 digits divisible by 4 8: Last 3 digits divisible by 8 9: Sum of digits divisible by 9 |
-| Bell numbers, B1 = 1, B2 = 2, B3 = 5, B4 = 15, B5 = 52 |
+Binomial expansion
+
+$$(a + b)^n = a^n + \binom{n}{1}a^{n-1}b + \binom{n}{2}a^{n-2}b + \ldots + b^n$$
+
+Sum of GP
+
+$$\frac{a(1 - r^n)}{1 - r}$$
+
+Sum of AP
+
+$$\frac{n}{2}(a_1 + a_n) = \frac{n}{2}(2a + (n - 1)d)$$
+
+Divisibility by
+
+- 3: Sum of digits divisible by 3
+- 4: Last 2 digits divisible by 4
+- 8: Last 3 digits divisible by 8
+- 9: Sum of digits divisible by 9
+
+Bell numbers, B1 = 1, B2 = 2, B3 = 5, B4 = 15, B5 = 52
 
 ## MH1812 Ecosystem
 

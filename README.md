@@ -2,9 +2,7 @@
 
 University lecture notes — NTU, CS.
 
-## Where the notes are
-
-Every course lives in one folder. Pick a course, then open its chapter folder.
+## Contents
 
 | Course | Folder | Topics |
 |---|---|---|
@@ -15,33 +13,12 @@ Every course lives in one folder. Pick a course, then open its chapter folder.
 | SC1315 Artificial Intelligence | [`y1s2/sc1315-ai/`](y1s2/sc1315-ai/) | 16 |
 | SC2500 Probability & Statistics | [`y1s2/sc2500-probability/`](y1s2/sc2500-probability/) | 12 |
 
-Each topic comes in three forms, same filename, different extension:
+Each topic comes in three forms:
 
 | | |
 |---|---|
-| `.md` | reads directly on GitHub — start here |
+| `.md` | reads directly on GitHub |
 | `.html` | the formatted page, best on the [site](https://edwardlaiyc.github.io/notes/) |
 | `.tex` | the LaTeX source |
 
-## Layout
-
-```
-y1s2/
-├── index.html              all six courses
-└── sc1006-comorgarchi/     a course
-    ├── index.md            course overview
-    ├── chapters-part1/     the notes: 1-introduction.md / .html / .tex
-    ├── chapters-part2/
-    └── images/             figures
-```
-
-Chapters are in `chapters/` for most courses; SC1006 splits into
-`chapters-part1/` and `chapters-part2/`. Files are numbered in reading order.
-
-SC1008 is the exception — its notes are a Colab notebook, linked from
-[its overview page](y1s2/sc1008-c++/index.md); only the cheat sheet
-(`final-summary`) is in the folder itself.
-
-## PDFs
-
-Not in this repo. Each course's overview page links its PDF on Google Drive.
+PDFs can be found in the [Google Drive](https://drive.google.com/drive/folders/1nSDUnyp9q-5AC0olZ_6NS5iyDJuHyoke).

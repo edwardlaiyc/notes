@@ -1,10 +1,8 @@
 Subset: 
 
-$$A \subseteq B : \forall x\, (x \in A \to x \in B) \;$$
-
-Proper subset:
-
-$$A \subset B : \forall x\, (x \in A \to x \in B) \text{ and } A \ne B$$
+- $A \subseteq B : \forall x\, (x \in A \to x \in B) \;$
+- Proper subset:
+- $A \subset B : \forall x\, (x \in A \to x \in B) \text{ and } A \ne B$
 
 ## Set identities
 

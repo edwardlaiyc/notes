@@ -16,11 +16,9 @@ root = TreeNode(50, node1, node2)
 
 Searching (where N = number of elements)
 
-    Best case (balanced tree): log2N
-
-    Worst case (unbalanced): N
-
-Insertion: O(log2N) to search + 1 step to insert
+- Best case (balanced tree): log2N
+- Worst case (unbalanced): N
+- Insertion: O(log2N) to search + 1 step to insert
 
 Deletion: Replace the deleted node with its successor (the smallest value that is greater than the deleted node’s value). Typically find the right child node of the deleted node and drill down the left subtree to find this successor.
 
@@ -32,11 +30,9 @@ Traversal
 
 ![](images/binary-search-tree-02.png)
 
-In-order traversal: left → root → right. Retrieves values in ascending order for BST.
-
-Preorder traversal: root → left – right.
-
-Postorder: left → right → root.
+- In-order traversal: left → root → right. Retrieves values in ascending order for BST.
+- Preorder traversal: root → left – right.
+- Postorder: left → right → root.
 
 ```
 def traverse_inorder(node):
@@ -64,13 +60,10 @@ Balance factor = height right subtree - height left subtree
 
 -1 <= Balance factor <= 1
 
-LL imbalance → single right rotation
-
-LR imbalance → left, right rotation
-
-RR imbalance → single left rotation
-
-RL imbalance → right, left rotation
+- LL imbalance → single right rotation
+- LR imbalance → left, right rotation
+- RR imbalance → single left rotation
+- RL imbalance → right, left rotation
 
 Insertion/deletion follows BST operation, but need to balance after.
 

@@ -8,11 +8,9 @@
 | 16 | 5 |
 | 32 | 8 |
 
-Bias formula: 2k-1 - 1, for k exponent bits.
-
-After getting the exponent value, add bias before putting into exponent.
-
-Purpose: represent negative exponents.
+- Bias formula: 2k-1 - 1, for k exponent bits.
+- After getting the exponent value, add bias before putting into exponent.
+- Purpose: represent negative exponents.
 
 From fixed point to floating point:
 

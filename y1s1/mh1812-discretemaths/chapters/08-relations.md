@@ -30,17 +30,12 @@ $$R^{2} = R \text{ if } R \text{ is reflexive and transitive.}$$
 
 ## Properties of relations
 
-$$\text{Reflexive }R: \ \forall x \in A, xRx.$$
-
-$$\text{Symmetric } R: \forall x, y \in A, xRy \rightarrow yRx.$$
-
-Between two distinct elements, either no arrow or bidirectional arrow.
-
-$$\text{Antisymmetric }R: \forall x, y \in A, xRy \land yRx \rightarrow x = y.$$
-
-Between two distinct elements, no bidirectional arrow.
-
-$$\text{Transitive }R: \forall x, y, z \in A, xRy \land yRz \rightarrow xRz.$$
+- $\text{Reflexive }R: \ \forall x \in A, xRx.$
+- $\text{Symmetric } R: \forall x, y \in A, xRy \rightarrow yRx.$
+- Between two distinct elements, either no arrow or bidirectional arrow.
+- $\text{Antisymmetric }R: \forall x, y \in A, xRy \land yRx \rightarrow x = y.$
+- Between two distinct elements, no bidirectional arrow.
+- $\text{Transitive }R: \forall x, y, z \in A, xRy \land yRz \rightarrow xRz.$
 
 ## Equivalence relation
 

@@ -34,11 +34,9 @@ $$\text{and the limit } \lim_{x \to 0} f'(x) \text{ does not exist.}$$
 
 $$D(a) \subset C(a)$$
 
-Reason: To be differentiable, the graph must be smooth and unbroken (no sharp or discontinuous points).
-
-Contrapositive: $\text{If } f \text{ is not continuous at } a, \text{ then } f \text{ is not differentiable at } a.$
-
-Reason: Not continuous → there exists some discontinuous points / sharp points at which the derivative does not exist.
+- Reason: To be differentiable, the graph must be smooth and unbroken (no sharp or discontinuous points).
+- Contrapositive: $\text{If } f \text{ is not continuous at } a, \text{ then } f \text{ is not differentiable at } a.$
+- Reason: Not continuous → there exists some discontinuous points / sharp points at which the derivative does not exist.
 
 ![](images/differentiability-implies-continuity-01.png)
 

@@ -2,19 +2,13 @@ Uses contiguous memory. Elements stored in a single, continuous block of memory 
 
 This means memory addresses can be calculated instantly.
 
-Read: O(1)
-
-Linear search: max N steps → O(N)
-
-If sorted, binary search: O(logN)
-
-Insertion at front: N+1 steps → O(N)
-
-Insertion at end: 1 step → O(1)
-
-Delete at front: N steps → O(N)
-
-Delete at end: 1 step → O(1)
+- Read: O(1)
+- Linear search: max N steps → O(N)
+- If sorted, binary search: O(logN)
+- Insertion at front: N+1 steps → O(N)
+- Insertion at end: 1 step → O(1)
+- Delete at front: N steps → O(N)
+- Delete at end: 1 step → O(1)
 
 Reverse an array:
 

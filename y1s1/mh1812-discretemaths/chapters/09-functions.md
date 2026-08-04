@@ -6,13 +6,10 @@ Range of a function is a subset of the codomain, containing all the images.
 
 ## Injective
 
-$$\text{Injective/one-to-one } f: \forall x_1, x_2 \in X, f(x_1) = f(x_2) \rightarrow x_1 = x_2$$
-
-OR
-
-$$\text{Injective/one-to-one } f: \forall x_1, x_2 \in X, x_1 \neq x_2 \rightarrow f(x_1) \neq f(x_2)$$
-
-$$\text{For injective } f: X \rightarrow Y, \ |X| \leq |Y|$$
+- $\text{Injective/one-to-one } f: \forall x_1, x_2 \in X, f(x_1) = f(x_2) \rightarrow x_1 = x_2$
+- OR
+- $\text{Injective/one-to-one } f: \forall x_1, x_2 \in X, x_1 \neq x_2 \rightarrow f(x_1) \neq f(x_2)$
+- $\text{For injective } f: X \rightarrow Y, \ |X| \leq |Y|$
 
 $$\text{For } f: A \rightarrow B, \ |A| = m, \ |B| = n \text{ with } n >= m, \text{ how many injective functions } f \text{ are there?}$$
 

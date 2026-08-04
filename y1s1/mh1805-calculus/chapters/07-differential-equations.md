@@ -60,21 +60,14 @@ $$\text{and } y_p(x) \text{ is a particular solution to the non-homo eqn.}$$
 
 ### Solving for y_cx
 
-$$\text{For a homogeneous linear d.e. with constant coefficients: }a y'' + b y' + c y = 0,$$
-
-$$\text{substitute } y = e^{rx}, \; y' = re^{rx}, \; y'' = r^2 e^{rx},$$
-
-$$\text{to obtain the characteristic equation: } a r^2 + b r + c = 0.$$
-
-$$\text{Case 1: } r_1, r_2 \text{ are distinct real roots.}$$
-
-$$\text{Then the general solution is } y(x) = C_1 e^{r_1 x} + C_2 e^{r_2 x}.$$
-
-$$\text{Case 2: } r_1 \text{ is a real double root.}$$
-
-$$\text{Then the general solution is } y(x) = C_1 e^{r_1 x} + C_2 x e^{r_1 x}.$$
-
-$$\text{Case 3: Two complex conjugate roots } \alpha + i\omega, \; \alpha - i\omega.$$
+- $\text{For a homogeneous linear d.e. with constant coefficients: }a y'' + b y' + c y = 0,$
+- $\text{substitute } y = e^{rx}, \; y' = re^{rx}, \; y'' = r^2 e^{rx},$
+- $\text{to obtain the characteristic equation: } a r^2 + b r + c = 0.$
+- $\text{Case 1: } r_1, r_2 \text{ are distinct real roots.}$
+- $\text{Then the general solution is } y(x) = C_1 e^{r_1 x} + C_2 e^{r_2 x}.$
+- $\text{Case 2: } r_1 \text{ is a real double root.}$
+- $\text{Then the general solution is } y(x) = C_1 e^{r_1 x} + C_2 x e^{r_1 x}.$
+- $\text{Case 3: Two complex conjugate roots } \alpha + i\omega, \; \alpha - i\omega.$
 
 $$\text{Then the general solution is } y(x) = C_1 e^{(\alpha + i\omega)x} + C_2 e^{(\alpha - i\omega)x}.$$
 
@@ -86,15 +79,11 @@ $$\text{giving } y(x) = e^{\alpha x}\big(C_3\cos(\omega x) + C_4\sin(\omega x)\b
 
 $$\text{Judicious guessing of solution to } y'' + a y' + b y = F(x)$$
 
-Case 0: $y'' + ay' + by = C$, where $C$ is a constant. By observation, $y_p = \frac{C}{b}$.
-
-$$\text{Case 1: } y'' + a y' + b y = a_0 + a_1x + \cdots + a_nx^n$$
-
-$$\text{If } b \ne 0, \text{ we can guess } y_p = A_0 + A_1x + \cdots + A_nx^n.$$
-
-$$\text{Substitute } y_p, \; y_p', \; y_p'' \text{ into the equation and compare coefficients.}$$
-
-$$\text{Case 2: } y'' + a y' + b y = e^{\alpha x}(a_0 + a_1x + \cdots + a_nx^n)$$
+- Case 0: $y'' + ay' + by = C$, where $C$ is a constant. By observation, $y_p = \frac{C}{b}$.
+- $\text{Case 1: } y'' + a y' + b y = a_0 + a_1x + \cdots + a_nx^n$
+- $\text{If } b \ne 0, \text{ we can guess } y_p = A_0 + A_1x + \cdots + A_nx^n.$
+- $\text{Substitute } y_p, \; y_p', \; y_p'' \text{ into the equation and compare coefficients.}$
+- $\text{Case 2: } y'' + a y' + b y = e^{\alpha x}(a_0 + a_1x + \cdots + a_nx^n)$
 
 $$\text{If } e^{\alpha x} \text{ is not a solution to the homogeneous equation, guess } y_p = (A_0 + A_1x + \cdots + A_nx^n)e^{\alpha x}.$$
 

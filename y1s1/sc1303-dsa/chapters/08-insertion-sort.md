@@ -1,14 +1,10 @@
 Takes one value at a time, places it into the right place in the sorted portion.
 
-4 steps: removal, comparison, shift, insertion.
-
-Removals = Insertions = N - 1
-
-Comparisons = Shifts = 1 + … + (N - 1) = (N² - N)/2
-
-Worst case (reversed array): N² + N – 2 → O(N²).
-
-Best case (only comparison): N – 1 → O(N).
+- 4 steps: removal, comparison, shift, insertion.
+- Removals = Insertions = N - 1
+- Comparisons = Shifts = 1 + … + (N - 1) = (N² - N)/2
+- Worst case (reversed array): N² + N – 2 → O(N²).
+- Best case (only comparison): N – 1 → O(N).
 
 Average = N² / 2
 

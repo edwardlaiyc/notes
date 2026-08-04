@@ -2,15 +2,11 @@
 
 ** For 2n-digit fixed-point decimal value, with n-digit integer part and n-digit fractional part, what is the minimum number of bits needed to represent in unsigned fixed-point binary?
 
-Integer part: for k bits and n digits, we need 2k - 1 >= 10n - 1.
-
-Fractional part: for f bits and n digits, we need 2-f <= 10-n. (Step size of binary value <= step size of decimal value)
-
-Binary: base-2
-
-Octal: base-8
-
-Hexadecimal: base-16
+- Integer part: for k bits and n digits, we need 2k - 1 >= 10n - 1.
+- Fractional part: for f bits and n digits, we need 2-f <= 10-n. (Step size of binary value <= step size of decimal value)
+- Binary: base-2
+- Octal: base-8
+- Hexadecimal: base-16
 
 BCD
 

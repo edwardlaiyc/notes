@@ -14,11 +14,9 @@ $$\text{and } \int_a^b f(x) \, dx = \lim_{n \to \infty} \frac{b - a}{n} \sum_{i=
 
 $$\text{If } f \text{ is continuous on } [a,b], \text{ then it is integrable on } [a,b].$$
 
-Reason: Continuous function has unbroken graph, which means we can find the area under it.
-
-Integrable functions need not be continuous.
-
-Reason: The area under the graph can continue accumulating even across discontinuous points.
+- Reason: Continuous function has unbroken graph, which means we can find the area under it.
+- Integrable functions need not be continuous.
+- Reason: The area under the graph can continue accumulating even across discontinuous points.
 
 **For non-continuous f, the integral F is continuous. F is differentiability only if f is continuous (area has no sharp turning points).
 

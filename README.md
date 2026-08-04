@@ -6,23 +6,23 @@ University lecture notes — NTU, CS.
 
 ### Year 1, Semester 1
 
-| Course | Folder | Topics |
-|---|---|---|
-| SC1005 Digital Logic | [`y1s1/sc1005-digitallogic/`](y1s1/sc1005-digitallogic/) | 32 |
-| SC1303 Programming with Data Structures & Algorithms | [`y1s1/sc1303-dsa/`](y1s1/sc1303-dsa/) | 13 |
-| MH1805 Calculus | [`y1s1/mh1805-calculus/`](y1s1/mh1805-calculus/) | 10 |
-| MH1812 Discrete Mathematics | [`y1s1/mh1812-discretemaths/`](y1s1/mh1812-discretemaths/) | 10 |
+| Course | Folder |
+|---|---|
+| SC1005 Digital Logic | [`y1s1/sc1005-digitallogic/`](y1s1/sc1005-digitallogic/) |
+| SC1303 Programming with Data Structures & Algorithms | [`y1s1/sc1303-dsa/`](y1s1/sc1303-dsa/) |
+| MH1805 Calculus | [`y1s1/mh1805-calculus/`](y1s1/mh1805-calculus/) |
+| MH1812 Discrete Mathematics | [`y1s1/mh1812-discretemaths/`](y1s1/mh1812-discretemaths/) |
 
 ### Year 1, Semester 2
 
-| Course | Folder | Topics |
-|---|---|---|
-| SC1006 Computer Organisation & Architecture | [`y1s2/sc1006-comorgarchi/`](y1s2/sc1006-comorgarchi/) | 17 |
-| SC1008 C & C++ Programming | [`y1s2/sc1008-c++/`](y1s2/sc1008-c++/) | 1 |
-| SC1302 Ethics | [`y1s2/sc1302-ethics/`](y1s2/sc1302-ethics/) | 6 |
-| SC1305 Linear Algebra | [`y1s2/sc1305-linearalgebra/`](y1s2/sc1305-linearalgebra/) | 9 |
-| SC1315 Artificial Intelligence | [`y1s2/sc1315-ai/`](y1s2/sc1315-ai/) | 16 |
-| SC2500 Probability & Statistics | [`y1s2/sc2500-probability/`](y1s2/sc2500-probability/) | 12 |
+| Course | Folder |
+|---|---|
+| SC1006 Computer Organisation & Architecture | [`y1s2/sc1006-comorgarchi/`](y1s2/sc1006-comorgarchi/) |
+| SC1008 C & C++ Programming | [`y1s2/sc1008-c++/`](y1s2/sc1008-c++/) |
+| SC1302 Ethics | [`y1s2/sc1302-ethics/`](y1s2/sc1302-ethics/) |
+| SC1305 Linear Algebra | [`y1s2/sc1305-linearalgebra/`](y1s2/sc1305-linearalgebra/) |
+| SC1315 Artificial Intelligence | [`y1s2/sc1315-ai/`](y1s2/sc1315-ai/) |
+| SC2500 Probability & Statistics | [`y1s2/sc2500-probability/`](y1s2/sc2500-probability/) |
 
 ## Forms
 

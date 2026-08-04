@@ -15,34 +15,28 @@ reading-progress bar.
 ## Layout
 
 ```
-web-pipeline/   shared LaTeX → HTML/Markdown build (pandoc + MiKTeX + Pillow)
-y1s2/           one folder per course, plus the semester landing page
+y1s2/                      one folder per course, plus the semester landing page
+└── sc1006-comorgarchi/    a course
+    ├── *.tex              LaTeX source
+    ├── chapters-part1/    chapters, and the .html / .md built from them
+    ├── images/            figures
+    └── index.md           course overview
 ```
 
-Each course folder holds its `.tex` source, its figures, and the generated
-`.html` / `.md` pages. Three small files configure the build: `course.yml`
-(branding and navigation), `site.psd1` (ordered topic list and preprocessing),
-and `index.md` (the course overview page).
+Each course folder holds everything for that course: the `.tex` source, the
+figures, and the generated `.html` / `.md` pages. Read a topic three ways —
+the `.tex` to see how it was written, the `.md` for plain text on GitHub, or
+the [published site](https://edwardlaiyc.github.io/notes/) for the nice version.
 
 ## Building
 
-Requires PowerShell, [pandoc](https://pandoc.org), MiKTeX, and Python with Pillow.
+The site is pre-built: the `.html` pages are committed and GitHub Pages serves
+them as-is, so nothing here needs a build step to read or to publish.
 
-```powershell
-# one topic
-cd y1s2\sc1006-comorgarchi
-..\..\web-pipeline\build.ps1 -Source .\chapters-part1\1-introduction.tex
-
-# a whole course
-..\..\web-pipeline\publish.ps1
-
-# a semester landing page
-cd y1s2
-..\web-pipeline\publish-hub.ps1
-```
-
-See [`web-pipeline/README.md`](web-pipeline/README.md) for the manifest schema and
-the LaTeX→pandoc gotchas.
+The LaTeX → HTML/Markdown converter that produces them (pandoc + MiKTeX +
+Pillow) is kept outside this repo, which holds the notes rather than the
+machinery. The `course.yml` and `site.psd1` in each course folder are its
+input: branding and navigation, and the ordered topic list.
 
 ## Compiled PDFs
 

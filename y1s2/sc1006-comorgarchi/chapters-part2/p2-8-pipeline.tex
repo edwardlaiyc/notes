@@ -1,0 +1,144 @@
+\documentclass[10pt]{article}
+
+% --- Page Setup ---
+% \usepackage[a4paper, margin=0.5cm]{geometry}
+\usepackage[a4paper, left=0.5cm, right=0.5cm, top=0.3cm, bottom=0.3cm]{geometry}
+\usepackage{multicol}
+
+% \allowdisplaybreaks
+
+\usepackage{booktabs} % Required for professional horizontal rules (\toprule, \midrule, \bottomrule)
+\usepackage{array}    % Required for better column formatting
+
+% --- Math and Code ---
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+
+% --- Spacing Adjustments ---
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\usepackage{nicematrix, tikz}
+
+\usepackage{graphicx}
+
+\usepackage{float}
+
+\usepackage[hidelinks]{hyperref} % hidelinks removes ugly red boxes around links
+
+% 1. Remove space between list items
+\setlist{nosep, leftmargin=*} 
+
+% 2. Shrink space around section headers
+\titlespacing*{\section}{0pt}{0pt}{0pt}
+\titlespacing*{\subsection}{0pt}{1ex plus .2ex minus .2ex}{0.5ex plus .1ex}
+
+% --- NEW: Reduce header font sizes ---
+\titleformat*{\section}{\normalsize\bfseries\color{blue!75!black}}
+\titleformat*{\subsection}{\small\bfseries\color{magenta}}
+
+% 3. Add a thin line between columns for readability
+\setlength{\columnseprule}{0.4pt}
+\setlength{\columnsep}{1.5em}
+
+% --- Custom Code Formatting ---
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+\usepackage{xcolor}
+% \newcommand{\sectionbox}[1]{%
+%      \colorbox{blue!75!black}{\color{white}\small\bfseries~#1~}%
+%    }
+%    \titleformat{\section}{}{}{0em}{\sectionbox}
+%    \titleformat*{\subsection}{\normalsize\bfseries}
+
+\raggedbottom
+
+\setlength{\parskip}{0pt}
+\setlength{\baselineskip}{0pt plus 0.2pt} 
+
+
+\begin{document}
+
+\section*{Pipeline}
+
+
+\textbf{Pipelining}: partition an instruction into simpler stages (like Fetch-Decode-Execute) and assigning indep resources so these stages can execute simultaneously.\\
+E.g. Executing 3 instructions takes 5 clock cycles instead of 9.\\
+\subsection*{Pipeline conflict}
+
+
+\begin{enumerate}
+    \item \textbf{Resource conflict}: two instructions attempt to access the same resource in the same clock cycle.
+    
+    
+    \begin{itemize}
+        \item E.g. F-D-E-S: Instruction1 wants to store data (using system bus) while instruct4 wants to fetch instruction (using the same system bus).
+        \item \textbf{Solution}: Have sufficient resources, like multiple internal buses, processing units like ALUs etc.
+    \end{itemize}
+    % \vspace{-0.5cm}
+    % \begin{figure}[H]
+    %     \centering
+    %     \includegraphics[width=0.3\textwidth]{images/resource-conflict.png}
+    %     % \caption{This is a description of the image.}
+    %     \label{fig:my_image}
+    % \end{figure}
+    \begin{center}
+        \includegraphics[width=0.3\textwidth]{images/resource-conflict.png}
+    \end{center}
+    % \vspace{-0.5cm}
+    \item \textbf{Data dependency conflict}: Instructions overlap \& the destination operand of instruct1 may be the source operand of instruct2 $\to$ that operand may not be updated when instruct2 executes.
+    
+    
+    \begin{itemize}
+        \item E.g. F-D-E-S: instruct1 (\texttt{ADD R2, R2, R1}), instruct2 (\texttt{SUB R3, R3, R2}); at the start of E for instruct2, R2 is not updated (only updated at end of S of instruct1).
+        \item \textbf{Solution 1}: Hardware detects data dependency (by comparing dest identifier in E stage with sources in the D stage), and stalls the E stage of subsequent instruction for one cycle (to allow the overlapped operand to be updated).
+        % \vspace{-1cm}
+        \begin{figure}[H]
+            \centering
+            \includegraphics[width=0.4\textwidth]{images/pipeline-stall.png}
+            % \caption{This is a description of the image.}
+        \end{figure}
+        % \vspace{-1cm}
+        \item \textbf{Solution 2}: Compiler inserts \texttt{NOP} (no operation) instructs betwen instruct with data dependencies, at compilation time. Total execution time increases.
+        \begin{center}
+            \includegraphics[width=0.4\textwidth]{images/nop-instruct.png}
+        \end{center}
+    \end{itemize}
+    \item \textbf{Branch instruction}: The branch target is only known after E stage of branch instructions. By this time, the next 2 instructions would have been fetched (during the D and E stage of B instruct).
+    
+    
+    \begin{itemize}
+        \item If the branch is true, the two instructs are discarded, resulting in 2-cycle branch delay, and the 2 slots are Delay Slots.
+        \item (Ignoring pipeline conflicts) Calculation of Total Cycles = Total Instructions + (Pipeline Depth - 1) + Wasted Cycles        
+        \begin{center}
+            \includegraphics[width=0.35\textwidth]{images/branch-delay.png}
+        \end{center}
+        \item \textbf{Solution 1}: Reduce branch delay - introduce an additional adder during D stage of B instruct, to calc the branch target earlier. If branch is true, only 1 instruct discarded, so 1-cycle branch delay.
+        \begin{center}
+            \includegraphics[width=0.3\textwidth]{images/decode-branch.png}
+        \end{center}
+        \item \textbf{Solution 2}: Delayed branching - Change the program so that 2 independent instructions (earlier in sequence than the B instruct \& don't affect the branch conditions) to occupy the 2 delay slots after the B instruct.
+        \begin{itemize}
+            \item These delay slots instructs will get executed regardless of the branch outcome, so no instructions are discarded.
+            \item If there are insufficient indep instructions, use NOP instructions to preserve the correctness of program logic.
+            \item If the branch is part of a loop, delay slot instructs must be sourced from within the loop to preserve correct number of iterations.
+        \end{itemize}
+        \begin{center}
+            \includegraphics[width=0.3\textwidth]{images/delayed-branching.png}
+        \end{center}
+        \item \textbf{Solution 3}: Dynamic branch prediction: Implement branch history table that stores (1) address of B instruct, (2) predicted target address, (3) Prediction result (T/F).
+        \begin{itemize}
+            \item Processor loads instructions based on the prediction. If predict is correct, continue execution and no wasted cycles. If wrong, flush instructions, wasted cycles and update prediction bit and target address for future use.
+        \end{itemize}
+        \begin{center}
+            \includegraphics[width=0.3\textwidth]{images/prediction-branch.png}
+        \end{center}
+    \end{itemize}
+\end{enumerate}
+
+\end{document}

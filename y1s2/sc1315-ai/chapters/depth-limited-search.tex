@@ -1,0 +1,93 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[linesnumbered, ruled]{algorithm2e}
+\usepackage{subcaption}
+\usepackage[hidelinks]{hyperref}
+% Each algorithm is written twice: the algorithm2e block (what the PDF typesets)
+% and a plain-text Verbatim block right after it (what the web shows — pandoc
+% renders Verbatim as a copyable <pre> code block). \excludecomment makes pdflatex
+% SKIP the Verbatim blocks, so the PDF shows only the algorithm2e version; pandoc
+% conversely drops each algorithm2e to an (empty, CSS-hidden) div and keeps the
+% Verbatim. Because pdflatex never sees the Verbatim, its Unicode maths glyphs
+% (⟨⟩ ← τ ∈ ∞ …) need no inputenc/literate setup.
+\usepackage{comment}
+\excludecomment{Verbatim}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\hypersetup{linktoc=all}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{codegreen},
+    stringstyle=\color{codepurple},
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    frame=single,
+    showstringspaces=false
+}
+
+\title{AI Masterclass Test 1}
+\author{}
+\date{}
+
+
+\begin{document}
+
+\section{Depth Limited Search}
+\begin{algorithm}[H]
+% \caption{Depth-Limited Search (DLS)}
+\SetKwFunction{Fdls}{DLS}
+\SetKwProg{Fn}{function}{}{end function}
+\Fn{\Fdls{$\mathcal{P} = \langle S, s_0, A, \tau, c, G \rangle, limit \in \mathbb{N}$}}{
+    $depth(s) \leftarrow 0$ for all $s \in S$\;
+    $agenda \leftarrow newStack()$\;
+    $agenda.push(s_0)$\;
+    \While{not agenda.isEmpty()}{
+        $s \leftarrow agenda.pop()$\;
+        \For{$a \in A$}{
+            $s' \leftarrow \tau(s, a)$ // expand s\;
+            \If{$s' \in G$}{
+                \Return "done"\;
+            }
+            $depth(s') \leftarrow depth(s) + 1$\;
+            \If{$depth(s') \leq limit$}{
+                $agenda.push(s')$ // goal not found\;
+            }
+        }
+    }
+    \Return "no solution"\;
+}
+\end{algorithm}
+\begin{Verbatim}
+function DLS(P = ⟨S, s₀, A, τ, c, G⟩, limit ∈ ℕ):
+    depth(s) ← 0  for all s ∈ S
+    agenda ← newStack()
+    agenda.push(s₀)
+    while not agenda.isEmpty():
+        s ← agenda.pop()
+        for a ∈ A:
+            s' ← τ(s, a)              # expand s
+            if s' ∈ G:
+                return "done"
+            depth(s') ← depth(s) + 1
+            if depth(s') ≤ limit:
+                agenda.push(s')       # goal not found
+    return "no solution"
+\end{Verbatim}
+
+\begin{itemize}
+    \item DFS might not terminate if it expands wrong branch with no solution on it.
+DLS imposes some depth limit on exploring branches.
+\end{itemize}
+
+\end{document}

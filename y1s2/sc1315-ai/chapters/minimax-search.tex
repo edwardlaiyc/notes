@@ -1,0 +1,116 @@
+\documentclass[12pt, a4paper]{article}
+
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[linesnumbered, ruled]{algorithm2e}
+\usepackage{subcaption}
+\usepackage[hidelinks]{hyperref}
+% Each algorithm is written twice: the algorithm2e block (what the PDF typesets)
+% and a plain-text Verbatim block right after it (what the web shows — pandoc
+% renders Verbatim as a copyable <pre> code block). \excludecomment makes pdflatex
+% SKIP the Verbatim blocks, so the PDF shows only the algorithm2e version; pandoc
+% conversely drops each algorithm2e to an (empty, CSS-hidden) div and keeps the
+% Verbatim. Because pdflatex never sees the Verbatim, its Unicode maths glyphs
+% (⟨⟩ ← τ ∈ ∞ …) need no inputenc/literate setup.
+\usepackage{comment}
+\excludecomment{Verbatim}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\hypersetup{linktoc=all}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{codegreen},
+    stringstyle=\color{codepurple},
+    breaklines=true,
+    numbers=left,
+    numberstyle=\tiny\color{codegray},
+    frame=single,
+    showstringspaces=false
+}
+
+\title{AI Masterclass Test 1}
+\author{}
+\date{}
+
+
+\begin{document}
+
+\section{Minimax Search}
+\begin{algorithm}[H]
+\caption{Minimax search}
+\SetKwFunction{Fback}{backpropagate}
+\SetKwProg{Fn}{function}{}{end function}
+
+$done \leftarrow leaves((S, E))$\;
+\While{$done \neq S$}{
+    $next \leftarrow \{s' \in S \setminus done \mid children(s', (S, E)) \subseteq done\}$\;
+    \For{$s \in next$}{
+        $C \leftarrow children(s, (S, E))$\;
+        \If{$owner(s) = 1$}{
+            $O \leftarrow \arg \max_{s' \in C} u(s')$ \tcp*[r]{maximise}
+        }
+        \Else{
+            $O \leftarrow \arg \min_{s' \in C} u(s')$ \tcp*[r]{minimise}
+        }
+        $s'' \leftarrow$ any element of $O$\;
+        $u(s) \leftarrow u(s'')$ \tcp*[r]{back score up}
+        $done \leftarrow done \cup \{s\}$\;
+    }
+}
+\end{algorithm}
+\begin{Verbatim}
+# Minimax search
+done ← leaves((S, E))
+while done ≠ S:
+    next ← { s' ∈ S ∖ done | children(s', (S, E)) ⊆ done }
+    for s ∈ next:
+        C ← children(s, (S, E))
+        if owner(s) = 1:
+            O ← arg max_{s' ∈ C} u(s')        # maximise
+        else:
+            O ← arg min_{s' ∈ C} u(s')        # minimise
+        s'' ← any element of O
+        u(s) ← u(s'')                         # back score up
+        done ← done ∪ {s}
+\end{Verbatim}
+
+\begin{itemize}
+    \item Here, we are concerned with zero sum games, which are a subset of extended form games.
+    \item For a two player zero sum game (where one player's win is the other player's loss)
+    \[G = (N = \{1, 2\},\: (S, E, s_0),\: owner,\: a,\: u)\]
+    \begin{itemize}
+        \item The components are almost the same as extended form games, except:
+        \item $N = \{1,2\}$ is set of two players
+        \item $u: leaves((S, E))\rightarrow \{1,-1\}$ gives the scores for player 1.
+        The score of player 2 is the negation of score of player 1. 
+    \end{itemize}
+    \item Minimax is a variation of backward induction, optimised for zero sum games.
+\end{itemize}
+
+\subsection{Depth-limited minimax with heuristics} In practice, real game trees are too large for full backward induction.
+We want to use depth-limited search. We then have to replace the exact utilities at new leaves with some heuristic evaluations.
+For example, in chess it might be $h(s) = 9Q + 5R + 3B$.
+
+\subsection{Alpha-beta pruning}
+An optimisation for minimax. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/alpha-beta-pruning.png} 
+    % \caption{$h(s)$ = number of misplaced tiles or sum of Manatten distances of each tile to their goal position}
+    \label{fig:my_handwritten_notes}
+\end{figure}
+\begin{itemize}
+    \item Keep track of $\alpha$, the best (highest) value that Maximiser has found so far.
+    \item $\beta$ is the lowest value that Maximiser has found so far.
+    \item If $\beta \leq \alpha$, stop searching a branch. There is no point as Maximiser cannot get a higher value $\alpha$.
+\end{itemize}
+
+\end{document}

@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Least Squares · SC1305 Linear Algebra</title>
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') {
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+            ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Least
+Squares</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 1 ·
+Semester 2</a>
+  <p class="course-code">SC1305</p>
+  <p class="site-title">Linear Algebra</p>
+  <h1 class="page-title">Least Squares</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Foundations</h2>
+          <ul>
+            <li><a href="../chapters/0A0Bvectormatrix.html"
+                   data-nav="chapters/0A0Bvectormatrix.html">1. Vectors
+&amp; Matrices</a></li>
+            <li><a href="../chapters/1-systemlineareqns.html"
+                   data-nav="chapters/1-systemlineareqns.html">2.
+Systems of Linear Equations</a></li>
+            <li><a href="../chapters/2-matrixalgebra.html"
+                   data-nav="chapters/2-matrixalgebra.html">3. Matrix
+Algebra</a></li>
+            <li><a href="../chapters/3-determinants.html"
+                   data-nav="chapters/3-determinants.html">4.
+Determinants</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Spaces &amp; Orthogonality</h2>
+          <ul>
+            <li><a href="../chapters/4-vectorspaces.html"
+                   data-nav="chapters/4-vectorspaces.html">5. Vector
+Spaces</a></li>
+            <li><a href="../chapters/5-orthogonality.html"
+                   data-nav="chapters/5-orthogonality.html">6.
+Orthogonality</a></li>
+            <li><a href="../chapters/6-leastsquares.html"
+                   data-nav="chapters/6-leastsquares.html">7. Least
+Squares</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Further Topics</h2>
+          <ul>
+            <li><a href="../chapters/7-complexnumbers.html"
+                   data-nav="chapters/7-complexnumbers.html">8. Complex
+Numbers</a></li>
+            <li><a href="../chapters/8-eigen.html"
+                   data-nav="chapters/8-eigen.html">9. Eigenvalues &amp;
+Eigenvectors</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#least-squares" id="toc-least-squares"><span
+class="toc-section-number">9</span> Least squares</a>
+<ul>
+<li><a href="#consistency-in-a-system-of-equations"
+id="toc-consistency-in-a-system-of-equations"><span
+class="toc-section-number">9.1</span> Consistency in a system of
+equations</a></li>
+<li><a href="#the-least-squares-problem"
+id="toc-the-least-squares-problem"><span
+class="toc-section-number">9.2</span> The Least Squares Problem</a></li>
+<li><a href="#best-approximation-theorem"
+id="toc-best-approximation-theorem"><span
+class="toc-section-number">9.3</span> Best Approximation
+Theorem</a></li>
+<li><a href="#the-normal-equation" id="toc-the-normal-equation"><span
+class="toc-section-number">9.4</span> The Normal Equation</a></li>
+<li><a href="#projection-matrix" id="toc-projection-matrix"><span
+class="toc-section-number">9.5</span> Projection Matrix</a></li>
+<li><a href="#qr-factorisation" id="toc-qr-factorisation"><span
+class="toc-section-number">9.6</span> QR Factorisation</a></li>
+<li><a href="#application-to-linear-models"
+id="toc-application-to-linear-models"><span
+class="toc-section-number">9.7</span> Application to linear
+models</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 data-number="9" id="least-squares"><span
+class="header-section-number">9</span> Least squares</h1>
+<h2 data-number="9.1" id="consistency-in-a-system-of-equations"><span
+class="header-section-number">9.1</span> Consistency in a system of
+equations</h2>
+<p>For an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>×</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">M \times N</annotation></semantics></math>
+matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>:</p>
+<ul>
+<li><p>Under-determined
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>&lt;</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">M &lt; N</annotation></semantics></math>:
+There are free variables
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+infinite solutions.</p></li>
+<li><p>Perfectly-determines
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>=</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">M=N</annotation></semantics></math>:
+Unique solution.</p></li>
+<li><p>Over-determined
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>&gt;</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">M &gt; N</annotation></semantics></math>:
+Prone to inconsistency. Real-world data collection tends to result in
+over-determined system.</p></li>
+</ul>
+<p>The equation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>x</mi><mo>=</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">Ax=b</annotation></semantics></math>
+fundamentally asks if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+can be constructed as a linear combination of the columns of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>.<br />
+If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+lives in the column space of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>,
+then the system is consistent. Otherwise, it is inconsistent.<br />
+Testing if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+lies in the column space of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>:</p>
+<ul>
+<li><p>If
+rank(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>)
+&lt;
+rank(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo stretchy="false" form="prefix">|</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">A|b</annotation></semantics></math>),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+introduces a new dimension, so the system is inconsistent.</p></li>
+<li><p>If
+rank(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>)
+=
+rank(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo stretchy="false" form="prefix">|</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">A|b</annotation></semantics></math>),
+the system is consistent.</p></li>
+</ul>
+<p>In real-world data collection, systems are usually over-determined,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+doesn’t lie in the column space. The goal is to find the point in the
+column space that is closest to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>.
+This best approximation is found using orthogonality from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+to the column space.</p>
+<h2 data-number="9.2" id="the-least-squares-problem"><span
+class="header-section-number">9.2</span> The Least Squares Problem</h2>
+<p>Given that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+does not lie in the column space, we can define an error vector between
+our prediction
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">Ax</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mi>b</mi><mo>−</mo><mi>A</mi><mi>x</mi></mrow><annotation encoding="application/x-tex">e = b - Ax</annotation></semantics></math>
+We want to make the error vector as short as possible. We want to find a
+set of weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>x</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{x}</annotation></semantics></math>
+such that
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">∥</mo><mi>b</mi><mo>−</mo><mi>A</mi><mover><mi>x</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">∥</mo><mo>≤</mo><mo stretchy="false" form="postfix">∥</mo><mi>b</mi><mo>−</mo><mi>A</mi><mi>x</mi><mo stretchy="false" form="postfix">∥</mo></mrow><annotation encoding="application/x-tex">\|b - A\hat{x}\| \leq \|b - Ax\|</annotation></semantics></math>
+Since
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>e</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mo>=</mo><msqrt><mrow><msubsup><mi>e</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>e</mi><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mi>…</mi><mo>+</mo><msubsup><mi>e</mi><mi>m</mi><mn>2</mn></msubsup></mrow></msqrt></mrow><annotation encoding="application/x-tex">||e|| = \sqrt{e_1^2 + e_2^2 + \dots + e_m^2}</annotation></semantics></math>
+we can minimise the squared distance,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>e</mi><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">||e||^2</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi>e</mi><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo>=</mo><msubsup><mi>e</mi><mn>1</mn><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>e</mi><mn>2</mn><mn>2</mn></msubsup><mo>+</mo><mi>…</mi><mo>+</mo><msubsup><mi>e</mi><mi>m</mi><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">||e||^2 = e_1^2 + e_2^2 + \dots + e_m^2</annotation></semantics></math>
+The method is called Least Squares because we are finding the solution
+that provides the least possible sum of the squared errors.</p>
+<h2 data-number="9.3" id="best-approximation-theorem"><span
+class="header-section-number">9.3</span> Best Approximation Theorem</h2>
+<h4 data-number="9.3.0.1" id="theorem"><span
+class="header-section-number">9.3.0.1</span> Theorem</h4>
+<p>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
+is a finite-dimensional subspace of an inner product space
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>,
+and if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒃</mi><annotation encoding="application/x-tex">\mathbf{b}</annotation></semantics></math>
+is a vector in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>,
+then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">proj</mtext><mi>W</mi></msub><mi mathvariant="bold-italic">𝒃</mi></mrow><annotation encoding="application/x-tex">\text{proj}_{W} \mathbf{b}</annotation></semantics></math>
+is the best approximation to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒃</mi><annotation encoding="application/x-tex">\mathbf{b}</annotation></semantics></math>
+from W in the sense that
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi mathvariant="bold-italic">𝒃</mi><mo>−</mo><mi>p</mi><mi>r</mi><mi>o</mi><msub><mi>j</mi><mi>W</mi></msub><mi mathvariant="bold-italic">𝒃</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mo>&lt;</mo><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi mathvariant="bold-italic">𝒃</mi><mo>−</mo><mi mathvariant="bold-italic">𝒘</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">||\mathbf{b}-proj_{W}\mathbf{b}||&lt;||\mathbf{b}-\mathbf{w}||</annotation></semantics></math>
+for every vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒘</mi><annotation encoding="application/x-tex">\mathbf{w}</annotation></semantics></math>
+in W that is different from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">proj</mtext><mi>W</mi></msub><mi mathvariant="bold-italic">𝒃</mi></mrow><annotation encoding="application/x-tex">\text{proj}_W \mathbf{b}</annotation></semantics></math>.</p>
+<h2 data-number="9.4" id="the-normal-equation"><span
+class="header-section-number">9.4</span> The Normal Equation</h2>
+<p>We want the error vector to be orthgonal to the entire column space
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>,
+so
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msup><mi>A</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒆</mi></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn mathvariant="bold">𝟎</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msup><mi>A</mi><mi>T</mi></msup><mo stretchy="false" form="prefix">(</mo><mi mathvariant="bold-italic">𝒃</mi><mo>−</mo><mi>A</mi><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̂</mo></mover><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn mathvariant="bold">𝟎</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msup><mi>A</mi><mi>T</mi></msup><mi>A</mi><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̂</mo></mover></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mi>A</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒃</mi><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">[</mo><mtext mathvariant="normal">The normal equation</mtext><mo stretchy="false" form="postfix">]</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align*}
+    A^T \mathbf{e} &amp;= \mathbf{0}\\
+    A^T (\mathbf{b} - A\mathbf{\hat{x}}) &amp;= \mathbf{0}\\
+    A^TA\mathbf{\hat{x}} &amp;= A^T\mathbf{b} \quad [\text{The normal equation}]
+\end{align*}</annotation></semantics></math> Finding a unique
+solution:</p>
+<h4 data-number="9.4.0.1" id="theorem-1"><span
+class="header-section-number">9.4.0.1</span> Theorem</h4>
+<p>Let A be an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>×</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">m\times n</annotation></semantics></math>
+matrix. The following statements are logically equivalent:</p>
+<ol>
+<li><p>The equation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi mathvariant="bold-italic">𝒙</mi><mo>=</mo><mi mathvariant="bold-italic">𝒃</mi></mrow><annotation encoding="application/x-tex">A\mathbf{x}=\mathbf{b}</annotation></semantics></math>
+has a unique least-squares solution for each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒃</mi><annotation encoding="application/x-tex">\mathbf{b}</annotation></semantics></math>
+in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi mathvariant="double-struck">ℝ</mi><mi>m</mi></msup><annotation encoding="application/x-tex">\mathbb{R}^{m}</annotation></semantics></math>.</p></li>
+<li><p>The columns of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+are linearly independent.</p></li>
+<li><p>The matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mi>T</mi></msup><mi>A</mi></mrow><annotation encoding="application/x-tex">A^{T}A</annotation></semantics></math>
+is invertible.</p></li>
+</ol>
+<p>When these statements are true, the least-squares solution
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\mathbf{\hat{x}}</annotation></semantics></math>
+is given by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̂</mo></mover><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>A</mi><mi>T</mi></msup><mi>A</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi>A</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒃</mi></mrow><annotation encoding="application/x-tex">\mathbf{\hat{x}}=(A^{T}A)^{-1}A^{T}\mathbf{b}</annotation></semantics></math>.</p>
+<h2 data-number="9.5" id="projection-matrix"><span
+class="header-section-number">9.5</span> Projection Matrix</h2>
+<p>We want a projection matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+that takes any vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒃</mi><annotation encoding="application/x-tex">\mathbf{b}</annotation></semantics></math>
+and outputs the closest point in our column space, i.e.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi mathvariant="bold-italic">𝒃</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\mathbf{\hat{b}}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">= P</annotation></semantics></math><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒃</mi><annotation encoding="application/x-tex">\mathbf{b}</annotation></semantics></math>.<br />
+First, the projection of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒖</mi><annotation encoding="application/x-tex">\mathbf{u}</annotation></semantics></math>
+onto a 1-D line defined by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒗</mi><annotation encoding="application/x-tex">\mathbf{v}</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>r</mi><mi>o</mi><msub><mi>j</mi><mi mathvariant="bold-italic">𝒗</mi></msub><mi mathvariant="bold-italic">𝒖</mi><mo>=</mo><mi mathvariant="bold-italic">𝒗</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msup><mi mathvariant="bold-italic">𝒖</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒗</mi></mrow><mrow><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">|</mo><mi mathvariant="bold-italic">𝒗</mi><mo stretchy="false" form="prefix">|</mo><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mi mathvariant="bold-italic">𝒗</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msup><mi mathvariant="bold-italic">𝒖</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒗</mi></mrow><mrow><msup><mi mathvariant="bold-italic">𝒗</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒗</mi></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><mi mathvariant="bold-italic">𝒗</mi><msup><mi mathvariant="bold-italic">𝒗</mi><mi>T</mi></msup></mrow><mrow><msup><mi mathvariant="bold-italic">𝒗</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒗</mi></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi mathvariant="bold-italic">𝒖</mi><mo>=</mo><mi>P</mi><mi mathvariant="bold-italic">𝒖</mi></mrow><annotation encoding="application/x-tex">Proj_{\mathbf{v}}\mathbf{u} = \mathbf{v}\left(\frac{\mathbf{u}^T\mathbf{v}}{||\mathbf{v}||^2}\right) = \mathbf{v}\left(\frac{\mathbf{u}^T\mathbf{v}}{\mathbf{v}^T\mathbf{v}}\right) = \left(\frac{\mathbf{v}\mathbf{v}^T}{\mathbf{v}^T\mathbf{v}}\right)\mathbf{u} = P\mathbf{u}</annotation></semantics></math>
+Therefore, the projection matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mfrac><mrow><mi mathvariant="bold-italic">𝒗</mi><msup><mi mathvariant="bold-italic">𝒗</mi><mi>T</mi></msup></mrow><mrow><msup><mi mathvariant="bold-italic">𝒗</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒗</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">P = \frac{\mathbf{v}\mathbf{v}^T}{\mathbf{v}^T\mathbf{v}}</annotation></semantics></math>.<br />
+From the normal equation,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̂</mo></mover></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>A</mi><mi>T</mi></msup><mi>A</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi>A</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒃</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi mathvariant="bold-italic">𝒑</mi><mo>=</mo><mi>A</mi><mover><mi mathvariant="bold-italic">𝒙</mi><mo accent="true">̂</mo></mover><mo>=</mo><mi>A</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>A</mi><mi>T</mi></msup><mi>A</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi>A</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒃</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align*}
+    \mathbf{\hat{x}} &amp;= (A^TA)^{-1}A^T\mathbf{b}\\
+    \mathbf{p} = A\mathbf{\hat{x}} = A(A^TA)^{-1}A^T\mathbf{b}
+\end{align*}</annotation></semantics></math> Therefore,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mi>A</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>A</mi><mi>T</mi></msup><mi>A</mi><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>−</mi><mn>1</mn></mrow></msup><msup><mi>A</mi><mi>T</mi></msup></mrow><annotation encoding="application/x-tex">P = A(A^TA)^{-1}A^T</annotation></semantics></math>.<br />
+Two properties of projection matrix:</p>
+<ol>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>P</mi><mi>T</mi></msup><mo>=</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">P^T = P</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+is symmetric, guaranteeing that the error vector is orthogonal to the
+column space.</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>P</mi><mn>2</mn></msup><mo>=</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">P^2 = P</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+represents the projection onto the column space. Applying it repeatedly
+has the same effect of applying it just once.</p></li>
+</ol>
+<h2 data-number="9.6" id="qr-factorisation"><span
+class="header-section-number">9.6</span> QR Factorisation</h2>
+<p>using the Normal Equation method, computing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>A</mi><mi>T</mi></msup><mi>A</mi></mrow><annotation encoding="application/x-tex">A^T A</annotation></semantics></math>
+and finding its inverse can be computationally expensive.<br />
+QR factorisation is faster. Factorising
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>=</mo><mi>Q</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">A=QR</annotation></semantics></math>,</p>
+<ul>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>
+has orthonormal columns.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>Q</mi><mi>T</mi></msup><mi>Q</mi><mo>=</mo><mi>I</mi></mrow><annotation encoding="application/x-tex">Q^T Q = I</annotation></semantics></math>.</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+is upper-triangular matrix.</p></li>
+</ul>
+<p>Substituting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>=</mo><mi>Q</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">A=QR</annotation></semantics></math>,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>A</mi><mi mathvariant="bold-italic">𝒙</mi></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi mathvariant="bold-italic">𝒃</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>Q</mi><mi>R</mi><mi mathvariant="bold-italic">𝒙</mi></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi mathvariant="bold-italic">𝒃</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>R</mi><mi mathvariant="bold-italic">𝒙</mi></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mi>Q</mi><mi>T</mi></msup><mi mathvariant="bold-italic">𝒃</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{align*}
+    A\mathbf{x} &amp;= \mathbf{b} \\
+    QR\mathbf{x} &amp;= \mathbf{b} \\
+    R\mathbf{x} &amp;= Q^T \mathbf{b}
+\end{align*}</annotation></semantics></math> Since
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+is a simple upper-triangular staircase, we can just solve using
+back-substitution.</p>
+<h2 data-number="9.7" id="application-to-linear-models"><span
+class="header-section-number">9.7</span> Application to linear
+models</h2>
+<p>When plotting experimental data on a graph, the points are
+scattered.<br />
+We want to draw a straight line through them defined as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub><mo>+</mo><msub><mi>β</mi><mn>1</mn></msub><mi>x</mi></mrow><annotation encoding="application/x-tex">y = \beta_0 + \beta_1x</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\beta_0</annotation></semantics></math>
+is the y-intercept and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\beta_1</annotation></semantics></math>
+is the gradient.<br />
+For any given data point
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>j</mi></msub><mo>,</mo><msub><mi>y</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">x_j, y_j</annotation></semantics></math>),
+the line will predict a specific height
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi mathvariant="bold-italic">𝒚</mi><mo accent="true">̂</mo></mover><mi>j</mi></msub><annotation encoding="application/x-tex">\mathbf{\hat{y}}_j</annotation></semantics></math>.<br />
+The vertical gap is the residual,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ϵ</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\epsilon_j</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ϵ</mi><mi>j</mi></msub><mo>=</mo><msub><mi>y</mi><mi>j</mi></msub><mo>−</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>β</mi><mn>0</mn></msub><mo>+</mo><msub><mi>β</mi><mn>1</mn></msub><msub><mi>x</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\epsilon_j = y_j - (\beta_0 + \beta_1x_j)</annotation></semantics></math>
+The goal is to find the specific parameters
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\beta_0</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\beta_1</annotation></semantics></math>)
+that make the total sum of all these squared residuals as small as
+mathematically possible.<br />
+<br />
+First, translate the equation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mi mathvariant="bold-italic">𝒙</mi><mo>=</mo><mi mathvariant="bold-italic">𝒃</mi></mrow><annotation encoding="application/x-tex">A\mathbf{x}=\mathbf{b}</annotation></semantics></math>
+into
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mi mathvariant="bold-italic">𝜷</mi><mo>=</mo><mi mathvariant="bold-italic">𝒚</mi></mrow><annotation encoding="application/x-tex">X\mathbf{\beta} = \mathbf{y}</annotation></semantics></math>.</p>
+<ul>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒚</mi><annotation encoding="application/x-tex">\mathbf{y}</annotation></semantics></math>:
+Vector containing all the actual
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>-coordinates
+from the data. (The unreachable target).</p></li>
+<li><p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝜷</mi><annotation encoding="application/x-tex">\mathbf{\beta}</annotation></semantics></math>:
+Vector containing the unknown weights:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>β</mi><mn>0</mn></msub></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><msub><mi>β</mi><mn>1</mn></msub></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\begin{bmatrix} \beta_0 \\ \beta_1 \end{bmatrix}</annotation></semantics></math>.</p></li>
+<li><p>Design matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>:
+First column contains 1s to multiply with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>0</mn></msub><annotation encoding="application/x-tex">\beta_0</annotation></semantics></math>
+which is a constant. The second column of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+is filled with your actual
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>-coordinates.
+These act as the multipliers for your slope
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>1</mn></msub><annotation encoding="application/x-tex">\beta_1</annotation></semantics></math>.</p></li>
+</ul>
+<p>Adding the errors
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>,
+the full equation is:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝒚</mi><mo>=</mo><mi>X</mi><mi mathvariant="bold-italic">𝜷</mi><mo>+</mo><mi mathvariant="bold-italic">𝝐</mi></mrow><annotation encoding="application/x-tex">\mathbf{y} = X\mathbf{\beta} + \mathbf{\epsilon}</annotation></semantics></math>
+<strong>Example</strong> We have 4 data points
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mn>8</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(2, 1), (5, 2), (7, 3), (8, 3)</annotation></semantics></math>.<br />
+We set up
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒚</mi><annotation encoding="application/x-tex">\mathbf{y}</annotation></semantics></math>
+=
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\begin{bmatrix} 1 \\ 2 \\ 3 \\ 3 \end{bmatrix}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+=
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>7</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>8</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\begin{bmatrix} 1 &amp; 2 \\ 1 &amp; 5 \\ 1 &amp; 7 \\ 1 &amp; 8 \end{bmatrix}</annotation></semantics></math>.
+Using the normal equation that minimises
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ϵ</mi><annotation encoding="application/x-tex">\epsilon</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>X</mi><mi>T</mi></msup><mi>X</mi></mrow><annotation encoding="application/x-tex">X^TX</annotation></semantics></math><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝜷</mi><annotation encoding="application/x-tex">\mathbf{\beta}</annotation></semantics></math>
+=
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>X</mi><mi>T</mi></msup><annotation encoding="application/x-tex">X^T</annotation></semantics></math><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒚</mi><annotation encoding="application/x-tex">\mathbf{y}</annotation></semantics></math>.<br />
+We have
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>X</mi><mi>T</mi></msup><mi>X</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>22</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>22</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>142</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">X^TX = \begin{bmatrix} 4 &amp; 22 \\ 22 &amp; 142 \end{bmatrix}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>X</mi><mi>T</mi></msup><annotation encoding="application/x-tex">X^T</annotation></semantics></math><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒚</mi><annotation encoding="application/x-tex">\mathbf{y}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>9</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>57</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">= \begin{bmatrix} 9 \\ 57 \end{bmatrix}</annotation></semantics></math>,
+so solving we get
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝜷</mi><annotation encoding="application/x-tex">\mathbf{\beta}</annotation></semantics></math>
+=
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="true" form="prefix">[</mo><mtable><mtr><mtd columnalign="center" style="text-align: center"><mn>2</mn><mi>/</mi><mn>7</mn></mtd></mtr><mtr><mtd columnalign="center" style="text-align: center"><mn>5</mn><mi>/</mi><mn>14</mn></mtd></mtr></mtable><mo stretchy="true" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\begin{bmatrix} 2/7 \\ 5/14 \end{bmatrix}</annotation></semantics></math>.<br />
+The best-fit line is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mfrac><mn>2</mn><mn>7</mn></mfrac><mo>+</mo><mfrac><mn>5</mn><mn>14</mn></mfrac><mi>x</mi></mrow><annotation encoding="application/x-tex">y = \frac{2}{7} + \frac{5}{14}x</annotation></semantics></math>.<br />
+<br />
+Least squares can fit a curve
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><msub><mi>β</mi><mn>0</mn></msub><mo>+</mo><msub><mi>β</mi><mn>1</mn></msub><mi>x</mi><mo>+</mo><msub><mi>β</mi><mn>2</mn></msub><msup><mi>x</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">y = \beta_0 + \beta_1x + \beta_2x^2</annotation></semantics></math>.
+The linear model is linear wrt to the parameters
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>β</mi><annotation encoding="application/x-tex">\beta</annotation></semantics></math>
+not the data
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>.<br />
+Simply add a third column to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+containing the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>-coordinates
+squared (for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>β</mi><mn>2</mn></msub><annotation encoding="application/x-tex">\beta_2</annotation></semantics></math>),
+then solve the Normal equation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>X</mi><mi>T</mi></msup><mi>X</mi></mrow><annotation encoding="application/x-tex">X^TX</annotation></semantics></math><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝜷</mi><annotation encoding="application/x-tex">\mathbf{\beta}</annotation></semantics></math>
+=
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>X</mi><mi>T</mi></msup><annotation encoding="application/x-tex">X^T</annotation></semantics></math><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="bold-italic">𝒚</mi><annotation encoding="application/x-tex">\mathbf{y}</annotation></semantics></math>.</p>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../chapters/5-orthogonality.html">← Orthogonality</a>
+  <a class="next-page" href="../chapters/7-complexnumbers.html">Complex
+Numbers →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

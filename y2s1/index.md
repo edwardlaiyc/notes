@@ -6,6 +6,8 @@
 
 <a class="subject-card" href="sc2008-computernetwork/index.html"><span class="subject-card-text"><span class="subject-code">SC2008</span><span class="subject-name">Computer Network</span></span><span class="subject-go" aria-hidden="true">→</span></a>
 
+<a class="subject-card" href="sc2301-algorithms/index.html"><span class="subject-card-text"><span class="subject-code">SC2301</span><span class="subject-name">Algorithm Design & Analysis</span></span><span class="subject-go" aria-hidden="true">→</span></a>
+
 </div>
 
 ## Ecosystem

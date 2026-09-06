@@ -6,7 +6,7 @@ MH1812 Discrete Mathematics, NTU AY25/26 Semester 1
 
 Course-wide formulae and identities, referred to throughout the notes below.
 
-[MF26](https://theculture.sg/wp-content/uploads/2017/07/MF26.pdf), [MF27](https://www.seab.gov.sg/files/A%20Level%20Syllabus%20Sch%20Cddts/2025/SEAB_Mathematics_MF27__2025__.pdf) 
+[MF26](https://theculture.sg/wp-content/uploads/2017/07/MF26.pdf), [MF27](https://isomer-user-content.by.gov.sg/334/4274d4c9-ceb5-4b7e-913d-5a218ee8a097/SEAB_Mathematics_MF27__2025__.pdf) 
 
 Binomial expansion
 
@@ -36,7 +36,7 @@ Bell numbers, B1 = 1, B2 = 2, B3 = 5, B4 = 15, B5 = 52
 <div class="ecosystem-card-text">
 <h3>.pdf</h3>
 </div>
-<span class="ecosystem-btn ecosystem-btn-pending ecosystem-btn-icon" aria-label="PDF notes on Google Drive — link pending"><svg viewBox="0 0 87.3 78" aria-hidden="true"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44c-.8 1.4-1.2 2.95-1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg></span>
+<a class="ecosystem-btn ecosystem-btn-primary ecosystem-btn-icon" href="https://drive.google.com/drive/folders/1dfI9YefZfp4YOLnbzyLrgk2a6LOzysib" target="_blank" rel="noopener noreferrer" aria-label="PDF notes on Google Drive"><svg viewBox="0 0 87.3 78" aria-hidden="true"><path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/><path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44c-.8 1.4-1.2 2.95-1.2 4.5h27.5z" fill="#00ac47"/><path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/><path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/><path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/><path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/></svg></a>
 </div>
 <div class="ecosystem-card">
 <div class="ecosystem-card-text">

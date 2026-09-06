@@ -6,6 +6,8 @@
 
 <a class="subject-card" href="y1s2/index.html"><span class="subject-card-text"><span class="subject-name">Year 1 Semester 2</span></span><span class="subject-go" aria-hidden="true">→</span></a>
 
+<a class="subject-card" href="y2s1/index.html"><span class="subject-card-text"><span class="subject-name">Year 2 Semester 1</span></span><span class="subject-go" aria-hidden="true">→</span></a>
+
 </div>
 
 ## Ecosystem

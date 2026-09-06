@@ -27,6 +27,12 @@ This branch holds the source they are written from.
 | SC1315 Artificial Intelligence | [`y1s2/sc1315-ai/`](y1s2/sc1315-ai/) |
 | SC2500 Probability & Statistics | [`y1s2/sc2500-probability/`](y1s2/sc2500-probability/) |
 
+### Year 2, Semester 1
+
+| Course | Folder |
+|---|---|
+| SC2008 Computer Network | [`y2s1/sc2008-computernetwork/`](y2s1/sc2008-computernetwork/) |
+
 ## Where things live
 
 | | |

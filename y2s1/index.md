@@ -2,6 +2,8 @@
 
 <div class="subject-grid">
 
+<a class="subject-card" href="sc2005-os/index.html"><span class="subject-card-text"><span class="subject-code">SC2005</span><span class="subject-name">Operating Systems</span></span><span class="subject-go" aria-hidden="true">→</span></a>
+
 <a class="subject-card" href="sc2008-computernetwork/index.html"><span class="subject-card-text"><span class="subject-code">SC2008</span><span class="subject-name">Computer Network</span></span><span class="subject-go" aria-hidden="true">→</span></a>
 
 </div>

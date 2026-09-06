@@ -31,6 +31,7 @@ This branch holds the source they are written from.
 
 | Course | Folder |
 |---|---|
+| SC2005 Operating Systems | [`y2s1/sc2005-os/`](y2s1/sc2005-os/) |
 | SC2008 Computer Network | [`y2s1/sc2008-computernetwork/`](y2s1/sc2008-computernetwork/) |
 
 ## Where things live

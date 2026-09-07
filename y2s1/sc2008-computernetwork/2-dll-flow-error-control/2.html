@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Data Link Layer (DLL): Flow &amp; Error
+Control · SC2008 Computer Network</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=B181318A">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Data Link Layer
+(DLL): Flow &amp; Error Control</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2008</p>
+  <p class="site-title">Computer Network</p>
+  <h1 class="page-title">Data Link Layer (DLL): Flow &amp; Error
+Control</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-networklayers/1.html"
+                   data-nav="1-networklayers/1.html">Network Layers and
+Physical Resilience</a></li>
+            <li><a href="../2-dll-flow-error-control/2.html"
+                   data-nav="2-dll-flow-error-control/2.html">Data Link
+Layer (DLL): Flow &amp; Error Control</a></li>
+            <li><a href="../3-dll-mac-lan/3.html"
+                   data-nav="3-dll-mac-lan/3.html">Data Link Layer
+(DLL): Medium Access Control &amp; LANs</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#data-link-layer-dll-flow-error-control"
+id="toc-data-link-layer-dll-flow-error-control">Data Link Layer (DLL):
+Flow &amp; Error Control</a>
+<ul>
+<li><a href="#fundamentals-architecture"
+id="toc-fundamentals-architecture">1. Fundamentals &amp;
+Architecture</a>
+<ul>
+<li><a href="#universal-timing-link-utilization-parameters"
+id="toc-universal-timing-link-utilization-parameters">Universal Timing
+&amp; Link Utilization Parameters</a></li>
+<li><a href="#transmission-impairments-correction-overview"
+id="toc-transmission-impairments-correction-overview">Transmission
+Impairments &amp; Correction Overview</a></li>
+</ul></li>
+<li><a href="#stop-and-wait-protocol-family"
+id="toc-stop-and-wait-protocol-family">2. Stop-and-Wait Protocol
+Family</a>
+<ul>
+<li><a href="#flow-control-error-free"
+id="toc-flow-control-error-free">Flow Control (Error-Free)</a></li>
+<li><a href="#error-control-stop-and-wait-arq"
+id="toc-error-control-stop-and-wait-arq">Error Control: Stop-and-Wait
+ARQ</a></li>
+</ul></li>
+<li><a href="#sliding-window-protocol-family"
+id="toc-sliding-window-protocol-family">3. Sliding Window Protocol
+Family</a>
+<ul>
+<li><a href="#flow-control-window-mechanics"
+id="toc-flow-control-window-mechanics">Flow Control &amp; Window
+Mechanics</a></li>
+<li><a href="#window-edge-movement-rules-lecture-definition"
+id="toc-window-edge-movement-rules-lecture-definition">Window Edge
+Movement Rules (Lecture Definition)</a></li>
+<li><a href="#performance-of-sliding-window-error-free"
+id="toc-performance-of-sliding-window-error-free">Performance of Sliding
+Window (Error-Free)</a></li>
+<li><a href="#sliding-window-error-control-go-back-n-arq-gbn"
+id="toc-sliding-window-error-control-go-back-n-arq-gbn">Sliding Window
+Error Control: Go-Back-N ARQ (GBN)</a></li>
+<li><a href="#sliding-window-error-control-selective-reject-arq-sr"
+id="toc-sliding-window-error-control-selective-reject-arq-sr">Sliding
+Window Error Control: Selective Reject ARQ (SR)</a></li>
+</ul></li>
+<li><a href="#protocol-comparison-exam-formulas"
+id="toc-protocol-comparison-exam-formulas">4. Protocol Comparison &amp;
+Exam Formulas</a>
+<ul>
+<li><a href="#structural-comparison"
+id="toc-structural-comparison">Structural Comparison</a></li>
+<li><a href="#examination-link-utilization-formulas"
+id="toc-examination-link-utilization-formulas">Examination Link
+Utilization Formulas</a></li>
+</ul></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="data-link-layer-dll-flow-error-control">Data Link Layer (DLL):
+Flow &amp; Error Control</h1>
+<h2 id="fundamentals-architecture">1. Fundamentals &amp;
+Architecture</h2>
+<p>The Data Link Layer (DLL) is divided into two primary sublayers:</p>
+<ul>
+<li>[This chapter] <strong>Logical Link Control (LLC):</strong> Focuses
+on the point-to-point logical link between two communicating peers. It
+handles flow control, error control (ARQ), independent of the underlying
+physical transmission medium.</li>
+<li>[Next chapter] <strong>Media Access Control (MAC):</strong> Focuses
+on multi-point, shared-medium local area networks (LANs). It handles
+physical (MAC) addressing, frame delimiter assembly, and channel access
+arbitration among multiple competing hosts.</li>
+</ul>
+<figure>
+<img width="467" height="480" src="media/2-artifacts/dll-components.webp" loading="lazy"
+decoding="async"
+alt="TCP/IP stack next to the IEEE 802 split of the Data Link Layer into LLC and MAC sublayers" />
+<figcaption aria-hidden="true">TCP/IP stack next to the IEEE 802 split
+of the Data Link Layer into LLC and MAC sublayers</figcaption>
+</figure>
+<h3 id="universal-timing-link-utilization-parameters">Universal Timing
+&amp; Link Utilization Parameters</h3>
+<p>To evaluate protocol performance across physical media, we define the
+following parameters:</p>
+<figure>
+<img width="557" height="401" src="media/2-artifacts/stop-and-wait.webp" loading="lazy"
+decoding="async" alt="Stop-and-Wait Timing" />
+<figcaption aria-hidden="true">Stop-and-Wait Timing</figcaption>
+</figure>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mtext mathvariant="normal">frame</mtext></msub><annotation encoding="application/x-tex">T_{\text{frame}}</annotation></semantics></math>:
+Frame transmission time (time required to emit all bits of the frame
+onto the medium;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">frame</mtext></msub><mo>=</mo><mfrac><mi>L</mi><mi>R</mi></mfrac></mrow><annotation encoding="application/x-tex">T_{\text{frame}} = \frac{L}{R}</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>
+is frame length in bits, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+is data rate in bps).</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mtext mathvariant="normal">prop</mtext></msub><annotation encoding="application/x-tex">T_{\text{prop}}</annotation></semantics></math>:
+Signal propagation delay (time for a bit to travel the physical distance
+across the medium;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">prop</mtext></msub><mo>=</mo><mfrac><mi>D</mi><mi>V</mi></mfrac></mrow><annotation encoding="application/x-tex">T_{\text{prop}} = \frac{D}{V}</annotation></semantics></math>,
+where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>
+is distance, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+is signal velocity).</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mtext mathvariant="normal">proc</mtext></msub><annotation encoding="application/x-tex">T_{\text{proc}}</annotation></semantics></math>:
+Internal hardware processing time at the sender and receiver.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mtext mathvariant="normal">ack</mtext></msub><annotation encoding="application/x-tex">T_{\text{ack}}</annotation></semantics></math>:
+Transmission time to emit the acknowledgment packet onto the
+medium.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mtext mathvariant="normal">cycle</mtext></msub><annotation encoding="application/x-tex">T_{\text{cycle}}</annotation></semantics></math>:
+Total elapsed time to complete one send-and-acknowledge cycle:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">cycle</mtext></msub><mo>=</mo><msub><mi>T</mi><mtext mathvariant="normal">frame</mtext></msub><mo>+</mo><msub><mi>T</mi><mtext mathvariant="normal">prop</mtext></msub><mo>+</mo><msub><mi>T</mi><mtext mathvariant="normal">proc</mtext></msub><mo>+</mo><msub><mi>T</mi><mtext mathvariant="normal">ack</mtext></msub><mo>+</mo><msub><mi>T</mi><mtext mathvariant="normal">prop</mtext></msub><mo>+</mo><msub><mi>T</mi><mtext mathvariant="normal">proc</mtext></msub></mrow><annotation encoding="application/x-tex">T_{\text{cycle}} = T_{\text{frame}} + T_{\text{prop}} + T_{\text{proc}} + T_{\text{ack}} + T_{\text{prop}} + T_{\text{proc}}</annotation></semantics></math></li>
+</ul>
+<p><strong>Link Utilization
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>U</mi><annotation encoding="application/x-tex">U</annotation></semantics></math>)</strong>
+measures the fraction of total cycle time spent carrying useful frame
+transmission:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mo>=</mo><mfrac><msub><mi>T</mi><mtext mathvariant="normal">frame</mtext></msub><msub><mi>T</mi><mtext mathvariant="normal">cycle</mtext></msub></mfrac></mrow><annotation encoding="application/x-tex">U = \frac{T_{\text{frame}}}{T_{\text{cycle}}}</annotation></semantics></math></p>
+<p>Under standard course assumptions:</p>
+<ul>
+<li>Saturated data input (sender always has frames ready to
+transmit).</li>
+<li>Negligible processing and acknowledgment transmission times
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">proc</mtext></msub><mo>≈</mo><mn>0</mn><mo>,</mo><msub><mi>T</mi><mtext mathvariant="normal">ack</mtext></msub><mo>≈</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">T_{\text{proc}} \approx 0, T_{\text{ack}} \approx 0</annotation></semantics></math>).</li>
+</ul>
+<p>The total cycle simplifies to:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">cycle</mtext></msub><mo>=</mo><msub><mi>T</mi><mtext mathvariant="normal">frame</mtext></msub><mo>+</mo><mn>2</mn><msub><mi>T</mi><mtext mathvariant="normal">prop</mtext></msub></mrow><annotation encoding="application/x-tex">T_{\text{cycle}} = T_{\text{frame}} + 2T_{\text{prop}}</annotation></semantics></math></p>
+<p>The link utilization formula becomes:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mo>=</mo><mfrac><msub><mi>T</mi><mtext mathvariant="normal">frame</mtext></msub><mrow><msub><mi>T</mi><mtext mathvariant="normal">frame</mtext></msub><mo>+</mo><mn>2</mn><msub><mi>T</mi><mtext mathvariant="normal">prop</mtext></msub></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><msub><mi>T</mi><mtext mathvariant="normal">prop</mtext></msub><msub><mi>T</mi><mtext mathvariant="normal">frame</mtext></msub></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">U = \frac{T_{\text{frame}}}{T_{\text{frame}} + 2T_{\text{prop}}} = \frac{1}{1 + 2\left(\frac{T_{\text{prop}}}{T_{\text{frame}}}\right)} = \frac{1}{1 + 2a}</annotation></semantics></math></p>
+<p>where the <strong>Normalized Propagation Delay</strong> is defined
+as:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mfrac><msub><mi>T</mi><mtext mathvariant="normal">prop</mtext></msub><msub><mi>T</mi><mtext mathvariant="normal">frame</mtext></msub></mfrac></mrow><annotation encoding="application/x-tex">a = \frac{T_{\text{prop}}}{T_{\text{frame}}}</annotation></semantics></math></p>
+<p><strong>Physical Significance of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>:</strong></p>
+<ul>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a &lt; 1</annotation></semantics></math>:
+Frame transmission delay dominates the channel
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mi>/</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">L/R</annotation></semantics></math>
+is large relative to propagation delay), yielding high baseline channel
+efficiency.</li>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a &gt; 1</annotation></semantics></math>:
+Signal propagation delay dominates the channel (long-haul propagation or
+very high bitrate), leaving the medium idle for most of the cycle while
+waiting for round-trip signal propagation.</li>
+</ul>
+<h3 id="transmission-impairments-correction-overview">Transmission
+Impairments &amp; Correction Overview</h3>
+<p>In real physical channels, noise, attenuation, and distortion
+introduce transmission errors:</p>
+<ul>
+<li><strong>Lost Frame:</strong> The frame is completely lost on the
+medium, or its header is corrupted beyond recognition. Handled by a
+sender-side retransmission timer (timeout control).</li>
+<li><strong>Damaged Frame:</strong> The frame arrives, but bit errors
+exist (detected via Parity bits or Cyclic Redundancy Checks, CRC).
+Handled by negative acknowledgments (NAK) or sender timeouts.</li>
+<li><strong>Automatic Repeat Request (ARQ):</strong> Combines error
+detection with timers and retransmissions to provide reliable link-layer
+delivery.</li>
+</ul>
+<hr />
+<h2 id="stop-and-wait-protocol-family">2. Stop-and-Wait Protocol
+Family</h2>
+<h3 id="flow-control-error-free">Flow Control (Error-Free)</h3>
+<p>Flow control prevents the transmitter from overflowing the receiver’s
+incoming buffer.</p>
+<ul>
+<li><strong>Mechanism:</strong> The sender transmits one frame and halts
+transmission, waiting for an explicit acknowledgment
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">ACK</mtext><annotation encoding="application/x-tex">\text{ACK}</annotation></semantics></math>)
+before sending the next frame.</li>
+<li><strong>Alternating Sequence Numbers:</strong> A 1-bit binary
+sequence number
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>)
+is sufficient:
+<ul>
+<li>Frames alternate between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mn>0</mn></msub><annotation encoding="application/x-tex">f_0</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mn>1</mn></msub><annotation encoding="application/x-tex">f_1</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mtext mathvariant="normal">ACK</mtext><mn>1</mn></msub><annotation encoding="application/x-tex">\text{ACK}_1</annotation></semantics></math>
+confirms successful receipt of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mn>0</mn></msub><annotation encoding="application/x-tex">f_0</annotation></semantics></math>
+and informs the sender that the receiver is waiting for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>f</mi><mn>1</mn></msub><annotation encoding="application/x-tex">f_1</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Utilization:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">U = \frac{1}{1 + 2a}</annotation></semantics></math></li>
+<li><strong>Bottleneck:</strong> When
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>≫</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a \gg 1</annotation></semantics></math>,
+utilization drops toward zero because the sender spends the vast
+majority of each cycle idling.</li>
+</ul>
+<h3 id="error-control-stop-and-wait-arq">Error Control: Stop-and-Wait
+ARQ</h3>
+<p>Extends Stop-and-Wait flow control to handle transmission losses:</p>
+<figure>
+<img width="608" height="557" src="media/2-artifacts/stop-and-wait-arq.webp" loading="lazy"
+decoding="async" alt="Stop-and-Wait ARQ" />
+<figcaption aria-hidden="true">Stop-and-Wait ARQ</figcaption>
+</figure>
+<ul>
+<li><strong>Retransmission Timer:</strong> The sender starts a timer
+upon emitting a frame. If no valid ACK arrives before the timer expires
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">timeout</mtext></msub><mo>&gt;</mo><msub><mi>T</mi><mtext mathvariant="normal">frame</mtext></msub><mo>+</mo><mn>2</mn><msub><mi>T</mi><mtext mathvariant="normal">prop</mtext></msub></mrow><annotation encoding="application/x-tex">T_{\text{timeout}} &gt; T_{\text{frame}} + 2T_{\text{prop}}</annotation></semantics></math>),
+the sender retransmits the frame.</li>
+<li><strong>Negative Acknowledgments (NAK):</strong> If the receiver
+detects a corrupted frame, it can return a NAK to prompt an immediate
+retransmission without waiting for sender timeout.</li>
+<li><strong>Duplicate Detection:</strong> If an ACK is lost, the sender
+times out and retransmits the previous frame. The receiver detects the
+duplicate sequence number, discards the duplicate payload, and re-sends
+the ACK to allow the sender to advance.</li>
+<li><strong>Link Utilization with Frame Error Probability
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>):</strong>
+Assuming an independent frame loss/error probability
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+per transmission attempt:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>U</mi><mtext mathvariant="normal">SaW</mtext><mtext mathvariant="normal">ARQ</mtext></msubsup><mo>=</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mi>P</mi></mrow><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">U_{\text{SaW}}^{\text{ARQ}} = \frac{1 - P}{1 + 2a}</annotation></semantics></math></li>
+</ul>
+<figure>
+<img width="905" height="541" src="media/2-artifacts/stop-and-wait-arq-example.webp"
+loading="lazy" decoding="async" alt="Stop-and-Wait ARQ Example" />
+<figcaption aria-hidden="true">Stop-and-Wait ARQ Example</figcaption>
+</figure>
+<hr />
+<h2 id="sliding-window-protocol-family">3. Sliding Window Protocol
+Family</h2>
+<h3 id="flow-control-window-mechanics">Flow Control &amp; Window
+Mechanics</h3>
+<p>Sliding window flow control eliminates the idling bottleneck of
+Stop-and-Wait by allowing up to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+frames to be transmitted without waiting for an acknowledgment.</p>
+<ul>
+<li><strong>Sequence Numbering:</strong> Frames are indexed using a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-bit
+field, giving a modular sequence number space of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>k</mi></msup><annotation encoding="application/x-tex">2^k</annotation></semantics></math>
+(values
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[0, 2^k - 1]</annotation></semantics></math>
+modulo
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>k</mi></msup><annotation encoding="application/x-tex">2^k</annotation></semantics></math>).</li>
+<li><strong>Cumulative Acknowledgments:</strong> An ACK carries the
+sequence number of the next expected frame, implicitly confirming
+receipt of all preceding frames.</li>
+<li><strong>Theoretical Window Bound (Error-Free Flow Control):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>≤</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">N \le 2^k</annotation></semantics></math></li>
+<li><strong>Auxiliary Control Features:</strong>
+<ul>
+<li><strong>Receiver Not Ready (RNR):</strong> An RNR frame acknowledges
+received frames while closing the sender’s transmission window,
+temporarily suspending further transmissions until a regular ACK is
+sent.</li>
+<li><strong>Piggybacking:</strong> In full-duplex communication,
+acknowledgment numbers are embedded directly in the header of
+reverse-direction data frames.</li>
+</ul></li>
+</ul>
+<figure>
+<img width="551" height="276" src="media/2-artifacts/sliding-window-n-and-k.webp" loading="lazy"
+decoding="async" alt="Sliding Window N and k" />
+<figcaption aria-hidden="true">Sliding Window N and k</figcaption>
+</figure>
+<h3 id="window-edge-movement-rules-lecture-definition">Window Edge
+Movement Rules (Lecture Definition)</h3>
+<p>The window defines the sequence numbers currently permitted to be
+sent or received:</p>
+<ul>
+<li><strong>Sender’s Window:</strong>
+<ul>
+<li><strong>Trailing Edge (lower bound / left):</strong> Moves forward
+(window shrinks) <em>when frames are sent</em>.</li>
+<li><strong>Leading Edge (upper bound / right):</strong> Moves forward
+(window expands) <em>when ACKs are received</em>.</li>
+</ul></li>
+<li><strong>Receiver’s Window:</strong>
+<ul>
+<li><strong>Trailing Edge (lower bound / left):</strong> Moves forward
+(window shrinks) <em>when frames are received</em>.</li>
+<li><strong>Leading Edge (upper bound / right):</strong> Moves forward
+(window expands) <em>when ACKs are sent</em>.</li>
+</ul></li>
+</ul>
+<figure>
+<img width="1114" height="525" src="media/2-artifacts/sliding-window.webp" loading="lazy"
+decoding="async" alt="Sliding Window" />
+<figcaption aria-hidden="true">Sliding Window</figcaption>
+</figure>
+<h3 id="performance-of-sliding-window-error-free">Performance of Sliding
+Window (Error-Free)</h3>
+<p>Normalizing frame transmission time to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">frame</mtext></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T_{\text{frame}} = 1</annotation></semantics></math>
+(making cycle time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mrow><annotation encoding="application/x-tex">1 + 2a</annotation></semantics></math>):</p>
+<ul>
+<li><strong>Case I: Full Pipe
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>≥</mo><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mrow><annotation encoding="application/x-tex">N \ge 1 + 2a</annotation></semantics></math>)</strong>
+<ul>
+<li>The sender has sufficient window capacity to transmit continuously
+until the first acknowledgment returns at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mrow><annotation encoding="application/x-tex">t = 1 + 2a</annotation></semantics></math>.</li>
+<li>Channel experiences zero idle time:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mo>=</mo><mn>1.0</mn><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>100</mn><mi>%</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">U = 1.0 \quad (100\%)</annotation></semantics></math></li>
+</ul></li>
+<li><strong>Case II: Window Exhaustion
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>&lt;</mo><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mrow><annotation encoding="application/x-tex">N &lt; 1 + 2a</annotation></semantics></math>)</strong>
+<ul>
+<li>The sender exhausts its window capacity of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+frames at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">t = N</annotation></semantics></math>
+and must remain idle until the first ACK arrives at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mrow><annotation encoding="application/x-tex">t = 1 + 2a</annotation></semantics></math>.</li>
+<li>Link utilization is constrained by the active transmission time:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mo>=</mo><mfrac><msub><mi>T</mi><mtext mathvariant="normal">useful</mtext></msub><msub><mi>T</mi><mtext mathvariant="normal">cycle</mtext></msub></mfrac><mo>=</mo><mfrac><mi>N</mi><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">U = \frac{T_{\text{useful}}}{T_{\text{cycle}}} = \frac{N}{1 + 2a}</annotation></semantics></math></li>
+</ul></li>
+</ul>
+<figure>
+<img width="418" height="399" src="media/2-artifacts/window-exhaustion.webp" loading="lazy"
+decoding="async" alt="Window Exhaustion" />
+<figcaption aria-hidden="true">Window Exhaustion</figcaption>
+</figure>
+<hr />
+<h3 id="sliding-window-error-control-go-back-n-arq-gbn">Sliding Window
+Error Control: Go-Back-N ARQ (GBN)</h3>
+<p>In Go-Back-N ARQ, the receiver accepts frames strictly in sequential
+order and maintains zero out-of-order buffering
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mtext mathvariant="normal">rx</mtext></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">W_{\text{rx}} = 1</annotation></semantics></math>).</p>
+<ul>
+<li><strong>Sender’s Window
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mtext mathvariant="normal">tx</mtext></msub><mo>=</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">W_{\text{tx}} = N</annotation></semantics></math>):</strong>
+<ul>
+<li><strong>Trailing Edge (lower bound / left):</strong> Moves forward
+(window shrinks) <em>when frames are sent</em>. On timeout or receiving
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">NAK</mtext><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{NAK}(n)</annotation></semantics></math>,
+rewinds back to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+to retransmit frame
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+and all subsequent frames.</li>
+<li><strong>Leading Edge (upper bound / right):</strong> Moves forward
+(window expands) <em>when cumulative ACKs are received</em>.</li>
+</ul></li>
+<li><strong>Receiver’s Window
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mtext mathvariant="normal">rx</mtext></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">W_{\text{rx}} = 1</annotation></semantics></math>):</strong>
+<ul>
+<li><strong>Trailing Edge (lower bound / left):</strong> Moves forward
+(window shrinks) <em>when expected in-order frames are received</em>. If
+a frame is damaged or out of order, does not move (frame and subsequent
+frames are discarded).</li>
+<li><strong>Leading Edge (upper bound / right):</strong> Moves forward
+(window expands) <em>when cumulative ACKs (RR) are sent</em>. Sends
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">NAK</mtext><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{NAK}(n)</annotation></semantics></math>
+(REJ) if an erroneous/out-of-order frame is detected.</li>
+</ul></li>
+</ul>
+<figure>
+<img width="365" height="462" src="media/2-artifacts/go-back-n.webp" loading="lazy"
+decoding="async" alt="Go-Back-N" />
+<figcaption aria-hidden="true">Go-Back-N</figcaption>
+</figure>
+<h4 id="maximum-window-size-for-go-back-n">Maximum Window Size for
+Go-Back-N</h4>
+<p>Applying the non-overlap invariant with a 1-slot receiver window
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mtext mathvariant="normal">rx</mtext></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">W_{\text{rx}} = 1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mtext mathvariant="normal">tx</mtext></msub><mo>=</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">W_{\text{tx}} = N</annotation></semantics></math>):
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mtext mathvariant="normal">tx</mtext></msub><mo>+</mo><msub><mi>W</mi><mtext mathvariant="normal">rx</mtext></msub><mo>≤</mo><msup><mn>2</mn><mi>k</mi></msup><mo>⟹</mo><mi>N</mi><mo>+</mo><mn>1</mn><mo>≤</mo><msup><mn>2</mn><mi>k</mi></msup><mo>⟹</mo><mi>N</mi><mo>≤</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">W_{\text{tx}} + W_{\text{rx}} \le 2^k \implies N + 1 \le 2^k \implies N \le 2^k - 1</annotation></semantics></math></p>
+<ul>
+<li><strong>Failure at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">N = 2^k</annotation></semantics></math>
+(e.g.,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">k = 3</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">N = 8</annotation></semantics></math>):</strong>
+If an entire window of 8 frames is received but all ACKs are lost, the
+receiver advances its expected sequence pointer to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>.
+The sender times out and retransmits the old frame
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>.
+The receiver cannot distinguish the retransmitted old frame
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+from a brand new frame
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+and mistakenly accepts duplicate data.</li>
+<li><strong>Resolution at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N = 2^k - 1</annotation></semantics></math>
+(e.g.,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">k = 3</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">N = 7</annotation></semantics></math>):</strong>
+If all ACKs are lost, the sender retransmits old frame
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>.
+The receiver expects frame
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>7</mn><annotation encoding="application/x-tex">7</annotation></semantics></math>,
+so old frame
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+falls outside the 1-slot expectation and is correctly rejected.</li>
+</ul>
+<figure>
+<img width="922" height="487" src="media/2-artifacts/go-back-n-window-size-n8.webp"
+loading="lazy" decoding="async"
+alt="Go-Back-N Max Window Size (N = 8)" />
+<figcaption aria-hidden="true">Go-Back-N Max Window Size (N =
+8)</figcaption>
+</figure>
+<figure>
+<img width="923" height="487" src="media/2-artifacts/go-back-n-window-size-n7.webp"
+loading="lazy" decoding="async"
+alt="Go-Back-N Max Window Size (N = 7)" />
+<figcaption aria-hidden="true">Go-Back-N Max Window Size (N =
+7)</figcaption>
+</figure>
+<hr />
+<h3 id="sliding-window-error-control-selective-reject-arq-sr">Sliding
+Window Error Control: Selective Reject ARQ (SR)</h3>
+<p>Selective Reject (Selective Repeat) minimizes redundant
+retransmissions by buffering valid out-of-order frames that fall within
+an open receive window.</p>
+<ul>
+<li><strong>Sender’s Window
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mtext mathvariant="normal">tx</mtext></msub><mo>=</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">W_{\text{tx}} = N</annotation></semantics></math>):</strong>
+<ul>
+<li><strong>Trailing Edge (lower bound / left):</strong> Moves forward
+(window shrinks) <em>when frames are sent</em>. On timeout or receiving
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">NAK </mtext><mspace width="0.333em"></mspace></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\text{NAK } n</annotation></semantics></math>,
+retransmits <em>only</em> frame
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+without rewinding other transmitted frames.</li>
+<li><strong>Leading Edge (upper bound / right):</strong> Moves forward
+(window expands) <em>when ACKs are received</em>.</li>
+</ul></li>
+<li><strong>Receiver’s Window
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mtext mathvariant="normal">rx</mtext></msub><mo>=</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">W_{\text{rx}} = N</annotation></semantics></math>):</strong>
+<ul>
+<li><strong>Trailing Edge (lower bound / left):</strong> Moves forward
+(window shrinks) <em>when contiguous in-order frames are received and
+delivered to the network layer</em>. Stays pinned at missing frame
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+while buffering subsequent valid out-of-order frames.</li>
+<li><strong>Leading Edge (upper bound / right):</strong> Moves forward
+(window expands) <em>when ACKs are sent</em>. Sends
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">SREJ </mtext><mspace width="0.333em"></mspace></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\text{SREJ } n</annotation></semantics></math>
+/
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">NAK </mtext><mspace width="0.333em"></mspace></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\text{NAK } n</annotation></semantics></math>
+for missing frames while keeping the window open for future frames.</li>
+</ul></li>
+</ul>
+<figure>
+<img width="354" height="462" src="media/2-artifacts/selective-reject.webp" loading="lazy"
+decoding="async" alt="Selective Reject" />
+<figcaption aria-hidden="true">Selective Reject</figcaption>
+</figure>
+<h4 id="maximum-window-size-for-selective-reject">Maximum Window Size
+for Selective Reject</h4>
+<p>Because both sender and receiver maintain active windows of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>,
+the non-overlap condition requires:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>W</mi><mtext mathvariant="normal">tx</mtext></msub><mo>+</mo><msub><mi>W</mi><mtext mathvariant="normal">rx</mtext></msub><mo>≤</mo><msup><mn>2</mn><mi>k</mi></msup><mo>⟹</mo><mn>2</mn><mi>N</mi><mo>≤</mo><msup><mn>2</mn><mi>k</mi></msup><mo>⟹</mo><mi>N</mi><mo>≤</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">W_{\text{tx}} + W_{\text{rx}} \le 2^k \implies 2N \le 2^k \implies N \le 2^{k - 1}</annotation></semantics></math></p>
+<ul>
+<li><strong>Failure at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>&gt;</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">N &gt; 2^{k-1}</annotation></semantics></math>
+(e.g.,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">k = 3</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">N = 5</annotation></semantics></math>):</strong>
+If frames
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+through
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>4</mn><annotation encoding="application/x-tex">4</annotation></semantics></math>
+are accepted and all ACKs are lost, the receiver advances its window to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>5</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>7</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[5, 6, 7, 0, 1]</annotation></semantics></math>.
+Upon sender timeout, retransmitted frame
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+falls inside the receiver’s open window and is mistakenly accepted as
+new data.</li>
+<li><strong>Resolution at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">N = 2^{k-1}</annotation></semantics></math>
+(e.g.,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">k = 3</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">N = 4</annotation></semantics></math>):</strong>
+When frames
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+through
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>3</mn><annotation encoding="application/x-tex">3</annotation></semantics></math>
+are accepted, the receiver advances its window to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>4</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>7</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[4, 5, 6, 7]</annotation></semantics></math>.
+A retransmitted frame
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+falls outside this window, preventing ambiguity and triggering a
+duplicate ACK 4.</li>
+</ul>
+<figure>
+<img width="698" height="859" src="media/2-artifacts/selective-reject-window-size.webp"
+loading="lazy" decoding="async"
+alt="Selective Reject Max Window Size (N = 5)" />
+<figcaption aria-hidden="true">Selective Reject Max Window Size (N =
+5)</figcaption>
+</figure>
+<hr />
+<h2 id="protocol-comparison-exam-formulas">4. Protocol Comparison &amp;
+Exam Formulas</h2>
+<h3 id="structural-comparison">Structural Comparison</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 25%" />
+<col style="width: 20%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Stop-and-Wait ARQ</th>
+<th style="text-align: left;">Go-Back-N ARQ (GBN)</th>
+<th style="text-align: left;">Selective Reject ARQ (SR)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Sender Window
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mtext mathvariant="normal">tx</mtext></msub><annotation encoding="application/x-tex">W_{\text{tx}}</annotation></semantics></math>)</strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>≤</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N \le 2^k - 1</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>≤</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">N \le 2^{k-1}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Receiver Buffering
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mtext mathvariant="normal">rx</mtext></msub><annotation encoding="application/x-tex">W_{\text{rx}}</annotation></semantics></math>)</strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
+(in-order only)</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+(out-of-order buffer)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Retransmission Scope</strong></td>
+<td style="text-align: left;">Current frame only</td>
+<td style="text-align: left;">Erroneous frame + all subsequent</td>
+<td style="text-align: left;">Erroneous frame only</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="examination-link-utilization-formulas">Examination Link
+Utilization Formulas</h3>
+<ul>
+<li><p><strong>Stop-and-Wait ARQ (Frame loss
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>U</mi><mtext mathvariant="normal">SaW</mtext></msub><mo>=</mo><mfrac><mrow><mn>1</mn><mo>−</mo><mi>P</mi></mrow><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">U_{\text{SaW}} = \frac{1 - P}{1 + 2a}</annotation></semantics></math></p></li>
+<li><p><strong>Sliding Window (Error-Free):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mn>1</mn></mtd><mtd columnalign="left" style="text-align: left"><mi>N</mi><mo>≥</mo><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mstyle displaystyle="true"><mfrac><mi>N</mi><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mrow></mfrac></mstyle></mtd><mtd columnalign="left" style="text-align: left"><mi>N</mi><mo>&lt;</mo><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">U = \begin{cases} 1 &amp; N \ge 1 + 2a \\ \dfrac{N}{1 + 2a} &amp; N &lt; 1 + 2a \end{cases}</annotation></semantics></math></p></li>
+<li><p><strong>Selective Reject ARQ (Frame loss
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>U</mi><mtext mathvariant="normal">SR</mtext></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mn>1</mn><mo>−</mo><mi>P</mi></mtd><mtd columnalign="left" style="text-align: left"><mi>N</mi><mo>≥</mo><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mstyle displaystyle="true"><mfrac><mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mrow></mfrac></mstyle></mtd><mtd columnalign="left" style="text-align: left"><mi>N</mi><mo>&lt;</mo><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">U_{\text{SR}} = \begin{cases} 1 - P &amp; N \ge 1 + 2a \\[0.5em] \dfrac{N(1 - P)}{1 + 2a} &amp; N &lt; 1 + 2a \end{cases}</annotation></semantics></math></p></li>
+<li><p><strong>Go-Back-N ARQ:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>U</mi><mtext mathvariant="normal">GBN</mtext><mtext mathvariant="normal">ARQ</mtext></msubsup><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mstyle displaystyle="true"><mfrac><mrow><mn>1</mn><mo>−</mo><mi>P</mi></mrow><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi><mi>P</mi></mrow></mfrac></mstyle></mtd><mtd columnalign="left" style="text-align: left"><mi>N</mi><mo>≥</mo><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mstyle displaystyle="true"><mfrac><mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>P</mi><mo>+</mo><mi>N</mi><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mstyle></mtd><mtd columnalign="left" style="text-align: left"><mi>N</mi><mo>&lt;</mo><mn>1</mn><mo>+</mo><mn>2</mn><mi>a</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">U_{\text{GBN}}^{\text{ARQ}} = \begin{cases} \dfrac{1 - P}{1 + 2aP} &amp; N \ge 1 + 2a \\[1em] \dfrac{N(1 - P)}{(1 + 2a)(1 - P + NP)} &amp; N &lt; 1 + 2a \end{cases}</annotation></semantics></math></p>
+<p><em>(Note: This theoretical formula accounts for cascading window
+retransmissions. For course examinations, this formula is
+<strong>not</strong> used or tested. By course convention, always use
+the simplified <strong>Selective Reject ARQ formula</strong> above to
+compute Go-Back-N link utilization).</em></p></li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../1-networklayers/1.html">← Network
+Layers and Physical Resilience</a>
+  <a class="next-page" href="../3-dll-mac-lan/3.html">Data Link Layer
+(DLL): Medium Access Control &amp; LANs →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

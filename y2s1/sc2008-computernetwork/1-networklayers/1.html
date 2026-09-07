@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Network Layers and Physical Resilience · SC2008 Computer
+Network</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=B181318A">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Network Layers
+and Physical Resilience</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2008</p>
+  <p class="site-title">Computer Network</p>
+  <h1 class="page-title">Network Layers and Physical Resilience</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-networklayers/1.html"
+                   data-nav="1-networklayers/1.html">Network Layers and
+Physical Resilience</a></li>
+            <li><a href="../2-dll-flow-error-control/2.html"
+                   data-nav="2-dll-flow-error-control/2.html">Data Link
+Layer (DLL): Flow &amp; Error Control</a></li>
+            <li><a href="../3-dll-mac-lan/3.html"
+                   data-nav="3-dll-mac-lan/3.html">Data Link Layer
+(DLL): Medium Access Control &amp; LANs</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#network-layers-and-physical-resilience"
+id="toc-network-layers-and-physical-resilience">Network Layers and
+Physical Resilience</a>
+<ul>
+<li><a href="#network-architecture-models"
+id="toc-network-architecture-models">Network Architecture Models</a>
+<ul>
+<li><a href="#open-systems-interconnection-osi-7-layer-model"
+id="toc-open-systems-interconnection-osi-7-layer-model">Open Systems
+Interconnection (OSI) 7-Layer Model</a></li>
+<li><a
+href="#transmission-control-protocol-tcp-internet-protocol-ip-5-layer-model"
+id="toc-transmission-control-protocol-tcp-internet-protocol-ip-5-layer-model">Transmission
+Control Protocol (TCP)/ Internet Protocol (IP) 5-Layer Model</a></li>
+</ul></li>
+<li><a href="#network-resilience-reliability"
+id="toc-network-resilience-reliability">Network Resilience &amp;
+Reliability</a>
+<ul>
+<li><a href="#the-reliability-parameters"
+id="toc-the-reliability-parameters">The reliability parameters</a></li>
+<li><a href="#link-availiablity" id="toc-link-availiablity">Link
+Availiablity</a></li>
+<li><a href="#network-resilience" id="toc-network-resilience">Network
+Resilience</a></li>
+</ul></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="network-layers-and-physical-resilience">Network Layers and
+Physical Resilience</h1>
+<p>A computer network is basically an interconnected collection of
+hosts/end systems (laptops, servers, phones) connected by transmission
+media (cables, fiber optics, radio waves) and forwarding devices
+(routers) that allow them to exchange data and share resources. The
+internet is built upon computer networks.</p>
+<p>By the principle of separation of concerns (abstraction), computer
+networks are decomposed into independent layers. Each layer solves one
+problem and provides a service to the layer above it, while hiding the
+implementation details of how it does its own job.</p>
+<p>The benefits of layering are obvious:</p>
+<ul>
+<li><strong>Manage complexity</strong>: Provides explicit structure to
+complex networks. Interfaces are clearly defined.</li>
+<li><strong>Modularity</strong>: Systems are easier to update. Changes
+to one layer doesn’t affect the other layers.</li>
+</ul>
+<p>Some layering concepts:</p>
+<ul>
+<li><strong>Protocols</strong>: Formal rules &amp; conventions governing
+communication between <em>peering</em> entities on different machines
+(horizontal).
+<ul>
+<li>Defines message format/syntax, order of messages being transmitted,
+actions taken upon message tranmission and receipt.</li>
+<li>Note that horizontal communication is just an abstraction. Data
+actually moves down the layers of the sending machine, and then up the
+layers of the receiving host.</li>
+</ul></li>
+<li><strong>Services &amp; Service Access Points (SAP)</strong>: Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+provides services to upper layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n+1</annotation></semantics></math>
+via a interface at a SAP.</li>
+<li>Data Units:
+<ul>
+<li>Service Data Unit (<strong>SDU</strong>): Raw data passed from layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n+1</annotation></semantics></math>
+down to layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.</li>
+<li>Protocol Data Unit (<strong>PDU</strong>): Complete packet generated
+at layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>,
+where PDU = Header + SDU.</li>
+</ul></li>
+<li>Encapsulation &amp; Decapsulation:
+<ul>
+<li>Sender (<strong>Encapsulation</strong>): As data moves down the
+stack, each layer wraps the payload with its own control header.</li>
+<li>Receiver (<strong>Decapsulation</strong>): As data moves up the
+stack, each layer reads and strips off its corresponding header to
+deliver the payload upward.</li>
+</ul></li>
+</ul>
+<h2 id="network-architecture-models">Network Architecture Models</h2>
+<p>Network Architecture is a set of layers and protocols with
+specifications enabling hardware/software developers to build systems
+compliant with a particular architecture.</p>
+<h3 id="open-systems-interconnection-osi-7-layer-model">Open Systems
+Interconnection (OSI) 7-Layer Model</h3>
+<p>This model is more of a conceptual reference model.</p>
+<figure>
+<img width="1400" height="512" src="media/1-artifacts/osi-encapsulation-per-hop.webp"
+loading="lazy" decoding="async"
+alt="OSI encapsulation and per-hop forwarding" />
+<figcaption aria-hidden="true">OSI encapsulation and per-hop
+forwarding</figcaption>
+</figure>
+<figure>
+<img width="1065" height="577" src="media/1-artifacts/osi-layer-functions.webp" loading="lazy"
+decoding="async" alt="OSI layer functions" />
+<figcaption aria-hidden="true">OSI layer functions</figcaption>
+</figure>
+<figure>
+<img width="774" height="385" src="media/1-artifacts/sap-sdu-pdu.webp" style="width:62.0%"
+loading="lazy" decoding="async"
+alt="Services, SAPs, SDUs and PDUs between adjacent layers" />
+<figcaption aria-hidden="true">Services, SAPs, SDUs and PDUs between
+adjacent layers</figcaption>
+</figure>
+<h3
+id="transmission-control-protocol-tcp-internet-protocol-ip-5-layer-model">Transmission
+Control Protocol (TCP)/ Internet Protocol (IP) 5-Layer Model</h3>
+<p>The modern internet is built on this model.</p>
+<figure>
+<img width="1239" height="544" src="media/1-artifacts/osi-vs-tcpip-mapping.webp" loading="lazy"
+decoding="async" alt="OSI and TCP/IP layer mapping" />
+<figcaption aria-hidden="true">OSI and TCP/IP layer mapping</figcaption>
+</figure>
+<h2 id="network-resilience-reliability">Network Resilience &amp;
+Reliability</h2>
+<p>Network Reliability: The probability that a network performs
+satisfactorily over a specified period of time.</p>
+<h3 id="the-reliability-parameters">The reliability parameters</h3>
+<ul>
+<li>Mean Time to Failure (MTTF): The expected time a link/system
+operates correctly before it fails.</li>
+<li>Mean Time to Repair (MTTR): The expected downtime required to
+troubleshoot, repair, and restore the link/system to operation.</li>
+<li>Mean Time Between Failures (MTBF): The total elapsed time between
+consecutive failures.</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>T</mi><mi>B</mi><mi>F</mi><mo>=</mo><mi>M</mi><mi>T</mi><mi>T</mi><mi>F</mi><mo>+</mo><mi>M</mi><mi>T</mi><mi>T</mi><mi>R</mi></mrow><annotation encoding="application/x-tex"> MTBF=MTTF+MTTR </annotation></semantics></math></p>
+<h3 id="link-availiablity">Link Availiablity</h3>
+<p>For an individual link
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>:</p>
+<ul>
+<li>Link Availability
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>i</mi></msub><annotation encoding="application/x-tex">r_i</annotation></semantics></math>):
+The percentage/probability of time that link
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+is functional.</li>
+<li>Link Failure Probability
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mi>i</mi></msub><annotation encoding="application/x-tex">b_i</annotation></semantics></math>):
+The percentage/probability of time that link
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+is broken/dysfunctional.</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mi>i</mi></msub><mo>+</mo><msub><mi>b</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex"> r_i + b_i = 1 </annotation></semantics></math></p>
+<p>Quick reference for availability:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Availability %</th>
+<th style="text-align: left;">Downtime per year</th>
+<th style="text-align: left;">Downtime per month</th>
+<th style="text-align: left;">Downtime per week</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>90% (“one nine”)</strong></td>
+<td style="text-align: left;">36.5 days</td>
+<td style="text-align: left;">72 hours</td>
+<td style="text-align: left;">16.8 hours</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>99% (“two nines”)</strong></td>
+<td style="text-align: left;">3.65 days</td>
+<td style="text-align: left;">7.20 hours</td>
+<td style="text-align: left;">1.68 hours</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>99.9% (“three
+nines”)</strong></td>
+<td style="text-align: left;">8.76 hours</td>
+<td style="text-align: left;">43.8 minutes</td>
+<td style="text-align: left;">10.1 minutes</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>99.95%</strong></td>
+<td style="text-align: left;">4.38 hours</td>
+<td style="text-align: left;">21.56 minutes</td>
+<td style="text-align: left;">5.04 minutes</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>99.99% (“four
+nines”)</strong></td>
+<td style="text-align: left;">52.56 minutes</td>
+<td style="text-align: left;">4.32 minutes</td>
+<td style="text-align: left;">1.01 minutes</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>99.999% (“five
+nines”)</strong></td>
+<td style="text-align: left;">5.26 minutes</td>
+<td style="text-align: left;">25.9 seconds</td>
+<td style="text-align: left;">6.05 seconds</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>99.9999% (“six
+nines”)</strong></td>
+<td style="text-align: left;">31.5 seconds</td>
+<td style="text-align: left;">2.59 seconds</td>
+<td style="text-align: left;">0.605 seconds</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>99.99999% (“seven
+nines”)</strong></td>
+<td style="text-align: left;">3.15 seconds</td>
+<td style="text-align: left;">0.259 seconds</td>
+<td style="text-align: left;">0.0605 seconds</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="network-resilience">Network Resilience</h3>
+<p>Network Resilience: A measure of network fault tolerance, expressed
+as the probability that nodes remain connected despite link
+failures.</p>
+<p>We assume that the probabilities of link failures are statistically
+independent of one another.</p>
+<p>Assume link failure probability
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mi>i</mi></msub><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">b_i = 0.05</annotation></semantics></math>
+for all links.</p>
+<figure>
+<img width="530" height="117" src="media/1-artifacts/resilience-series.webp" style="width:55.0%"
+loading="lazy" decoding="async" alt="Series graph" />
+<figcaption aria-hidden="true">Series graph</figcaption>
+</figure>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mtext mathvariant="normal">series</mtext></msub><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>r</mi><mi>i</mi></msub><mo>=</mo><mn>0.95</mn><mo>×</mo><mn>0.95</mn><mo>=</mo><mn>0.9025</mn></mrow><annotation encoding="application/x-tex">r_{\text{series}} = \prod_{i=1}^{n} r_i = 0.95 \times 0.95 = 0.9025</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mtext mathvariant="normal">series</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><mn>0.9025</mn><mo>=</mo><mn>0.0975</mn><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>9.75</mn><mi>%</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">b_{\text{series}} = 1 - 0.9025 = 0.0975 \quad (9.75\%)</annotation></semantics></math></p>
+<figure>
+<img width="530" height="117" src="media/1-artifacts/resilience-parallel.webp"
+style="width:55.0%" loading="lazy" decoding="async"
+alt="Parallel graph" />
+<figcaption aria-hidden="true">Parallel graph</figcaption>
+</figure>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mtext mathvariant="normal">parallel</mtext></msub><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>b</mi><mi>i</mi></msub><mo>=</mo><mn>0.05</mn><mo>×</mo><mn>0.05</mn><mo>=</mo><mn>0.0025</mn><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>0.25</mn><mi>%</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">b_{\text{parallel}} = \prod_{i=1}^{n} b_i = 0.05 \times 0.05 = 0.0025 \quad (0.25\%)</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mtext mathvariant="normal">parallel</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><mn>0.0025</mn><mo>=</mo><mn>0.9975</mn><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>99.75</mn><mi>%</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">r_{\text{parallel}} = 1 - 0.0025 = 0.9975 \quad (99.75\%)</annotation></semantics></math></p>
+<figure>
+<img width="530" height="178" src="media/1-artifacts/resilience-hybrid.webp" style="width:55.0%"
+loading="lazy" decoding="async" alt="Hybrid graph" />
+<figcaption aria-hidden="true">Hybrid graph</figcaption>
+</figure>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mtext mathvariant="normal">SG-HW-AU</mtext></msub><mo>=</mo><msub><mi>r</mi><mtext mathvariant="normal">SG-HW</mtext></msub><mo>×</mo><msub><mi>r</mi><mtext mathvariant="normal">HW-AU</mtext></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mn>0.05</mn><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mn>0.05</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.9025</mn></mrow><annotation encoding="application/x-tex">r_{\text{SG-HW-AU}} = r_{\text{SG-HW}} \times r_{\text{HW-AU}} = (1 - 0.05) \times (1 - 0.05) = 0.9025</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mtext mathvariant="normal">SG-HW-AU</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><msub><mi>r</mi><mtext mathvariant="normal">SG-HW-AU</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><mn>0.9025</mn><mo>=</mo><mn>0.0975</mn></mrow><annotation encoding="application/x-tex">b_{\text{SG-HW-AU}} = 1 - r_{\text{SG-HW-AU}} = 1 - 0.9025 = 0.0975</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mtext mathvariant="normal">SG-AU</mtext></msub><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">b_{\text{SG-AU}} = 0.05</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Prob(Disconnected)</mtext><mo>=</mo><mn>0.0975</mn><mo>×</mo><mn>0.05</mn><mo>=</mo><mn>0.004875</mn><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mn>0.4875</mn><mi>%</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Prob(Disconnected)} = 0.0975 \times 0.05 = 0.004875 \quad (0.4875\%)</annotation></semantics></math></p>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../index.html">← Overview</a>
+  <a class="next-page" href="../2-dll-flow-error-control/2.html">Data
+Link Layer (DLL): Flow &amp; Error Control →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

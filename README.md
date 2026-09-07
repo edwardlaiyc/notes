@@ -33,6 +33,7 @@ This branch holds the source they are written from.
 |---|---|
 | SC2005 Operating Systems | [`y2s1/sc2005-os/`](y2s1/sc2005-os/) |
 | SC2008 Computer Network | [`y2s1/sc2008-computernetwork/`](y2s1/sc2008-computernetwork/) |
+| SC2301 Algorithm Design & Analysis | [`y2s1/sc2301-algorithms/`](y2s1/sc2301-algorithms/) |
 
 ## Where things live
 

@@ -2,6 +2,8 @@
 
 <div class="subject-grid">
 
+<a class="subject-card" href="sc2008-computernetwork/index.html"><span class="subject-card-text"><span class="subject-code">SC2008</span><span class="subject-name">Computer Network</span></span><span class="subject-go" aria-hidden="true">&#8594;</span></a>
+
 <a class="subject-card" href="sc2301-algorithms/index.html"><span class="subject-card-text"><span class="subject-code">SC2301</span><span class="subject-name">Algorithm Design & Analysis</span></span><span class="subject-go" aria-hidden="true">→</span></a>
 
 <a class="subject-card" href="sc2302-oop/index.html"><span class="subject-card-text"><span class="subject-code">SC2302</span><span class="subject-name">Object-Oriented Programming</span></span><span class="subject-go" aria-hidden="true">→</span></a>

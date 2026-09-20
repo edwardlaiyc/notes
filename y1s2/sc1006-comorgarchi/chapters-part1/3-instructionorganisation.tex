@@ -1,0 +1,84 @@
+\documentclass[../comorg-part1.tex]{subfiles}
+\begin{document}
+
+\section{Instruction Organisation in Memory}
+Instructions are stored in memory as machine codes (binary patterns).\newline
+ARM instructions are human-readable representations of machine code.
+
+\medskip
+\noindent ARM instructions are 32 bits long.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/instruction-format.png}
+    \caption*{ARM Instruction format (32 bits long)}
+\end{figure}
+\begin{itemize}
+    \item Opcode specifies the operation to be carred out (Chapter 5 - Instruction Set)
+    \item Operands specify the data or location of data to be used / stored. (Chapter 4 - Addreessing Modes).
+\end{itemize}
+
+\subsection{ARM Programmer's Model}
+Programmer's model is an abstract, simplified view of the processor.\newline
+It includes just the parts a programmer needs to write and run code.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{images/cpu-registers.png}
+    \caption*{Visible registers in User Mode of the ARM processor}
+\end{figure}
+\begin{itemize}
+    \item There are 16 32-bit registers.
+    \item R13 (SP) stores address of some space in memory, that temporarily stores away register information that may be needed.\newline
+    Used to maintain full descending stack etc.
+    \item R14 (LP) Used as Link Register when calling of subroutines.\newline
+    For example, when $\texttt{BL}$ (Branch with Link) called, R14 stores PC (R15) value so that the program can return when subroutine is completed.\newline
+    R14 can also be a general purpose register at other times.
+    \item R15 (PC) stores the start address of the next instruction to be \textbf{fetched}.\newline
+    PC will automatically increment by the length of the instruction executed (4 for ARM CPU).\newline
+    Jump or branch instruction will alter the sequential execution.\newline
+    The value of PC is the address of the current instruction being executed plus 8 bytes (due to the fetch-decode-execute pipeline).
+    \item CPSR stores the 4 condition code flags.\newline
+    Bit 31: N (Negative), Bit 30: Z (Zero), Bit 29: C (Carry out), Bit 28: V (Overflow)
+\end{itemize}
+
+\subsection{Execution Cycle}
+The CPU repeatedly performs the Fetch-Decode-Execute cycle.
+
+\noindent Considering the instruction $\texttt{LDR R1, [R0]}$, and where the instruction and data are stored:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{images/executioncycle-eg.png}
+    % \caption*{}
+\end{figure}
+We get this execution cycle:
+\begin{enumerate}
+    \item Fetch cycle - Instruction
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/fetch-cycle-instruction.png}
+        \caption*{PC points to address of next instruction, the opcode fed into IR.}
+    \end{figure}
+    \item Fetch cycle - Operand
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/fetch-cycle-operand.png}
+        \caption*{Another fetch required to retrieve operand in CPU.}
+    \end{figure}
+    \item Execute Cycle - Load
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=0.8\textwidth]{images/execute-cycle-load.png}
+        \caption*{The operand fetched from memory is loaded into memory.}
+    \end{figure}
+\end{enumerate}
+
+\noindent Takeaways:
+\begin{enumerate}
+    \item Different instructions require multiple accesses to memory, hence taking different number of clock cycles.
+    \item \noindent von Neumann bottleneck - System performance limited by data traffic bandwidth between CPU and memory, because
+data transfer on the external bus is slower than within CPU's internal bus. Hence keeping regularly used operands in the CPU registers may help reduce memory access.
+    \item \noindent Keeping instructions and data in separate memories (i.e. Harvard architecture)
+can make instructions execute in more regular cycles (using parallel fetches).
+\end{enumerate}
+
+\end{document}

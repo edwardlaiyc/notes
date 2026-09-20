@@ -1,0 +1,182 @@
+\documentclass[10pt]{article}
+
+% --- Page Setup ---
+\usepackage[margin=0.5cm]{geometry}
+\usepackage{multicol}
+
+% \allowdisplaybreaks
+
+% --- Math and Code ---
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+
+% --- Spacing Adjustments ---
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+% 1. Remove space between list items
+\setlist{nosep, leftmargin=*} 
+
+% 2. Shrink space around section headers
+\titlespacing*{\section}{0pt}{2pt}{1pt}
+\titlespacing*{\subsection}{0pt}{1ex plus .2ex minus .2ex}{0.5ex plus .1ex}
+
+% 3. Add a thin line between columns for readability
+\setlength{\columnseprule}{0.4pt}
+\setlength{\columnsep}{1.5em}
+
+% --- Custom Code Formatting ---
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+% \usepackage{xcolor}
+% \newcommand{\sectionbox}[1]{%
+%      \colorbox{blue!75!black}{\color{white}\small\bfseries~#1~}%
+%    }
+%    \titleformat{\section}{}{}{0em}{\sectionbox}
+%    \titleformat*{\subsection}{\normalsize\bfseries}
+
+\setlength{\parskip}{0pt}
+\setlength{\baselineskip}{0pt plus 0.2pt} 
+
+\begin{document}
+\small 
+
+\raggedright
+% \raggedbottom
+
+\begin{multicols*}{2}
+
+\section*{Common distributions}
+\textbf{Bernoulli} $X\sim Ber(p)$. A single trial with two outcomes (success/fail).\\
+$P(X=k) = p^k(1-p)^{1-k}$ for $k \in \{0, 1\}$. $\mathbb{E}[X] = p$, $\mathbb{V}[X] = p(1-p)$.\\
+\textbf{Binomial} $X\sim B(n, p)$. Number of successes in $n$ independent Bernoulli trials.\\
+$P(X=k) = \binom{n}{k} p^k (1-p)^{n-k}, \quad k=0,1,\ldots,n$. $\mathbb{E}[X] = np$, $\mathbb{V}[X] = np(1-p)$.\\
+For large $n$, approx with Normal Dist via CLT.\\
+\textbf{Poisson} $X \sim Po(\lambda)$. Number of events occurring in a fixed interval of time/space, given constant avg rate $\lambda$.\\
+$P(X=k) = \frac{\lambda^k e^{-\lambda}}{k!},\quad k=0,1,2,\ldots$   $\mathbb{E}[X] = \lambda$, $\mathbb{V}[X] = \lambda$.\\
+Use when counting rare events over a continuous interval. Can approximate Binomial when n is large and p is small ($\lambda = np$).\\
+Poisson is result of Binomial when $n\to\infty, p\to 0, np=\lambda$.\\
+\textbf{Gaussian} $X\sim \mathcal{N}(\mu,\sigma^2)$. $f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)$. $\mathbb{E}[X] = \mu$, $\mathbb{V}[X] = \sigma^2$.\\
+Arises naturally as the limit of sums of i.i.d. variables (CLT).\\
+Standard normal: $X\sim\mathcal{N}(0,1)$. Any Gaussian can be standardised: $Z=\frac{X-\mu}{\sigma}$.\\
+$\Phi(t)=P(Z\leq t)$, $Z\sim\mathcal{N}(0,1)$. Area under std normal curve from $-\infty\to t$.
+
+\section*{Concentration}
+\textbf{Markov's Inequality}: $P(X \ge t) \le \frac{\mathbb{E}[X]}{t}$.\\
+Used to bound the one-sided probability that a random variable is exceptionally large using only its mean. Bound decays as $1/t$.\\
+Constraint: The random variable must be strictly non-negative ($X \ge 0$) and $t > 0$.\\
+\textbf{Chebyshev's Inequality}: $P(|X - \mathbb{E}[X]| \ge t) \le \frac{\mathbb{V}[X]}{t^2}$.\\
+Used to bound the two-sided probability that a variable deviates far from its mean, providing a tighter estimate than Markov's. Bound decays as $1/t^2$.\\
+Alternative ($\sigma$-form): $P(|X - \mu| \ge k\sigma) \le \frac{1}{k^2}$\\
+At least ($1 - 1/k^2$) of data lies within k standard deviations of the mean, for any distribution.\\
+Constraint: Requires both a finite mean ($\mu$) and variance ($\sigma^2$).\\
+\textbf{Weak Law of Large Numbers}: $X_1,\ldots,X_n$ i.i.d, $\overline{X}_n = \frac{1}{n}\sum_{i=1}^nX_i$, $\mathbb{E}[\overline{X}_n]=\mu$, $\mathbb{V}[\overline{X}_n]=\sigma^2/n$.\\
+$\lim_{n\rightarrow\infty}P(|\overline{X}_n - \mu| \ge \epsilon) \le 0$.\\
+States that as the sample size $n \to$ infinity, the sample mean $\overline{X}_n$ will converge to the true mean $\mu$ with certainty.\\
+\textbf{Hoeffding's Inequality}: $P(|\overline{X}_n - \mathbb{E}[\overline{X}_n]| \ge t) \le 2 \exp\left(-\frac{2n^2t^2}{\sum_{i=1}^n(b_i - a_i)^2}\right)$.\\
+Strongest - Bound decays exponentially ($e$\textasciicircum$(-n)$) on the probability that an average deviates from its expected value.\\
+Constraint: Requires the independent $X_1,\ldots,X_n$ to be strictly bounded within an interval $a_i \le X_i \le b_i$.\\
+\textbf{Central Limit Theorem}: $X_1,\ldots,X_n$ i.i.d, standardised sample mean = $Z_n = \frac{\overline{X}_n - \mu}{\sigma/\sqrt{n}}$.\\
+As $n\to\infty$, $\overline{X}_n\sim\mathcal{N}(\mu,\sigma^2/n)$, $Z_n\sim\mathcal{N}(0,1)$.\\
+$\lim_{n\rightarrow\infty}P(Z_n \le t) = \Phi(t)$.\\
+Regardless of the original distribution of X, the sample mean becomes approximately Gaussian for large n. Justifies using normal distribution for inference.\\
+\textbf{Normal Approximation to Binomial}: When $n$ large and exact binomial computation intractable.\\
+$S_n = \Sigma X_i$, $X_i\sim Ber(p)$: $\frac{S_n - np}{\sqrt{np(1-p)}}\approx \mathcal{N}(0,1)$.\\
+$P(k \le S_n \le k') \approx \Phi\left(\frac{k'-np}{\sqrt{np(1-p)}}\right) - \Phi\left(\frac{k-np}{\sqrt{np(1-p)}}\right)$.\\
+Used to estimate the probability of $S_n$ successes in a Binomial distribution. $S_n$ is sum of i.i.d. Bernoulli trials with large $n$.
+
+\columnbreak
+\section*{Estimation}
+\textbf{Estimator} A random variable $\hat{\theta}(X_1, ..., X_n)$ dependent on data. An estimate is the acutal value obtained by plugging in data points.\\
+\textbf{A good estimator} is unbiased ($\mathbb{E}[\hat{\theta}] = \theta$), consistent ($\forall \epsilon > 0, \lim\limits_{n\to\infty}P(|\hat{\theta} - \theta^*|\leq\epsilon)=1$),
+efficient (unbiased estimator with lowest possible variance), \& asymptotically normal ($n\to\infty$, $\hat{\theta}\sim\mathcal{N}(\theta^*,\cdot)$ by CLT).\\
+\textbf{Bias-variance decomp} $\mathbb{E}[||\hat{\theta} - \theta_*||^2] = \mathbb{E}[||\hat{\theta} - \mathbb{E}[\hat{\theta}]||^2] + ||\mathbb{E}[\hat{\theta}] - \theta_*||^2$.\\
+Total expected square error = Variance + Bias$^2$.\\
+\textbf{Fisher info} $\mathcal{I}(\theta_*) = \mathbb{E}[(\frac{\partial}{\partial\theta} \log p_\theta(X))^2] = -\mathbb{E}\left[\frac{\partial^2}{\partial \theta^2} \log p_\theta(X)\right]$.\\
+Measures how much information data $X$ carries about $\theta^*$. Large $\mathcal{I}(\theta^*)$ means the data is highly sensitive to changes in $\theta$ — easier to estimate precisely.\\
+\textbf{Cramer-Rao Lower Bound} $\mathbb{V}[\hat{\theta}] \ge \frac{1}{n \cdot \mathcal{I}(\theta_*)}$.\\
+The absolute minimum variance any unbiased estimator can achieve. An estimator achieving this bound is efficient. As $n\to\infty$ or $\mathcal{I}(\theta^*) \to$ large, bound $\to$ 0.\\
+\textbf{Mean estimation} $\hat{\mu} = \frac{1}{n}\sum_{i=1}^n X_i$. Unbiased ($\mathbb{E}[\hat{\mu}]=\mu$) and consistent ($\mathbb{V}[\hat{\mu}]=\sigma^2/n$).\\
+Best estimator for the true mean. Also directly estimates the parameter for Bernoulli ($p$) and Poisson ($\lambda$) since their means equal their parameters.\\
+\textbf{Variance estimation} Biased: $\hat{\sigma}^2 = \frac{1}{n}\sum_{i=1}^n(X_i - \hat{\mu}_1)^2$, $\mathbb{E}[\sigma^2]=\frac{n-1}{n}\sigma^2$.\\
+Unbiased: $\hat{\tau}^2 = \frac{1}{n-1}\sum_{i=1}^n(X_i - \hat{\mu}_1)^2$, $\mathbb{E}[\hat{\tau}^2]=\sigma^2$.\\
+Both are consistent -- difference vanishes as $n\to\infty$.\\
+\textbf{MLE} Find parameters $\theta$ that make observed data most probable.\\
+$\theta_{\text{MLE}} = \arg\max\limits_{\theta \in \Theta} \sum_{i=1}^n \log p_\theta(X_i)$.\\
+i.i.d. assumption converts joint prob to sum of logs. For complex distributions, direct MLE is intractable, use EM instead.\\
+\textbf{KL Divergence} $D_{KL}(p||q) = \int p(x)\log\frac{p(x)}{q(x)}\mathrm{d}x = \mathbb{E}_{X \sim p}[\log\frac{p(X)}{q(X)}]$\\
+$D_{KL}(p||q) \geq 0$, $D_{KL}(p||q)=0 \iff p=q$, $D_{KL}(p||q)\neq D_{KL}(q||p)$.\\ 
+Measure how much an estimated distribution $q$ differs from a true distribution $p$, and maximizing MLE is equivalent to minimizing this divergence.\\
+\textbf{MLE for multivariate Gaussian} For $X_i\in\mathbb{R}^d$, MLE gives: $\hat{\mu} = \frac{1}{n}\sum_{i=1}^n X_i$ and $\hat{\Sigma} = \frac{1}{n}\sum_{i=1}^n (X_i - \hat{\mu})(X_i - \hat{\mu})^\top$.\\
+MLE naturally recovers sample mean and sample covariance for Gaussian data. These converge to true $\mu$ and $\Sigma$ as $n \to \infty$.\\
+\textbf{Bayesian Inference} Treat $\theta$ as a random variable with its own distribution, updated as data arrives.\\
+Posterior Dist $p(\theta|X_1, ..., X_n) = \frac{\prod_i p(X_i|\theta)p(\theta)}{\int \prod_i p(X_i|\theta')p(\theta')d\theta'}$, numerator is likelihood ($P(X|\theta)$) times prior ($P(\theta)$). Denominator integrates out the observed data likelihood.\\
+Posterior predictive dist $\hat{p}(x) = \mathbb{E}_{\theta \sim p(\theta|X_1, ..., X_n)}[p(x|\theta)]$. Averages predictions over all possible $\theta$ weighted by their posterior probability — more robust than MLE especially for small $n$.\\
+\textbf{Bayesian Inf w/ Gaussian} Prior: $\theta \sim \mathcal{N}(\mu_0,\sigma_0^2)$ -- the belief about $\theta$ before seeing data.\\
+Likelihood: $X_i\sim\mathcal{N}(\theta, \sigma^2)$ -- each data point generated by Gaussian centered at true $\theta$ with known noise $\sigma^2$.\\
+The posterior is also Gaussian. After observing $n$ data points,
+$\hat{\sigma}^2_n = \frac{\sigma^2\sigma_0^2}{n\sigma_0^2 + \sigma^2}$, $\hat{\mu}_n = \hat{\sigma}^2_n(\frac{\Sigma X_i}{\sigma^2} + \frac{\mu_0}{\sigma_0^2})$. Posterior mean is a weighted average — data pulls toward sample mean (weighted by $1/\sigma^2$), prior pulls toward $\mu_0$ (weighted by $1/\sigma_0^2$).\\
+As $n \to\infty$, Bayesian inference becomes identical to MLE — prior belief is completely overwhelmed by data.\\
+\textbf{Maximum A Posteriori (MAP) Estimation} $\hat{\theta}_{MAP} = \arg \max_\theta \{ \sum_{i=1}^n \log p(X_i|\theta) + \log p(\theta) \}$.\\
+MAP = MLE + prior regularisation. Finds the single most likely parameter when full Bayesian integration is intractable. As $n \to \infty$, prior term is overwhelmed by data and MAP $\to$ MLE.
+
+\columnbreak
+\section*{Estimation II}
+Real-world data (images, text) is multimodal — simple single-peak distributions like Gaussian are insufficient.\\
+\textbf{Latent variable models} Observable data x is generated by hidden, lower-dimensional factors z.\\
+Joint dist $p(x,z) = p(x|z)p(z)$. Conditional $p(x|z)$ acts as decoder, generates $x$ given $z$. Posterior $p(z|x)$ acts as encoder, infers $z$ given $x$.\\
+Data generation process: sample $z \sim p(z)$, then sample $x \sim p(x|z)$.\\
+\textbf{Manifold Hypothesis} High-dimensional real-world data actually clusters along a much lower-dimensional structured manifold, reducing the space the model needs to learn.\\
+\textbf{GMM} $p(x|\mu,\Sigma) = \sum_{t=1}^K \pi_t \cdot p(x|\mu_t, \Sigma_t)$. We choose $K$ Gaussians to combine (hyperparameter). Requires learning the mean $\mu_t$, the covariance matrix $\Sigma_t$, and the mixing proportion $\pi_t$ (where $\sum \pi_t = 1$) for each of the $K$ clusters.\\
+Latent variable: $z = (\zeta_t)_{t=1}^K \in \{0,1\}^K, \sum_t \zeta_t=1$. $z$ is one hot vector indicating cluster membership.\\
+\textbf{EM algorithm} Find MLE parameters $\theta$ = ($\pi, \mu, \Sigma$) for latent variable models where direct MLE is intractable.\\
+Direct MLE intractablility: $\sum \log(\sum p(x,z|\theta)) = \sum \log(\sum\limits_{t=1}^K \pi_t p(x|\mu_t, \Sigma_t)$ summation trapped inside log.\\
+Complete-data MLE tractable: $\sum\limits_{i=1}^n \log p(x_i, z_i|\theta)$. If we knew $z$, MLE would be easy. EM iteratively estimates $z$ and updates $\theta$.\\
+\textbf{E-step}: Q-func $Q(\theta, \theta^{(k)}) = \sum_{i=1}^n \sum_{z_i} p(z_i|x_i, \theta^{(k)}) \log p(x_i, z_i|\theta)$.\\
+Uses current parameter guesses $\theta^{(k)}$ to evaluate the hidden variables and construct the surrogate lower-bound function.\\
+GMM Responsibilities: $\gamma_{t,i}^{(k)} = \frac{\pi_t^{(k)} p(x_i|\theta_t^{(k)})}{\sum_{s=1}^K \pi_s^{(k)} p(x_i|\theta_s^{(k)})}$. Calculates the probability that data point $x_i$ belongs to cluster $t$.\\
+\textbf{M-step}: Find improved params $\theta^{(k+1)} = \arg \max_\theta Q(\theta, \theta^{(k)})$ by taking derivative of Q-func and setting to 0.\\
+For GMM, first calc effective cluster size: $n_t^{(k+1)} = \sum_{i=1}^n \gamma_{t,i}^{(k)}$.\\
+Then update parameters: mixing weight $\pi_t^{(k+1)} = \frac{n_t^{(k+1)}}{n}$,\\
+means $\mu_t^{(k+1)} = \frac{1}{n_t^{(k+1)}} \sum_{i=1}^n \gamma_{t,i}^{(k)} x_i$,\\
+covariances $\Sigma_t^{(k+1)} = \frac{1}{n_t^{(k+1)}} \sum_{i=1}^n \gamma_{t,i}^{(k)} (x_i - \mu_t^{(k+1)})(x_i - \mu_t^{(k+1)})^\top$.
+
+\section*{Linear/logistic regression}
+\textbf{Linear Regression model}: $y \approx w^T x + b$.
+Predicts a continuous label $y$ by combining a vector of input features $x$ with learnable weights $w$ and a bias $b$.\\
+\textbf{With basis functions}: $y \approx w^T \phi(x) + b$.
+Transforms $x$ before applying linear model — allows curved fits while keeping model linear in $w$. Polynomial eg: $\phi_j(x)=x^j$.\\
+\textbf{Least squares method}: Objective: $\hat{w}=\arg\min\limits_{w\in\mathbb{R}^d}\sum\limits_{i=1}^n (y_i-w^T x_i)^2$.\\
+Matrix form: $\hat{w} = \arg\min\limits_{w\in\mathbb{R}^d}\|y-Xw\|^2$.\\
+Closed-form soln: $\hat{w} = \hat{\Sigma}^{-1} X^T y$ (where $\hat{\Sigma} = X^T X$ is invertible, else no unique solution).
+(linearly independent features and more training examples than features).\\
+\textbf{MLE for linear regression}: Data generation assumption: $y=w_*^T x+\varepsilon,\varepsilon\sim\mathcal{N}(0,\sigma^2)$.\\
+Probabilistic model: $P(y|w,x) = \mathcal{N}(w^Tx,\sigma^2)(y)$.\\
+MLE objective: $\hat{w} = \arg \max_w \{-\frac{n}{2}\log(2\pi\sigma^2) - \sum_{i=1}^n \frac{1}{2\sigma^2}(y_i - w^T x_i)^2\}$.\\
+First term is constant w.r.t w — dropping it gives exactly LSM. Therefore LSM = MLE under Gaussian noise.\\
+Note that Gaussian is $L_2$ regularisation (squared error), while Laplace is $L_1$ regularisation (absolute error).\\
+Laplace loss function: $\hat{w} = \arg \min_w \sum_{i=1}^n |y_i - w^T x_i|$\\
+\textbf{Ridge regression, $L_2$ regularisation}: Objective $\hat{w} = \arg\min\limits_{w\in\mathbb{R}^d}\{\|y-Xw\|^2+\lambda\|w\|^2\}$.\\
+Closed-form solution: $\hat{w}=(\lambda I + \hat{\Sigma})^{-1}X^T y$.\\
+Adding $\lambda I$ always makes matrix invertible for any $\lambda > 0$ — works even when $n < d$ unlike LSM. Penalises large weights to prevent overfitting.\\
+\textbf{Bias-variance decomp} $\frac{1}{n}\mathbb{E}[||X(\hat{w} - w_*)||^2] = \text{Variance} + \text{Bias}^2$.\\
+For ridge regression, Bias$^2$ $= \frac{\lambda^2}{n}w_*^T (\lambda I + \hat{\Sigma})^{-2}\hat{\Sigma}w_*$, Variance $= \frac{\sigma^2}{n}Tr((\lambda I + \hat{\Sigma})^{-2}\hat{\Sigma}^2)$.\\
+Bias increases with $\lambda$, as regularisation pulls $\hat{w}$ away from $w_*$. Variance decreases with $\lambda$, less sensitive to noise.\\
+$\lambda=0$ yields an unbiased model with high variance $= \frac{\sigma^2 d}{n}$(overfitting risk), while $\lambda \to \infty$ drives variance to zero but causes massive bias $\to \frac{1}{n}\|Xw_*\|^2$ (underfitting).\\
+$n>>d$ required for LSM to work well otherwise variance is huge.\\
+\textbf{Logistic Regression} Binary classification: $y\in\{-1,+1\}$.\\
+Sigmoid function: $\sigma(z) = \frac{1}{1 + \exp(-z)}$. Squashes a continuous linear output into a valid probability between 0 and 1.\\
+Unified probabilistic model: $p(y|x,w) = \frac{1}{1 + \exp(-yw^T x)}$.\\
+Multiplying $y\cdot w^Tx$ automatically handles both classes — same sign = correct prediction, opposite sign = wrong prediction.\\
+Decision boundary: $w^T x = 0$. Represents a hyperplane in the input space; predictions greater than 0 yield a $>50\%$ probability (classify as $+1$), while predictions less than 0 classify as $-1$.\\
+\textbf{MLE for logistic regression}: Logistic loss: $\hat{w} = \arg \min\limits_{w\in\mathbb{R}^d} \{\sum_{i=1}^n \log(1 + \exp(-y_i w^T x_i))\}$.\\
+With $L_2$ regularisation: $\hat{w} = \arg \min\limits_{w\in\mathbb{R}^d} \{\frac{1}{n}\sum_{i=1}^n \log(1 + \exp(-y_i w^T x_i)) + \lambda||w||^2\}$.\\
+Because the logistic loss function is not quadratic, there is no closed-form solution; it must be solved iteratively using numerical methods like gradient descent.
+
+\end{multicols*}
+\end{document}

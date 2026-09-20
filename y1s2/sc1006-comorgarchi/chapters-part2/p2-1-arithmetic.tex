@@ -1,0 +1,115 @@
+\documentclass[10pt]{article}
+
+% --- Page Setup ---
+% \usepackage[a4paper, margin=0.5cm]{geometry}
+\usepackage[a4paper, left=0.5cm, right=0.5cm, top=0.3cm, bottom=0.3cm]{geometry}
+\usepackage{multicol}
+
+% \allowdisplaybreaks
+
+\usepackage{booktabs} % Required for professional horizontal rules (\toprule, \midrule, \bottomrule)
+\usepackage{array}    % Required for better column formatting
+
+% --- Math and Code ---
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+
+% --- Spacing Adjustments ---
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\usepackage{nicematrix, tikz}
+
+\usepackage{graphicx}
+
+\usepackage{float}
+
+\usepackage[hidelinks]{hyperref} % hidelinks removes ugly red boxes around links
+
+% 1. Remove space between list items
+\setlist{nosep, leftmargin=*} 
+
+% 2. Shrink space around section headers
+\titlespacing*{\section}{0pt}{0pt}{0pt}
+\titlespacing*{\subsection}{0pt}{1ex plus .2ex minus .2ex}{0.5ex plus .1ex}
+
+% --- NEW: Reduce header font sizes ---
+\titleformat*{\section}{\normalsize\bfseries\color{blue!75!black}}
+\titleformat*{\subsection}{\small\bfseries\color{magenta}}
+
+% 3. Add a thin line between columns for readability
+\setlength{\columnseprule}{0.4pt}
+\setlength{\columnsep}{1.5em}
+
+% --- Custom Code Formatting ---
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+\usepackage{xcolor}
+% \newcommand{\sectionbox}[1]{%
+%      \colorbox{blue!75!black}{\color{white}\small\bfseries~#1~}%
+%    }
+%    \titleformat{\section}{}{}{0em}{\sectionbox}
+%    \titleformat*{\subsection}{\normalsize\bfseries}
+
+\raggedbottom
+
+\setlength{\parskip}{0pt}
+\setlength{\baselineskip}{0pt plus 0.2pt} 
+
+
+\begin{document}
+
+\section*{Computer Arithmetic}
+
+
+Carry = 1 if '1' bit gets carried out of MSB. Indicates error in unsigned no. system.\\
+V = 1 if 
+\begin{itemize}
+    \item \textbf{A+B}, MSB(A) = MSB(B) $\neq$ MSB(Result)
+    \item \textbf{A-B}, MSB(A) $\neq$ MSB(B) and MSB(Result) $\neq$ MSB(A)
+\end{itemize}
+\textbf{Sign extension}: copy MSB to all the higher bits.\\
+\textbf{Multi-precision arithmetic}: add the lower 32-bit words, then ADC the upper 32-bit words.\\
+\textbf{Range of 2's comp} = $-2^{N-1}$ to $2^{N-1}-1$\\
+\textbf{Fixed point}
+\begin{itemize}
+    \item Precision = value of LSB (smallest fractional value)
+    \item $2^3\,2^2\,2^1\,2^0\,.\,2^{-1}\,2^{-2}\,2^{-3}\,2^{-4}$, precision is $2^{-4}$.
+    \item Precision is fixed and uniform throughout the range.
+    \item For a fixed number of bits, allocating more bits for the integer part (increase range) will reduce the precision.
+\end{itemize}
+\textbf{Floating point}
+\begin{itemize}
+    \item 32-bit: 1 (Sign), 8 (exponent, $E$), 23 (fraction, $F$), bias = 127
+    \item 64-bit: 1 (Sign), 11 (exponent, $E$), 52 (fraction, $F$), bias = 1023
+    \item Format: $(-1)^S \times (1.F)_2 \times 2^{E - \text{Bias}}$
+    \item E.g. 1 00001100 010100....0 $\equiv$ $-1.3125\times 2^{-115}$
+    \item Normalised mode
+    \begin{itemize}
+        \item Maintain a non-zero digit (1) before the radix point.
+        \item Exponent range: 0000 0001 to 1111 1110
+        \item Smallest magnitude: X 0000 0001 0000....0 $\equiv$ $1 \times 2^{-126}$
+        \item Largest magnitude: X 1111 1110 1111 ....1 $\equiv$ $\approx 2 \times 2^{127} = 2^{128}$
+        \item Underflow: numbers between $-2^{126}$ to $2^{126}$, i.e. values close to zero that cannot be represented.
+    \end{itemize}
+\end{itemize}
+\textbf{Fixed vs floating pt (32-bit)}
+\begin{itemize}
+    \item Max range (fixed) = $2^{32}$ (no fractional part)
+    \item Max range (floating) = $2*2^{128}$ ($-2^{128}$ to $\sim 2^{128}$)
+    \item Max precision (fixed) = $2^{-32}$ (no integer part)
+    \item Max precision (floating, near to 0) = less than $2^{-126}$
+    \item Floating point has higher range and better precision at small numbers, but very coarse precision at the 2 ends of the range. Floating point provides uniform precision across entire range.
+\end{itemize}
+\textbf{More stuff}
+\begin{itemize}
+    \item Arithmetic between numbers with huge diff in magnitude: add/subtract numbers of similar smaller magnitude first, to allow their magnitude to be closer to the bigger magnitudes.
+    \item To preserve precision AMAP, do division last, as division truncates LSB and loses bits.
+\end{itemize}
+
+\end{document}

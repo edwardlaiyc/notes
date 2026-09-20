@@ -1,0 +1,300 @@
+\documentclass[../comorg-part1.tex]{subfiles}
+\title{Addressing Modes}
+
+\begin{document}
+\maketitle
+\section{Addressing Modes}
+Addressing Modes refers to how data is accessed, so that CPU can
+identify the actual operand or address location where operand is stored.
+\begin{enumerate}
+    \item Immediate data
+    \item Register direct
+    \item Register indirect
+    \item Register indirect with offset
+    \item Register indirect with index register
+    \item Pre and post auto-indexing
+\end{enumerate}
+
+\subsection{Register Direct}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/register-direct.png}
+    \caption*{[MOV] Copy data from operand on the right to operand on the left.}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/register-direct-2.png}
+    \caption*{Any of the 16 registers in the processor can be an operand.}
+\end{figure}
+\noindent Execution of register direct instruction involves no access to memory.
+
+\subsection{Immediate Addressing}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/immed-address.png}
+    \caption*{Source operand can be a constant value, that is copied into destination operand.}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/immed-value-storage.png}
+    \caption*{32-bit ARM instruction has 12-bits for the immediate value.}
+\end{figure}
+\noindent The 8-bit immediate value must be between 0 to 255.
+
+\noindent That value is rotated right by $2n$ bits, where $n$ is the 
+value of the 4 rotate right bits. Hence range of rotation is $0, 2, 4, \ldots, 30$.
+
+\noindent Therefore, to check if a 32-bit hexadecimal number can be an immediate value:
+\begin{enumerate}
+    \item The '1' bits must be maximum of 8 bits apart. \newline
+    E.g. 0x111 $= ... 0001\:0001\:0001_2$. The furthest '1's are separated by 9 bits, so 0x101 cannot be an immediate value.
+    \item The 8 bit immediate can only be rotated by an even number of bits.\newline
+    E.g. 0x102 $= ... 0001\:0000\:0010_2$. The 8-bit immediate value would be $1000\:0001$,
+    which has to be ROR by 31 bits (not even number). Hence, 0x102 cannot be an immediate value.
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/rotate-right-forbid.png}
+    \caption*{Some immediate values cannot be stored.}
+\end{figure}
+
+\bigskip
+
+\noindent Exeuction of immediate addressing involves no access to memory.
+
+\noindent Only a subset of immediate values is available since data
+is encoded within fixed-length instruction.
+
+\subsection{Register Indirect with Base Register}
+\subsubsection{LDR Instruction}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/ldr-instruct.png}
+    \caption*{Source operand register stores an address.}
+\end{figure}
+\noindent Data is fetched from that address in memory and coped into the destination operand.
+
+\subsubsection{STR instruction}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/str-instruct.png}
+    \caption*{Destination operand (on the right) stores an address.}
+\end{figure}
+\noindent Data in source operand (on the left) is copied into that address in memory.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/ldr-data-align.png}
+    \caption*{4-byte data being read or written to memory must start at address that is multiple of 4.}
+\end{figure}
+\noindent Otherwise, there may be performance degradation issues.
+
+\subsection{Register Indirect with Offset}
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/reg-indirect-offset.png}
+        \caption{Offset applied to address stored in indirect register (source operand).}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/reg-indirect-offset-1.png}
+        \caption{Data in array accessed with respect to base address (BA).}
+    \end{subfigure}
+    % \caption{A collective caption for both images.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/c-array-eg.png}
+        \caption{C program - First and last element of array = 7.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/offset-assem-eg.png}
+        \caption{Assembly - Offset of 16 to store 7 at first and last element.}
+    \end{subfigure}
+    % \caption{A collective caption for both images.}
+\end{figure}
+\noindent Note: When computing offset, each integer element occupies 4 bytes in memory.
+
+\noindent Offset addressing does not change the indirect register's content.
+
+\noindent Used when the position of array element is known when coding the program.
+
+\subsection{Register Indirect with Index Register}
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.35\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/c-array-eg-2.png}
+        \caption{C program - Initialise all 400 elements in array to zero.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.55\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/index-register-eg.png}
+        \caption{Assembly - R1 (index register) continually incremented by 4.}
+    \end{subfigure}
+    % \caption{A collective caption for both images.}
+\end{figure}
+\noindent Base (indirect) register's content is not changed, but 
+index register's (R2) value can be modified.
+
+\noindent Used if array position is to be computed during run time.
+
+\subsection{Register Indirect with Autoindexing}
+Aim is to modify the indirect register's content.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/autoindex-preindex.png}
+    \caption*{Pre-index - Indirect register is autoindexed BEFORE computing effective address.}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/autoindex-postindex.png}
+    \caption*{Post-index - Indirect register used to compute effective address BEFORE being autoindexed.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/preindex-loop-eg.png}
+        \caption{Preindex - Storing into R0 with effective address of R2 plus offset 4. EA then stored in R2.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/postindex-loop-eg.png}
+        \caption{Postindex - Storing into R0 with effective address of R2. R2 is then offset by 4 and stored in R2.}
+    \end{subfigure}
+    % \caption{A collective caption for both images.}
+\end{figure}
+
+\subsection{Stacks}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/sp-stack-fd.png}
+    \caption*{Stack Pointer (SP)/R13 in ARM processor maintains the system stack.}
+\end{figure}
+The 4 possible stack implementations:
+\begin{enumerate}
+    \item Full Descending
+    \item Full Ascending
+    \item Empty Descending
+    \item Empty Ascending
+\end{enumerate}
+\noindent FD stack implementation:
+
+\noindent Full: SP points to top item of stack.
+
+\noindent Descending: Stack grows towards lower memory addresses.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/fd-stack-1.png}
+        \caption{LDR R0, [R13]; R13 stores address to top item in stack.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/fd-stack-2.png}
+        \caption{Preindexing used to jump 4 bytes, then store the data from source operand.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/fd-stack-3.png}
+        \caption{Postindexing used to store data in destination, then jump to new top of stack.}
+    \end{subfigure}
+    % \caption{A collective caption for both images.}
+\end{figure}
+
+\noindent EA stack implementation:
+
+\noindent Empty: SP points to unoccupied stack space.
+
+\noindent Ascending: Stack grows towards higher memory address.
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}[b]{0.4\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/ea-stack-1.png}
+        \caption{LDR R0, [R13, \#-4]; Offset to get the lowest address of top item.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/ea-stack-2.png}
+        \caption{Postindexing used to store data at lowest address, then jump 4 bytes up.}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.25\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/ea-stack-3.png}
+        \caption{Preindexing used to jump to lowest address of top item, then pop it to destination register.}
+    \end{subfigure}
+    % \caption{A collective caption for both images.}
+\end{figure}
+
+\subsection{PC-related addressing modes}
+\subsubsection{Absolute Jump}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/absolute-jump.png}
+    \caption*{Loading the actual address into PC.}
+\end{figure}
+\noindent Loading a new address into PC will alter the sequence of program execution.
+
+\noindent Absolute jump is not position-independent. If the whole chunk of code memory was shifted,
+the code would fail.
+
+\subsubsection{Relative Jump}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/relative-jump.png}
+    \caption*{Telling the PC to jump to CodeB.}
+\end{figure}
+\noindent Due to FETCH-DECODE-EXECUTE pipeline architecture of the 
+ARM processor, the PC points 8 bytes ahead of the current executed intsruction.
+
+\medskip
+
+\noindent At $0x050$, the PC value during execution is $0x058$. To jump
+to CodeB at $0x060$, the offset applied is $0x060-0x058=0x008$.
+
+\subsubsection{Position-independent code}
+\noindent Relative jump supports position-independent code.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/pos-indep-code.png}
+    \caption*{Position-independent (P-I) code doesn't hardcode the address, instead
+    a signed offset is calculated relative to the PC.}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/add-instruct.png}
+    \caption*{Destination and middle operands must be registers, rightmost operand
+    can be a register or immediate value.}
+\end{figure}
+\noindent 32-bit instruction: 4-bits for condition flag, 8-bits for opcode, 4-bits for each register, 
+hence only 12-bits left for only one immediate value.
+
+\medskip
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/pc-relative-address.png}
+    \caption*{PC-relative addressing used to access variables in data segment in memory.}
+\end{figure}
+
+\end{document}

@@ -1,0 +1,190 @@
+\documentclass[10pt]{article}
+
+% --- Page Setup ---
+% \usepackage[a4paper, margin=0.5cm]{geometry}
+\usepackage[a4paper, left=0.5cm, right=0.5cm, top=0.3cm, bottom=0.3cm]{geometry}
+\usepackage{multicol}
+
+% \allowdisplaybreaks
+
+\usepackage{booktabs} % Required for professional horizontal rules (\toprule, \midrule, \bottomrule)
+\usepackage{array}    % Required for better column formatting
+
+% --- Math and Code ---
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+
+% --- Spacing Adjustments ---
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\usepackage{nicematrix, tikz}
+
+\usepackage{graphicx}
+
+\usepackage{float}
+
+\usepackage[hidelinks]{hyperref} % hidelinks removes ugly red boxes around links
+
+% 1. Remove space between list items
+\setlist{nosep, leftmargin=*} 
+
+% 2. Shrink space around section headers
+\titlespacing*{\section}{0pt}{0pt}{0pt}
+\titlespacing*{\subsection}{0pt}{1ex plus .2ex minus .2ex}{0.5ex plus .1ex}
+
+% --- NEW: Reduce header font sizes ---
+\titleformat*{\section}{\normalsize\bfseries\color{blue!75!black}}
+\titleformat*{\subsection}{\small\bfseries\color{magenta}}
+
+% 3. Add a thin line between columns for readability
+\setlength{\columnseprule}{0.4pt}
+\setlength{\columnsep}{1.5em}
+
+% --- Custom Code Formatting ---
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+\usepackage{xcolor}
+% \newcommand{\sectionbox}[1]{%
+%      \colorbox{blue!75!black}{\color{white}\small\bfseries~#1~}%
+%    }
+%    \titleformat{\section}{}{}{0em}{\sectionbox}
+%    \titleformat*{\subsection}{\normalsize\bfseries}
+
+\raggedbottom
+
+\setlength{\parskip}{0pt}
+\setlength{\baselineskip}{0pt plus 0.2pt} 
+
+
+\begin{document}
+
+\section*{Data Transfer Mechanisms}
+
+\begin{table}[H]
+    \centering
+    \footnotesize 
+    \renewcommand{\arraystretch}{1.2} 
+    \begin{tabular}{@{} l p{2.5cm} p{1.8cm} p{2cm} p{3.2cm} p{2cm} @{}}
+        \toprule
+        \textbf{Mechanism} & \textbf{Controller / Nature} & \textbf{Latency} & \textbf{CPU Eff.} & \textbf{Transfer Rate / Modes} & \textbf{Debugging} \\
+        \midrule
+        \textbf{Polling} & 
+        \textbf{CPU} \newline SW-driven active check. & 
+        \textbf{Very Fast} \newline 1--3 cycles. & 
+        \textbf{Very Low} \newline 100\% blocked. & 
+        \textbf{Low} \newline CPU fetches per byte. & 
+        \textbf{Easy} \newline Deterministic. \\
+        
+        \textbf{Interrupt} & 
+        \textbf{CPU} \newline HW trigger, SW exec. & 
+        \textbf{Slower} \newline Context switch. & 
+        \textbf{High} \newline Free until signaled. & 
+        \textbf{Moderate} \newline CPU still moves data. & 
+        \textbf{Difficult} \newline Asynchronous. \\
+        
+        \textbf{DMA} & 
+        \textbf{DMAC} \newline Pure HW controller. & 
+        \textbf{Moderate} \newline Bus arbitration. & 
+        \textbf{Very High} \newline CPU fully freed. & 
+        \textbf{Maximum} \newline Burst, Steal, Transparent. & 
+        \textbf{Moderate} \newline Silent RAM alters. \\
+        \bottomrule
+    \end{tabular}
+    \caption{I/O Data Transfer Mechanisms Summary}
+\end{table}
+
+Data transfer can be initiated by the CPU or the DMAC.
+
+
+\subsection*{Polling (Programmed I/O)}
+CPU polls a certain I/O port continuously (using software) for data or readiness of the port to perform a data transaction.\\
+CPU uses 100\% of its resource to do the polling. It cannot entertain any other requests.
+% \begin{center}
+%     \includegraphics[width=0.15\textwidth]{images/polling.png}
+% \end{center}
+\clearpage
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.15\textwidth]{images/polling.png}
+\end{figure}
+\begin{itemize}
+    \item Programmer has complete control over the process, easier to test and debug.
+    \item Program execution of CPU held up while waiting for I/O device to get ready, inefficient use of CPU resources.
+\end{itemize}
+\subsection*{Interrupt Triggered}
+
+
+\begin{itemize}
+    \item Uses hardware: A signal from external/internal peripheral, or a change in status of some special registers notifies the CPU that some event has occur.
+    \item If the CPU decide to service the interrupt, it will suspend its current program temporarily.
+    \item The interrupt will come with some interrupt vector table (IVT) index.
+    \item CPU look up the IVT to check the starting address of the interrupt service routine (ISR) for the corresponding interrupt.
+    \item CPU then proceed to execute the ISR linked to the interrupt that was triggered (typically a short routine).
+    \item Once the ISR is completed, CPU restore the saved context, returns to the interrupted routine and continue from where it had left previously.
+    \item \textbf{Interrupt latency}: delay bw CPU receiving the interrupt req, and the pt of entering the ISR.
+\end{itemize}
+\begin{center}
+    \includegraphics[width=0.1\textwidth]{images/ivt.png}
+\end{center}
+\begin{itemize}
+    \item CPU does not need to monitor I/O device status, more efficient use of CPU resources.
+    \item But more hardware interface circuitry required between I/O device and processor. Program is slightly more complex and difficult to debug.
+\end{itemize}
+\subsection*{Direct Memory Access (DMA)}
+
+
+DMAC is a Data Bus Controller module that performs data transfer independent of CPU.
+\begin{center}
+    \includegraphics[width=0.4\textwidth]{images/dmac.png}
+\end{center}
+\begin{itemize}
+    \item CPU configures some parameters for DMAC to trf data
+    \begin{itemize}
+        \item Src and Dest addr of data
+        \item No. of bytes to trf
+        \item Trigger signal telling DMAC when to start the trf.
+    \end{itemize}
+    \item DMAC waits till trigger signal comes in.
+    \item It requests for system bus and start data trf. (Data goes into internal buffer of DMAC before transferred to dest)
+    \item After trf, DMAC releases the system bus, notifies CPU of data completion via interrupt. 
+\end{itemize}
+3 modes of transfer:
+\begin{itemize}
+    \item Burst: During control of the system bus, DMAC trf multiple units of data.
+    
+    
+    \begin{itemize}
+        \item Could be entire block of data that DMAC tasked to trf, or just a subset of that block.
+        \item CPU can continue with its operation as long it does not need the particular system bus that DMAC is using.
+        \item So Burst has faster trf rate but CPU may be suspended/inactive if CPU has to wait for DMAC to complete its trf.
+    \end{itemize}
+    \item Cycle stealing: DMAC trfs one unit of data aft taking control, then releases control of system bus to CPU.
+    
+    
+    \begin{itemize}
+        \item DMAC can execute the data trf between CPU instructions or between pipeline stages.
+        \item CPU may be suspended if it need to access the system bus but suspend time is shorter as only one unit is transferred at one time.
+        \item Transfer rate is slower than in Burst Mode but will CPU will only be inactive for very short period of time.
+        \item Favoured if CPU needs to be responsive.
+        \begin{center}
+            \includegraphics[width=0.4\textwidth]{images/burst-cycle-stealing.png}
+        \end{center}
+    \end{itemize}
+    \item Transparent: DMAC trfs data only when CPU not using the system bus.
+    
+    
+    \begin{itemize}
+        \item CPU performance not affected, but potentially slowest trf rate.
+        \item More complex hardware needed to detect when CPU not using the system bus.
+    \end{itemize}
+    \item So from burst to cycle-stealing to transparent, data trf gets slower but CPU performance/response improves.
+    \item Transferring via CPU can be faster than DMA as CPU speed is typically faster, just that it means wasting CPU resources to just transfer data.
+\end{itemize}
+
+\end{document}

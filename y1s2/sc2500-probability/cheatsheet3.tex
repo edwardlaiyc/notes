@@ -1,0 +1,444 @@
+\documentclass[10pt]{article}
+
+% --- Page Setup ---
+\usepackage[margin=0.5cm]{geometry}
+\usepackage{multicol}
+
+% \allowdisplaybreaks
+
+% --- Math and Code ---
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+
+% --- Spacing Adjustments ---
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+% 1. Remove space between list items
+\setlist{nosep, leftmargin=*} 
+
+% 2. Shrink space around section headers
+\titlespacing*{\section}{0pt}{2pt}{1pt}
+\titlespacing*{\subsection}{0pt}{1ex plus .2ex minus .2ex}{0.5ex plus .1ex}
+
+% 3. Add a thin line between columns for readability
+\setlength{\columnseprule}{0.4pt}
+\setlength{\columnsep}{1.5em}
+
+% --- Custom Code Formatting ---
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+% \usepackage{xcolor}
+% \newcommand{\sectionbox}[1]{%
+%      \colorbox{blue!75!black}{\color{white}\small\bfseries~#1~}%
+%    }
+%    \titleformat{\section}{}{}{0em}{\sectionbox}
+%    \titleformat*{\subsection}{\normalsize\bfseries}
+
+\setlength{\parskip}{0pt}
+\setlength{\baselineskip}{0pt plus 0.2pt} 
+
+\begin{document}
+\small 
+
+\raggedright
+% \raggedbottom
+
+\begin{multicols*}{2}
+\section*{Stastical ML}
+\textbf{Supervised learning dataset}
+$\mathcal{D} = \{(x_1, y_1), (x_2, y_2), \dots, (x_n, y_n)\}$\\
+\textbf{Hypothesis function} $h : \mathcal{X} \mapsto \hat{y}$\\
+\textbf{Binary classification} $\mathcal{Y} = \{+1,-1\}$.\\
+\textbf{Multiclass classification} $\mathcal{Y} = \{1,2\ldots,K\},K>2$.\\
+\vspace{1em}
+\textbf{Probabilistic models}\\
+\textbf{Sigmoid}\\
+$\sigma(z) = \frac{1}{1 + \exp(-z)}$\\
+\begin{itemize}
+    \item $z\gg 0 \implies \sigma(z) \approx 1$
+    \item $z \ll 0 \implies \sigma(z) \approx 0$
+    \item $z = 0 \implies \sigma(z) = 0.5$
+\end{itemize}
+\textbf{Logistic regression (binary classification)}
+$p(y = +1 \mid x, w) = \sigma(h_w(x)), \qquad p(y = -1 \mid x, w) = 1 - \sigma(h_w(x))$\\
+Unified expression:
+$p(y \mid x, w) = \frac{1}{1 + \exp(-y \cdot h_w(x))}$\\
+Decision boundary: 
+$\hat{y} = \begin{cases} +1 & \text{if } h_w(x) \geq 0 \\ -1 & \text{if } h_w(x) < 0 \end{cases}$\\
+\textbf{MLE objective for log reg}
+$\hat{w} = \arg\min\limits_{w \in \mathbb{R}^d} \frac{1}{n} \sum_{i=1}^{n} \log\!\left(1 + \exp(-y_i \cdot h_w(x_i))\right)$\\
+From taking negative log-likelihood of the prob model and minimising it over the training data.
+There is no closed-form solution, must ust gradient descent or other optimisers.\\
+\medskip
+\textbf{Softmax (multiclass)}\\
+$q_{v,k} = \frac{\exp(v_k)}{\sum_{j=1}^{K} \exp(v_j)}, \qquad k = 1, \dots, K$\\
+Takes a vector of $K$ scores and converts them into a valid prob distribution. The ranking of scores is preserved.\\
+\textbf{Multiclass prob model}\\
+$p(y \mid x, w) = \frac{\exp(h_{w,y}(x))}{\sum_{k=1}^{K} \exp(h_{w,k}(x))}$\\
+This is softmax applied to $h_w(x)$ evaluated a $y$, the true class.\\
+\textbf{Multiclass prediction rule}\\
+$\hat{y} = \arg\max\limits_{y \in \mathcal{Y}} \; h_{w,y}(x)$\\
+Softmax not needed at prediction time, the class with highest logit has the highest probability.
+Softmax is only needed during training to compute probabilities for the loss function.\\
+\textbf{Multiclass MLE objective (cross-entropy loss)}\\
+$\min_{w} \; \frac{1}{n} \sum_{i=1}^{n} \underbrace{\left( -h_{w,y_i}(x_i) + \log \sum_{k=1}^{K} \exp(h_{w,k}(x_i)) \right)}_{\ell(h_w(x_i),\, y_i)}$\\
+\begin{itemize}
+    \item $-h_{w,y_i}(x_i)$pushes the true class score up
+    \item $\log \sum_{k=1}^{K} \exp(h_{w,k}(x_i))$ grows whenever any score grows, acting as a penalty that keeps all other scores in check.
+\end{itemize}
+The loss is minimised when the true class score is large relative to all others — not just large in absolute terms.\\
+\textbf{Pipeline}
+\begin{itemize}
+    \item Feed $x$ into $h_w(x) \in \mathbb{R}^K$ to get one score per $K$ classes.
+    \item Apply softmax to get a valid probability distribution.
+    \item Pick out the probability of the true class $y_i$ and calc the cross entropy loss (take -ve log).
+    \item Update $w$ by gradiend descent (using gradient of the loss $\nabla_w l$).
+\end{itemize}
+\vspace{1em}
+Loss functions are typically negative log-likelihoods of the probabilistic models.\\
+\textbf{Logistic loss (binary)}\\
+$\ell(y', y) = \log(1 + \exp(-y \cdot y'))$\\
+$y$ is the true label, $y' = h_w(x)$ is the raw score.\\
+When $yy'$ positive (prediction is correct and label agrees), the loss is small. When -ve, the loss grows. The loss never reaches 0, so the weights keep updating.\\
+Logistic loss $\iff$ logistic/sigmoid model.\\
+\textbf{Hinge loss (binary)}\\
+$\ell(y', y) = \max\{1 - y \cdot y', \; 0\}$\\
+Zero loss once $yy'\geq 1$ and stops updating weights.\\
+\textbf{Exponential loss (binary)}\\
+$\ell(y', y) = \exp(-y \cdot y')$\\
+Penalises wrong predictions far more aggressively than logistic loss.
+This makes it very sensitive to outliers and mislabelled data, since a single bad example can dominate the total loss.\\
+\textbf{Unifying intuition for binary losses}
+$\text{margin} = y \cdot y'
+\begin{cases} > 0 & \text{correct prediction} \\ < 0 & \text{incorrect prediction} \end{cases}$\\
+\textbf{Absolute loss (regression)}\\
+$\ell(y', y) = |y - y'|$\\
+Absolute loss $\iff$ Laplace model.\\
+\textbf{Squared loss (regression)}\\
+$\ell(y', y) = \frac{1}{2}(y - y')^2$\\
+Standard loss for regression problems.
+Penalises large errors more heavily due to the square.\\
+Squared loss $\iff$ Gaussian model.\\
+$\epsilon$\textbf{-sensitive loss (regression)}\\ 
+$\ell(y', y) = \max\{|y - y'| - \varepsilon, \; 0\}$
+Ignores errors smaller than $\epsilon$.
+Only errors that fall outside the tube are penalised, and penalised linearly rather than quadratically, making it more robust to outliers than squared loss.\\
+\textbf{Cross-entropy loss (multiclass)}
+$\ell(h_w(x), y) = -h_{w,y}(x) + \log \sum_{k=1}^{K} \exp(h_{w,k}(x))$\\
+Standard loss for multiclass classification with softmax.
+This is equivalent to $-\log p(y | x, w)$, the negative log probability of the true class under the softmax model.\\
+Cross-entropy model $\iff$ softmax model.\\
+\textbf{KL divergence}
+$D_{\text{KL}}(p \| q) = \sum_{k=1}^{K} p_k \log \frac{p_k}{q_k}$\\
+Measures discrepancies between two prob distributions $p$ and $q$. Always $\geq 0$, and equals zero only when $p=q$.\\
+\textbf{Cross-entropy loss $\equiv$ KL divergence minimisation}\\
+$L(w) = D_{\text{KL}}\!\left(P[Y \mid X] \;\|\; p(\cdot \mid X, w)\right) + \underbrace{H(P[Y \mid X])}_{\text{constant w.r.t. } w}$\\
+Minimising the expected cross-entropy loss is exactly equivalent to minimising the KL divergence between the true distribution $P[Y|X]$ and the model's predicted distribution $p(\cdot | x, w)$.\\
+\vspace{1em}
+\textbf{Expected loss}
+$L(w) = \mathbb{E}_{(X,Y)}\left[\ell(h_w(X), Y)\right]$\\
+This is the true objective: average loss over all possible inputs weighted by how likely they occur.\\
+We can never compute it directly because we don't have the true data distribution, only a finite sample.\\
+\textbf{Empirical loss}
+$L_n(w) = \frac{1}{n} \sum_{i=1}^{n} \ell(h_w(x_i), y_i)$\\
+The tractable approximation of $L(w)$ using only the training data. As $n\to\infty, L_n(w)\to L(w)$ by LLN.\\
+But for finite $n$, minimising $L_n(w)$ does not guarantee minimising $L(w)$, this gap is the source of overfitting.\\
+\textbf{ERM}
+$\hat{w} = \arg\min\limits_{w} \; L_n(w)$
+The standard training procedure — find the $w$ that minimises the average loss on training data.
+Needs to be paired with regularisation or model selection to control overfitting.\\
+\textbf{Overfitting}
+$\left| \mathbb{E}_{(X,Y)}\left[\ell(\hat{h}(X), Y)\right] - \frac{1}{n}\sum_{i=1}^{n} \ell(\hat{h}(x_i), y_i) \right|$\\
+Overfitting is when this gap is large — the model performs well on training data but poorly on new data.
+Happens when the model is too complex relative to the amount of training data, allowing it to memorise the training set rather than learn the underlying pattern.
+Most dangerous when data is scarce.\\
+\textbf{Regularised objective}
+$\min_{w} \; L_{n,\lambda}(w) = \frac{1}{n} \sum_{i=1}^{n} \ell(h_w(x_i), y_i) + \frac{\lambda}{2} \|w\|_2^2$\\
+Adds a penalty on the size of $w$ directly to the training objective.
+Forces a tradeoff — the model must fit the data well and keep weights small.\\
+\begin{itemize}
+    \item $\lambda$ too small: overfitting, regularisation no effect.
+    \item $\lambda$ too large: underfitting, model too simple.
+\end{itemize}
+$\lambda$ is a hyperparameter chosen via cross-validation.\\
+\textbf{L2 regularisation (Ridge)}
+$\|w\|_2^2 = \sum_{j=1}^{p} w_j^2$\\
+Penalises large weights by squaring them. Shrinks all weights uniformly toward zero but never exactly to zero — all features remain in the model.
+Good default when you expect all features to contribute something.\\
+\textbf{L1 regularisation (Lasso)}
+$\|w\|_1 = \sum_{j=1}^{p} |w_j|$\\
+Penalises weights by absolute value. Tends to push weights to exactly zero, effectively removing irrelevant features — produces sparse solutions.
+Use when you expect only a few features to matter.\\
+\textbf{Elastic Net}
+$\alpha \|w\|_1 + \frac{1-\alpha}{2} \|w\|_2^2, \qquad \alpha \in (0,1)$\\
+Combines L1 and L2. $\alpha$ closer to 1 gives more sparsity, $\alpha$ closer to 0 gives more uniform shrinkage.\\
+\vspace{1em}
+\textbf{Model class}
+$\mathcal{H} = \{h_w : \mathcal{X} \to \mathcal{Y} \mid w \in \Omega \subset \mathbb{R}^p\}$\\
+Rather than searching over all possible functions, you restrict the search to a specific parametric family.
+The choice of $\mathcal{H}$ is made before training, determines what the model can represent.
+A model $\mathcal{G}$ is more complex than $\mathcal{H}$ if $\mathcal{H}\subset \mathcal{G}$.\\
+\textbf{Bias-variance decomp}
+$L(w) \approx \text{Bias}^2 + \text{Variance}$\\
+High bias = model too simple, cannot capture the true pattern regardless of how much data you have.\\
+High variance = model too complex, changes drastically with different training sets.\\
+\textbf{Holdout method}
+$\mathcal{D} = \mathcal{D}_{\text{train}} \cup \mathcal{D}_{\text{val}} \cup \mathcal{D}_{\text{test}}$\\
+\begin{enumerate}
+    \item Train on $\mathcal{D}_{\text{train}}$.
+    \item Evaluate on $\mathcal{D}_{\text{val}}$ to choose hyperparameters.
+    \item Final evaluation on $\mathcal{D}_{\text{test}}$ once only.
+\end{enumerate}
+Validation loss is an unbiased estimate of expected loss because the model never sees validation data during training.
+High variance: estimate depends heavily on which examples ended up in $\mathcal{D}_{\text{val}}$.\\
+\textbf{$k$-fold cross validation}\\
+$\text{CV score} = \frac{1}{k} \sum_{i=1}^{k} \text{validation loss on fold } i$\\
+Divide data into $k$ equal subsets. For each fold $i$, train on the remaining $k - 1$ folds, evaluate on fold $i$. Average the $k$ validation losses.\\
+Every example is used for both training and validation, just never at the same time.
+More data-efficient and lower variance than holdout.
+More expensive, requires $k$ separate training times.\\
+Choose the hyperparameter value with the lowest CV score.\\
+\textbf{Leave-one-out cross-validation (LOOCV)}\\
+Special case of $k$-fold where $k=n$, so each fold has exactly one example.\\
+Almost all data used for training each time — very low bias in the estimate. But requires $n$ separate training runs, computationally expensive.\\
+Use only when data is very scarce and you cannot afford to leave more out.\\
+
+
+
+
+
+\section*{Optimisation}
+\textbf{Empirical Loss Minimisation (ERM)}\\
+$\min_w \left\{ \frac{1}{n} \sum_{i=1}^{n} \ell(h_w(x_i), y_i) \right\}$\\
+Minimises avg loss over $n$ training examples.\\
+\textbf{Regularised ERM}\\
+$\min_w \left\{ \frac{1}{n} \sum_{i=1}^{n} \ell(h_w(x_i), y_i) + \frac{\lambda}{2}\|w\|^2 \right\}$\\
+Adds penalty to prevent overfitting. $\lambda$ as regularisation strength.
+\textbf{MLE}\\
+$\max_{\theta \in \Theta} \left\{ \sum_{i=1}^{n} \log p_\theta(X_i) \right\}$\\
+Finds parameters that make observed data most probable. Equivalent to minimising cross-entropy loss (ERM).\\
+\textbf{MAP}\\
+$\max_{\theta \in \Theta} \left\{ \sum_{i=1}^{n} \log p(X_i|\theta) + \log p(\theta) \right\}$\\
+MLE + prior belief $\log p(\theta)$ about parameters.\\
+Gaussian prior $p(\theta) = \mathcal{N}(0,\sigma^2)$ gives $\log p(\theta) \propto -\|\theta\|^2$, making MAP identical to regularised ERM.\\
+\textbf{Connections (optimisation $\iff$ probabilistic)}\\
+ERM $\iff$ MLE; regularised ERM $\iff$ MAP; L2 penalty $\frac{\lambda}{2}\|w\|^2 \iff$ Gaussian prior.\\[1\baselineskip]
+
+\subsubsection*{Mathemtical properties of functions}
+\textbf{Lipschitz Smoothness}\\
+$\|\nabla\phi(w) - \nabla\phi(w')\| \leq L\|w - w'\|, \quad \forall w, w' \in \mathbb{R}^d$\\
+Gradient cannot change abruptly between any two points.\\
+Small $L$: gradient changes slowly; Large $L$: gradient changes faster but still controlled.\\
+Sufficient condition: all eigenvalues of Hessian $\nabla^2\phi(w) \preceq LI_d$ everywhere.\\
+\textbf{Lipschitz key inequality}\\
+$|\phi(w') - \phi(w) - \nabla\phi(w)^\top(w'-w)| \leq \frac{L}{2}\|w'-w\|^2$\\
+Error of tangent approximation is at most $\frac{L}{2}\|w' - w\|^2$.\\
+Gives quadratic upper bound on function - used to prove each GD step decreases objective.\\
+\textbf{Strong convexity}\\
+$\phi(w') \geq \phi(w) + \nabla\phi(w)^\top(w'-w) + \frac{\mu}{2}\|w'-w\|^2, \quad \forall w, w' \in \mathbb{R}^d$
+Gives quadratic lower bound on function.\\
+Guarantees unique global minimum, no flat regions or saddle points.\\
+Sufficient condition: all eigenvalues of Hessian $\nabla^2\phi(w) \succeq \mu I_d$ everywhere.\\
+\textbf{PL-Condition (from strong convexity)}\\
+$\|\nabla\phi(w)\|^2 \geq 2\mu\left(\phi(w) - \min_w \phi(w)\right)$\\
+Gradient norm is always large enough relative to suboptimality gap.\\
+\begin{itemize}
+    \item Far from minimum: gradient is large, GD takes big steps.
+    \item Close to minimum: gradient is small but never vanishes before reaching minimum.
+\end{itemize}
+Guarantees convergence of GD.\\
+\textbf{Smoothness + Strong Convexity Together}\\
+$\mu I_d \preceq \nabla^2\phi(w) \preceq LI_d$\\
+Function is sandwiched between two parabolas with curvatures $\mu$ and $L$.\\
+\textbf{Condition number} $\kappa = \frac{L}{\mu}$\\
+$\kappa \approx 1$: nearly spherical landscape, easy to optimise.\\
+$\kappa \gg 1$: elongated narrow landscape, GD zigzags, many iterations needed.
+
+\subsubsection*{GD}
+\textbf{GD update rule} $w_{t+1} = w_t - \eta_t\nabla F(w_t)$\\
+$\eta_t$: step size at step $t$.\\
+Moving in negative gradient direction always locally decreases objective:\\
+$\frac{d}{dt}F(w - t\nabla F(w))\bigg|_{t=0} = -\|\nabla F(w)\|^2 < 0$\\
+\textbf{GD step size} $\eta = \frac{1}{L}$\\
+Guaranteed decrease in objective function $F(w_t)$ per step.\\
+Larger $L$: smaller steps, more cautious of overshooting.\\
+Too large $\eta > \frac{2}{L}$: overshoots, objective can increase.\\
+Too small: too slow.\\
+\textbf{Guaranteed decrease per step} (from Lipschitz smoothness)\\
+$F(w_{t+1}) \leq F(w_t) - \frac{1}{2L}\|\nabla F(w_t)\|^2$\\
+Each step decreases objective by at least $\frac{1}{2L}\|\nabla F(w_t)\|^2$.\\
+Larger $L$: larger changes in gradient, step size is smaller, smaller guaranteed decrease per step.\\
+\textbf{Exponential shrinking of gap} (from PL-condition)\\
+$F(w_T) - F(w_*) \leq \left(1 - \frac{\mu}{L}\right)^T(F(w_0) - F(w_*))$\\
+LHS is the suboptimality gap at step $T$, how far we are from the optimal loss. RHS is upper bound on how large the gap can be.\\
+$0 < (1-\frac{\mu}{L}) < 1$, so repeated multiplication of this factor shrinks the gap exponentially toward 0.\\
+\begin{itemize}
+    \item $\kappa \approx 1$: $(1-\frac{\mu}{L}) \approx 0$, gap shrinks fast per step.
+    \item $\kappa \gg 1$: factor close to 1, many steps needed to close the gap.
+\end{itemize}
+To guarantee the gap $< \epsilon$, solve for $T$ s.t. RHS $<\epsilon$, giving $T \geq \frac{L}{\mu}\log\frac{F(w_0)-F(w_*)}{\epsilon}$.\\
+\textbf{GD iteration complexity}
+$O\left(\kappa\log\frac{1}{\epsilon}\right)$\\
+$\propto\kappa$: large condition number, slow convergence.\\
+$\log \frac{1}{\epsilon}$: 10x more accuracy requires fixed no. of extra steps.\\[1\baselineskip]
+
+\textbf{Scaling problem with GD}\\
+\textbf{Finite sum structure}
+$\min\limits_{w \in \mathbb{R}^d} \left\{ F(w) = \frac{1}{n}\sum_{i=1}^{n} f_i(w) \right\}$\\
+$f_i(w)$: loss on single training example $i$.\\
+Computing $\nabla F(w) = \frac{1}{n} \sum_{i=1}^{n} \nabla f_i(w)$ requires accessing every $\nabla f_i$ per step (a full pass through dataset every iteration).\\
+We need to consider a second complexity beyond iteration complexity: \textbf{total complexity}, total number of $\nabla f_i$ accesses to achieve $\epsilon$-error.\\
+
+\begin{tabular}{|c|c|c|}
+\hline
+& Iteration Complexity & Total Complexity \\
+\hline
+GD & $O\left(\kappa\log\frac{1}{\epsilon}\right)$ & $O\left(n\kappa\log\frac{1}{\epsilon}\right)$ \\
+\hline
+\end{tabular}
+Iteration complexity independent of $n$ - only counts steps.\\
+Total complexity = iteration complexity $\times$ n, since each step accesses all $n$ gradients.\\
+Scales directly with dataset size - fundamental problem with GD on large datasets.\\[\baselineskip]
+\textbf{SGD}\\
+\textbf{SGD update rule}
+$w_{t+1} = w_t - \eta_t \nabla f_{i_t}(w_t), \quad i_t \sim \text{Uniform}\{1, 2, \dots, n\}$\\
+Randomly picks one data point $i_t$ per step instead of computing the full gradient over all $n$.\\
+Each step is $n$ times cheaper than GD.\\
+\textbf{Unbiasedness of SGD}
+$\mathbb{E}_{i_t}[\nabla f_{i_t}(w_t)] = \nabla F(w_t)$\\
+Stochastic gradient is valid substitute for full gradient: on average equals the true gradient.\\
+Any single step may be noisy, but SGD heads in the right direction on average.\\
+\textbf{SGD step size}
+$\eta = \min\left\{\frac{\mu\epsilon}{L\sigma^2}, \frac{1}{L}\right\}$\\
+Same $\frac{1}{L}$ term as GD step size, but also consider $\frac{\mu\epsilon}{L\sigma^2}$ to control gradient noise. If the steps are noisier, we need smaller steps.\\
+% \begin{tabular}{|c|c|c|c|c|}
+% \hline
+% & \multicolumn{2}{c|}{Iteration Complexity} & \multicolumn{2}{c|}{Total Complexity} \\
+% \hline
+% & GD & SGD & GD & SGD \\
+% \hline
+% Strongly convex 
+% & $O\left(\kappa\log\frac{1}{\epsilon}\right)$ 
+% & $\tilde{O}\left(\kappa\log\frac{1}{\epsilon} + \frac{\kappa\sigma^2}{\mu\epsilon}\right)$ 
+% & $O\left(n\kappa\log\frac{1}{\epsilon}\right)$ 
+% & $\tilde{O}\left(\kappa\log\frac{1}{\epsilon} + \frac{\kappa\sigma^2}{\mu\epsilon}\right)$ \\
+% \hline
+% \end{tabular} 
+
+\begin{tabular}{|c|c|c|}
+\hline
+& Iteration Complexity & Total Complexity \\
+\hline
+SGD & $\tilde{O}\left(\kappa\log\frac{1}{\epsilon} + \frac{\kappa\sigma^2}{\mu\epsilon}\right)$ & $\tilde{O}\left(\kappa\log\frac{1}{\epsilon} + \frac{\kappa\sigma^2}{\mu\epsilon}\right)$ \\
+\hline
+\end{tabular}
+Iteration complexity (SGD) has extra term compared to GD: $\frac{\kappa\sigma^2}{\mu\epsilon}$: additional steps from gradient noise $\sigma^2$ - how much individual $\nabla f_i$ differ from each other.\\
+SGD total complexity is free from $n$: each step only accesses 1 gradient.\\
+For large $n$, SGD is better than GD on total complexity.\\
+$\tilde{O}$: same as $O$ but hides additional log factors.\\[\baselineskip]
+
+\section*{Sampling}
+\textbf{Monte-Carlo Integration}\\
+Goal: estimate an expectation that is analytically intractable:\\
+$\mathbb{E}_{X \sim p}[f(X)] = \int f(x)p(x)dx$\\
+\begin{itemize}
+    \item Values of $f(x)$ weighted by how probable each $x$ is under $p$.
+    \item Intractable when $p$ is too complex or integral is over very high dimensional space.
+\end{itemize}
+\textbf{Monte-Carlo Approximation}
+$\frac{1}{M}\sum_{i=1}^{M} f(x_i) \approx \mathbb{E}_{X \sim p}[f(X)], \quad x_1, \dots, x_M \sim p(x)$\\
+Draw $M$ i.i.d. samples from $p$, average $f$ over them.\\
+By LLN, approximation error shrinks to 0 as $M \to \infty$.\\
+Error rate $O(\frac{1}{\sqrt{M}})$: dimension-free, unlike numerical integration.\\
+\textbf{Why not standard numerical integration?}\\
+\begin{itemize}
+    \item Curse of dimensionality: computationally impossible for high dimensions.
+    \item MC error $O(\frac{1}{\sqrt{M}})$ does not depend on dimension at all.
+\end{itemize}
+\textbf{The fundamental challenge}\\
+MC requires drawing samples from $p(x)$, which is often hard because:\\
+\begin{itemize}
+    \item $p(x)$ may only be known up to a normalising constant $Z$: computing $Z = \int \tilde{p}(x)dx$ is itself intractable.
+    \item $p(x)$ may be a complex high dimensional distribution like a posterior in Bayesian inference.
+\end{itemize}
+\vspace{1em}
+\textbf{Recap - Bayesian Regression}\\
+Posterior:
+$p(w|\mathbf{y}) \propto p(\mathbf{y}|w, \mathbf{X})p(w) = \prod_{i=1}^{n} p(y_i|x_i, w)p(w)$\\
+Predictive distribution:\\
+$p(y|\mathbf{y}, x) = \int p(y|w, x)p(w|\mathbf{y})dw$\\
+\textbf{MC approximation of predictive}:
+$\frac{1}{M}\sum_{i=1}^{M} p(y|w_i, x) \approx p(y|\mathbf{y}, x), \quad w_1, \dots, w_M \sim p(w|\mathbf{y})$\\
+Draw samples from posterior, average predictions over them.\\
+Requires sampling from $p(w|\mathbf{y})$: intractable directly.\\[\baselineskip]
+
+\textbf{LMC}\\
+Update rule:
+$w_{t+1} = w_t + \eta\nabla\log p(w_t) + \sqrt{2\eta}\xi_k, \quad \xi_k \sim \mathcal{N}(0, I_d)$\\
+\begin{itemize}
+    \item $\eta\nabla\log p(w_t)$: gradient term, moves toward regions of high probability.
+    \item $\sqrt{2\eta}\xi_k$: noise term, random Gaussian pertubation added every step.
+\end{itemize}
+\textbf{LMC vs MC integration}\\
+MC Integration: the goal — approximate intractable integral by averaging over samples. Assumes samples already available.\\
+LMC: the mechanism — generates samples from complex $p(x)$ when direct sampling impossible.\\
+Together: LMC generates samples $\to$ MC integration uses them to approximate integral.\\
+\textbf{2 issues with LMC}\\
+Burn-in period: Early particles start far from target distribution - not representative samples.
+Discard initial phase of chain, only retain samples after convergence.\\
+Sample correlation: Consecutive $w_t, w_{t+1}$ highly correlated - each step moves a small distance.
+Solution is thinning - retain every $k$-th sample, discard intermediate ones to reduce correlation.\\
+\textbf{Bayesian Inference w/ LMC}\\
+LMC update for Posterior:\\
+$w_{t+1} = w_t + \eta\nabla\log p(w_t|\mathbf{y}) + \sqrt{2\eta}\xi_k, \quad \xi_k \sim \mathcal{N}(0, I_d)$\\
+where the gradient of the log posterior is:\\
+$\nabla\log p(w_t|\mathbf{y}) = \sum_{i=1}^{N}\nabla\log p(y_i|x_i, w) + \nabla\log p(w)$\\
+\begin{itemize}
+    \item $\sum_{i=1}^{N}\nabla\log p(y_i|x_i, w)$ pushes $w$ toward parameters that explain data well.
+    \item $\nabla\log p(w)$ prior term, for Gaussian prior $\mathcal{N}(0,\sigma^2)$ this equals $-\frac{w}{\sigma_0^2}$, pulling $w$ back toward zero.
+\end{itemize}
+Same tension as regularised ERM - balancing data fit and prior belief.\\
+\textbf{Full pipeline}\\
+$\underbrace{\text{LMC}}_{\text{sample from } p(w|\mathbf{y})} \rightarrow \underbrace{w_1, \dots, w_M}_{\text{after burn-in + thinning}} \rightarrow \underbrace{\frac{1}{M}\sum_{i=1}^{M}p(y|w_i, x)}_{\text{MC approximation of } p(y|\mathbf{y},x)}$\\
+\textbf{Connection between optimisation and sampling}\\
+The likelihood gradient $\sum_{i=1}^{N}\nabla\log p(y_i|x_i, w)$ has the same finite sum structure as ERM.\\[0.5\baselineskip]
+
+\begin{tabular}{|c|c|c|}
+\hline
+& \textbf{Optimization} & \textbf{Sampling} \\[6pt]
+\hline
+Method & GD / SGD & LMC \\[6pt]
+\hline
+Update & $-\eta\nabla F(w)$ & $+\eta\nabla\log p(w) + \sqrt{2\eta}\xi_k$ \\[6pt]
+\hline
+Output & Single point $w^*$ & Distribution of samples \\[6pt]
+\hline
+Finite sum & $\dfrac{1}{n}\displaystyle\sum_{i=1}^{n}\nabla f_i$ & $\displaystyle\sum_{i=1}^{n}\nabla\log p(y_i|x_i,w)$ \\[12pt]
+\hline
+Scaling problem & GD $\rightarrow$ SGD & LMC $\rightarrow$ SG-LMC* \\[6pt]
+\hline
+\end{tabular}
+*Stochastic-gradient LMC not in lecture.
+
+% \begin{tabular}{|c|c|c|}
+% \hline
+% & \textbf{Optimization} & \textbf{Sampling} \\[6pt]
+% \hline
+% Method & GD / SGD & LMC \\[6pt]
+% \hline
+% Update & $-\eta\nabla F(w)$ & $+\eta\nabla\log p(w) + \sqrt{2\eta}\xi_k$ \\[6pt]
+% \hline
+% Output & Single point $w^*$ & Distribution of samples \\[6pt]
+% \hline
+% Finite sum & $\dfrac{1}{n}\displaystyle\sum_{i=1}^{n}\nabla f_i$ & $\displaystyle\sum_{i=1}^{n}\nabla\log p(y_i|x_i,w)$ \\[12pt]
+% \hline
+% \end{tabular}
+
+\end{multicols*}
+\end{document}

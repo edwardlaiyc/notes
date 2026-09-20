@@ -1,0 +1,991 @@
+% \documentclass[10pt]{article}
+\documentclass[9pt]{extarticle}
+
+% --- Page Setup ---
+% \usepackage[a4paper, margin=0.5cm]{geometry}
+% \usepackage[a4paper, landscape, margin=0.2in]{geometry}
+\usepackage[
+    a4paper, 
+    landscape, 
+    margin=0.20in,      % Shrink margin to printer absolute limits
+    headheight=0pt,    % Kill header space
+    headsep=0pt,       % Kill header separation
+    footskip=0pt       % Kill footer space
+]{geometry}
+\usepackage{multicol}
+
+% \allowdisplaybreaks
+
+% --- Math and Code ---
+\usepackage{amsmath, amssymb}
+\usepackage{listings}
+
+% --- Spacing Adjustments ---
+\usepackage{enumitem}
+\usepackage{titlesec}
+
+\usepackage{nicematrix, tikz}
+
+% 1. Remove space between list items
+\setlist{nosep, leftmargin=*} 
+
+% 2. Shrink space around section headers
+\titlespacing*{\section}{0pt}{0pt}{0pt}
+% \titlespacing*{\subsection}{0pt}{1ex plus .2ex minus .2ex}{0.5ex plus .1ex}
+\titlespacing*{\subsection}{0pt}{0pt}{0pt}    % Replaced the 1ex/0.5ex with negative/zero
+
+% --- NEW: Reduce header font sizes and add colors ---
+% \titleformat*{\section}{\normalsize\bfseries\color{blue!80!black}} % Dark blue
+% \titleformat*{\subsection}{\small\bfseries\itshape\color{magenta}} % Magenta
+
+% \titleformat*{\section}{\normalsize\bfseries\color{black}}
+% \titleformat*{\subsection}{\small\bfseries\itshape\color{black!60}}
+
+% \titleformat*{\section}{\normalsize\bfseries\color{blue!80!black}}
+% \titleformat*{\subsection}{\small\bfseries\itshape\color{red!75!black}}
+
+% 1. Define the wrapper commands
+% \newcommand{\hlsection}[1]{\colorbox{blue!20}{\color{blue!80!black}#1}}
+% \newcommand{\hlsubsection}[1]{\colorbox{red!20}{\color{red!75!black}#1}}
+
+% % 2. Apply them to titleformat
+% \titleformat{\section}[hang]{\normalsize\bfseries}{}{0pt}{\hlsection}
+% \titleformat{\subsection}[hang]{\small\bfseries\itshape}{}{0pt}{\hlsubsection}
+
+
+% 1. Define wrapper commands using \parbox to stretch to column width
+% \dimexpr\linewidth-2\fboxsep\relax ensures the box doesn't bleed past the column edge
+% 1. Define wrapper commands with customized padding (\fboxsep)
+\newcommand{\fullwidthsection}[1]{{% <-- Extra brace starts local group
+  \setlength{\fboxsep}{1pt}% <-- ADJUST THIS VALUE (0pt to 2pt)
+  \colorbox{blue!80!black}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{\color{white}#1}}%
+}}% <-- Extra brace ends local group
+
+% \newcommand{\fullwidthsubsection}[1]{{% <-- Extra brace starts local group
+%   \setlength{\fboxsep}{1pt}% <-- ADJUST THIS VALUE
+%   \colorbox{red!20}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{\color{red!75!black}#1}}%
+% }}% <-- Extra brace ends local group
+
+\newcommand{\fullwidthsubsection}[1]{{% <-- Extra brace starts local group
+  \setlength{\fboxsep}{1pt}% 
+  % Changed background to 70% red / 30% black for a deep shade
+  % Changed text color to white
+  \colorbox{red!70!black}{\parbox{\dimexpr\linewidth-2\fboxsep\relax}{\color{white}#1}}%
+}}% <-- Extra brace ends local group
+
+% 2. Apply them to titleformat
+\titleformat{\section}[hang]{\normalsize\bfseries}{}{0pt}{\fullwidthsection}
+\titleformat{\subsection}[hang]{\small\bfseries\itshape}{}{0pt}{\fullwidthsubsection}
+
+% 3. Add a thin line between columns for readability
+\setlength{\columnseprule}{1pt}
+\setlength{\columnsep}{0.7em}
+
+% --- Custom Code Formatting ---
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    aboveskip=2pt,
+    belowskip=2pt
+}
+
+\usepackage{xcolor}
+% \newcommand{\sectionbox}[1]{%
+%      \colorbox{blue!75!black}{\color{white}\small\bfseries~#1~}%
+%    }
+%    \titleformat{\section}{}{}{0em}{\sectionbox}
+%    \titleformat*{\subsection}{\normalsize\bfseries}
+
+\setlength{\parskip}{0pt}
+\setlength{\baselineskip}{0pt plus 0.2pt}
+
+\pagestyle{empty}
+
+\begin{document}
+\small 
+
+\raggedright
+\raggedbottom
+
+\begin{multicols*}{4}
+
+\section*{Solving Systems, Matrix Operations}
+Trace$(A) = a_{11} + a_{22} + \dots + a_{nn}$.\\
+Symmetric: $A^T=A$\\
+Skew-symmetric: $A=-A^T$, diagonals=0.\\
+Matrix multiplication can be framed as linear combination of cols: $Ax=x_{1}[a_{11}...]^{T}+\cdot\cdot\cdot+x_{n}[a_{1n}...]^{T}$.\\
+\textbf{Row Method}: $AB$ results in a matrix where the rows are $a_{i}B$. $AB = \begin{bmatrix} \mathbf{a}_{1*} \\ \mathbf{a}_{2*} \\ \vdots \\ \mathbf{a}_{m*} \end{bmatrix} B = \begin{bmatrix} \mathbf{a}_{1*}B \\ \mathbf{a}_{2*}B \\ \vdots \\ \mathbf{a}_{m*}B \end{bmatrix}$.\\
+\textbf{Column Method}: $AB = A[\mathbf{b}_{1} \mathbf{b}_{2} \ldots \mathbf{b}_{n}] = [A\mathbf{b}_{1} A\mathbf{b}_{2} \ldots A\mathbf{b}_{n}]$.\\
+\textbf{Algebraic Rules}:
+\begin{itemize}
+    \item $(A^{T})^{T}=A$ $\vert$ $(A+B)^{T}=A^{T}+B^{T}$
+    \item $(AB)^{T}=B^{T}A^{T}$ $\vert$ $(AB)^{-1}=B^{-1}A^{-1}$
+    \item $(A^{T})^{-1}=(A^{-1})^{T}$ $\vert$ $(cA)^{-1}=c^{-1}A^{-1}$
+    \item For square matrix, if $AB=I$, then $BA=I$.
+\end{itemize}
+$2 \times 2$ \textbf{inverse}: $[\begin{matrix}a&b\\ c&d\\ \end{matrix}]^{-1}=\frac{1}{ad-bc}[\begin{matrix}d&-b\\ -c&a\end{matrix}]$.\\
+$3 \times 3$ \textbf{determinant}: $\begin{bmatrix} + & - & + \\ - & + & - \\ + & - & + \end{bmatrix}$\\
+
+\subsection*{Row reduction, elimination}
+\textbf{EROs}: (1) multiply a row by $c \neq 0$, (2) swap 2 rows, (3) add multiple of a row to another. These manipulate the hyperplane w/o affecting the intersection.\\
+\textbf{Elem matrices $E$}: Perform 1 ERO on $I$.
+\begin{itemize}
+    \item Left multiply $A$ by $E$ ($EA$) applies that row operation on $A$.
+    \item Right multiply ($AE$) applies that col operation on $A$.
+    \item \textbf{Sequence Reversal}: If $A^{\prime} = E_s \dots E_2 E_1 A$, reverse it using inverses in the opposite order: $A = E_1^{-1} E_2^{-1} \dots E_s^{-1} A^{\prime}$.
+\end{itemize}
+\begin{itemize}
+    \item \textbf{Explicit $E$ and $E^{-1}$ Operations} 
+    \begin{itemize}
+        \item \textbf{Scale} ($R_2 \to cR_2$): $E=\begin{bmatrix} 1 & 0 & 0 \\ 0 & c & 0 \\ 0 & 0 & 1 \end{bmatrix} \implies E^{-1}=\begin{bmatrix} 1 & 0 & 0 \\ 0 & 1/c & 0 \\ 0 & 0 & 1 \end{bmatrix}$
+        \item \textbf{Swap} ($R_1 \leftrightarrow R_2$): $E=\begin{bmatrix} 0 & 1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1 \end{bmatrix} \implies E^{-1}=\begin{bmatrix} 0 & 1 & 0 \\ 1 & 0 & 0 \\ 0 & 0 & 1 \end{bmatrix}$
+        \item \textbf{Add} ($R_2 \to R_2 + cR_1$): $E=\begin{bmatrix} 1 & 0 & 0 \\ c & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix} \implies E^{-1}=\begin{bmatrix} 1 & 0 & 0 \\ -c & 1 & 0 \\ 0 & 0 & 1 \end{bmatrix}$
+    \end{itemize}
+\end{itemize}
+\textbf{REF}: Use Gaussian elimination. (1) All zero rows at the bottom, (2) all pivots to the right of those above.\\
+\textbf{RREF}: It is unique. Use Gauss-Jordan elimination. (1) Pivots = 1, (2) every other no. in pivot col = 0.\\
+\textbf{Deriving inverses}: $[A|I] \xrightarrow{\text{reduce}} [I|A^{-1}]$.\\
+
+\subsection*{SLE, Pivots}
+A linear eqn in $n$ vectors is $x_{1}\mathbf{v}_{1} + \dots + x_{n}\mathbf{v}_{n} = \mathbf{b}$.\\
+Let $r$ be the number of pivots/nonzero rows in RREF.\\
+\textbf{Homogenous eqn} ($\mathbf{b} = \mathbf{0}$) is always consistent.
+\begin{itemize}
+    \item $r = n$: Only $\exists$ trivial soln $\Leftrightarrow$ $\mathbf{v}_{1}, \dots, \mathbf{v}_{n}$ LI.
+    \item $r < n$: $\infty$ solns $\Leftrightarrow$ $n-r$ free vars $\Leftrightarrow$ $\mathbf{v}_{1}, \dots, \mathbf{v}_{n}$ LD.
+\end{itemize}
+\textbf{Interpreting $[A|\mathbf{b}]$:} If $\exists$ a row like $[0\ 0\ 0\ |\ c], c \neq 0$, inconsistent. Else, express leading variables in terms of free variables.
+\begin{itemize}
+    \item \textbf{Pivots in every col ($r=n$):} No free variables $\Leftrightarrow \le 1$ soln $\Leftrightarrow$ LI vectors $\Leftrightarrow$ injective $T$.
+    \item \textbf{Fewer pivots than cols ($r<n$):} Free variables exist $\Leftrightarrow \infty$ solns (if consistent) $\Leftrightarrow$ LD vectors.
+    \item \textbf{Pivots in every row ($r=m$):} A soln exists for every $\mathbf{b} \in \mathbb{R}^m$ $\Leftrightarrow$ surjective $T$.
+\end{itemize}
+% \textbf{Matrix shapes:}
+% \begin{itemize}
+%     \item Square: Pivot in every row and column $\iff$ unique soln $\forall \mathbf{b} \in \mathbb{R}^m \iff A$ is invertible $\iff \mathbf{x} = A^{-1}\mathbf{b}$.
+%     \item Wide: cannot have pivot in every col ($r<n$) $\iff$ alw have free variable $\iff$ either inconsistent or $\infty$ solns.
+%     \item Tall: cannot have pivot in every row ($r<m$) $\iff$ alw have zero row $\iff$ no soln for some $\mathbf{b} \in \mathbb{R}^m$.
+% \end{itemize}
+\noindent\fbox{%
+  \parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+    \textbf{Matrix shapes:}
+    \begin{itemize}
+        \item \textbf{Square:} Pivot in every row and column $\Leftrightarrow$ unique soln $\forall \mathbf{b} \in \mathbb{R}^m \Leftrightarrow A$ is invertible $\Leftrightarrow \mathbf{x} = A^{-1}\mathbf{b}$.
+        \item \textbf{Wide:} Cannot have pivot in every col ($r<n$) $\Leftrightarrow$ alw have free variable $\Leftrightarrow$ either inconsistent or $\infty$ solns.
+        \item \textbf{Tall:} Cannot have pivot in every row ($r<m$) $\Leftrightarrow$ alw have zero row $\Leftrightarrow$ no soln for some $\mathbf{b} \in \mathbb{R}^m$.
+    \end{itemize}%
+  }%
+}
+
+% \subsection*{LU factorisation}
+% Decomposing $A_{m\times n}=L_{m\times m}U_{m\times n}$ is faster for solving sequences of equations ($A\mathbf{x}=\mathbf{b}_{1},... A\mathbf{x}=\mathbf{b}_{p}$) than computing $A^{-1}$.
+% \begin{itemize}
+%     \item $U$ is upper triangular: $A \xrightarrow{\text{reduce}} U$, w/o row swaps.
+%     \item $L$ is \textbf{unit} lower triangular: Divide the eliminated entries by the pivot for that col and then place into their corresponding pos. Or $L=(E_{p}...E_{1})^{-1}$.
+%     \item $A\mathbf{x}=\mathbf{b}$ $\Leftrightarrow$ $LU\mathbf{x}=\mathbf{b}$. (1) Solve $L\mathbf{y}=\mathbf{b}$ for $\mathbf{y}$, (2) Solve $U\mathbf{x}=\mathbf{y}$ for $\mathbf{x}$.
+% \end{itemize}
+% If a pivot=0 appears during reduction, a row swap is needed.
+% Create $P$ ($I$ with the relevant rows swapped), then $PA=LU$.
+
+\noindent
+\makebox[\linewidth][c]{%  <-- This forces the box to center exactly
+  \fbox{%
+    \parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+      \subsection*{LU factorisation}
+      Decomposing $A_{m\times n}=L_{m\times m}U_{m\times n}$ is faster for solving sequences of equations ($A\mathbf{x}=\mathbf{b}_{1},... A\mathbf{x}=\mathbf{b}_{p}$) than computing $A^{-1}$.
+      \begin{itemize}
+          \item $U$ is upper triangular: $A \xrightarrow{\text{reduce}} U$, w/o row swaps.
+          \begin{itemize}
+            \item Row swaps make $E$ not lower $\triangle$, hence $L$ won't be lower $\triangle$.
+            \item If a pivot=0 appears during reduction, a row swap is needed. Create $P$ ($I$ with the relevant rows swapped), then $PA=LU$.
+          \end{itemize}
+          \item $L$ is \textbf{unit} lower triangular: Divide eliminated entries by the pivot for that col and then place into their corresponding pos. Or $L=(E_{p}...E_{1})^{-1}$.
+          \item $Ax=b \Leftrightarrow LUx=b$. (1) Solve $Ly=b$ for $y$, (2) Solve $Ux=x$ for $x$.
+      \end{itemize}
+    }%
+  }%
+}
+
+\subsection*{Determinants}
+\begin{itemize}
+    \item $|A|\ne 0 \Leftrightarrow A$ is invertible; otherwise, $A$ is singular.
+    \item If there is zero row or 2 rows are the same, $|A|=0$.
+    \item $|AB|=|A||B|$ and $|A^{-1}|=\frac{1}{|A|}$, but generally $|A+B|\ne |A|+|B|$.
+    \item $|A^{T}|=|A|$.
+    \item For a triangular matrix $A$, $|A|=a_{11}a_{22}...a_{nn}$.
+    \item EROs: Swapping 2 rows negates the determinant ($|P|=(-1)^{r}$ for $r$ exchanges). Scaling a row by $c$ also scales det by $c$. **Adding a scaled multiple of one row to another does not change det.
+    \item Finding $|A|$: $A \xrightarrow{\text{reduce}} U$ using only row swaps or adding multiples, then multiply the diagonals.
+\end{itemize}
+
+% \subsection*{Least squares}
+% Used for overdetermined (usually $m>n$) and inconsistent systems where $rank(A)<rank(A|\mathbf{b})$, meaning $\mathbf{b}$ introduces a new dimension.\\
+% \textbf{Goal}: Minimise $||e||^{2}$, meaning $||b-A\hat{\mathbf{x}}||\leq ||b-A\mathbf{x}||$ where $e=b-A\mathbf{x}$ and $\hat{\mathbf{x}}$ is the optimal weights for cols of $A$.\\
+% \textbf{Normal Eqn}: $A^{T}A\hat{x}=A^{T}\mathbf{b}$. If cols of $A$ LI $\Leftrightarrow$ $A^TA$ invertible $\Leftrightarrow$ unique soln $\hat{x}=(A^{T}A)^{-1}A^{T}\mathbf{b}$ $\Leftrightarrow$ $P=A(A^{T}A)^{-1}A^{T}$.\\
+% \textbf{QR}: $R\hat{\mathbf{x}}=Q^{T}\mathbf{b}$.\\
+% \textbf{Application}: $\mathbf{y}=X\mathbf{\beta}+\mathbf{\epsilon}$. $\mathbf{y}$ is target data, $X$ is design matrix, $\mathbf{\beta}$ contains unknown weights.
+% \begin{itemize}
+%     \item To fit $y=\beta_0+\beta_1x$, col 1 of $X$ is all 1s (for intercept $\beta_0$), col 2 is all x-coordinates.
+%     \item Solve $X^TX\mathbf{\beta}=X^T\mathbf{y}$ to find optimal $\mathbf{\beta}$. For polynomials, just add columns for $x^2$, etc. (Linear wrt weights, not data).
+% \end{itemize}
+
+\subsection*{Least squares}
+Used for overdetermined (usually $m>n$) and inconsistent systems where $\operatorname{rank}(A) < \operatorname{rank}(A|\mathbf{b})$, meaning $\mathbf{b}$ introduces a new dimension.\\
+\textbf{Goal}: Minimise $||\mathbf{e}||^{2}$, meaning $||\mathbf{b}-A\hat{\mathbf{x}}|| \leq ||\mathbf{b}-A\mathbf{x}||$ where $\mathbf{e}=\mathbf{b}-A\hat{\mathbf{x}}$ and $\hat{\mathbf{x}}$ contains the optimal weights for cols of $A$.\\
+\textbf{Normal Eqn}: $A^{T}A\hat{\mathbf{x}}=A^{T}\mathbf{b}$. If cols of $A$ are LI $\Leftrightarrow$ $A^TA$ invertible $\Leftrightarrow$ $\exists$ unique soln $\hat{\mathbf{x}}=(A^{T}A)^{-1}A^{T}\mathbf{b}$ $\Leftrightarrow$ $P=A(A^{T}A)^{-1}A^{T}$.\\
+\textbf{QR}: $R\hat{\mathbf{x}}=Q^{T}\mathbf{b}$.\\
+\textbf{Application}: $\mathbf{y}=X\boldsymbol{\beta}+\boldsymbol{\epsilon}$. $\mathbf{y}$ is target data, $X$ is design matrix, $\boldsymbol{\beta}$ contains unknown weights.
+\begin{itemize}
+    \item To fit $y=\beta_0+\beta_1x$, col 1 of $X$ is all 1s (for intercept $\beta_0$), col 2 is all x-coordinates.
+    \item Solve $X^TX\boldsymbol{\beta}=X^T\mathbf{y}$ to find optimal $\boldsymbol{\beta}$. For polynomials, just add columns for $x^2$, etc. (Linear wrt weights, not data).
+\end{itemize}
+
+% \section*{Vector Spaces, Transformations}
+% Vector space $V$: nonempty set of vectors, (1) $\mathbf{0}\in V$, (2) closed under vector addition, (3) closed under scalar multiplication.\\
+% Subspace $H$ $\subset$ $V$, itself is a vector space. The Span of any set of vectors in $V$ is a subspace of $V$.\\
+% \textbf{Spanning Set Theorem}: If a vector in a spanning set is a linear combination of the others, remove it and the span remains the same.\\
+% A \textbf{basis} $\mathcal{B}$ for $H$ must be linearly independent and act as a spanning set for $H$ ($H=Span\{\mathbf{b}_{1},...,\mathbf{b}_{p}\}$).
+% If $H\ne\{\mathbf{0}\}$, some subset of the spanning set forms a basis for $H$.\\
+% \textbf{Standard bases}: Columns of $I_{n}$ form a standard basis for $\mathbb{R}^{n}$ $\vert$ $\{1,t,...,t^{n}\}$ forms a basis for polynomials $\mathbb{P}_{n}$.
+
+\section*{Vector Spaces, Transformations}
+\textbf{10 Axioms of $V$} (for $\mathbf{u},\mathbf{v},\mathbf{w}\in V$ and $c,d\in\mathbb{R}$):\\
+\textbf{Add:} (1) $\mathbf{u}+\mathbf{v}\in V$ (closure), (2) $\mathbf{u}+\mathbf{v}=\mathbf{v}+\mathbf{u}$, (3) $(\mathbf{u}+\mathbf{v})+\mathbf{w}=\mathbf{u}+(\mathbf{v}+\mathbf{w})$, (4) $\exists\,\mathbf{0}$ s.t. $\mathbf{u}+\mathbf{0}=\mathbf{u}$, (5) $\exists(-\mathbf{u})$ s.t. $\mathbf{u}+(-\mathbf{u})=\mathbf{0}$.\\
+\textbf{Mult:} (6) $c\mathbf{u}\in V$ (closure), (7) $c(\mathbf{u}+\mathbf{v})=c\mathbf{u}+c\mathbf{v}$, (8) $(c+d)\mathbf{u}=c\mathbf{u}+d\mathbf{u}$, (9) $c(d\mathbf{u})=(cd)\mathbf{u}$, (10) $1\mathbf{u}=\mathbf{u}$.\\
+Usually, we just prove a set is a \textbf{Subspace} $H \subset V$ by checking 3 conditions: (1) $\mathbf{0}\in H$, (2) closed under vector addition, (3) closed under scalar multiplication.\\
+The $\operatorname{Span}$ of any set of vectors in $V$ is a subspace of $V$.\\
+\textbf{Spanning Set Theorem}: If a vector in a spanning set is a linear combination of the others, remove it and the span remains the same.\\
+A \textbf{basis} $\mathcal{B}$ for $H$ must be linearly independent and act as a spanning set for $H$ ($H=\operatorname{Span}\{\mathbf{b}_{1},\dots,\mathbf{b}_{p}\}$).
+If $H\neq\{\mathbf{0}\}$, some subset of a spanning set forms its basis.\\
+\textbf{Standard bases}: Columns of $I_{n}$ form a standard basis for $\mathbb{R}^{n}$ $\vert$ $\{1,t,\dots,t^{n}\}$ forms a basis for polynomials $\mathbb{P}_{n}$.
+
+\subsection*{The fundamental subspaces}
+\textbf{Null space} $\mathcal{N}(A)$: All solns $\mathbf{x}$ to $A\mathbf{x}=\mathbf{0}$. $\mathcal{N}(A)\subset\mathbb{R}^{n}$.
+\begin{itemize}
+    \item To find basis: reduce $[A|\mathbf{0}]$, express leading variables in terms of free variables.
+    \item $\dim\mathcal{N}(A)$ is the number of free variables in $A\mathbf{x}=\mathbf{0}$. $\dim\mathcal{N}(A) = n - r$.
+\end{itemize}
+\textbf{Col space} $\mathcal{C}(A)$: Set of all linear comb of cols of $A$. $\mathcal{C}(A)\subset\mathbb{R}^{m}$.
+\begin{itemize}
+    \item To find basis: Row reduce $A$, identify cols with pivots, then extract those corresponding cols from the original $A$. (EROs change the column space).
+    \item $\dim\mathcal{C}(A)$ is the number of pivot columns in $A$. $\dim\mathcal{C}(A) = \operatorname{rank}(A)$.
+    \item This represents the dimension of the set of $\mathbf{b}$ that make $A\mathbf{x}=\mathbf{b}$ consistent.
+\end{itemize}
+\textbf{Row space} $\mathcal{C}(A^{T})$: Set of all linear combinations of rows of $A$. $\mathcal{C}(A^{T})\subset\mathbb{R}^{n}$.
+\begin{itemize}
+    \item To find basis: $A \xrightarrow{\text{REF}} B$. The nonzero rows of $B$ form the basis. (EROs do not change the row space).
+    \item $\dim\mathcal{C}(A^T) = r$.
+\end{itemize}
+\textbf{Left null space} $\mathcal{N}(A^T)$: all $\mathbf{y}$ s.t. $A^T\mathbf{y}=\mathbf{0}$.
+\begin{itemize}
+    \item $\dim \mathcal{N}(A^T) = m - r$.
+\end{itemize}
+\textbf{Rank-Nullity Theorem}: For $m$ rows and $n$ cols,\\
+$\operatorname{rank}(A)+\dim\mathcal{N}(A)=n$.\\
+$\operatorname{rank}(A^T)+\dim\mathcal{N}(A^T)=m$.\\
+\textbf{Orthogonality}:
+\begin{itemize}
+    \item Subspaces of $\mathbb{R}^n$: $(\mathcal{C}(A^T))^\perp = \mathcal{N}(A)$.
+    \item Subspaces of $\mathbb{R}^m$: $(\mathcal{C}(A))^\perp = \mathcal{N}(A^T)$. 
+\end{itemize}
+\textbf{Some equivalences}:
+\begin{itemize}
+    \item $\mathcal{C}(A)=\mathcal{C}(AA^T)$ in $\mathbb{R}^m$.
+    \item $\mathcal{C}(A^T)=\mathcal{C}(A^TA)$ in $\mathbb{R}^n$.
+    \item $\mathcal{N}(A)=\mathcal{N}(A^TA)$ in $\mathbb{R}^n$.
+    \item $\mathcal{N}(A^T)=\mathcal{N}(AA^T)$ in $\mathbb{R}^m$.
+\end{itemize}
+
+\subsection*{Coordinate systems}
+If $\mathcal{B}=\{\mathbf{b}_{1},\dots,\mathbf{b}_{n}\}$ is a basis for $V$, any vector $\mathbf{x} \in V$ can be written uniquely as $\mathbf{x}=c_{1}\mathbf{b}_{1}+\cdots+c_{n}\mathbf{b}_{n}$.
+The coordinate vector $[\mathbf{x}]_{\mathcal{B}}$ contains these weights.\\
+\textbf{Standard vector} $\mathbf{x}=P_{\mathcal{B}}[\mathbf{x}]_{\mathcal{B}}$, where $P_{\mathcal{B}}$ contains the basis vectors as its columns $\Leftrightarrow [\mathbf{x}]_\mathcal{B} = P_{\mathcal{B}}^{-1}\mathbf{x}$.\\
+\textbf{Change of Basis} $[\mathbf{x}]_{\mathcal{C}}=P_{\mathcal{C}\leftarrow\mathcal{B}}[\mathbf{x}]_{\mathcal{B}}$, where cols of $P_{\mathcal{C}\leftarrow\mathcal{B}}$ are $\mathcal{B}$ basis vectors expressed in $\mathcal{C}$-coordinates: $[[\mathbf{b}_{1}]_{\mathcal{C}}\dots[\mathbf{b}_{n}]_{\mathcal{C}}]$.
+$[\mathcal{C}|\mathcal{B}] \xrightarrow{\text{reduce}} [I|P_{\mathcal{C}\leftarrow\mathcal{B}}]$.\\
+\begin{itemize}
+    \item Transition matrices are always invertible, where $P_{\mathcal{C}\leftarrow\mathcal{B}} P_{\mathcal{B}\leftarrow\mathcal{C}} = I$.
+\end{itemize}
+
+\subsection*{Linear Transformation}
+$T(\mathbf{x})=A\mathbf{x}$ where (1) $T(\mathbf{u}+\mathbf{v})=T(\mathbf{u})+T(\mathbf{v})$ and (2) $T(c\mathbf{u})=cT(\mathbf{u})$.\\
+\begin{itemize}
+    \item $T(\mathbf{0})=\mathbf{0}$ and $T(-\mathbf{x})=-T(\mathbf{x})$.
+    \item Applying $T_A$ then $T_B$ equates to matrix multiplication: $T_B \circ T_A = T_{BA}$.
+    \item \textbf{Kernel}($T$): set of inputs $\mathbf{x}$ where $T(\mathbf{x})=\mathbf{0}$. For $\mathbb{R}^n$, same as $\mathcal{N}(A)$.
+    \item \textbf{Range/image}($T$): set of all possible outputs $T(\mathbf{x})$. For $\mathbb{R}^n$, same as $\mathcal{C}(A)$.
+    \item Injective $T \Leftrightarrow \text{Kernel}(T)=\{\mathbf{0}\} \Leftrightarrow$ cols of $A$ are LI.
+    \item Surjective $T \Leftrightarrow \mathcal{C}(A)=\mathbb{R}^m \Leftrightarrow \operatorname{rank} = m \Leftrightarrow A$ has pivot in every row.
+    \item $T$ is invertible $\Leftrightarrow T = T_A$ for an invertible $A$. The reverse mapping is $T^{-1}(\mathbf{x})=A^{-1}\mathbf{x}$.
+\end{itemize}
+\textbf{Standard Matrix}: Unique matrix $A$ can be constructed by transforming each basis vector: $A=[T(\mathbf{e}_{1})\ T(\mathbf{e}_{2})\ \dots\ T(\mathbf{e}_{n})]$.\\
+
+\textbf{Matrices}: flatten each matrix into a basis vector.\\
+\textbf{Determinants} as scaling factors: For a $2\times 2$ or $3\times 3$ matrix $A$, $|\det(A)|$ is the area (or volume) of the parallelogram (or parallelepiped) formed by the columns, with one of the vertices at the origin.\\
+When applying linear transform $T$ (determined by $A$) to a shape $S$, the new area is $\text{area}(T(S))=|\det(A)|\times \text{area}(S)$.\\
+
+\textbf{Geometric equations}:
+\begin{itemize}
+    \item Vector/Parametric Eqn of k-D object in $\mathbb{R}^{n}$: $\mathbf{x}=\mathbf{x}_{0}+t_{1}\mathbf{v}_{1}+t_{2}\mathbf{v}_{2}+\cdots+t_{k}\mathbf{v}_{k}$.
+    \item Point-normal Eqn: $\mathbf{n}\cdot(\mathbf{x}-\mathbf{x}_{0})=0$ describes a hyperplane, which is an object with exactly one dimension less than the surrounding space.
+\end{itemize}
+\textbf{Special 2D Transformations ($\mathbb{R}^2$)}
+\begin{itemize}
+    \item \textbf{Rotations} (anti-clockwise by $\theta$): $A=\begin{bmatrix}\cos\theta & -\sin\theta \\ \sin\theta & \cos\theta\end{bmatrix}$. 
+    \begin{itemize}
+        \item Commutative: $R_\phi R_\theta = R_{\phi+\theta}$. 
+        \item Invertible: $R_{-\theta}R_\theta = I$.
+        \item An orthogonal matrix.
+    \end{itemize}
+    \item \textbf{Reflections} (across line at angle $\theta$): $A=\begin{bmatrix}\cos 2\theta & \sin 2\theta \\ \sin 2\theta & -\cos 2\theta\end{bmatrix}$. 
+    \begin{itemize}
+        \item Inverse is itself: $A^2=I$.
+        \item An orthogonal matrix.
+    \end{itemize}
+    \item \textbf{Projections} (onto line at angle $\theta$): $A=\begin{bmatrix}\cos^2\theta & \cos\theta\sin\theta \\ \cos\theta\sin\theta & \sin^2\theta\end{bmatrix}$.
+\end{itemize}
+
+\section*{Orthogonality, Projections}
+\textbf{Dot product}: $\mathbf{u}\cdot \mathbf{v}=||\mathbf{u}||||\mathbf{v}||\cos\theta=u_{1}v_{1}+\cdots+u_{n}v_{n}$. $\theta$ is acute $\Leftrightarrow \mathbf{u}\cdot \mathbf{v}>0$.\\
+\textbf{Cauchy-Schwarz Ineq}: $|\mathbf{u}\cdot \mathbf{v}|\le||\mathbf{u}||||\mathbf{v}||\Rightarrow-1\le\frac{\mathbf{u}\cdot \mathbf{v}}{||\mathbf{u}||||\mathbf{v}||}\le1$.\\
+\textbf{Triangle Inequality}: $||\mathbf{u}+\mathbf{v}||\le||\mathbf{u}||+||\mathbf{v}||$.\\
+\textbf{Parallelogram Law}: $||\mathbf{u}+\mathbf{v}||^{2}+||\mathbf{u}-\mathbf{v}||^{2}=2(||\mathbf{u}||^{2}+||\mathbf{v}||^{2})$.\\
+
+\subsection*{Orthogonality}
+$\mathbf{u}$ \& $\mathbf{v}$ orthogonal $\Leftrightarrow \mathbf{u}\cdot \mathbf{v}=0 \Rightarrow ||\mathbf{u}+\mathbf{v}||^{2}=||\mathbf{u}||^{2}+||\mathbf{v}||^{2}$.\\
+\textbf{Orthonormal set}: Mutually orthogonal vectors where all have $||\mathbf{v}||=1$. A set of non-zero orthogonal vectors is linearly independent.\\
+\textbf{Orthogonal Comp}: $W^{\perp}=\{\mathbf{z}:\mathbf{z}\cdot \mathbf{v}=0,\forall \mathbf{v}\in W\}$. If $\mathbf{x}\in W^\perp$, then $\mathbf{x}$ is orthogonal to the basis vectors of $W$.
+
+\subsection*{Projections}
+\textbf{Projection onto a Vector}: The orthogonal projection of $\mathbf{u}$ onto reference vector $\mathbf{a}$ is $\operatorname{proj}_{\mathbf{a}}\mathbf{u}=(\frac{\mathbf{u}\cdot \mathbf{a}}{||\mathbf{a}||^{2}})\mathbf{a}$.\\
+\textbf{Error vector}: $\mathbf{e}=\mathbf{u}-\operatorname{proj}_{\mathbf{a}}\mathbf{u}$.\\
+\textbf{Best Approximation Thm}: Let $\hat{\mathbf{y}} = \operatorname{proj}_W \mathbf{y}$. Then $||\mathbf{y}-\hat{\mathbf{y}}||\le||\mathbf{y}-\mathbf{v}||$ for all $\mathbf{v}\in W$.\\
+\textbf{Projection onto a subspace $W$}: Given an orthogonal basis $\{\mathbf{u}_{1},\dots,\mathbf{u}_{p}\}$ for $W$, $\hat{\mathbf{y}}=(\frac{\mathbf{y}\cdot \mathbf{u}_{1}}{\mathbf{u}_{1}\cdot \mathbf{u}_{1}})\mathbf{u}_{1}+\cdots+(\frac{\mathbf{y}\cdot \mathbf{u}_{p}}{\mathbf{u}_{p}\cdot \mathbf{u}_{p}})\mathbf{u}_{p}$. If the basis is orthonormal, the denominators become 1.
+
+% \subsection*{Projection Matrices $P$}
+% \textbf{Projecting onto a single vector} $\mathbf{v}$: $P=\frac{\mathbf{v}\mathbf{v}^{T}}{\mathbf{v}^{T}\mathbf{v}}$.\\
+% \textbf{Projecting onto a subspace w/ orthonormal basis vectors $U$}: $P=UU^{T}$. It projects any vector $\mathbf{y}$ onto the column space of $U$ using $\hat{\mathbf{y}}=UU^{T}\mathbf{y}$.\\
+% \textbf{For general $A$ with LI cols}: (Least Squares) the projection matrix is $P=A(A^{T}A)^{-1}A^{T}$.
+% Note: $P^n=P$ and $P^T=P$.
+
+\subsection*{Projection Matrices $P$}
+\textbf{Projecting onto a single vector} $\mathbf{v}$: $P=\frac{\mathbf{v}\mathbf{v}^{T}}{\mathbf{v}^{T}\mathbf{v}}$.\\
+\textbf{Projecting onto subspace w/ orthonormal basis $U$}: $P=UU^{T}$. Projects any vector $\mathbf{y}$ onto $\mathcal{C}(U)$ using $\hat{\mathbf{y}}=UU^{T}\mathbf{y}$.\\
+\textbf{For general $A$ with LI cols}: (Least Squares) projection matrix is $P=A(A^{T}A)^{-1}A^{T}$.\\
+\textbf{Note}: $P^2=P$ (idempotent) and $P^T=P$ (symmetric).
+
+% \subsection*{Orthonormal matrices $U$}
+% \begin{itemize}
+%     \item $U$ is either tall or square.
+%     \item $U^{T}U=I$
+%     \begin{itemize}
+%         \item For ortho cols but not normalised, $U^{T}U=D$.
+%         \item For just LI cols, $U^TU=$ symmertic, invertible matrix. It contains all the pairwise dot products of the columns ($\mathbf{a}_i \cdot \mathbf{a}_j$). $U^TU$ invertible.
+%         \item For non-LI cols, $U^TU=$ symmetric, non-invertible matrix. It still contains the pairwise dot products, but because the columns are linearly dependent, $det(A^TA) = 0$.
+%     \end{itemize}
+%     \item $UU^T=P$.
+%     \begin{itemize}
+%         \item For ortho cols but not normalised, $UU^T=$ symmetric matrix, but not projectn matrix. Instead, $P = U D^{-1} U^T$.
+%         \item For just LI cols, $UU^T=m\times m$ symmetric matrix. Not invertible unless $m=n$.
+%         \item For non-LI cols, $UU^T=$ symmetric matrix, not invertible unless $A$ is wide, and rank($A$)=$m$.
+%     \end{itemize}
+%     \item For any $\mathbf{x}$, $||U\mathbf{x}||=||\mathbf{x}||$ and $(U\mathbf{x})\cdot(U\mathbf{y})=\mathbf{x}\cdot \mathbf{y}$.
+%     \item $Rank(UU^{T})=Rank(U)=Rank(U^{T})$$=Rank(U^{T}U)$.
+%     \item \textbf{Orthogonal Matrix}
+%     \begin{itemize}
+%         \item $U$ is square
+%         \item $\det(U)=\pm 1$.
+%         \item Eigenvalues $|\lambda|=1$, i.e. $\lambda=\pm 1$ or $e^{i\theta}, e^{-i\theta}$.
+%         \item $UU^T = U^{T}U=I$ $\Leftrightarrow$ $U^{-1}=U^{T}$.
+%         \item $U^T$ and $U^{-1}$ are orthogonal. Product of 2 ortho matrices is also ortho.
+%     \end{itemize}
+% \end{itemize}
+
+\subsection*{Matrices $U$ w/ Orthonormal Cols}
+$U$ is tall or square. Cols are orthonormal (and thus LI).
+\begin{itemize}
+    \item $U^{T}U=I$. ($||U\mathbf{x}||=||\mathbf{x}||$ and $(U\mathbf{x})\cdot(U\mathbf{y})=\mathbf{x}\cdot \mathbf{y}$).
+    \item $UU^T=P$ (Projects any vector onto $\mathcal{C}(U)$).
+    \item $\operatorname{rank}(UU^{T})=\operatorname{rank}(U)=\operatorname{rank}(U^{T})=\operatorname{rank}(U^{T}U)$.
+\end{itemize}
+
+\textbf{For general matrices $A$  ($A^TA$ vs $AA^T$):}
+\begin{itemize}
+    \item \textbf{Orthogonal cols} (not norm'd): $A^TA=D$. $AA^T$ is symmetric, $P = A D^{-1} A^T$.
+    \item \textbf{LI cols}: $A^TA$ symmetric \& invertible (contains $\mathbf{a}_i \cdot \mathbf{a}_j$). $AA^T$ symmetric, not invertible unless $\square$ $A$.
+    \item \textbf{Non-LI cols}: $A^TA$ is symmetric \& non-invertible ($\det(A^TA)=0$). $AA^T$ is invertible only if $A$ is wide and $\operatorname{rank}(A)=m$.
+\end{itemize}
+
+\textbf{Orthogonal Matrix} (Square $U$):
+\begin{itemize}
+    \item $UU^T = U^{T}U=I \Leftrightarrow U^{-1}=U^{T}$.
+    \item $\det(U)=\pm 1$.
+    \item Eigenvalues $|\lambda|=1$, i.e., $\lambda=\pm 1$ or $e^{\pm i\theta}$.
+    \item $U^T$, $U^{-1}$, and products of ortho matrices are also ortho.
+\end{itemize}
+
+% \subsection*{G-S, QR decomp}
+% \textbf{G-S process}: Converts basis $\{\mathbf{x}_{k}\}$ into orthogonal basis $\{\mathbf{v}_{k}\}$.\\
+% $\mathbf{v}_{k+1}=\mathbf{x}_{k+1}-\sum_{j=1}^{k}proj_{\mathbf{v}_{j}}\mathbf{x}_{k+1}$.\\
+% \begin{itemize}
+%     \item $\mathbf{u}_{1}=\frac{\mathbf{x}_{1}}{||\mathbf{x}_{1}||}$
+%     \item $\mathbf{v}_{2}=\mathbf{x}_{2}-(\frac{\mathbf{x}_{2}\cdot \mathbf{v}_{1}}{\mathbf{v}_{1}\cdot \mathbf{v}_{1}})\mathbf{v}_{1}$ $\implies \mathbf{u}_{2}=\frac{\mathbf{v}_{2}}{||\mathbf{v}_{2}||}$
+%     \item $\mathbf{v}_{3}=\mathbf{x}_{3}-(\frac{\mathbf{x}_{3}\cdot \mathbf{v}_{1}}{\mathbf{v}_{1}\cdot \mathbf{v}_{1}})\mathbf{v}_{1}-(\frac{\mathbf{x}_{3}\cdot \mathbf{v}_{2}}{\mathbf{v}_{2}\cdot \mathbf{v}_{2}})\mathbf{v}_{2}$ $\implies \mathbf{u}_{3}=\frac{\mathbf{v}_{3}}{||\mathbf{v}_{3}||}$
+% \end{itemize}
+% \textbf{Q-R decomp}: $A=QR$. $A$ has LI cols, $Q$ has orthonormal cols that form basis for $A$, and $R$ is upper triangular and invertible.
+% \begin{itemize}
+%     \item Find $Q$: The columns of $Q$ are the $\{\mathbf{u}_{k}\}$ vectors from G-S. 
+%     \item Find $R$: $R=Q^{T}A$. Or element-wise: $r_{ij} = \mathbf{u}_{i} \cdot \mathbf{x}_{j}$ (for $j \ge i$).
+% \end{itemize}
+% \textbf{Economy QR}: $m\times n~A$, $m\times n~Q$, $n\times n~R$.\\
+% \textbf{Full QR}: Append $I$ to $A$, form $m \times m$ $Q_{full}$, then pad ($m \times n$) $R$ with rows of $0$s.\\
+% \textbf{Solving systems}: $A\mathbf{x}=\mathbf{y}\rightarrow R\mathbf{x}=Q^{T}\mathbf{y}$.
+
+\noindent
+\fbox{%
+  \parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+    \subsection*{G-S, QR decomp}
+    \textbf{G-S process}: Converts basis $\{\mathbf{x}_{k}\}$ into orthogonal basis $\{\mathbf{v}_{k}\}$.\\
+    $\mathbf{v}_{k+1}=\mathbf{x}_{k+1}-\sum_{j=1}^{k}\operatorname{proj}_{\mathbf{v}_{j}}\mathbf{x}_{k+1}$.
+    \begin{itemize}
+        \item $\mathbf{v}_{1}=\mathbf{x}_{1} \implies \mathbf{u}_{1}=\frac{\mathbf{v}_{1}}{||\mathbf{v}_{1}||}$
+        \item $\mathbf{v}_{2}=\mathbf{x}_{2}-(\frac{\mathbf{x}_{2}\cdot \mathbf{v}_{1}}{\mathbf{v}_{1}\cdot \mathbf{v}_{1}})\mathbf{v}_{1} \implies \mathbf{u}_{2}=\frac{\mathbf{v}_{2}}{||\mathbf{v}_{2}||}$
+        \item $\mathbf{v}_{3}=\mathbf{x}_{3}-(\frac{\mathbf{x}_{3}\cdot \mathbf{v}_{1}}{\mathbf{v}_{1}\cdot \mathbf{v}_{1}})\mathbf{v}_{1}-(\frac{\mathbf{x}_{3}\cdot \mathbf{v}_{2}}{\mathbf{v}_{2}\cdot \mathbf{v}_{2}})\mathbf{v}_{2} \implies \mathbf{u}_{3}=\frac{\mathbf{v}_{3}}{||\mathbf{v}_{3}||}$
+    \end{itemize}
+    \textbf{Q-R decomp}: $A=QR$. $A$ has LI cols, $Q$ has orthonormal cols, and $R$ is upper triangular and invertible.
+    \begin{itemize}
+        \item \textbf{Find $Q$}: Columns are $\{\mathbf{u}_{k}\}$ vectors from G-S.
+        \item \textbf{Find $R$}: $R=Q^{T}A$. Element-wise: $r_{ij} = \mathbf{u}_{i} \cdot \mathbf{x}_{j}$ for $j \ge i$.
+    \end{itemize}
+    \textbf{Economy QR}: $m\times n$ $A$, $m\times n$ $Q$, $n\times n$ $R$.\\
+    \textbf{Full QR}: $m \times m$ $Q_{\text{full}}$, $R$ padded with $0$s ($m \times n$).\\
+    \textbf{Solving}: $A\mathbf{x}=\mathbf{y} \Leftrightarrow R\mathbf{x}=Q^{T}\mathbf{y}$.
+    \vspace{1pt}
+  }%
+}
+
+% \section*{Eigens, DFT}
+% \section*{Eigen}
+% $A\mathbf{x}=\lambda\mathbf{x}$ (where $\mathbf{x}\ne \mathbf{0}$).\\
+% $\lambda=0 \Leftrightarrow A\mathbf{x}=\mathbf{0}$ has a non-trivial solution $\Leftrightarrow A$ is not invertible.\\
+% If $\lambda$ is an eigenvalue of $A$ (and $\lambda\ne 0$), then $\frac{1}{\lambda}$ is an eigenvalue of $A^{-1}$.\\
+% An $n\times n$ matrix $A$ has exactly $n$ eigenvalues (counting algebraic multiplicities, and allowed to be complex).\\
+% $\lambda_{1}+...+\lambda_{n}=Tr(A)$ and $\lambda_{1}\lambda_{2}...\lambda_{n}=det(A)$.\\
+% \begin{itemize}
+%     \item For a diagonal or triangular matrix, the eigenvalues are simply the main diagonal entries.\\
+%     \item For a symmetric matrix, eigenvalues are purely real.
+%     \item For a skew-symmetric matrix, eigenvalues are either purely imaginary or zero.
+%     \item For a projection matrix ($P^2=P$), eigenvalues are either 0 or 1.
+%     \item $A$ and $A^T$ have same eigenvalues.
+%     \item Eigenvalues of $kA$ are $k \lambda$.
+%     \item Eigenvalues of $A^k$ are $\lambda^k$.
+%     \item Eigenvalues of $AB$ same as $BA$.
+% \end{itemize}
+
+% \subsection*{Finding $\lambda$, $\mathbf{x}$}
+% \textbf{Characteristic eqn}: Solve $det(A-\lambda I)=0$ to find $\lambda$.
+% \begin{itemize}
+%     \item For $2\times 2$ matrix: $\lambda^{2}-Tr(A)\lambda+det(A)=0$.
+% \end{itemize}
+% \textbf{AM}: The multiplicity of $\lambda$ as a root of the characteristic equation.\\
+% \textbf{Finding eigenvectors}: Plug $\lambda$ back in and row reduce $(A-\lambda I)\mathbf{x}=\mathbf{0}$. The basis vectors of this null space form the eigenspace for that $\lambda$.\\
+% \textbf{GM}: The number of basis vectors (dimension) of the eigenspace. GM $\leq$ AM.\\
+% \textbf{Defective Matrix}: If $GM<AM$ for any eigenvalue, the matrix is defective and cannot be diagonalized.
+% \textbf{Invertibility \& Diagonalisation}:
+% \begin{itemize}
+%     \item I \& D: $[\begin{matrix}2&0\\ 0&3\end{matrix}]$
+%     \item $\sim$I \& D: $[\begin{matrix}1&0\\ 0&0\end{matrix}]$
+%     \item I \& $\sim$D: $[\begin{matrix}1&1\\ 0&1\end{matrix}]$
+%     \item $\sim$I \& $\sim$D: $[\begin{matrix}0&1\\ 0&0\end{matrix}]$
+% \end{itemize}
+
+\section*{Eigenvalues \& Eigenvectors}
+$A\mathbf{x}=\lambda\mathbf{x}$ (where $\mathbf{x}\ne \mathbf{0}$).\\
+$\lambda=0 \Leftrightarrow A\mathbf{x}=\mathbf{0}$ has non-trivial soln $\Leftrightarrow A$ is not invertible.\\
+If $\lambda$ is an e-val of $A$ ($\lambda\ne 0$), then $1/\lambda$ is an e-val of $A^{-1}$.\\
+$n\times n$ matrix $A$ has exactly $n$ e-vals (counting $AM$).\\
+$\sum \lambda_{i}=\operatorname{Tr}(A)$ and $\prod \lambda_{i}=\det(A)$.\\
+\begin{itemize}
+    \item \textbf{Diag/Triangular}: E-vals are the main diagonal entries.
+    \item \textbf{Symmetric}: E-vals are real. \textbf{Skew-Symmetric}: Imaginary or 0.
+    \item \textbf{Projection} ($P^2=P$): E-vals are 0 or 1.
+    \item $A$ and $A^T$ have same e-vals. \textbf{Similar matrices} have same e-vals.
+    \item E-vals of $kA$ are $k\lambda$; e-vals of $A^k$ are $\lambda^k$.
+    \item E-vals of $AB$ same as $BA$.
+\end{itemize}
+
+\subsection*{Finding $\lambda$, $\mathbf{x}$}
+\textbf{Characteristic eqn}: Solve $\det(A-\lambda I)=0$ to find $\lambda$.
+\begin{itemize}
+    \item \textbf{2$\times$2 Shortcut}: $\lambda^{2}-\operatorname{Tr}(A)\lambda+\det(A)=0$.
+\end{itemize}
+\textbf{AM}: Multiplicity of $\lambda$ as a root of characteristic eqn.\\
+\textbf{Finding e-vectors}: Solve $(A-\lambda I)\mathbf{x}=\mathbf{0}$. The basis of this null space forms the \textbf{eigenspace} $E_\lambda$.\\
+\textbf{GM}: $\dim(E_\lambda)$. $1 \le GM \le AM$.\\
+\textbf{Defective}: If $GM < AM$ for any $\lambda$, $A$ is not diagonalizable.
+
+\subsection*{Invertibility vs Diagonalisation}
+\begin{itemize}
+    \item \textbf{Inv \& Diag}: $\left[\begin{smallmatrix}2&0\\ 0&3\end{smallmatrix}\right]$ ($\lambda=2,3 \neq 0$; $GM=AM$)
+    \item \textbf{Non-Inv \& Diag}: $\left[\begin{smallmatrix}1&0\\ 0&0\end{smallmatrix}\right]$ ($\lambda=0$ exists; $GM=AM$)
+    \item \textbf{Inv \& Non-Diag}: $\left[\begin{smallmatrix}1&1\\ 0&1\end{smallmatrix}\right]$ ($\lambda=1,1$; $AM=2, GM=1$)
+    \item \textbf{Non-Inv \& Non-Diag}: $\left[\begin{smallmatrix}0&1\\ 0&0\end{smallmatrix}\right]$ ($\lambda=0,0$; $AM=2, GM=1$)
+\end{itemize}
+
+% \subsection*{Diagonalisation}
+% \textbf{Similar Matrices} $B=P^{-1}AP$. represent the same linear transformation in different coordinate systems. They share the same determinant, invertibility, rank, nullity, trace, characteristic polynomial, and eigenvalues.\\
+% \textbf{Diagonalisation Theorem} $A=PDP^{-1}$: Requires $n$ linearly independent eigenvectors to form a full basis for $\mathbb{R}^{n}$ (an eigenbasis).
+% \begin{itemize}
+%     \item Guaranteed if an $n\times n$ matrix has $n$ unique eigenvalues.
+%     \item For repeated eigenvalues, their $AM$ must exactly equal their $GM$.
+% \end{itemize}
+% \textbf{Building the Matrices}: Columns of $P$ are the eigenvectors ($\mathbf{v}_{k}$). $D$ is a diagonal matrix with the corresponding eigenvalues. The position of $\lambda_{k}$ in $D$ must match the column of $\mathbf{v}_{k}$ in $P$.
+
+\subsection*{Diagonalisation}
+\textbf{Similar Matrices} $B=P^{-1}AP$: represent the same linear transformation in different coordinate systems. Share $\det$, invertibility, $\operatorname{rank}$, nullity, $\operatorname{Tr}$, char poly, and eigenvalues.\\
+\textbf{Diag. Theorem} $A=PDP^{-1}$: Requires $n$ LI eigenvectors to form a basis for $\mathbb{R}^{n}$ (an eigenbasis).
+\begin{itemize}
+    \item Guaranteed if an $n\times n$ matrix has $n$ distinct eigenvalues.
+    \item For repeated eigenvalues, $AM$ must equal $GM$.
+\end{itemize}
+\textbf{Building Matrices}: Columns of $P$ are eigenvectors ($\mathbf{v}_{k}$). $D$ is diagonal with corresponding eigenvalues. Order in $D$ must match order in $P$.\\
+\textbf{Product of 2 diagonal matrices} is also diagonal. $AB=BA$.
+
+% \subsection*{Dynamic Systems, Powers of $A$}
+% $A^{k}=PD^{k}P^{-1}$.
+% \begin{itemize}
+%     \item Decoupling: Translates $\mathbf{x}$ to the eigenbasis ($P^{-1}$), transforms it by scaling the eigenvalues ($D^{k}$), and translates back to the standard basis ($P$).
+% \end{itemize}
+% $\mathbf{x}_{k}=A^{k}\mathbf{x}_{0}=PD^{k}P^{-1}\mathbf{x}_{0}$.
+% \begin{itemize}
+%     \item Express initial state as a linear combination of eigenvectors: $\mathbf{x}_{0}=c_{1}\mathbf{v}_{1}+...+c_{n}\mathbf{v}_{n}$.
+%     \item The state at step $k$ is: $\mathbf{x}_{k}=c_{1}(\lambda_{1})^{k}\mathbf{v}_{1}+...+c_{n}(\lambda_{n})^{k}\mathbf{v}_{n}$.
+% \end{itemize}
+% \textbf{Finding the weights} $c$:
+% \begin{itemize}
+%     \item Non-ortho eigenvectors: solve $P\mathbf{c}=\mathbf{x}_{0}$ (since cols of $P$ are $\mathbf{v}_{i}$).
+%     \item Orthogonal eigenvectors: use projections $c_{i}=\frac{\mathbf{x}_{0}\cdot \mathbf{v}_{i}}{\mathbf{v}_{i}\cdot \mathbf{v}_{i}}$.
+% \end{itemize}
+% \textbf{Long-term behaviour} $k \to \infty$: Terms where $|\lambda_{i}|<1$ shrink to 0. The system is pulled toward the dominant eigenvector (the one with the largest $|\lambda|$).
+
+\subsection*{Dynamic Systems, Powers of $A$}
+$A^{k}=PD^{k}P^{-1}$.
+\begin{itemize}
+    \item \textbf{Decoupling}: Translates $\mathbf{x}$ to eigenbasis ($P^{-1}$), scales components by $\lambda^k$ ($D^{k}$), and translates back ($P$).
+\end{itemize}
+$\mathbf{x}_{k}=A^{k}\mathbf{x}_{0}=PD^{k}P^{-1}\mathbf{x}_{0}$.
+\begin{itemize}
+    \item Express $\mathbf{x}_{0}$ as lin. comb. of eigenvectors: $\mathbf{x}_{0}=c_{1}\mathbf{v}_{1}+\dots+c_{n}\mathbf{v}_{n}$.
+    \item State at step $k$: $\mathbf{x}_{k}=c_{1}(\lambda_{1})^{k}\mathbf{v}_{1}+\dots+c_{n}(\lambda_{n})^{k}\mathbf{v}_{n}$.
+\end{itemize}
+\textbf{Finding weights} $\mathbf{c}$:
+\begin{itemize}
+    \item Non-ortho: solve $P\mathbf{c}=\mathbf{x}_{0} \Rightarrow \mathbf{c} = P^{-1}\mathbf{x}_0$.
+    \item Ortho eigenvectors: use projections $c_{i}=\frac{\mathbf{x}_{0}\cdot \mathbf{v}_{i}}{||\mathbf{v}_i||^2}$.
+\end{itemize}
+\textbf{Long-term} $k \to \infty$: If $|\lambda_{i}|<1$, term $\to 0$. If $|\lambda_i| > 1$, term diverges. System is dominated by the eigenvector with the largest $|\lambda|$.
+
+\noindent
+\fbox{%
+    \parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+        \textbf{Spectral Theorem} (For real symmetric matrices $A = A^T$):
+        \begin{itemize}
+            \item All eigenvalues ($\lambda$) are real numbers.
+            \item Eigenvectors from different $\lambda$ are automatically \textbf{mutually orthogonal} ($\mathbf{v}_i \cdot \mathbf{v}_j = 0$).
+            \item $A$ is always orthogonally diagonalisable: $A = QDQ^T$.
+            \begin{itemize}
+                \item $Q$ is an orthogonal matrix (cols are orthonormal eigenvectors).
+                \item Since $Q$ is orthogonal, $Q^{-1} = Q^T$.
+            \end{itemize}
+            \item \textbf{Spectral Decomposition}: An orthogonally diagonalizable matrix can be explicitly decomposed into a sum of projection matrices: $A = \lambda_1\mathbf{u}_1\mathbf{u}_1^T + \dots + \lambda_n\mathbf{u}_n\mathbf{u}_n^T$ (where $\mathbf{u}_i$ are the orthonormal columns of $Q$).
+        \end{itemize}
+    }%
+}
+% \section*{Complex Numbers}
+% \textbf{Forms}: $z=a+ib=\sqrt{a^{2}+b^{2}}e^{i\theta}=|z|cis(\theta)$, where $\theta\in (-\pi,\pi]$.\\
+% \textbf{Euler's Formula Conversions}: $e^{i\theta} = \cos\theta + i\sin\theta$. Conversely, $\cos\theta = \frac{e^{i\theta} + e^{-i\theta}}{2}$ and $\sin\theta = \frac{e^{i\theta} - e^{-i\theta}}{2i}$.\\
+% \textbf{Arithmetic}: $i^{1}=i$, $i^{2}=-1$, $i^{4}=1$. $\frac{1}{i}=-i$. $\sqrt{-A}\sqrt{-B}=(i\sqrt{A})(i\sqrt{B})=-\sqrt{AB}$.\\
+% \textbf{Inner product}: $\langle \mathbf{a},\mathbf{b}\rangle=\mathbf{b}^{H}\mathbf{a}$, where $H$ is the conjugate transpose. $\mathbf{b}^{H}\mathbf{a}=\overline{\mathbf{a}^{H}\mathbf{b}}$.
+% \begin{enumerate}
+%     \item Positive Definiteness: $\langle \mathbf{u},\mathbf{u} \rangle \ge 0$ for any $\mathbf{u}$, and $\langle \mathbf{u},\mathbf{u} \rangle = 0 \Leftrightarrow \mathbf{u}=\mathbf{0}$.
+%     \item Conjugate symmetry: $\langle u,v \rangle = \overline{\langle v,u \rangle}$.
+%     \item Linearity in first arg: $\langle \alpha u + \beta v, w \rangle = \alpha\langle u,w \rangle + \beta\langle v,w \rangle$.
+%     \item Conjugate linearity in second arg: $\langle u, \alpha v \rangle = \overline{\alpha}\langle u,v \rangle$.
+% \end{enumerate}
+% \textbf{DeMoivre Thm}: $z^{n}=r^{n}e^{in\theta}=r^{n}(\cos(n\theta)+i\sin(n\theta))$.
+% \begin{itemize}
+%     \item Roots: $z^{1/n}=r^{1/n}e^{i(\frac{\theta+2\pi k}{n})}$ for $k=0,1,...,n-1$. The $n$-th root yields $n$ distinct roots geometrically spaced equally on a circle of radius $r^{1/n}$.
+% \end{itemize}
+
+\section*{Complex Numbers}
+\textbf{Forms}: $z=a+ib=|z|e^{i\theta}=|z|(\cos\theta + i\sin\theta)$, $\theta\in (-\pi,\pi]$.\\
+\textbf{Euler}: $\cos\theta = \frac{e^{i\theta} + e^{-i\theta}}{2}$, $\sin\theta = \frac{e^{i\theta} - e^{-i\theta}}{2i}$.\\
+\textbf{Arithmetic}: $i^{1}=i$, $i^{2}=-1$, $i^{4}=1$. $\frac{1}{i}=-i$. $\sqrt{-A}\sqrt{-B}=(i\sqrt{A})(i\sqrt{B})=-\sqrt{AB}$.\\
+\textbf{Inner product}: $\langle \mathbf{a},\mathbf{b}\rangle=\mathbf{b}^{H}\mathbf{a}$. $\mathbf{b}^{H}\mathbf{a}=\overline{\mathbf{a}^{H}\mathbf{b}}$.
+\begin{enumerate}[leftmargin=*, nosep]
+    \item \textbf{Pos. Def.}: $\langle \mathbf{u},\mathbf{u} \rangle \ge 0$; $\langle \mathbf{u},\mathbf{u} \rangle = 0 \Leftrightarrow \mathbf{u}=\mathbf{0}$.
+    \item \textbf{Conj. Symmetry}: $\langle \mathbf{u},\mathbf{v} \rangle = \overline{\langle \mathbf{v},\mathbf{u} \rangle}$.
+    \item \textbf{Linearity in 1st}: $\langle \alpha \mathbf{u} + \beta \mathbf{v}, \mathbf{w} \rangle = \alpha\langle \mathbf{u},\mathbf{w} \rangle + \beta\langle \mathbf{v},\mathbf{w} \rangle$.
+    \item \textbf{Conj. Lin. in 2nd}: $\langle \mathbf{u}, \alpha \mathbf{v} \rangle = \overline{\alpha}\langle \mathbf{u},\mathbf{v} \rangle$.
+\end{enumerate}
+\textbf{DeMoivre}: $z^{n}=r^{n}e^{in\theta}$ or $(\cos\theta + i\sin\theta)^n=\cos(n\theta) + i\sin(n\theta)$.\\
+Roots: $z^{1/n}=r^{1/n}e^{i(\frac{\theta+2\pi k}{n})}$ for $k=0,\dots,n-1$. Roots are equally spaced on circle of radius $r^{1/n}$.
+
+\section*{DFT}
+\textbf{Basis Wave}: $e_{k}[n]=e^{i\frac{2\pi}{N}kn}$ represents a specific frequency $k$ evaluated at time step $n$. A positive exponent means rotating anti-clockwise.\\
+\textbf{Orthogonality}: If the inner product of a signal vector and a basis wave is 0, they are orthogonal, and that specific frequency does not exist in the signal.\\
+When finding the inner product of a signal freq $m$ against basis freq $k$, sum the terms $e^{i\frac{2\pi}{N}(m-k)n}$. This sum yields $N$ if $m=k$, and $0$ if $m \ne k$.\\
+\textbf{Analysis}: $\mathbf{X}=W\mathbf{x}$ or $X[k]=\sum_{n=0}^{N-1}x[n]e^{-i\frac{2\pi}{N}kn}$.
+\begin{itemize}
+    \item $W$ contains negative exponents, is square, symmetric ($W^{T}=W$), and has orthogonal columns ($\frac{1}{N}W^{H}W=I$). Each row is one frequency ($k$) and $n$ increases with columns.
+    \item For real-valued $\mathbf{x}$: $X[0]$, $X[N/2]$ $\in \mathbb{R}$. (for even $N$). $X[N-k]=\overline{X[k]}$ (rows $N/2+1$ to $N-1$ are redundant complex conjugates).
+\end{itemize}
+\noindent
+\resizebox{\linewidth}{!}{%
+$W = \begin{bmatrix}
+1 & 1 & 1 & \dots & 1 \\
+1 & e^{-i\frac{2\pi}{N}(1)(1)} & e^{-i\frac{2\pi}{N}(1)(2)} & \dots & e^{-i\frac{2\pi}{N}(1)(N-1)} \\
+1 & e^{-i\frac{2\pi}{N}(2)(1)} & e^{-i\frac{2\pi}{N}(2)(2)} & \dots & e^{-i\frac{2\pi}{N}(2)(N-1)} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & e^{-i\frac{2\pi}{N}(N-1)(1)} & e^{-i\frac{2\pi}{N}(N-1)(2)} & \dots & e^{-i\frac{2\pi}{N}(N-1)(N-1)}
+\end{bmatrix}$
+}
+\textbf{Synthesis/Backward DFT}: $\mathbf{x}=\frac{1}{N}W^{H}\mathbf{X}$ or $x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]e^{i\frac{2\pi}{N}kn}$.
+\begin{itemize}
+    \item $W^{H}$ is $W$ with positive exponents. Each row is one time ($n$) and $k$ increases with columns.
+    % \item $W^H$ is $W$ with the positive exponents.
+\end{itemize}
+\vspace{1em}
+$4\times 4$ fleshed out: $W_{4}=\begin{bmatrix}1&1&1&1\\ 1&-i&-1&i\\ 1&-1&1&-1\\ 1&i&-1&-i\end{bmatrix}$\\
+$W_4^H = \begin{bmatrix} 1 & 1 & 1 & 1 \\ 1 & i & -1 & -i \\ 1 & -1 & 1 & -1 \\ 1 & -i & -1 & i \end{bmatrix}$
+
+% \section*{DFT}
+% \textbf{Basis}: $\mathbf{e}_{k}[n]=e^{i\frac{2\pi}{N}kn}$ (frequency $k$ at time $n$).\\
+% \textbf{Analysis}: $\mathbf{X}=W\mathbf{x}$ or $X[k]=\sum_{n=0}^{N-1}x[n]\omega_N^{kn}$ where $\omega_N = e^{-i\frac{2\pi}{N}}$.
+% \begin{itemize}
+%     \item $W_{kn} = \omega_N^{kn}$. $W$ is symmetric ($W^T=W$).
+%     \item Cols are orthogonal: $W^H W = NI \Rightarrow W^{-1} = \frac{1}{N}W^H$.
+%     \item \textbf{Real signal}: $X[0], X[N/2] \in \mathbb{R}$. $X[N-k]=\overline{X[k]}$.
+% \end{itemize}
+% \textbf{Synthesis}: $\mathbf{x}=\frac{1}{N}W^{H}\mathbf{X}$ or $x[n]=\frac{1}{N}\sum_{k=0}^{N-1}X[k]e^{i\frac{2\pi}{N}kn}$.
+
+% \section*{Invertible Matrix Theorem}
+% For $n \times n$ matrix $A$,\\
+% Mechanics:
+% \begin{itemize}
+%     \item $A$ is invertible.
+%     \item $A$ row equivalent to the identity matrix $I_{n}$.
+%     \item $A$ can be written as a product of elementary matrices.
+%     \item $A$ has $n$ pivot positions.
+%     \item The equation $A\mathbf{x}=\mathbf{b}$ has a unique solution for every $\mathbf{b}\in\mathbb{R}^{n}$.
+%     \item There is an $n \times n$ matrix $C$ such that $CA=I$ (left inverse).
+%     \item There is an $n \times n$ matrix $D$ such that $AD=I$ (right inverse).
+%     \item $A^{T}$ is an invertible matrix.
+% \end{itemize}
+% Geometry:
+% \begin{itemize}
+%     \item The homogeneous equation $A\mathbf{x}=\mathbf{0}$ has only the trivial solution ($\mathbf{x}=\mathbf{0}$).
+%     \item The columns of $A$ form a linearly independent set.
+%     \item The columns of $A$ span $\mathbb{R}^{n}$.
+%     \item The columns of $A$ form a basis for $\mathbb{R}^{n}$.
+%     \item The column space is the entire space: $\mathcal{C}(A)=\mathbb{R}^{n}$.
+%     \item The dimension of the column space is $n$: $dim\mathcal{C}(A)=n$.
+%     \item $rank(A)=n$.
+%     \item Rows of $A$ are linearly independent.
+%     \item Rows of $A$ span $\mathbb{R}^n$.
+%     \item Rows of $A$ form a basis for $\mathbb{R}^n$.
+%     \item The null space contains only the zero vector: $\mathcal{N}(A)=\{\mathbf{0}\}$.
+%     \item The dimension of the null space is zero: $dim\mathcal{N}(A)=0$.
+% \end{itemize}
+% Transformation:
+% \begin{itemize}
+%     \item Kernel($T_A$) = $\{\mathbf{0}\}$.
+%     \item $T_A$ is injective.
+%     \item $T_A$ is surjective.
+%     \item $T_A$ is bijective.
+% \end{itemize}
+% Decomposition:
+% \begin{itemize}
+%     \item The determinant of $A$ is not zero ($|A|\ne 0$).
+%     \item $0$ is not an eigenvalue of $A$.
+% \end{itemize}
+
+% \columnbreak
+\section*{Invertible Matrix Theorem}
+For $n \times n$ matrix $A$, the following are equivalent:\\
+\textbf{Mechanics}:
+\begin{itemize}[leftmargin=*, nosep]
+    \item $A$ is invertible ($A^{-1}$ exists); $A^T$ is invertible.
+    \item $A \sim I_{n}$; $A$ is a product of elementary matrices.
+    \item $A$ has $n$ pivots.
+    \item $A\mathbf{x}=\mathbf{b}$ has a unique solution for every $\mathbf{b}\in\mathbb{R}^{n}$.
+    \item $\exists\, C, D$ s.t. $CA=I$ and $AD=I$.
+\end{itemize}
+\textbf{Geometry}:
+\begin{itemize}[leftmargin=*, nosep]
+    \item $A\mathbf{x}=\mathbf{0}$ has only the trivial solution ($\mathbf{x}=\mathbf{0}$).
+    \item Cols of $A$ are LI, span $\mathbb{R}^{n}$, and form a basis for $\mathbb{R}^{n}$.
+    \item $\mathcal{C}(A)=\mathbb{R}^{n}$ and $\operatorname{dim}\mathcal{C}(A)=n$; $\operatorname{rank}(A)=n$.
+    \item Rows of $A$ are LI, span $\mathbb{R}^n$, and form a basis for $\mathbb{R}^n$.
+    \item $\mathcal{N}(A)=\{\mathbf{0}\}$ and $\operatorname{dim}\mathcal{N}(A)=0$.
+\end{itemize}
+\textbf{Transformation ($T_A$)}:
+\begin{itemize}[leftmargin=*, nosep]
+    \item $\operatorname{Kernel}(T_A) = \{\mathbf{0}\}$.
+    \item $T_A$ is injective (1-to-1), surjective (onto), and bijective.
+\end{itemize}
+\textbf{Decomposition}:
+\begin{itemize}[leftmargin=*, nosep]
+    \item $\det(A) \ne 0$.
+    \item $0$ is not an eigenvalue of $A$.
+    % \item All singular values $\sigma_i > 0$.
+\end{itemize}
+
+\newpage
+
+\section*{Extras}
+\section*{Trigo identities}
+\begin{itemize}
+    \item $\sin(\alpha\pm\beta)=\sin(\alpha)\cos(\beta)\pm \cos(\alpha)\sin(\beta)$
+    \item $\cos(\alpha\pm\beta)=\cos(\alpha)\cos(\beta)\mp \sin(\alpha)\sin(\beta)$
+    \item $(x+y)^3 = x^3 + 3x^2y + 3xy^2 + y^3$.
+\end{itemize}
+
+\section*{Subspaces}
+% $\mathcal{C}(A)=\mathcal{C}(AA^T)$ in $\mathbb{R}^m$.\\
+% $\mathcal{C}(A^T)=\mathcal{C}(A^TA)$ in $\mathbb{R}^n$.\\
+% $\mathcal{N}(A)=\mathcal{N}(A^TA)$ in $\mathbb{R}^n$.\\
+% $\mathcal{N}(A^T)=\mathcal{N}(AA^T)$ in $\mathbb{R}^m$.
+
+\section*{Determinants}
+\textbf{Cramer's Rule}
+\begin{itemize}
+    \item \textbf{Purpose:} Finds the unique solution to $A\mathbf{x}=\mathbf{b}$ when $A$ is square and $\Delta = |A| \ne 0$.
+    \item \textbf{Formula:} The $j$-th component of the solution vector $\mathbf{x}$ is $x_j = \frac{\Delta_j}{\Delta}$.
+    \item \textbf{Usage:} $\Delta_j$ is the determinant of matrix $A$ after replacing its $j$-th column with the constant vector $\mathbf{b}$.
+\end{itemize}
+
+\section*{DFT}
+$4\times 4$ fleshed out: $W_{4}=\begin{bmatrix}1&1&1&1\\ 1&-i&-1&i\\ 1&-1&1&-1\\ 1&i&-1&-i\end{bmatrix}$
+$W_4^H = \begin{bmatrix} 1 & 1 & 1 & 1 \\ 1 & i & -1 & -i \\ 1 & -1 & 1 & -1 \\ 1 & -i & -1 & i \end{bmatrix}$
+
+% $$\begin{bmatrix}
+% 1 & 1 & 1 & \dots & 1 \\
+% 1 & e^{-i\frac{2\pi}{N}(1)(1)} & e^{-i\frac{2\pi}{N}(1)(2)} & \dots & e^{-i\frac{2\pi}{N}(1)(N-1)} \\
+% 1 & e^{-i\frac{2\pi}{N}(2)(1)} & e^{-i\frac{2\pi}{N}(2)(2)} & \dots & e^{-i\frac{2\pi}{N}(2)(N-1)} \\
+% \vdots & \vdots & \vdots & \ddots & \vdots \\
+% 1 & e^{-i\frac{2\pi}{N}(N-1)(1)} & e^{-i\frac{2\pi}{N}(N-1)(2)} & \dots & e^{-i\frac{2\pi}{N}(N-1)(N-1)}
+% \end{bmatrix}$$
+
+% \usepackage{graphicx} % Add to preamble
+
+% Inside your column:
+\noindent
+\resizebox{\linewidth}{!}{%
+$W = \begin{bmatrix}
+1 & 1 & 1 & \dots & 1 \\
+1 & e^{-i\frac{2\pi}{N}(1)(1)} & e^{-i\frac{2\pi}{N}(1)(2)} & \dots & e^{-i\frac{2\pi}{N}(1)(N-1)} \\
+1 & e^{-i\frac{2\pi}{N}(2)(1)} & e^{-i\frac{2\pi}{N}(2)(2)} & \dots & e^{-i\frac{2\pi}{N}(2)(N-1)} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & e^{-i\frac{2\pi}{N}(N-1)(1)} & e^{-i\frac{2\pi}{N}(N-1)(2)} & \dots & e^{-i\frac{2\pi}{N}(N-1)(N-1)}
+\end{bmatrix}$
+}
+
+% $$W^H = \begin{bmatrix}
+% 1 & 1 & 1 & \dots & 1 \\
+% 1 & e^{i\frac{2\pi}{N}(1)(1)} & e^{i\frac{2\pi}{N}(1)(2)} & \dots & e^{i\frac{2\pi}{N}(1)(N-1)} \\
+% 1 & e^{i\frac{2\pi}{N}(2)(1)} & e^{i\frac{2\pi}{N}(2)(2)} & \dots & e^{i\frac{2\pi}{N}(2)(N-1)} \\
+% \vdots & \vdots & \vdots & \ddots & \vdots \\
+% 1 & e^{i\frac{2\pi}{N}(N-1)(1)} & e^{i\frac{2\pi}{N}(N-1)(2)} & \dots & e^{i\frac{2\pi}{N}(N-1)(N-1)}
+% \end{bmatrix}$$
+
+% Inside your column:
+\noindent
+\resizebox{\linewidth}{!}{%
+$W^H = \begin{bmatrix}
+1 & 1 & 1 & \dots & 1 \\
+1 & e^{i\frac{2\pi}{N}(1)(1)} & e^{i\frac{2\pi}{N}(1)(2)} & \dots & e^{i\frac{2\pi}{N}(1)(N-1)} \\
+1 & e^{i\frac{2\pi}{N}(2)(1)} & e^{i\frac{2\pi}{N}(2)(2)} & \dots & e^{i\frac{2\pi}{N}(2)(N-1)} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & e^{i\frac{2\pi}{N}(N-1)(1)} & e^{i\frac{2\pi}{N}(N-1)(2)} & \dots & e^{i\frac{2\pi}{N}(N-1)(N-1)}
+\end{bmatrix}$
+}
+
+% \section*{Extras}
+\textbf{Extra visualisation of DFT analysis}
+\vspace{0.5em}
+\noindent
+\resizebox{\columnwidth}{!}{%
+$
+\begin{bmatrix}
+    X_0 \\
+    \vdots \\
+    \boxed{X_k} \\
+    \vdots \\
+    X_{N-1}
+\end{bmatrix}
+=
+\left[
+\begin{array}{cccc}
+    e^{-i \frac{2\pi}{N} (0)(0)} & e^{-i \frac{2\pi}{N} (0)(1)} & \cdots & e^{-i \frac{2\pi}{N} (0)(N-1)} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \hline
+    \multicolumn{1}{|c}{e^{-i \frac{2\pi}{N} (k)(0)}} & e^{-i \frac{2\pi}{N} (k)(1)} & \cdots & \multicolumn{1}{c|}{e^{-i \frac{2\pi}{N} (k)(N-1)}} \\
+    \hline
+    \vdots & \vdots & \ddots & \vdots \\
+    e^{-i \frac{2\pi}{N} (N-1)(0)} & e^{-i \frac{2\pi}{N} (N-1)(1)} & \cdots & e^{-i \frac{2\pi}{N} (N-1)(N-1)}
+\end{array}
+\right]
+\begin{bmatrix}
+    \boxed{
+    \begin{matrix}
+        x_0 \\
+        x_1 \\
+        \vdots \\
+        x_{N-1}
+    \end{matrix}
+    }
+\end{bmatrix}
+$
+}
+\textbf{Extra visualisation of DFT synthesis}
+\noindent
+\resizebox{\columnwidth}{!}{%
+$
+\begin{bmatrix}
+    x_0 \\
+    \vdots \\
+    \boxed{x_n} \\
+    \vdots \\
+    x_{N-1}
+\end{bmatrix}
+=
+\frac{1}{N}
+\left[
+\begin{array}{cccc}
+    e^{i \frac{2\pi}{N} (0)(0)} & e^{i \frac{2\pi}{N} (0)(1)} & \cdots & e^{i \frac{2\pi}{N} (0)(N-1)} \\
+    \vdots & \vdots & \ddots & \vdots \\
+    \hline
+    \multicolumn{1}{|c}{e^{i \frac{2\pi}{N} (n)(0)}} & e^{i \frac{2\pi}{N} (n)(1)} & \cdots & \multicolumn{1}{c|}{e^{i \frac{2\pi}{N} (n)(N-1)}} \\
+    \hline
+    \vdots & \vdots & \ddots & \vdots \\
+    e^{i \frac{2\pi}{N} (N-1)(0)} & e^{i \frac{2\pi}{N} (N-1)(1)} & \cdots & e^{i \frac{2\pi}{N} (N-1)(N-1)}
+\end{array}
+\right]
+\begin{bmatrix}
+    \boxed{
+    \begin{matrix}
+        X_0 \\
+        X_1 \\
+        \vdots \\
+        X_{N-1}
+    \end{matrix}
+    }
+\end{bmatrix}
+$
+}
+
+\noindent
+\resizebox{\columnwidth}{!}{%
+$
+\begin{bmatrix}
+    x_0 \\
+    x_1 \\
+    \vdots \\
+    x_{N-1}
+\end{bmatrix}
+=
+\frac{X_0}{N}
+\begin{bmatrix}
+    e^{i \frac{2\pi}{N} (0)(0)} \\
+    e^{i \frac{2\pi}{N} (0)(1)} \\
+    \vdots \\
+    e^{i \frac{2\pi}{N} (0)(N-1)}
+\end{bmatrix}
++ \cdots +
+\frac{\boxed{X_k}}{N}
+\begin{bmatrix}
+\boxed{
+\begin{matrix}
+    e^{i \frac{2\pi}{N} (k)(0)} \\
+    e^{i \frac{2\pi}{N} (k)(1)} \\
+    \vdots \\
+    e^{i \frac{2\pi}{N} (k)(N-1)}
+\end{matrix}
+}
+\end{bmatrix}
++ \cdots +
+\frac{X_{N-1}}{N}
+\begin{bmatrix}
+    e^{i \frac{2\pi}{N} (N-1)(0)} \\
+    e^{i \frac{2\pi}{N} (N-1)(1)} \\
+    \vdots \\
+    e^{i \frac{2\pi}{N} (N-1)(N-1)}
+\end{bmatrix}
+$
+}
+
+\vspace{0.5em}
+\textbf{Fleshed out DFT matrices}\\
+\vspace{2pt}
+\noindent
+\fbox{%
+    \parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+        \textbf{8x8 DFT Matrix} ($W = e^{-i 2\pi/8}$):\\[-2pt]
+        \rule{\linewidth}{0.4pt}\\[-2pt]
+        {\setlength{\arraycolsep}{3pt}\scriptsize
+        $W_8 = \begin{bmatrix}
+        1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+        1 & W & W^2 & W^3 & W^4 & W^5 & W^6 & W^7 \\
+        1 & W^2 & W^4 & W^6 & 1 & W^2 & W^4 & W^6 \\
+        1 & W^3 & W^6 & W & W^4 & W^7 & W^2 & W^5 \\
+        1 & W^4 & 1 & W^4 & 1 & W^4 & 1 & W^4 \\
+        1 & W^5 & W^2 & W^7 & W^4 & W & W^6 & W^3 \\
+        1 & W^6 & W^4 & W^2 & 1 & W^6 & W^4 & W^2 \\
+        1 & W^7 & W^6 & W^5 & W^4 & W^3 & W^2 & W
+        \end{bmatrix}$}
+    }%
+}
+
+\noindent
+\fbox{%
+    \parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+        \textbf{8x8 DFT Matrix} ($W = e^{-i 2\pi/8}$):\\[-2pt]
+        Let $a = \frac{1}{\sqrt{2}}$. Note $W^1 = a - ia$, $W^2 = -i$.\\[-2pt]
+        \rule{\linewidth}{0.4pt}\\[-2pt]
+        {\setlength{\arraycolsep}{2pt}\tiny
+        $W_8 = \begin{bmatrix}
+        1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+        1 & a-ia & -i & -a-ia & -1 & -a+ia & i & a+ia \\
+        1 & -i & -1 & i & 1 & -i & -1 & i \\
+        1 & -a-ia & i & a-ia & -1 & a+ia & -i & -a+ia \\
+        1 & -1 & 1 & -1 & 1 & -1 & 1 & -1 \\
+        1 & -a+ia & -i & a+ia & -1 & a-ia & i & -a-ia \\
+        1 & i & -1 & -i & 1 & i & -1 & -i \\
+        1 & a+ia & i & -a+ia & -1 & -a-ia & -i & a-ia
+        \end{bmatrix}$}
+    }%
+}
+
+\vspace{0.5em}
+\section*{Eigenvalues}
+\noindent
+\fbox{%
+    \parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+        \textbf{Spectral Theorem} (For real symmetric matrices $A = A^T$):
+        \begin{itemize}
+            \item All eigenvalues ($\lambda$) are real numbers.
+            \item Eigenvectors from different $\lambda$ are automatically \textbf{mutually orthogonal} ($\mathbf{v}_i \cdot \mathbf{v}_j = 0$).
+            \item $A$ is always orthogonally diagonalisable: $A = QDQ^T$.
+            \begin{itemize}
+                \item $Q$ is an orthogonal matrix (cols are orthonormal eigenvectors).
+                \item Since $Q$ is orthogonal, $Q^{-1} = Q^T$.
+            \end{itemize}
+            \item \textbf{Spectral Decomposition}: An orthogonally diagonalizable matrix can be explicitly decomposed into a sum of projection matrices: $A = \lambda_1\mathbf{u}_1\mathbf{u}_1^T + \dots + \lambda_n\mathbf{u}_n\mathbf{u}_n^T$ (where $\mathbf{u}_i$ are the orthonormal columns of $Q$).
+        \end{itemize}
+    }%
+}
+
+
+
+
+\end{multicols*}
+\end{document}

@@ -9,13 +9,13 @@
     # each lecture's N-artifacts/ folder.
 
     Topics = @(
-        @{ Source = '1-networklayers\new-1.md'
+        @{ Source = '1-networklayers\1.md'
            Title  = 'Network Layers and Physical Resilience' }
-        @{ Source = '2-dll-flow-error-control\new-2.md'
+        @{ Source = '2-dll-flow-error-control\2.md'
            Title  = 'Data Link Layer (DLL): Flow & Error Control' }
-        @{ Source = '3-dll-mac-lan\new-3.md'
+        @{ Source = '3-dll-mac-lan\3.md'
            Title  = 'Data Link Layer (DLL): Medium Access Control & LANs' }
-        @{ Source = '4-network-paradigms\new-4.md'
+        @{ Source = '4-network-paradigms\4.md'
            Title  = 'Network Paradigms' }
     )
 }

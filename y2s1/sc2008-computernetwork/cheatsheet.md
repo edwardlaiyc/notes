@@ -89,6 +89,41 @@
 ---
 
 :::
+
+::: {.cheatsheet-panel}
+
+## 3. High-Yield Conceptual Reference & Trivia
+
+### Historical Inventors / Internet Pioneers Matching
+* **TCP/IP:** Vinton Cerf & Robert Kahn
+* **Ethernet:** Robert Metcalfe
+* **Packet Switching Theory:** Leonard Kleinrock
+* **Electronic Mail (Email):** Ray Tomlinson
+* **World Wide Web (WWW):** Tim Berners-Lee
+* **ALOHA Protocol:** Norman Abramson
+
+### Protocol Behavior Across Normalized Delay ($a$)
+* **ALOHA Independence:** ALOHA throughput is flat across varying $a$ because stations transmit blindly without sensing the carrier. Performance depends solely on frame transmission duration ($T_f$).
+* **Why Slotted ALOHA Beats CSMA/CD at Large $a$ ($a \to 1$ or $a > 1$):**
+  * When $a$ is large, propagation delay ($T_p$) is long compared to transmission delay ($T_f$).
+  * Carrier sensing detects outdated channel states, and CSMA/CD's worst-case collision window ($2a$) wastes substantial channel capacity.
+  * Slotted ALOHA confines collisions strictly to discrete slot boundaries, maintaining stable performance.
+* **CSMA Persistence Comparison:**
+  * **1-Persistent:** Senses idle $\to$ transmits immediately ($p=1$). Zero idle delay under light loads; high collision rate under heavy loads.
+  * **Non-Persistent:** Senses busy $\to$ random backoff before re-sensing. Greatly reduces collision under heavy load; wastes capacity idling under light load.
+  * **$p$-Persistent:** Slotted; transmits with probability $p$. Balances low collisions and reduced idle latency by tuning $p$.
+
+### Sliding Window Buffer Edge Mechanics
+* **Sender Window:**
+  * Trailing edge (left) advances when **valid ACKs are received**.
+  * Leading edge (right) advances when **new frames are transmitted**.
+* **Receiver Window:**
+  * Trailing edge (left) advances when **in-order frames are received and delivered to upper layer**.
+  * Leading edge (right) advances when **ACKs are dispatched**.
+
+---
+
+:::
 :::
 
 ::: {.cheatsheet-column}
@@ -154,36 +189,8 @@
 
 ---
 
-## 3. High-Yield Conceptual Reference & Trivia
-
-### Historical Inventors / Internet Pioneers Matching
-* **TCP/IP:** Vinton Cerf & Robert Kahn
-* **Ethernet:** Robert Metcalfe
-* **Packet Switching Theory:** Leonard Kleinrock
-* **Electronic Mail (Email):** Ray Tomlinson
-* **World Wide Web (WWW):** Tim Berners-Lee
-* **ALOHA Protocol:** Norman Abramson
-
-### Protocol Behavior Across Normalized Delay ($a$)
-* **ALOHA Independence:** ALOHA throughput is flat across varying $a$ because stations transmit blindly without sensing the carrier. Performance depends solely on frame transmission duration ($T_f$).
-* **Why Slotted ALOHA Beats CSMA/CD at Large $a$ ($a \to 1$ or $a > 1$):**
-  * When $a$ is large, propagation delay ($T_p$) is long compared to transmission delay ($T_f$).
-  * Carrier sensing detects outdated channel states, and CSMA/CD's worst-case collision window ($2a$) wastes substantial channel capacity.
-  * Slotted ALOHA confines collisions strictly to discrete slot boundaries, maintaining stable performance.
-* **CSMA Persistence Comparison:**
-  * **1-Persistent:** Senses idle $\to$ transmits immediately ($p=1$). Zero idle delay under light loads; high collision rate under heavy loads.
-  * **Non-Persistent:** Senses busy $\to$ random backoff before re-sensing. Greatly reduces collision under heavy load; wastes capacity idling under light load.
-  * **$p$-Persistent:** Slotted; transmits with probability $p$. Balances low collisions and reduced idle latency by tuning $p$.
-
-### Sliding Window Buffer Edge Mechanics
-* **Sender Window:**
-  * Trailing edge (left) advances when **valid ACKs are received**.
-  * Leading edge (right) advances when **new frames are transmitted**.
-* **Receiver Window:**
-  * Trailing edge (left) advances when **in-order frames are received and delivered to upper layer**.
-  * Leading edge (right) advances when **ACKs are dispatched**.
-
----
+:::
+::: {.cheatsheet-panel}
 
 ## 4. Rapid MCQ Elimination Rules
 

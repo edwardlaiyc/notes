@@ -17,5 +17,7 @@
            Title  = 'Data Link Layer (DLL): Medium Access Control & LANs' }
         @{ Source = '4-network-paradigms\4.md'
            Title  = 'Network Paradigms' }
+        @{ Source = 'cheatsheet.md'
+           Title  = 'Revision Cheatsheet' }
     )
 }

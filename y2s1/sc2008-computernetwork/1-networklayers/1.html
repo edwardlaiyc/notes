@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Network Layers and Physical Resilience · SC2008 Computer
+Network</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=CFB926A4">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Network Layers
+and Physical Resilience</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2008</p>
+  <p class="site-title">Computer Network</p>
+  <h1 class="page-title">Network Layers and Physical Resilience</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-networklayers/1.html"
+                   data-nav="1-networklayers/1.html">Network Layers and
+Physical Resilience</a></li>
+            <li><a href="../2-dll-flow-error-control/2.html"
+                   data-nav="2-dll-flow-error-control/2.html">Data Link
+Layer (DLL): Flow &amp; Error Control</a></li>
+            <li><a href="../3-dll-mac-lan/3.html"
+                   data-nav="3-dll-mac-lan/3.html">Data Link Layer
+(DLL): Medium Access Control &amp; LANs</a></li>
+            <li><a href="../4-network-paradigms/4.html"
+                   data-nav="4-network-paradigms/4.html">Network
+Paradigms</a></li>
+            <li><a href="../cheatsheet.html"
+                   data-nav="cheatsheet.html">Revision
+Cheatsheet</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#network-layers-and-physical-resilience"
+id="toc-network-layers-and-physical-resilience">Network Layers and
+Physical Resilience</a>
+<ul>
+<li><a href="#network-architecture-layering-mechanics"
+id="toc-network-architecture-layering-mechanics">1. Network Architecture
+&amp; Layering Mechanics</a>
+<ul>
+<li><a href="#why-networks-use-layers"
+id="toc-why-networks-use-layers">1.1 Why Networks Use Layers</a></li>
+<li><a href="#protocols-vs.-services"
+id="toc-protocols-vs.-services">1.2 Protocols vs. Services</a></li>
+<li><a href="#data-units-and-the-encapsulation-lifecycle"
+id="toc-data-units-and-the-encapsulation-lifecycle">1.3 Data Units and
+the Encapsulation Lifecycle</a></li>
+<li><a
+href="#header-processing-at-intermediate-switchesrouters-vs.-end-hosts"
+id="toc-header-processing-at-intermediate-switchesrouters-vs.-end-hosts">1.4
+Header Processing at Intermediate Switches/Routers vs. End
+Hosts</a></li>
+</ul></li>
+<li><a href="#reference-models-osi-vs.-tcpip"
+id="toc-reference-models-osi-vs.-tcpip">2. Reference Models: OSI
+vs. TCP/IP</a>
+<ul>
+<li><a href="#layer-comparison-responsibilities"
+id="toc-layer-comparison-responsibilities">2.1 Layer Comparison &amp;
+Responsibilities</a></li>
+</ul></li>
+<li><a href="#network-resilience-availability-modeling"
+id="toc-network-resilience-availability-modeling">3. Network Resilience
+&amp; Availability Modeling</a>
+<ul>
+<li><a href="#operational-reliability-parameters"
+id="toc-operational-reliability-parameters">3.1 Operational Reliability
+Parameters</a></li>
+<li><a href="#link-availability-failure-probabilities"
+id="toc-link-availability-failure-probabilities">3.2 Link Availability
+&amp; Failure Probabilities</a></li>
+</ul></li>
+<li><a href="#network-topological-resilience-calculations"
+id="toc-network-topological-resilience-calculations">4. Network
+Topological Resilience Calculations</a>
+<ul>
+<li><a href="#fundamental-independence-assumption"
+id="toc-fundamental-independence-assumption">4.1 Fundamental
+Independence Assumption</a></li>
+<li><a href="#series-topology" id="toc-series-topology">4.2 Series
+Topology</a></li>
+<li><a href="#parallel-topology" id="toc-parallel-topology">4.3 Parallel
+Topology</a></li>
+<li><a href="#hybrid-networks-path-based-reduction-framework"
+id="toc-hybrid-networks-path-based-reduction-framework">4.4 Hybrid
+Networks: Path-Based Reduction Framework</a></li>
+</ul></li>
+<li><a href="#exam-problem-archetypes"
+id="toc-exam-problem-archetypes">5. Exam Problem Archetypes</a>
+<ul>
+<li><a href="#archetype-1-downtime-calculation-from-nines"
+id="toc-archetype-1-downtime-calculation-from-nines">Archetype 1:
+Downtime Calculation from Nines</a></li>
+<li><a href="#archetype-2-series-parallel-graph-reduction"
+id="toc-archetype-2-series-parallel-graph-reduction">Archetype 2:
+Series-Parallel Graph Reduction</a></li>
+</ul></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="network-layers-and-physical-resilience">Network Layers and
+Physical Resilience</h1>
+<h2 id="network-architecture-layering-mechanics">1. Network Architecture
+&amp; Layering Mechanics</h2>
+<h3 id="why-networks-use-layers">1.1 Why Networks Use Layers</h3>
+<ul>
+<li><strong>Separation of Concerns:</strong> Computer networks are
+complex systems made of hardware, operating system drivers, transmission
+media, and user applications. Layering breaks the network into a
+vertical stack so each layer handles one specific job.</li>
+<li><strong>Service Abstraction:</strong> Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+provides a clear service to the layer directly above it (Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n+1</annotation></semantics></math>)
+through an interface called a <strong>Service Access Point
+(SAP)</strong>. Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n+1</annotation></semantics></math>
+does not need to know how Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+works internally.</li>
+<li><strong>Modularity:</strong> You can change or upgrade a protocol
+inside one layer (e.g., upgrading from Wi-Fi to Ethernet) without
+changing or breaking the layers above or below it, as long as the
+interface between them stays the same.</li>
+</ul>
+<hr />
+<h3 id="protocols-vs.-services">1.2 Protocols vs. Services</h3>
+<ul>
+<li><strong>Protocols (Horizontal Peer-to-Peer Communication):</strong>
+<ul>
+<li>A protocol is a set of rules and message formats used between two
+machines communicating at the <strong>same layer</strong> (e.g.,
+transport entity to transport entity).</li>
+<li>Protocols define message syntax (structure), transmission
+timing/order, and what action to take when receiving a message.</li>
+<li>Peer layers do not talk to each other directly across the wire. Data
+must travel down the local machine’s stack, across the physical cable,
+and up the destination machine’s stack.</li>
+</ul></li>
+<li><strong>Services (Vertical Communication via SAP):</strong>
+<ul>
+<li>A service is what Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+makes available to Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n+1</annotation></semantics></math>
+directly above it.</li>
+<li>The conceptual connection point where Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+passes data to Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n+1</annotation></semantics></math>
+is called an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mtext mathvariant="normal">-SAP</mtext></mrow><annotation encoding="application/x-tex">(n)\text{-SAP}</annotation></semantics></math>.
+It is named after the underlying service provider (Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>).</li>
+</ul></li>
+</ul>
+<hr />
+<h3 id="data-units-and-the-encapsulation-lifecycle">1.3 Data Units and
+the Encapsulation Lifecycle</h3>
+<ul>
+<li><strong>Service Data Unit (SDU):</strong> The raw data passed across
+an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mtext mathvariant="normal">-SAP</mtext></mrow><annotation encoding="application/x-tex">(n)\text{-SAP}</annotation></semantics></math>
+from Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n+1</annotation></semantics></math>
+down to Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.
+It is the payload that Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+must deliver.</li>
+<li><strong>Protocol Data Unit (PDU):</strong> The complete data packet
+built by Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.
+It combines Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>’s
+control header (and optional trailer) with the SDU payload:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">PDU</mtext><mi>n</mi></msub><mo>=</mo><msub><mtext mathvariant="normal">Header</mtext><mi>n</mi></msub><mo>+</mo><msub><mtext mathvariant="normal">SDU</mtext><mi>n</mi></msub><mspace width="0.222em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>+</mi><msub><mtext mathvariant="normal">Trailer</mtext><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{PDU}_n = \text{Header}_n + \text{SDU}_n \ (+ \text{Trailer}_n)</annotation></semantics></math></li>
+<li><strong>Layer Boundary Invariant:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">PDU</mtext><mi>n</mi></msub><mo>=</mo><msub><mtext mathvariant="normal">SDU</mtext><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">\text{PDU}_n = \text{SDU}_{n-1}</annotation></semantics></math>
+The full PDU built at Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+becomes the raw SDU payload handed down to Layer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n-1</annotation></semantics></math>.</li>
+<li><strong>Encapsulation (Sending):</strong> Moving down the stack from
+application to physical wire, each layer adds its own control header to
+the data.</li>
+<li><strong>Decapsulation (Receiving):</strong> Moving up the stack from
+physical wire to application, each layer checks its own header, strips
+it off, and passes the remaining payload up.</li>
+</ul>
+<figure>
+<img width="774" height="385" src="media/1-artifacts/sap-sdu-pdu.webp" style="width:62.0%"
+loading="lazy" decoding="async"
+alt="Services, SAPs, SDUs and PDUs between adjacent layers" />
+<figcaption aria-hidden="true">Services, SAPs, SDUs and PDUs between
+adjacent layers</figcaption>
+</figure>
+<hr />
+<h3
+id="header-processing-at-intermediate-switchesrouters-vs.-end-hosts">1.4
+Header Processing at Intermediate Switches/Routers vs. End Hosts</h3>
+<ul>
+<li><strong>End Hosts:</strong> End machines run the complete protocol
+stack (Layers 1 to 7 in OSI, or Layers 1 to 5 in TCP/IP).</li>
+<li><strong>Intermediate Switching Nodes (Routers / Switches):</strong>
+<ul>
+<li>Standard intermediate forwarding devices operate only up to
+<strong>Layer 3 (Network Layer)</strong>.</li>
+<li><strong>Hop-by-Hop L2 Replacement:</strong> When an intermediate
+router receives bits from an incoming link:
+<ol type="1">
+<li>It reassembles the bits into a Layer 2 frame.</li>
+<li>It strips and discards the Layer 2 header
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mi>H</mi></mrow><annotation encoding="application/x-tex">DH</annotation></semantics></math>)
+and trailer
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mi>T</mi></mrow><annotation encoding="application/x-tex">DT</annotation></semantics></math>).</li>
+<li>It reads the Layer 3 Network Header
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>H</mi></mrow><annotation encoding="application/x-tex">NH</annotation></semantics></math>)
+to check the destination IP address and pick the outgoing link.</li>
+<li>It encapsulates the packet into a brand-new Layer 2 frame with new
+local MAC addresses and trailer before sending it onto the next
+hop.</li>
+</ol></li>
+<li>The Layer 3 Network Header
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>H</mi></mrow><annotation encoding="application/x-tex">NH</annotation></semantics></math>)
+and all higher-layer headers
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mi>H</mi></mrow><annotation encoding="application/x-tex">TH</annotation></semantics></math>,
+application data) remain unchanged end-to-end.</li>
+</ul></li>
+</ul>
+<figure>
+<img width="1400" height="512" src="media/1-artifacts/osi-encapsulation-per-hop.webp"
+loading="lazy" decoding="async"
+alt="OSI encapsulation and per-hop forwarding" />
+<figcaption aria-hidden="true">OSI encapsulation and per-hop
+forwarding</figcaption>
+</figure>
+<hr />
+<h2 id="reference-models-osi-vs.-tcpip">2. Reference Models: OSI
+vs. TCP/IP</h2>
+<h3 id="layer-comparison-responsibilities">2.1 Layer Comparison &amp;
+Responsibilities</h3>
+<figure>
+<img width="1065" height="577" src="media/1-artifacts/osi-layer-functions.webp" loading="lazy"
+decoding="async" alt="OSI layer functions" />
+<figcaption aria-hidden="true">OSI layer functions</figcaption>
+</figure>
+<figure>
+<img width="1239" height="544" src="media/1-artifacts/osi-vs-tcpip-mapping.webp" loading="lazy"
+decoding="async" alt="OSI and TCP/IP layer mapping" />
+<figcaption aria-hidden="true">OSI and TCP/IP layer mapping</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 16%" />
+<col style="width: 18%" />
+<col style="width: 11%" />
+<col style="width: 18%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Layer #</th>
+<th style="text-align: left;">OSI 7-Layer Model</th>
+<th style="text-align: left;">TCP/IP 5-Layer Model</th>
+<th style="text-align: center;">PDU Name</th>
+<th style="text-align: center;">Implementation Domain</th>
+<th style="text-align: left;">Core Functions &amp; Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>7</strong></td>
+<td style="text-align: left;">Application</td>
+<td style="text-align: left;"><strong>Application</strong> (combines OSI
+5–7)</td>
+<td style="text-align: center;">Message / Data</td>
+<td style="text-align: center;">User Space (Software)</td>
+<td style="text-align: left;">Interfaces network services to user
+programs: HTTP, SMTP, DNS, FTP</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>6</strong></td>
+<td style="text-align: left;">Presentation</td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">Data translation, encryption/decryption,
+data compression: ASCII, JPEG</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>5</strong></td>
+<td style="text-align: left;">Session</td>
+<td style="text-align: left;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: left;">Manages dialogue and connections between
+software processes</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>4</strong></td>
+<td style="text-align: left;">Transport</td>
+<td style="text-align: left;"><strong>Transport
+(Host-to-Host)</strong></td>
+<td style="text-align: center;">Segment</td>
+<td style="text-align: center;">OS Kernel (Software)</td>
+<td style="text-align: left;">End-to-end process-to-process delivery,
+port numbers, reliability, flow control: TCP, UDP</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>3</strong></td>
+<td style="text-align: left;">Network</td>
+<td style="text-align: left;"><strong>Network (Internet)</strong></td>
+<td style="text-align: center;">Packet / Datagram</td>
+<td style="text-align: center;">OS Kernel (Software)</td>
+<td style="text-align: left;">Logical addressing (IP addresses) and path
+routing across subnets: IPv4, IPv6, ICMP</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>2</strong></td>
+<td style="text-align: left;">Data Link</td>
+<td style="text-align: left;"><strong>Data Link (Network
+Access)</strong></td>
+<td style="text-align: center;">Frame</td>
+<td style="text-align: center;">Network Adapter / Firmware</td>
+<td style="text-align: left;">Direct node-to-node delivery over one
+physical link, MAC addressing, framing, hop-to-hop flow/error control:
+Ethernet, Wi-Fi</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>1</strong></td>
+<td style="text-align: left;">Physical</td>
+<td style="text-align: left;"><strong>Physical</strong></td>
+<td style="text-align: center;">Bit</td>
+<td style="text-align: center;">Hardware / Medium</td>
+<td style="text-align: left;">Transmitting raw electrical/optical bit
+streams over physical cables or radio links</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="network-resilience-availability-modeling">3. Network Resilience
+&amp; Availability Modeling</h2>
+<h3 id="operational-reliability-parameters">3.1 Operational Reliability
+Parameters</h3>
+<ul>
+<li><strong>Mean Time to Failure (MTTF):</strong> The average continuous
+uptime of a link or device before it breaks.</li>
+<li><strong>Mean Time to Repair (MTTR):</strong> The average downtime
+required to repair a failed link or device and bring it back
+online.</li>
+<li><strong>Mean Time Between Failures (MTBF):</strong> The total cycle
+time from one failure to the next:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">MTBF</mtext><mo>=</mo><mtext mathvariant="normal">MTTF</mtext><mo>+</mo><mtext mathvariant="normal">MTTR</mtext></mrow><annotation encoding="application/x-tex">\text{MTBF} = \text{MTTF} + \text{MTTR}</annotation></semantics></math></li>
+</ul>
+<hr />
+<h3 id="link-availability-failure-probabilities">3.2 Link Availability
+&amp; Failure Probabilities</h3>
+<p>For any individual network link
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>:</p>
+<ul>
+<li><strong>Link Availability
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mi>i</mi></msub><annotation encoding="application/x-tex">r_i</annotation></semantics></math>):</strong>
+The steady-state probability that link
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+is working:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mi>i</mi></msub><mo>=</mo><mfrac><mtext mathvariant="normal">MTTF</mtext><mtext mathvariant="normal">MTBF</mtext></mfrac><mo>=</mo><mfrac><mtext mathvariant="normal">MTTF</mtext><mrow><mtext mathvariant="normal">MTTF</mtext><mo>+</mo><mtext mathvariant="normal">MTTR</mtext></mrow></mfrac></mrow><annotation encoding="application/x-tex">r_i = \frac{\text{MTTF}}{\text{MTBF}} = \frac{\text{MTTF}}{\text{MTTF} + \text{MTTR}}</annotation></semantics></math></li>
+<li><strong>Link Failure Probability / Unavailability
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mi>i</mi></msub><annotation encoding="application/x-tex">b_i</annotation></semantics></math>):</strong>
+The steady-state probability that link
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+is down:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mi>i</mi></msub><mo>=</mo><mfrac><mtext mathvariant="normal">MTTR</mtext><mtext mathvariant="normal">MTBF</mtext></mfrac><mo>=</mo><mfrac><mtext mathvariant="normal">MTTR</mtext><mrow><mtext mathvariant="normal">MTTF</mtext><mo>+</mo><mtext mathvariant="normal">MTTR</mtext></mrow></mfrac></mrow><annotation encoding="application/x-tex">b_i = \frac{\text{MTTR}}{\text{MTBF}} = \frac{\text{MTTR}}{\text{MTTF} + \text{MTTR}}</annotation></semantics></math></li>
+<li><strong>Complementary Relation:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mi>i</mi></msub><mo>+</mo><msub><mi>b</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn><mo>⇔</mo><msub><mi>b</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><msub><mi>r</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">r_i + b_i = 1 \iff b_i = 1 - r_i</annotation></semantics></math></li>
+</ul>
+<h4 id="system-downtime-calculation">System Downtime Calculation</h4>
+<p>Over an operational time window
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mtext mathvariant="normal">window</mtext></msub><annotation encoding="application/x-tex">T_{\text{window}}</annotation></semantics></math>
+(such as 1 year):
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Allowable Downtime</mtext><mo>=</mo><mi>b</mi><mo>×</mo><msub><mi>T</mi><mtext mathvariant="normal">window</mtext></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>r</mi><mo stretchy="false" form="postfix">)</mo><mo>×</mo><msub><mi>T</mi><mtext mathvariant="normal">window</mtext></msub></mrow><annotation encoding="application/x-tex">\text{Allowable Downtime} = b \times T_{\text{window}} = (1 - r) \times T_{\text{window}}</annotation></semantics></math></p>
+<h4 id="the-nines-rule">The “Nines” Rule</h4>
+<p>High-availability systems are described by the number of “nines” of
+reliability
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+nines):
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><mn>1</mn><mo>−</mo><msup><mn>10</mn><mrow><mi>−</mi><mi>k</mi></mrow></msup><mo>⇔</mo><mi>b</mi><mo>=</mo><msup><mn>10</mn><mrow><mi>−</mi><mi>k</mi></mrow></msup></mrow><annotation encoding="application/x-tex">r = 1 - 10^{-k} \iff b = 10^{-k}</annotation></semantics></math></p>
+<ul>
+<li><strong>Three 9s
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>99.9</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">99.9\%</annotation></semantics></math>):</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>3</mn></mrow></msup><mo>=</mo><mn>0.001</mn></mrow><annotation encoding="application/x-tex">b = 10^{-3} = 0.001</annotation></semantics></math></li>
+<li><strong>Four 9s
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>99.99</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">99.99\%</annotation></semantics></math>):</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>4</mn></mrow></msup><mo>=</mo><mn>0.0001</mn></mrow><annotation encoding="application/x-tex">b = 10^{-4} = 0.0001</annotation></semantics></math></li>
+<li><strong>Five 9s
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>99.999</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">99.999\%</annotation></semantics></math>):</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup><mo>=</mo><mn>0.00001</mn></mrow><annotation encoding="application/x-tex">b = 10^{-5} = 0.00001</annotation></semantics></math></li>
+<li><strong>Six 9s
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>99.9999</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">99.9999\%</annotation></semantics></math>):</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>6</mn></mrow></msup><mo>=</mo><mn>0.000001</mn></mrow><annotation encoding="application/x-tex">b = 10^{-6} = 0.000001</annotation></semantics></math></li>
+</ul>
+<hr />
+<h2 id="network-topological-resilience-calculations">4. Network
+Topological Resilience Calculations</h2>
+<h3 id="fundamental-independence-assumption">4.1 Fundamental
+Independence Assumption</h3>
+<p>All link failures are assumed to be <strong>statistically
+independent</strong>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mrow><mtext mathvariant="normal">Link </mtext><mspace width="0.333em"></mspace></mrow><mi>A</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> and Link </mtext><mspace width="0.333em"></mspace></mrow><mi>B</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> fail</mtext></mrow><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(\text{Link } A \text{ and Link } B \text{ fail}) = P(A) \times P(B)</annotation></semantics></math></p>
+<hr />
+<h3 id="series-topology">4.2 Series Topology</h3>
+<p>In a series topology, data must pass through every link. If any link
+breaks, the entire connection is broken.</p>
+<figure>
+<img width="530" height="117" src="media/1-artifacts/resilience-series.webp" style="width:55.0%"
+loading="lazy" decoding="async" alt="Series graph" />
+<figcaption aria-hidden="true">Series graph</figcaption>
+</figure>
+<ul>
+<li><strong>Availability
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mtext mathvariant="normal">series</mtext></msub><annotation encoding="application/x-tex">r_{\text{series}}</annotation></semantics></math>):</strong>
+Probability that all links work at the same time:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mtext mathvariant="normal">series</mtext></msub><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>r</mi><mi>i</mi></msub><mo>=</mo><msub><mi>r</mi><mn>1</mn></msub><mo>×</mo><msub><mi>r</mi><mn>2</mn></msub><mo>×</mo><mi>⋯</mi><mo>×</mo><msub><mi>r</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">r_{\text{series}} = \prod_{i=1}^{n} r_i = r_1 \times r_2 \times \cdots \times r_n</annotation></semantics></math></li>
+<li><strong>Failure Probability
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mtext mathvariant="normal">series</mtext></msub><annotation encoding="application/x-tex">b_{\text{series}}</annotation></semantics></math>):</strong>
+Probability that at least one link breaks:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mtext mathvariant="normal">series</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><msub><mi>r</mi><mtext mathvariant="normal">series</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>b</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">b_{\text{series}} = 1 - r_{\text{series}} = 1 - \prod_{i=1}^{n} (1 - b_i)</annotation></semantics></math></li>
+</ul>
+<hr />
+<h3 id="parallel-topology">4.3 Parallel Topology</h3>
+<p>In a parallel topology, alternative paths exist. Communication breaks
+only if all redundant links fail at the same time.</p>
+<figure>
+<img width="530" height="117" src="media/1-artifacts/resilience-parallel.webp" style="width:55.0%"
+loading="lazy" decoding="async" alt="Parallel graph" />
+<figcaption aria-hidden="true">Parallel graph</figcaption>
+</figure>
+<ul>
+<li><strong>Failure Probability
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>b</mi><mtext mathvariant="normal">parallel</mtext></msub><annotation encoding="application/x-tex">b_{\text{parallel}}</annotation></semantics></math>):</strong>
+Probability that all independent links break together:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mtext mathvariant="normal">parallel</mtext></msub><mo>=</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>b</mi><mi>i</mi></msub><mo>=</mo><msub><mi>b</mi><mn>1</mn></msub><mo>×</mo><msub><mi>b</mi><mn>2</mn></msub><mo>×</mo><mi>⋯</mi><mo>×</mo><msub><mi>b</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">b_{\text{parallel}} = \prod_{i=1}^{n} b_i = b_1 \times b_2 \times \cdots \times b_n</annotation></semantics></math></li>
+<li><strong>Availability
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mtext mathvariant="normal">parallel</mtext></msub><annotation encoding="application/x-tex">r_{\text{parallel}}</annotation></semantics></math>):</strong>
+Probability that at least one working path survives:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mtext mathvariant="normal">parallel</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><msub><mi>b</mi><mtext mathvariant="normal">parallel</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><munderover><mo>∏</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>b</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">r_{\text{parallel}} = 1 - b_{\text{parallel}} = 1 - \prod_{i=1}^{n} b_i</annotation></semantics></math></li>
+</ul>
+<hr />
+<h3 id="hybrid-networks-path-based-reduction-framework">4.4 Hybrid
+Networks: Path-Based Reduction Framework</h3>
+<p>To find the end-to-end disconnection probability in a series-parallel
+graph:</p>
+<ol type="1">
+<li>Identify all independent parallel routes that connect the source to
+the destination.</li>
+<li>For each route that contains links in series, calculate that route’s
+availability
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>r</mi><mtext mathvariant="normal">route</mtext></msub><annotation encoding="application/x-tex">r_{\text{route}}</annotation></semantics></math>
+by multiplying the individual link availabilities.</li>
+<li>Find each route’s failure probability:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mtext mathvariant="normal">route</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><msub><mi>r</mi><mtext mathvariant="normal">route</mtext></msub></mrow><annotation encoding="application/x-tex">b_{\text{route}} = 1 - r_{\text{route}}</annotation></semantics></math></li>
+<li>The system is disconnected only if all independent routes fail at
+the same time. Multiply their failure probabilities together:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mtext mathvariant="normal">total</mtext></msub><mo>=</mo><mo>∏</mo><msub><mi>b</mi><mtext mathvariant="normal">route</mtext></msub></mrow><annotation encoding="application/x-tex">b_{\text{total}} = \prod b_{\text{route}}</annotation></semantics></math></li>
+<li>Find total system availability:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mtext mathvariant="normal">total</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><msub><mi>b</mi><mtext mathvariant="normal">total</mtext></msub></mrow><annotation encoding="application/x-tex">r_{\text{total}} = 1 - b_{\text{total}}</annotation></semantics></math></li>
+</ol>
+<figure>
+<img width="530" height="178" src="media/1-artifacts/resilience-hybrid.webp" style="width:55.0%"
+loading="lazy" decoding="async" alt="Hybrid graph" />
+<figcaption aria-hidden="true">Hybrid graph</figcaption>
+</figure>
+<hr />
+<h2 id="exam-problem-archetypes">5. Exam Problem Archetypes</h2>
+<h3 id="archetype-1-downtime-calculation-from-nines">Archetype 1:
+Downtime Calculation from Nines</h3>
+<ul>
+<li><strong>Problem:</strong> A carrier-grade telecommunications network
+requires 6 nines
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>99.9999</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">99.9999\%</annotation></semantics></math>)
+availability. Calculate the maximum allowable downtime in seconds per
+year (assume a 365-day year).</li>
+<li><strong>Step 1: Extract failure probability
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><mn>99.9999</mn><mi>%</mi><mo>=</mo><mn>1</mn><mo>−</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>6</mn></mrow></msup><mo>⟹</mo><mi>b</mi><mo>=</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>6</mn></mrow></msup></mrow><annotation encoding="application/x-tex">r = 99.9999\% = 1 - 10^{-6} \implies b = 10^{-6}</annotation></semantics></math></li>
+<li><strong>Step 2: Convert 1 year into total seconds:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">year</mtext></msub><mo>=</mo><mn>365</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> days</mtext></mrow><mo>×</mo><mn>24</mn><mfrac><mtext mathvariant="normal">hours</mtext><mtext mathvariant="normal">day</mtext></mfrac><mo>×</mo><mn>60</mn><mfrac><mtext mathvariant="normal">minutes</mtext><mtext mathvariant="normal">hour</mtext></mfrac><mo>×</mo><mn>60</mn><mfrac><mtext mathvariant="normal">seconds</mtext><mtext mathvariant="normal">minute</mtext></mfrac><mo>=</mo><mn>31</mn><mo>,</mo><mn>536</mn><mo>,</mo><mn>000</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> seconds</mtext></mrow></mrow><annotation encoding="application/x-tex">T_{\text{year}} = 365 \text{ days} \times 24 \frac{\text{hours}}{\text{day}} \times 60 \frac{\text{minutes}}{\text{hour}} \times 60 \frac{\text{seconds}}{\text{minute}} = 31{,}536{,}000 \text{ seconds}</annotation></semantics></math></li>
+<li><strong>Step 3: Compute downtime:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Downtime</mtext><mo>=</mo><mi>b</mi><mo>×</mo><msub><mi>T</mi><mtext mathvariant="normal">year</mtext></msub><mo>=</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>6</mn></mrow></msup><mo>×</mo><mn>31</mn><mo>,</mo><mn>536</mn><mo>,</mo><mn>000</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> s</mtext></mrow><mo>=</mo><mrow><mn mathvariant="bold">𝟑𝟏.𝟓𝟑𝟔</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐬𝐞𝐜𝐨𝐧𝐝𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Downtime} = b \times T_{\text{year}} = 10^{-6} \times 31{,}536{,}000 \text{ s} = \mathbf{31.536 \text{ seconds}}</annotation></semantics></math></li>
+</ul>
+<hr />
+<h3 id="archetype-2-series-parallel-graph-reduction">Archetype 2:
+Series-Parallel Graph Reduction</h3>
+<ul>
+<li><strong>Problem:</strong> Node SG connects to Node SF. There are two
+independent parallel links between SG and intermediate node HW. Node HW
+connects to SF via one link. Additionally, a direct long-range link
+connects SG straight to SF. Each link fails independently with
+probability
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">b = 0.05</annotation></semantics></math>.
+Calculate the probability that SG is disconnected from SF.</li>
+<li><strong>Step 1: Reduce the parallel section between SG and
+HW:</strong> Both parallel links must fail for the segment between SG
+and HW to break:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mtext mathvariant="normal">SG-HW</mtext></msub><mo>=</mo><mi>b</mi><mo>×</mo><mi>b</mi><mo>=</mo><mn>0.05</mn><mo>×</mo><mn>0.05</mn><mo>=</mo><mn>0.0025</mn></mrow><annotation encoding="application/x-tex">b_{\text{SG-HW}} = b \times b = 0.05 \times 0.05 = 0.0025</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mtext mathvariant="normal">SG-HW</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><mn>0.0025</mn><mo>=</mo><mn>0.9975</mn></mrow><annotation encoding="application/x-tex">r_{\text{SG-HW}} = 1 - 0.0025 = 0.9975</annotation></semantics></math></li>
+<li><strong>Step 2: Calculate availability of the indirect route (SG
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+HW
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+SF):</strong> This route is a series combination of the reduced SG-HW
+link and the HW-SF link:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mtext mathvariant="normal">indirect</mtext></msub><mo>=</mo><msub><mi>r</mi><mtext mathvariant="normal">SG-HW</mtext></msub><mo>×</mo><msub><mi>r</mi><mtext mathvariant="normal">HW-SF</mtext></msub><mo>=</mo><mn>0.9975</mn><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mn>0.05</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0.9975</mn><mo>×</mo><mn>0.95</mn><mo>=</mo><mn>0.947625</mn></mrow><annotation encoding="application/x-tex">r_{\text{indirect}} = r_{\text{SG-HW}} \times r_{\text{HW-SF}} = 0.9975 \times (1 - 0.05) = 0.9975 \times 0.95 = 0.947625</annotation></semantics></math></li>
+<li><strong>Step 3: Convert the indirect route into a failure
+probability:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>b</mi><mtext mathvariant="normal">indirect</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><msub><mi>r</mi><mtext mathvariant="normal">indirect</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><mn>0.947625</mn><mo>=</mo><mn>0.052375</mn></mrow><annotation encoding="application/x-tex">b_{\text{indirect}} = 1 - r_{\text{indirect}} = 1 - 0.947625 = 0.052375</annotation></semantics></math></li>
+<li><strong>Step 4: Combine the two independent paths (Direct
+vs. Indirect):</strong> SG is disconnected from SF only if both the
+direct link and the indirect route fail at the same time:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">Disconnected</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>b</mi><mtext mathvariant="normal">direct</mtext></msub><mo>×</mo><msub><mi>b</mi><mtext mathvariant="normal">indirect</mtext></msub><mo>=</mo><mn>0.05</mn><mo>×</mo><mn>0.052375</mn><mo>=</mo><mn mathvariant="bold">𝟎.𝟎𝟎𝟐𝟔𝟏𝟖𝟕𝟓</mn><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mo>≈</mo><mn>0.262</mn><mi>%</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(\text{Disconnected}) = b_{\text{direct}} \times b_{\text{indirect}} = 0.05 \times 0.052375 = \mathbf{0.00261875} \quad (\approx 0.262\%)</annotation></semantics></math></li>
+<li><strong>Step 5: Total Network Availability:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mtext mathvariant="normal">total</mtext></msub><mo>=</mo><mn>1</mn><mo>−</mo><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">Disconnected</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mo>−</mo><mn>0.00261875</mn><mo>=</mo><mn mathvariant="bold">𝟎.𝟗𝟗𝟕𝟑𝟖𝟏𝟐𝟓</mn><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mo>≈</mo><mn>99.738</mn><mi>%</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">r_{\text{total}} = 1 - P(\text{Disconnected}) = 1 - 0.00261875 = \mathbf{0.99738125} \quad (\approx 99.738\%)</annotation></semantics></math></li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../index.html">← Overview</a>
+  <a class="next-page" href="../2-dll-flow-error-control/2.html">Data
+Link Layer (DLL): Flow &amp; Error Control →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

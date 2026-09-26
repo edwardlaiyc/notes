@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Class Inheritance, super Chaining &amp;
+Visibility · SC2302 Object-Oriented Programming</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/style.css?v=D2A858E1">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Class
+Inheritance, super Chaining &amp; Visibility</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2302</p>
+  <p class="site-title">Object-Oriented Programming</p>
+  <h1 class="page-title">Class Inheritance, super Chaining &amp;
+Visibility</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="1.html"
+                   data-nav="1.html">Object State and
+Encapsulation</a></li>
+            <li><a href="2.html"
+                   data-nav="2.html">Inheritance and Visibility</a></li>
+            <li><a href="3.html"
+                   data-nav="3.html">Interfaces and Scanner I/O</a></li>
+            <li><a href="4.html"
+                   data-nav="4.html">Polymorphism and
+Typecasting</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#class-inheritance-super-chaining-visibility"
+id="toc-class-inheritance-super-chaining-visibility">Class Inheritance,
+super Chaining &amp; Visibility</a>
+<ul>
+<li><a href="#definitions-reference" id="toc-definitions-reference">1.
+Definitions Reference</a></li>
+<li><a href="#inheritance-rules-structural-invariants"
+id="toc-inheritance-rules-structural-invariants">2. Inheritance Rules
+&amp; Structural Invariants</a>
+<ul>
+<li><a href="#incomplete-abstract-implementation-trap"
+id="toc-incomplete-abstract-implementation-trap">Incomplete Abstract
+Implementation Trap</a></li>
+<li><a href="#inheritance-misuse-trap-subclassing-vs-composition"
+id="toc-inheritance-misuse-trap-subclassing-vs-composition">Inheritance
+Misuse Trap (Subclassing vs Composition)</a></li>
+</ul></li>
+<li><a href="#method-overriding-dispatch-mechanics"
+id="toc-method-overriding-dispatch-mechanics">3. Method Overriding &amp;
+Dispatch Mechanics</a>
+<ul>
+<li><a href="#the-three-modes-of-overriding"
+id="toc-the-three-modes-of-overriding">The Three Modes of
+Overriding</a></li>
+<li><a href="#dispatch-mechanics-constraints"
+id="toc-dispatch-mechanics-constraints">Dispatch Mechanics &amp;
+Constraints</a></li>
+</ul></li>
+<li><a href="#visibility-modifiers-package-boundaries"
+id="toc-visibility-modifiers-package-boundaries">4. Visibility Modifiers
+&amp; Package Boundaries</a></li>
+<li><a href="#uml-reference-diagram" id="toc-uml-reference-diagram">5.
+UML Reference Diagram</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="class-inheritance-super-chaining-visibility">Class Inheritance,
+super Chaining &amp; Visibility</h1>
+<style>
+table.wide-table { width: max-content; min-width: 100%; table-layout: auto; }
+</style>
+<h2 id="definitions-reference">1. Definitions Reference</h2>
+<ul>
+<li><strong>Inheritance</strong>: An “is-a” relationship where a
+subclass acquires accessible fields and methods from a superclass.</li>
+<li><strong>Superclass</strong>: A class containing shared state and
+behaviour extended by one or more subclasses.</li>
+<li><strong>Subclass</strong>: A class that extends a superclass,
+inheriting accessible members and adding or overriding behaviour.</li>
+<li><strong>Abstract Class</strong>: A class declared with
+<code>abstract class</code> that can define state, constructors, and
+abstract methods, but cannot be directly instantiated.</li>
+<li><strong>Method Overriding</strong>: Redefining an inherited instance
+method in a subclass with the identical signature to provide specific
+behaviour.</li>
+<li><strong>Method Overloading</strong>: Defining multiple methods
+within the same class with identical names but differing parameter
+lists.</li>
+<li><strong>Package</strong>: A namespace grouping related classes and
+interfaces to prevent naming collisions and enforce access
+boundaries.</li>
+</ul>
+<h2 id="inheritance-rules-structural-invariants">2. Inheritance Rules
+&amp; Structural Invariants</h2>
+<ul>
+<li><strong>Direct Single Inheritance Only</strong>: A Java class cannot
+directly extend two superclasses simultaneously
+(<code>class C extends A, B</code> is a compile-time error).</li>
+<li><strong>Transitive Multiple Inheritance</strong>: A class can extend
+multiple superclasses transitively through a linear chain
+(<code>class C extends B</code> where <code>class B extends A</code>),
+inheriting all accessible ancestors’ members.</li>
+<li><strong>Constructors Are Not Inherited</strong>: A subclass does not
+inherit constructors from its superclass. It must declare its own
+constructors and delegate explicitly or implicitly to the superclass
+constructor.</li>
+<li><strong>Constructor Delegation Failure</strong>: If a superclass
+defines any explicit constructor with arguments, the compiler does not
+generate a default no-argument constructor. If the subclass fails to
+call <code>super(args)</code> explicitly, the compiler inserts
+<code>super()</code>, triggering a compile-time error.</li>
+<li><strong>Positioning Rule</strong>: An explicit
+<code>super(...)</code> or <code>this(...)</code> call must be the
+absolute first statement in a constructor body.</li>
+</ul>
+<h3 id="incomplete-abstract-implementation-trap">Incomplete Abstract
+Implementation Trap</h3>
+<ul>
+<li><strong>Rule</strong>: If a subclass inherits abstract methods from
+an abstract superclass (or interface) and does not provide a concrete
+implementation body for <strong>every single one</strong> of them, that
+subclass <strong>MUST be declared <code>abstract</code></strong>.</li>
+<li><strong>Trap</strong>: Attempting to declare an intermediate class
+without the <code>abstract</code> modifier when any inherited abstract
+method remains un-implemented causes an immediate compile-time error
+(<code>Class must either be declared abstract or implement abstract method</code>).</li>
+</ul>
+<h3 id="inheritance-misuse-trap-subclassing-vs-composition">Inheritance
+Misuse Trap (Subclassing vs Composition)</h3>
+<ul>
+<li><strong>Anti-pattern</strong>: Creating
+<code>class Circle extends Point</code> or
+<code>class Cylinder extends Circle</code> merely to reuse fields
+(<code>x</code>, <code>y</code>, <code>radius</code>) violates the
+<strong>is-a</strong> relationship and LSP.</li>
+<li><strong>Formula Check</strong>: Ask <em>“Is Subclass strictly a
+Superclass?”</em>
+<ul>
+<li>A Circle is <strong>not</strong> a Point; a Circle <strong>has
+a</strong> Point (center).</li>
+<li>A Cylinder is <strong>not</strong> a Circle; a Cylinder <strong>has
+a</strong> Circle (base).</li>
+</ul></li>
+<li><strong>Verdict</strong>: Use <strong>Composition</strong>
+(containment via instance fields), never Inheritance, when the
+relationship represents whole-part or attribute containment rather than
+true taxonomic specialization.</li>
+</ul>
+<h2 id="method-overriding-dispatch-mechanics">3. Method Overriding &amp;
+Dispatch Mechanics</h2>
+<h3 id="the-three-modes-of-overriding">The Three Modes of
+Overriding</h3>
+<ol type="1">
+<li><strong>Replacement</strong>: Completely replacing the superclass
+method’s behaviour by providing a new body without invoking the parent
+version.</li>
+<li><strong>Refinement (Augmentation)</strong>: Reusing and extending
+superclass logic by invoking <code>super.methodName()</code> inside the
+override and adding new statements.</li>
+<li><strong>Implementation</strong>: Providing the concrete method body
+for an inherited <code>abstract</code> method defined in an abstract
+superclass or interface.</li>
+</ol>
+<h3 id="dispatch-mechanics-constraints">Dispatch Mechanics &amp;
+Constraints</h3>
+<ul>
+<li><strong>Method Lookup Sequence</strong>: When a message is
+dispatched to an object, lookup begins at the actual object’s class,
+traverses up to the immediate superclass, and continues up through each
+ancestor until a matching method is found or the hierarchy terminates at
+<code>Object</code> (triggering an error).</li>
+<li><strong>Signature Matching</strong>: Overriding requires an exact
+match in method name, number of parameters, and parameter types.</li>
+<li><strong>Covariant Return Types</strong>: An overriding method may
+declare a return type that is a subtype of the superclass method’s
+return type.</li>
+<li><strong>Visibility Constraint</strong>: An overriding method cannot
+reduce access visibility (e.g., overriding a <code>public</code> method
+with <code>protected</code>, package-private, or <code>private</code>
+causes a compile-time error).</li>
+<li><strong>Invoking Parent Behaviour
+(<code>super.method()</code>)</strong>: To reuse superclass logic inside
+an override, call <code>super.method()</code>. Calling
+<code>method()</code> or <code>this.method()</code> inside the override
+results in infinite recursive dispatch and a runtime
+<code>StackOverflowError</code>.</li>
+<li><strong><code>final</code> and <code>static</code>
+Constraints</strong>: A <code>final</code> method cannot be overridden.
+A <code>static</code> method cannot be overridden; re-declaring it in a
+subclass hides it.</li>
+</ul>
+<h2 id="visibility-modifiers-package-boundaries">4. Visibility Modifiers
+&amp; Package Boundaries</h2>
+<div class="table-wrap">
+<table class="wide-table">
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 10%" />
+<col style="width: 14%" />
+<col style="width: 15%" />
+<col style="width: 17%" />
+<col style="width: 15%" />
+</colgroup>
+<thead>
+<tr>
+<th>Modifier</th>
+<th style="text-align: center;">Same Class</th>
+<th style="text-align: center;">Same Package</th>
+<th style="text-align: center;">Subclass (Outside Package)</th>
+<th style="text-align: center;">Unrelated Class (Outside)</th>
+<th style="text-align: center;">UML Notation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>public</code></td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;"><code>+</code></td>
+</tr>
+<tr>
+<td><code>protected</code></td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"><code>#</code></td>
+</tr>
+<tr>
+<td>package-private <em>(no modifier)</em></td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"><em>(none)</em></td>
+</tr>
+<tr>
+<td><code>private</code></td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"><code>-</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>Package-Private Boundary</strong>: A member with no modifier
+is accessible strictly within classes belonging to the same package
+namespace. Subclasses located in a different package cannot access
+package-private members.</li>
+<li><strong>Protected Access Quirk</strong>: In a different package, a
+subclass can access inherited <code>protected</code> members only
+through references of its own type (or subtypes), not directly through
+an arbitrary parent-type reference.</li>
+</ul>
+<h2 id="uml-reference-diagram">5. UML Reference Diagram</h2>
+<figure>
+<img width="929" height="984" src="media/images/uml.webp" loading="lazy" decoding="async"
+alt="uml" />
+<figcaption aria-hidden="true">uml</figcaption>
+</figure>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Base Point Class</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> <span class="bu">Point</span> <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">protected</span> <span class="dt">int</span> x<span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">protected</span> <span class="dt">int</span> y<span class="op">;</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">Point</span><span class="op">(</span><span class="dt">int</span> x<span class="op">,</span> <span class="dt">int</span> y<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">x</span> <span class="op">=</span> x<span class="op">;</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">y</span> <span class="op">=</span> y<span class="op">;</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">setPoint</span><span class="op">(</span><span class="dt">int</span> x<span class="op">,</span> <span class="dt">int</span> y<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">x</span> <span class="op">=</span> x<span class="op">;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">y</span> <span class="op">=</span> y<span class="op">;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">int</span> <span class="fu">getX</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> x<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">int</span> <span class="fu">getY</span><span class="op">()</span> <span class="op">{</span> <span class="cf">return</span> y<span class="op">;</span> <span class="op">}</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="bu">String</span> <span class="fu">toString</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="st">&quot;[&quot;</span> <span class="op">+</span> x <span class="op">+</span> <span class="st">&quot;, &quot;</span> <span class="op">+</span> y <span class="op">+</span> <span class="st">&quot;]&quot;</span><span class="op">;</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a><span class="co">// Base Abstract Class</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a><span class="kw">abstract</span> <span class="kw">class</span> Account <span class="op">{</span></span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">protected</span> <span class="bu">String</span> accountId<span class="op">;</span></span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">double</span> balance<span class="op">;</span></span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Explicit superclass constructor</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">Account</span><span class="op">(</span><span class="bu">String</span> accountId<span class="op">,</span> <span class="dt">double</span> initialBalance<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">accountId</span> <span class="op">=</span> accountId<span class="op">;</span></span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">balance</span> <span class="op">=</span> <span class="op">(</span>initialBalance <span class="op">&gt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">?</span> initialBalance <span class="op">:</span> <span class="fl">0.0</span><span class="op">;</span></span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">double</span> <span class="fu">getBalance</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> balance<span class="op">;</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Non-abstract method intended for extension</span></span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">displaySummary</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Account: &quot;</span> <span class="op">+</span> accountId <span class="op">+</span> <span class="st">&quot;, Balance: &quot;</span> <span class="op">+</span> balance<span class="op">);</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Abstract methods: forces concrete subclasses to implement</span></span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">abstract</span> <span class="dt">double</span> <span class="fu">calculateInterest</span><span class="op">();</span></span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="kw">abstract</span> <span class="dt">double</span> <span class="fu">calculateTax</span><span class="op">();</span></span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="co">// Partial Implementation: Must be declared abstract because calculateTax() is omitted</span></span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="kw">abstract</span> <span class="kw">class</span> IntermediateSavingsAccount <span class="kw">extends</span> Account <span class="op">{</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>    <span class="kw">protected</span> <span class="dt">double</span> interestRate<span class="op">;</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">IntermediateSavingsAccount</span><span class="op">(</span><span class="bu">String</span> accountId<span class="op">,</span> <span class="dt">double</span> initialBalance<span class="op">,</span> <span class="dt">double</span> interestRate<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>        <span class="kw">super</span><span class="op">(</span>accountId<span class="op">,</span> initialBalance<span class="op">);</span></span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">interestRate</span> <span class="op">=</span> interestRate<span class="op">;</span></span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Mode 3: Implementation of calculateInterest()</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">double</span> <span class="fu">calculateInterest</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fu">getBalance</span><span class="op">()</span> <span class="op">*</span> interestRate<span class="op">;</span></span>
+<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a><span class="co">// Concrete Subclass: Implements remaining abstract method</span></span>
+<span id="cb1-67"><a href="#cb1-67" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> SavingsAccount <span class="kw">extends</span> IntermediateSavingsAccount <span class="op">{</span></span>
+<span id="cb1-68"><a href="#cb1-68" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">SavingsAccount</span><span class="op">(</span><span class="bu">String</span> accountId<span class="op">,</span> <span class="dt">double</span> initialBalance<span class="op">,</span> <span class="dt">double</span> interestRate<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-69"><a href="#cb1-69" aria-hidden="true" tabindex="-1"></a>        <span class="kw">super</span><span class="op">(</span>accountId<span class="op">,</span> initialBalance<span class="op">,</span> interestRate<span class="op">);</span></span>
+<span id="cb1-70"><a href="#cb1-70" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-71"><a href="#cb1-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-72"><a href="#cb1-72" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Mode 3: Implementation of remaining calculateTax()</span></span>
+<span id="cb1-73"><a href="#cb1-73" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb1-74"><a href="#cb1-74" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">double</span> <span class="fu">calculateTax</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-75"><a href="#cb1-75" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="fu">getBalance</span><span class="op">()</span> <span class="op">*</span> <span class="fl">0.05</span><span class="op">;</span></span>
+<span id="cb1-76"><a href="#cb1-76" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-77"><a href="#cb1-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-78"><a href="#cb1-78" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Mode 2: Refinement (calling super.displaySummary() to augment parent logic)</span></span>
+<span id="cb1-79"><a href="#cb1-79" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb1-80"><a href="#cb1-80" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">displaySummary</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-81"><a href="#cb1-81" aria-hidden="true" tabindex="-1"></a>        <span class="kw">super</span><span class="op">.</span><span class="fu">displaySummary</span><span class="op">();</span></span>
+<span id="cb1-82"><a href="#cb1-82" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Interest Rate: &quot;</span> <span class="op">+</span> interestRate<span class="op">);</span></span>
+<span id="cb1-83"><a href="#cb1-83" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-84"><a href="#cb1-84" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-85"><a href="#cb1-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-86"><a href="#cb1-86" aria-hidden="true" tabindex="-1"></a><span class="co">// Level 2 Subclass: Mode 1 Replacement</span></span>
+<span id="cb1-87"><a href="#cb1-87" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> FixedDepositAccount <span class="kw">extends</span> SavingsAccount <span class="op">{</span></span>
+<span id="cb1-88"><a href="#cb1-88" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">FixedDepositAccount</span><span class="op">(</span><span class="bu">String</span> accountId<span class="op">,</span> <span class="dt">double</span> initialBalance<span class="op">,</span> <span class="dt">double</span> rate<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-89"><a href="#cb1-89" aria-hidden="true" tabindex="-1"></a>        <span class="kw">super</span><span class="op">(</span>accountId<span class="op">,</span> initialBalance<span class="op">,</span> rate<span class="op">);</span></span>
+<span id="cb1-90"><a href="#cb1-90" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-91"><a href="#cb1-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-92"><a href="#cb1-92" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Mode 1: Replacement (completely discards super implementation)</span></span>
+<span id="cb1-93"><a href="#cb1-93" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb1-94"><a href="#cb1-94" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">displaySummary</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-95"><a href="#cb1-95" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;[FD Summary] ID: &quot;</span> <span class="op">+</span> accountId <span class="op">+</span> <span class="st">&quot; | Balance: &quot;</span> <span class="op">+</span> <span class="fu">getBalance</span><span class="op">());</span></span>
+<span id="cb1-96"><a href="#cb1-96" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb1-97"><a href="#cb1-97" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Exam Traps: Constructor Delegation Failures &amp; Incomplete Abstract Implementations</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ParentNoDefault <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ParentNoDefault</span><span class="op">(</span><span class="dt">int</span> val<span class="op">)</span> <span class="op">{}</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> ChildTrap <span class="kw">extends</span> ParentNoDefault <span class="op">{</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Compile-time error if written as:</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="co">// ChildTrap(int val) { } // Implicit super() fails because ParentNoDefault() does not exist</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ChildTrap</span><span class="op">(</span><span class="dt">int</span> val<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        <span class="kw">super</span><span class="op">(</span>val<span class="op">);</span> <span class="co">// Mandatory explicit call</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="kw">abstract</span> <span class="kw">class</span> BaseAbstract <span class="op">{</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">abstract</span> <span class="dt">void</span> <span class="fu">taskA</span><span class="op">();</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">abstract</span> <span class="dt">void</span> <span class="fu">taskB</span><span class="op">();</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="co">// TRAP: Fails to compile if &#39;abstract&#39; keyword is missing because taskB() is un-implemented</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="kw">abstract</span> <span class="kw">class</span> IncompleteChild <span class="kw">extends</span> BaseAbstract <span class="op">{</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">taskA</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Task A complete&quot;</span><span class="op">);</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">// taskB() is left unimplemented; class MUST be abstract</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VisibilityTrapParent <span class="op">{</span></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">execute</span><span class="op">()</span> <span class="op">{}</span></span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> VisibilityTrapChild <span class="kw">extends</span> VisibilityTrapParent <span class="op">{</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Compile-time error: Cannot reduce visibility of inherited public method</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">// @Override</span></span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>    <span class="co">// protected void execute() {}</span></span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span></span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">void</span> <span class="fu">execute</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        <span class="co">// super.execute(); // Valid</span></span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>        <span class="co">// execute();       // TRAP: Triggers infinite recursion and StackOverflowError at runtime</span></span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="1.html">← Object State, Memory
+Lifecycle &amp; Encapsulation</a>
+  <a class="next-page" href="3.html">Interfaces, Conflict Resolution
+&amp; Scanner I/O →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

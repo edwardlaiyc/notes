@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Network Paradigms · SC2008 Computer Network</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=CFB926A4">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Network
+Paradigms</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2008</p>
+  <p class="site-title">Computer Network</p>
+  <h1 class="page-title">Network Paradigms</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-networklayers/1.html"
+                   data-nav="1-networklayers/1.html">Network Layers and
+Physical Resilience</a></li>
+            <li><a href="../2-dll-flow-error-control/2.html"
+                   data-nav="2-dll-flow-error-control/2.html">Data Link
+Layer (DLL): Flow &amp; Error Control</a></li>
+            <li><a href="../3-dll-mac-lan/3.html"
+                   data-nav="3-dll-mac-lan/3.html">Data Link Layer
+(DLL): Medium Access Control &amp; LANs</a></li>
+            <li><a href="../4-network-paradigms/4.html"
+                   data-nav="4-network-paradigms/4.html">Network
+Paradigms</a></li>
+            <li><a href="../cheatsheet.html"
+                   data-nav="cheatsheet.html">Revision
+Cheatsheet</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#network-paradigms-delay-analysis"
+id="toc-network-paradigms-delay-analysis">Network Paradigms &amp; Delay
+Analysis</a>
+<ul>
+<li><a href="#network-switching-paradigms"
+id="toc-network-switching-paradigms">1. Network Switching Paradigms</a>
+<ul>
+<li><a href="#circuit-switching-networks"
+id="toc-circuit-switching-networks">1.1 Circuit Switching
+Networks</a></li>
+<li><a href="#packet-switching-networks"
+id="toc-packet-switching-networks">1.2 Packet Switching
+Networks</a></li>
+<li><a href="#datagram-vs.-virtual-circuit-packet-switching"
+id="toc-datagram-vs.-virtual-circuit-packet-switching">1.3 Datagram
+vs. Virtual-Circuit Packet Switching</a></li>
+</ul></li>
+<li><a href="#switching-paradigms-side-by-side-comparison"
+id="toc-switching-paradigms-side-by-side-comparison">2. Switching
+Paradigms Side-by-Side Comparison</a></li>
+<li><a href="#network-delay-analysis" id="toc-network-delay-analysis">3.
+Network Delay Analysis</a>
+<ul>
+<li><a href="#the-four-components-of-total-packet-delay"
+id="toc-the-four-components-of-total-packet-delay">3.1 The Four
+Components of Total Packet Delay</a></li>
+<li><a href="#circuit-switching-latency-model"
+id="toc-circuit-switching-latency-model">3.2 Circuit Switching Latency
+Model</a></li>
+<li><a href="#packet-switching-pipelining-store-and-forward-latency"
+id="toc-packet-switching-pipelining-store-and-forward-latency">3.3
+Packet Switching: Pipelining &amp; Store-and-Forward Latency</a></li>
+<li><a href="#circuit-vs.-packet-switching-crossover-inequality"
+id="toc-circuit-vs.-packet-switching-crossover-inequality">3.4 Circuit
+vs. Packet Switching Crossover Inequality</a></li>
+<li><a href="#switch-processing-delay-significance-test"
+id="toc-switch-processing-delay-significance-test">3.5 Switch Processing
+Delay Significance Test</a></li>
+</ul></li>
+<li><a href="#exam-problem-archetypes"
+id="toc-exam-problem-archetypes">4. Exam Problem Archetypes</a>
+<ul>
+<li><a href="#archetype-1-pipelined-link-rate-dimensioning-with-headers"
+id="toc-archetype-1-pipelined-link-rate-dimensioning-with-headers">Archetype
+1: Pipelined Link Rate Dimensioning with Headers</a></li>
+<li><a href="#archetype-2-circuit-vs.-packet-switching-comparison"
+id="toc-archetype-2-circuit-vs.-packet-switching-comparison">Archetype
+2: Circuit vs. Packet Switching Comparison</a></li>
+<li><a
+href="#archetype-3-switch-delay-vs.-propagation-distance-equivalence"
+id="toc-archetype-3-switch-delay-vs.-propagation-distance-equivalence">Archetype
+3: Switch Delay vs. Propagation Distance Equivalence</a></li>
+</ul></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="network-paradigms-delay-analysis">Network Paradigms &amp; Delay
+Analysis</h1>
+<h2 id="network-switching-paradigms">1. Network Switching Paradigms</h2>
+<p>A switching network routes data between endpoints across intermediate
+nodes without requiring direct, dedicated physical wires between every
+pair of devices.</p>
+<h3 id="circuit-switching-networks">1.1 Circuit Switching Networks</h3>
+<ul>
+<li><strong>Core Principle:</strong> A dedicated, physical communication
+path is reserved and locked across intermediate switches before any data
+can be transmitted.</li>
+<li><strong>The Three Operational Phases:</strong>
+<ol type="1">
+<li><strong>Circuit Establishment:</strong> A setup signal travels
+link-by-link through the switches to locate and lock physical
+transmission resources (channels, frequencies, or time slots). If any
+intermediate link lacks sufficient capacity, the request is
+blocked.</li>
+<li><strong>Ordered Data Transfer:</strong> Data streams continuously
+through the reserved physical circuit. No intermediate queuing delay
+occurs at intermediate switches. Packets require no per-hop addressing
+or routing headers after setup because the physical path is locked
+end-to-end.</li>
+<li><strong>Circuit Disconnect:</strong> When communication ends, a
+teardown signal releases the locked resources back to the network
+pool.</li>
+</ol></li>
+<li><strong>Trunk Line Capacity Dimensioning:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Concurrent Connections</mtext><mo>=</mo><mfrac><mtext mathvariant="normal">Trunk Bandwidth</mtext><mtext mathvariant="normal">Bandwidth per Connection</mtext></mfrac></mrow><annotation encoding="application/x-tex">\text{Concurrent Connections} = \frac{\text{Trunk Bandwidth}}{\text{Bandwidth per Connection}}</annotation></semantics></math>
+<ul>
+<li><em>Worked Example:</em> A trunk line has capacity
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mtext mathvariant="normal">trunk</mtext></msub><mo>=</mo><mn>10</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Gbps</mtext></mrow><mo>=</mo><mn>10</mn><mo>×</mo><msup><mn>10</mn><mn>9</mn></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bps</mtext></mrow></mrow><annotation encoding="application/x-tex">R_{\text{trunk}} = 10\text{ Gbps} = 10 \times 10^9\text{ bps}</annotation></semantics></math>.
+Each standard voice call requires
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mtext mathvariant="normal">call</mtext></msub><mo>=</mo><mn>64</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> kbps</mtext></mrow><mo>=</mo><mn>64</mn><mo>×</mo><msup><mn>10</mn><mn>3</mn></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bps</mtext></mrow></mrow><annotation encoding="application/x-tex">R_{\text{call}} = 64\text{ kbps} = 64 \times 10^3\text{ bps}</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Concurrent Calls</mtext><mo>=</mo><mfrac><mrow><mn>10</mn><mo>×</mo><msup><mn>10</mn><mn>9</mn></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bps</mtext></mrow></mrow><mrow><mn>64</mn><mo>×</mo><msup><mn>10</mn><mn>3</mn></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bps</mtext></mrow></mrow></mfrac><mo>=</mo><mfrac><mrow><mn>10</mn><mo>,</mo><mn>000</mn><mo>,</mo><mn>000</mn></mrow><mn>64</mn></mfrac><mo>≈</mo><mrow><mn mathvariant="bold">𝟏𝟓𝟔</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟐𝟓𝟎</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐚𝐥𝐥𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Concurrent Calls} = \frac{10 \times 10^9\text{ bps}}{64 \times 10^3\text{ bps}} = \frac{10{,}000{,}000}{64} \approx \mathbf{156{,}250\text{ calls}}</annotation></semantics></math></li>
+</ul></li>
+</ul>
+<hr />
+<h3 id="packet-switching-networks">1.2 Packet Switching Networks</h3>
+<ul>
+<li><strong>Core Principle:</strong> Long messages are segmented into
+smaller, bounded discrete blocks called <strong>packets</strong>
+(typically around 1000 bytes).</li>
+<li><strong>Packet Structure:</strong>
+<ul>
+<li><strong>Payload:</strong> Segment of raw user data.</li>
+<li><strong>Header:</strong> Control bytes containing source and
+destination identifiers, sequence numbers, and error check codes.</li>
+</ul></li>
+<li><strong>Store-and-Forward Invariant:</strong> An intermediate switch
+cannot forward bits dynamically as they arrive. It must buffer and
+validate the <strong>entire packet</strong> into internal memory before
+transmitting the first bit onto the outgoing link.</li>
+</ul>
+<hr />
+<h3 id="datagram-vs.-virtual-circuit-packet-switching">1.3 Datagram
+vs. Virtual-Circuit Packet Switching</h3>
+<h4 id="a.-datagram-packet-switching-connectionless">A. Datagram Packet
+Switching (Connectionless)</h4>
+<ul>
+<li><strong>No Path Reservation:</strong> Packets enter the network
+immediately with zero setup delay.</li>
+<li><strong>Full Header Overhead:</strong> Every individual packet
+carries complete Layer 3 source and destination addresses.</li>
+<li><strong>Independent Dynamic Routing:</strong> Each intermediate
+router independently checks its forwarding table for each incoming
+packet based on current link traffic and topology states. Consecutive
+packets of the same message can follow completely different paths.</li>
+<li><strong>Out-of-Order Delivery:</strong> Because packets may traverse
+different routes with varying propagation delays and queue lengths,
+packets frequently arrive out of order. The destination host relies on
+header <strong>sequence numbers</strong> to reassemble the data in
+correct sequence.</li>
+<li><strong>Implementation:</strong> The modern Internet Protocol (IPv4
+/ IPv6).</li>
+</ul>
+<h4 id="b.-virtual-circuit-vc-packet-switching-connection-oriented">B.
+Virtual-Circuit (VC) Packet Switching (Connection-Oriented)</h4>
+<ul>
+<li><strong>Pre-Established Logical Route:</strong> A signaling phase
+determines and locks a fixed logical path before data transfer begins.
+All data packets follow this predetermined route sequentially.</li>
+<li><strong>Virtual Circuit Identifier (VCI):</strong> Packets do not
+carry full source and destination IP addresses. Instead, each packet
+carries a short local identifier (VCI). Routers maintain internal
+translation tables mapping <code>(Incoming Interface, VCI)</code> to
+<code>(Outgoing Interface, Next VCI)</code>.</li>
+<li><strong>Shared Capacity (No Exclusive Resource
+Reservation):</strong> Unlike circuit switching, <strong>no physical
+bandwidth or memory buffers are exclusively reserved</strong>.
+Transmission links remain dynamically shared across all active network
+traffic. If a user stops transmitting, other users consume the unused
+link bandwidth.</li>
+<li><strong>The Setup Routing Invariant:</strong> Virtual circuit
+networks still require connectionless packet-routing capability in their
+control plane to route the initial connection setup packets from an
+arbitrary source to an arbitrary destination.</li>
+<li><strong>Implementation:</strong> X.25 (used in aviation/avionics),
+ATM, Frame Relay.</li>
+</ul>
+<hr />
+<h2 id="switching-paradigms-side-by-side-comparison">2. Switching
+Paradigms Side-by-Side Comparison</h2>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 22%" />
+<col style="width: 24%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Circuit Switching</th>
+<th style="text-align: left;">Datagram Packet Switching</th>
+<th style="text-align: left;">Virtual-Circuit Packet Switching</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Path Setup Phase</strong></td>
+<td style="text-align: left;">Mandatory before transmission</td>
+<td style="text-align: left;">None (immediate transmission)</td>
+<td style="text-align: left;">Mandatory before transmission</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Resource Reservation</strong></td>
+<td style="text-align: left;">Dedicated / Exclusive (bandwidth
+locked)</td>
+<td style="text-align: left;">None (dynamically shared)</td>
+<td style="text-align: left;">None (dynamically shared)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Path Determination</strong></td>
+<td style="text-align: left;">Dedicated physical path</td>
+<td style="text-align: left;">Dynamic (packets take varying paths)</td>
+<td style="text-align: left;">Fixed logical path</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Packet Sequence</strong></td>
+<td style="text-align: left;">Strictly in-order arrival</td>
+<td style="text-align: left;">Packets may arrive out of sequence</td>
+<td style="text-align: left;">Contiguous in-order arrival</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Per-Packet Overhead</strong></td>
+<td style="text-align: left;">Zero header bits after setup</td>
+<td style="text-align: left;">Full Source &amp; Destination
+addresses</td>
+<td style="text-align: left;">Lightweight local identifier (VCI)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Queuing Delay</strong></td>
+<td style="text-align: left;">Zero queuing delay at switches</td>
+<td style="text-align: left;">Variable (depends on link congestion)</td>
+<td style="text-align: left;">Variable (depends on link congestion)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Network Overload</strong></td>
+<td style="text-align: left;">Blocks new connection setups (busy
+tone)</td>
+<td style="text-align: left;">Packets queue up; packets drop on
+overflow</td>
+<td style="text-align: left;">Packets queue up; packets drop on
+overflow</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Failure Impact</strong></td>
+<td style="text-align: left;">Entire connection fails if any link
+breaks</td>
+<td style="text-align: left;">Packets dynamically reroute around failed
+links</td>
+<td style="text-align: left;">Entire connection fails; VC must be
+rebuilt</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="network-delay-analysis">3. Network Delay Analysis</h2>
+<h3 id="the-four-components-of-total-packet-delay">3.1 The Four
+Components of Total Packet Delay</h3>
+<p>Total nodal delay for a packet traversing an intermediate hop is the
+sum of four discrete components:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mtext mathvariant="normal">nodal</mtext></msub><mo>=</mo><msub><mi>d</mi><mtext mathvariant="normal">proc</mtext></msub><mo>+</mo><msub><mi>d</mi><mtext mathvariant="normal">queue</mtext></msub><mo>+</mo><msub><mi>d</mi><mtext mathvariant="normal">trans</mtext></msub><mo>+</mo><msub><mi>d</mi><mtext mathvariant="normal">prop</mtext></msub></mrow><annotation encoding="application/x-tex">d_{\text{nodal}} = d_{\text{proc}} + d_{\text{queue}} + d_{\text{trans}} + d_{\text{prop}}</annotation></semantics></math></p>
+<figure>
+<img width="620" height="431" src="media/4-artifacts/delay-components.webp" loading="lazy"
+decoding="async"
+alt="Packet switching delay components along a multi-hop link" />
+<figcaption aria-hidden="true">Packet switching delay components along a
+multi-hop link</figcaption>
+</figure>
+<ol type="1">
+<li><strong>Processing Delay
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mtext mathvariant="normal">proc</mtext></msub><annotation encoding="application/x-tex">d_{\text{proc}}</annotation></semantics></math>):</strong>
+Time taken by the intermediate router to inspect packet headers, check
+for bit errors, and consult forwarding tables to select the outgoing
+interface (typically microseconds).</li>
+<li><strong>Queuing Delay
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mtext mathvariant="normal">queue</mtext></msub><annotation encoding="application/x-tex">d_{\text{queue}}</annotation></semantics></math>):</strong>
+Time the packet spends waiting in router memory buffers until the
+outgoing transmission link becomes available. Varies based on network
+traffic load.</li>
+<li><strong>Transmission Delay
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mtext mathvariant="normal">trans</mtext></msub><annotation encoding="application/x-tex">d_{\text{trans}}</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>x</mi></msub><annotation encoding="application/x-tex">T_x</annotation></semantics></math>):</strong>
+Time required to emit/push all bits of the packet onto the physical
+communication wire:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mtext mathvariant="normal">trans</mtext></msub><mo>=</mo><mfrac><mi>L</mi><mi>R</mi></mfrac></mrow><annotation encoding="application/x-tex">d_{\text{trans}} = \frac{L}{R}</annotation></semantics></math>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>:
+Total packet length in bits (payload + header).</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>:
+Channel transmission rate / link bandwidth (bps).</li>
+</ul></li>
+<li><strong>Propagation Delay
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>d</mi><mtext mathvariant="normal">prop</mtext></msub><annotation encoding="application/x-tex">d_{\text{prop}}</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>):</strong>
+Time taken by a single physical bit to travel across the physical medium
+from transmitter to receiver:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>d</mi><mtext mathvariant="normal">prop</mtext></msub><mo>=</mo><mfrac><mi>D</mi><mi>V</mi></mfrac></mrow><annotation encoding="application/x-tex">d_{\text{prop}} = \frac{D}{V}</annotation></semantics></math>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>:
+Physical link distance (meters).</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>:
+Propagation speed in medium
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>×</mo><msup><mn>10</mn><mn>8</mn></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> m/s</mtext></mrow></mrow><annotation encoding="application/x-tex">2 \times 10^8\text{ m/s}</annotation></semantics></math>
+in fiber/copper,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>×</mo><msup><mn>10</mn><mn>8</mn></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> m/s</mtext></mrow></mrow><annotation encoding="application/x-tex">3 \times 10^8\text{ m/s}</annotation></semantics></math>
+in free space).</li>
+</ul></li>
+</ol>
+<hr />
+<h3 id="circuit-switching-latency-model">3.2 Circuit Switching Latency
+Model</h3>
+<p>Once the physical circuit is established, switches introduce zero
+store-and-forward buffering. Bits pass through intermediate nodes at
+propagation velocity:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">Circuit</mtext></msub><mo>=</mo><mi>s</mi><mo>+</mo><mfrac><mi>x</mi><mi>b</mi></mfrac><mo>+</mo><mi>k</mi><mo>⋅</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">T_{\text{Circuit}} = s + \frac{x}{b} + k \cdot d</annotation></semantics></math></p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>:
+Physical circuit setup time (seconds).</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>:
+Total message size in bits.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>:
+Transmission data rate (bps).</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>:
+Number of hops
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>N</mi><mtext mathvariant="normal">nodes</mtext></msub><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N_{\text{nodes}} - 1</annotation></semantics></math>).</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>:
+Propagation delay per hop (seconds).</li>
+</ul>
+<hr />
+<h3 id="packet-switching-pipelining-store-and-forward-latency">3.3
+Packet Switching: Pipelining &amp; Store-and-Forward Latency</h3>
+<h4 id="the-hop-invariant">The Hop Invariant</h4>
+<p>A network path consisting of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+nodes contains
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+hops:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mi>N</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k = N - 1</annotation></semantics></math></p>
+<h4 id="the-pipelining-principle">The Pipelining Principle</h4>
+<p>Under store-and-forward packet switching:</p>
+<ol type="1">
+<li>Node 1 pushes Packet 1 onto Link 1.</li>
+<li>Once Node 2 receives the entirety of Packet 1, Node 2 forwards
+Packet 1 onto Link 2.</li>
+<li>Concurrently, Node 1 immediately begins pushing Packet 2 onto Link
+1.</li>
+<li>Intermediate links operate in parallel, pipelining packet delivery
+across the multi-hop path.</li>
+</ol>
+<h4
+id="general-pipelined-delay-formula-lightly-loaded-zero-queuing">General
+Pipelined Delay Formula (Lightly Loaded, Zero-Queuing)</h4>
+<p>For an unfragmented message of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+bits divided into
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+packets, where each packet has size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+bits
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mi>x</mi><mi>/</mi><mi>p</mi></mrow><annotation encoding="application/x-tex">P = x/p</annotation></semantics></math>),
+traversing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+hops at bitrate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+with per-hop propagation delay
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">Packet</mtext></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">Time for Packet 1 to reach Destination</mtext><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mrow><mtext mathvariant="normal">Time for remaining </mtext><mspace width="0.333em"></mspace></mrow><mi>P</mi><mo>−</mo><mn>1</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> packets to clear last hop</mtext></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T_{\text{Packet}} = (\text{Time for Packet 1 to reach Destination}) + (\text{Time for remaining } P - 1 \text{ packets to clear last hop})</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">Packet</mtext></msub><mo>=</mo><mi>k</mi><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>T</mi><mi>x</mi></msub><mo>+</mo><mi>d</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>P</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><msub><mi>T</mi><mi>x</mi></msub></mrow><annotation encoding="application/x-tex">T_{\text{Packet}} = k \cdot (T_x + d) + (P - 1) \cdot T_x</annotation></semantics></math></p>
+<p>where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mi>x</mi></msub><mo>=</mo><mfrac><mi>p</mi><mi>b</mi></mfrac></mrow><annotation encoding="application/x-tex">T_x = \frac{p}{b}</annotation></semantics></math>
+is the per-packet transmission delay.</p>
+<p>Expanding algebraically:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">Packet</mtext></msub><mo>=</mo><mi>k</mi><mo>⋅</mo><mfrac><mi>p</mi><mi>b</mi></mfrac><mo>+</mo><mi>k</mi><mo>⋅</mo><mi>d</mi><mo>+</mo><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>x</mi><mi>p</mi></mfrac><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mfrac><mi>p</mi><mi>b</mi></mfrac><mo>=</mo><mfrac><mi>x</mi><mi>b</mi></mfrac><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mfrac><mi>p</mi><mi>b</mi></mfrac><mo>+</mo><mi>k</mi><mo>⋅</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">T_{\text{Packet}} = k \cdot \frac{p}{b} + k \cdot d + \left(\frac{x}{p} - 1\right)\frac{p}{b} = \frac{x}{b} + (k - 1)\frac{p}{b} + k \cdot d</annotation></semantics></math></p>
+<ul>
+<li><strong>Special Case (Negligible Propagation Delay,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>≈</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">d \approx 0</annotation></semantics></math>):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">Packet</mtext></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>P</mi><mo>+</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><msub><mi>T</mi><mi>x</mi></msub></mrow><annotation encoding="application/x-tex">T_{\text{Packet}} = (P + k - 1) \cdot T_x</annotation></semantics></math></li>
+</ul>
+<hr />
+<h3 id="circuit-vs.-packet-switching-crossover-inequality">3.4 Circuit
+vs. Packet Switching Crossover Inequality</h3>
+<p>Under what conditions does packet switching achieve lower total
+latency than circuit switching?</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">Packet</mtext></msub><mo>&lt;</mo><msub><mi>T</mi><mtext mathvariant="normal">Circuit</mtext></msub></mrow><annotation encoding="application/x-tex">T_{\text{Packet}} &lt; T_{\text{Circuit}}</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>x</mi><mi>b</mi></mfrac><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mfrac><mi>p</mi><mi>b</mi></mfrac><mo>+</mo><mi>k</mi><mo>⋅</mo><mi>d</mi><mo>&lt;</mo><mi>s</mi><mo>+</mo><mfrac><mi>x</mi><mi>b</mi></mfrac><mo>+</mo><mi>k</mi><mo>⋅</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">\frac{x}{b} + (k - 1)\frac{p}{b} + k \cdot d &lt; s + \frac{x}{b} + k \cdot d</annotation></semantics></math></p>
+<p>Subtracting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>x</mi><mi>b</mi></mfrac><mo>+</mo><mi>k</mi><mo>⋅</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">\frac{x}{b} + k \cdot d</annotation></semantics></math>
+from both sides:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mfrac><mi>p</mi><mi>b</mi></mfrac><mo>&lt;</mo><mi>s</mi></mrow><annotation encoding="application/x-tex">(k - 1)\frac{p}{b} &lt; s</annotation></semantics></math></p>
+<ul>
+<li><strong>Exam Takeaway:</strong> The crossover threshold depends
+strictly on the hop count
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>),
+packet size
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>),
+bitrate
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>),
+and setup time
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>).
+<strong>Total message length
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>)
+and propagation delay
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>⋅</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">k \cdot d</annotation></semantics></math>)
+cancel out completely!</strong></li>
+</ul>
+<hr />
+<h3 id="switch-processing-delay-significance-test">3.5 Switch Processing
+Delay Significance Test</h3>
+<p>To evaluate whether internal switch processing time
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mtext mathvariant="normal">switch</mtext></msub><annotation encoding="application/x-tex">T_{\text{switch}}</annotation></semantics></math>)
+is significant compared to physical propagation delay across a total
+distance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>
+at velocity
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>:</p>
+<ol type="1">
+<li>Convert switch processing delay into an <strong>equivalent cable
+length</strong>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>D</mi><mtext mathvariant="normal">eq</mtext></msub><mo>=</mo><msub><mi>T</mi><mtext mathvariant="normal">switch</mtext></msub><mo>×</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">D_{\text{eq}} = T_{\text{switch}} \times V</annotation></semantics></math></li>
+<li>Determine total extra virtual distance added by all switches:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>D</mi><mtext mathvariant="normal">extra</mtext></msub><mo>=</mo><msub><mi>N</mi><mtext mathvariant="normal">switches</mtext></msub><mo>×</mo><msub><mi>D</mi><mtext mathvariant="normal">eq</mtext></msub></mrow><annotation encoding="application/x-tex">D_{\text{extra}} = N_{\text{switches}} \times D_{\text{eq}}</annotation></semantics></math></li>
+<li>Compute the delay impact ratio:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Impact Ratio</mtext><mo>=</mo><mfrac><msub><mi>D</mi><mtext mathvariant="normal">extra</mtext></msub><msub><mi>D</mi><mtext mathvariant="normal">total</mtext></msub></mfrac></mrow><annotation encoding="application/x-tex">\text{Impact Ratio} = \frac{D_{\text{extra}}}{D_{\text{total}}}</annotation></semantics></math>
+If this ratio is very small (e.g.,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>&lt;</mo><mn>5</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">&lt; 5\%</annotation></semantics></math>),
+switch delay is negligible compared to physical propagation delay.</li>
+</ol>
+<hr />
+<h2 id="exam-problem-archetypes">4. Exam Problem Archetypes</h2>
+<h3
+id="archetype-1-pipelined-link-rate-dimensioning-with-headers">Archetype
+1: Pipelined Link Rate Dimensioning with Headers</h3>
+<ul>
+<li><strong>Problem:</strong> Two nodes (S and D) connect through one
+intermediate node I
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">N = 3</annotation></semantics></math>
+nodes,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">k = 2</annotation></semantics></math>
+hops). A 1000-byte message is sent from S to D. The message is split
+into 4 packets, each carrying a 50-byte header. Links run at identical
+data rates. Propagation delay is negligible. Find the minimum link data
+rate required to achieve a total delivery time under 100 ms.</li>
+<li><strong>Step 1: Compute packet size
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Payload per packet</mtext><mo>=</mo><mfrac><mrow><mn>1000</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bytes</mtext></mrow></mrow><mn>4</mn></mfrac><mo>=</mo><mn>250</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bytes</mtext></mrow></mrow><annotation encoding="application/x-tex">\text{Payload per packet} = \frac{1000\text{ bytes}}{4} = 250\text{ bytes}</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Total packet size </mtext><mspace width="0.333em"></mspace></mrow><mi>p</mi><mo>=</mo><mn>250</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bytes (data)</mtext></mrow><mo>+</mo><mn>50</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bytes (header)</mtext></mrow><mo>=</mo><mn>300</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bytes</mtext></mrow><mo>=</mo><mn>2400</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bits</mtext></mrow></mrow><annotation encoding="application/x-tex">\text{Total packet size } p = 250\text{ bytes (data)} + 50\text{ bytes (header)} = 300\text{ bytes} = 2400\text{ bits}</annotation></semantics></math></li>
+<li><strong>Step 2: Express total transmission delay using
+pipelining:</strong> For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">P = 4</annotation></semantics></math>
+packets traversing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">k = 2</annotation></semantics></math>
+hops:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">total</mtext></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>P</mi><mo>+</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><msub><mi>T</mi><mi>f</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mo>+</mo><mn>2</mn><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><msub><mi>T</mi><mi>f</mi></msub><mo>=</mo><mn>5</mn><mo>⋅</mo><msub><mi>T</mi><mi>f</mi></msub></mrow><annotation encoding="application/x-tex">T_{\text{total}} = (P + k - 1) \cdot T_f = (4 + 2 - 1) \cdot T_f = 5 \cdot T_f</annotation></semantics></math></li>
+<li><strong>Step 3: Solve for link data rate
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">total</mtext></msub><mo>&lt;</mo><mn>100</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ms</mtext></mrow><mo>⟹</mo><mn>5</mn><mo>⋅</mo><msub><mi>T</mi><mi>f</mi></msub><mo>&lt;</mo><mn>0.1</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> s</mtext></mrow><mo>⟹</mo><msub><mi>T</mi><mi>f</mi></msub><mo>&lt;</mo><mn>0.02</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> s</mtext></mrow></mrow><annotation encoding="application/x-tex">T_{\text{total}} &lt; 100\text{ ms} \implies 5 \cdot T_f &lt; 0.1\text{ s} \implies T_f &lt; 0.02\text{ s}</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mi>f</mi></msub><mo>=</mo><mfrac><mi>p</mi><mi>b</mi></mfrac><mo>&lt;</mo><mn>0.02</mn><mo>⟹</mo><mi>b</mi><mo>&gt;</mo><mfrac><mi>p</mi><mn>0.02</mn></mfrac><mo>=</mo><mfrac><mrow><mn>2400</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bits</mtext></mrow></mrow><mrow><mn>0.02</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> s</mtext></mrow></mrow></mfrac><mo>=</mo><mrow><mn mathvariant="bold">𝟏𝟐𝟎</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐤𝐛𝐩𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">T_f = \frac{p}{b} &lt; 0.02 \implies b &gt; \frac{p}{0.02} = \frac{2400\text{ bits}}{0.02\text{ s}} = \mathbf{120\text{ kbps}}</annotation></semantics></math></li>
+</ul>
+<hr />
+<h3 id="archetype-2-circuit-vs.-packet-switching-comparison">Archetype
+2: Circuit vs. Packet Switching Comparison</h3>
+<ul>
+<li><strong>Problem:</strong> An
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>-bit
+message is sent over a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-hop
+path where each hop has propagation delay
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+seconds and data rate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+bps. Circuit setup time is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+seconds. Packet size is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+bits.
+<ol type="1">
+<li>Write the total delay expressions for both switching methods.</li>
+<li>Derive the exact mathematical condition under which packet switching
+delivers lower delay than circuit switching.</li>
+</ol></li>
+<li><strong>Step 1: Write total delay expressions:</strong>
+<ul>
+<li>Circuit switching:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">Circuit</mtext></msub><mo>=</mo><mi>s</mi><mo>+</mo><mfrac><mi>x</mi><mi>b</mi></mfrac><mo>+</mo><mi>k</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">T_{\text{Circuit}} = s + \frac{x}{b} + kd</annotation></semantics></math></li>
+<li>Packet switching (number of packets
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mi>x</mi><mi>/</mi><mi>p</mi></mrow><annotation encoding="application/x-tex">P = x/p</annotation></semantics></math>):
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">Packet</mtext></msub><mo>=</mo><mi>k</mi><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>p</mi><mi>b</mi></mfrac><mo>+</mo><mi>d</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>P</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mfrac><mi>p</mi><mi>b</mi></mfrac><mo>=</mo><mfrac><mi>x</mi><mi>b</mi></mfrac><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mfrac><mi>p</mi><mi>b</mi></mfrac><mo>+</mo><mi>k</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">T_{\text{Packet}} = k\left(\frac{p}{b} + d\right) + (P - 1)\frac{p}{b} = \frac{x}{b} + (k - 1)\frac{p}{b} + kd</annotation></semantics></math></li>
+</ul></li>
+<li><strong>Step 2: Solve inequality
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">Packet</mtext></msub><mo>&lt;</mo><msub><mi>T</mi><mtext mathvariant="normal">Circuit</mtext></msub></mrow><annotation encoding="application/x-tex">T_{\text{Packet}} &lt; T_{\text{Circuit}}</annotation></semantics></math>:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>x</mi><mi>b</mi></mfrac><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mfrac><mi>p</mi><mi>b</mi></mfrac><mo>+</mo><mi>k</mi><mi>d</mi><mo>&lt;</mo><mi>s</mi><mo>+</mo><mfrac><mi>x</mi><mi>b</mi></mfrac><mo>+</mo><mi>k</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">\frac{x}{b} + (k - 1)\frac{p}{b} + kd &lt; s + \frac{x}{b} + kd</annotation></semantics></math>
+Subtracting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>x</mi><mi>b</mi></mfrac><mo>+</mo><mi>k</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">\frac{x}{b} + kd</annotation></semantics></math>
+from both sides yields:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mfrac><mi>p</mi><mi>b</mi></mfrac><mo>&lt;</mo><mi>s</mi></mrow><annotation encoding="application/x-tex">(k - 1)\frac{p}{b} &lt; s</annotation></semantics></math></li>
+</ul>
+<hr />
+<h3
+id="archetype-3-switch-delay-vs.-propagation-distance-equivalence">Archetype
+3: Switch Delay vs. Propagation Distance Equivalence</h3>
+<ul>
+<li><strong>Problem:</strong> In a store-and-forward packet network,
+each switch takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mspace width="0.222em"></mspace><mi>μ</mi><mtext mathvariant="normal">s</mtext></mrow><annotation encoding="application/x-tex">10\ \mu\text{s}</annotation></semantics></math>
+to store and forward a packet. The client is in New York and the server
+is in California, separated by 5000 km. The path traverses 50 switches.
+Signal propagation speed in copper/fiber is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>=</mo><mfrac><mn>2</mn><mn>3</mn></mfrac><mi>c</mi><mo>=</mo><mn>200</mn><mo>,</mo><mn>000</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> km/s</mtext></mrow></mrow><annotation encoding="application/x-tex">V = \frac{2}{3} c = 200{,}000\text{ km/s}</annotation></semantics></math>.
+Determine if switch delay is a major factor in end-to-end response
+time.</li>
+<li><strong>Step 1: Calculate equivalent distance added per
+switch:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>D</mi><mtext mathvariant="normal">eq</mtext></msub><mo>=</mo><msub><mi>T</mi><mtext mathvariant="normal">switch</mtext></msub><mo>×</mo><mi>V</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>6</mn></mrow></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> s</mtext></mrow><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mn>200</mn><mo>,</mo><mn>000</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> km/s</mtext></mrow><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> km</mtext></mrow></mrow><annotation encoding="application/x-tex">D_{\text{eq}} = T_{\text{switch}} \times V = (10 \times 10^{-6}\text{ s}) \times (200{,}000\text{ km/s}) = 2\text{ km}</annotation></semantics></math>
+Each switch adds the equivalent latency of 2 km of cable.</li>
+<li><strong>Step 2: Total equivalent distance added by all
+switches:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>D</mi><mtext mathvariant="normal">extra</mtext></msub><mo>=</mo><mn>50</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> switches</mtext></mrow><mo>×</mo><mn>2</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> km/switch</mtext></mrow><mo>=</mo><mn>100</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> km</mtext></mrow></mrow><annotation encoding="application/x-tex">D_{\text{extra}} = 50 \text{ switches} \times 2\text{ km/switch} = 100\text{ km}</annotation></semantics></math></li>
+<li><strong>Step 3: Evaluate impact ratio:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Impact Ratio</mtext><mo>=</mo><mfrac><msub><mi>D</mi><mtext mathvariant="normal">extra</mtext></msub><msub><mi>D</mi><mtext mathvariant="normal">total</mtext></msub></mfrac><mo>=</mo><mfrac><mrow><mn>100</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> km</mtext></mrow></mrow><mrow><mn>5000</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> km</mtext></mrow></mrow></mfrac><mo>=</mo><mn>0.02</mn><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mrow><mn mathvariant="bold">𝟐</mn><mi mathvariant="bold-italic">%</mi></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Impact Ratio} = \frac{D_{\text{extra}}}{D_{\text{total}}} = \frac{100\text{ km}}{5000\text{ km}} = 0.02 \quad (\mathbf{2\%})</annotation></semantics></math></li>
+<li><strong>Conclusion:</strong> Because the extra delay accounts for
+only
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">2\%</annotation></semantics></math>
+of the total physical propagation delay, switching delay is
+<strong>not</strong> a major factor under these conditions.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../3-dll-mac-lan/3.html">← Data Link
+Layer (DLL): Medium Access Control &amp; LANs</a>
+  <a class="next-page" href="../cheatsheet.html">Revision
+Cheatsheet →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

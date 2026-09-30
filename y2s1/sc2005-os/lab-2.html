@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Lab 2 Guide · SC2005 Operating Systems</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/style.css?v=6EF8D236">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Lab 2
+Guide</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">Lab 2 Guide</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="1-overview/1.html"
+                   data-nav="1-overview/1.html">Overview of Operating
+Systems</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="lab-1.html"
+                   data-nav="lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="lab-2.html"
+                   data-nav="lab-2.html">Lab 2 Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#part-0-overview-source-files-and-baseline-verification"
+id="toc-part-0-overview-source-files-and-baseline-verification">Part 0:
+Overview, Source Files, and Baseline Verification</a>
+<ul>
+<li><a href="#what-this-lab-is-about" id="toc-what-this-lab-is-about">1.
+What This Lab Is About</a></li>
+<li><a href="#source-files-used-in-each-part"
+id="toc-source-files-used-in-each-part">2. Source Files Used in Each
+Part</a></li>
+<li><a href="#establishing-the-baseline"
+id="toc-establishing-the-baseline">3. Establishing the Baseline</a></li>
+</ul></li>
+<li><a
+href="#part-1-process-state-ownership-and-the-first-return-forkret"
+id="toc-part-1-process-state-ownership-and-the-first-return-forkret">Part
+1: Process State, Ownership, and the First Return
+(<code>forkret</code>)</a>
+<ul>
+<li><a href="#concept-first-process-control-block-pcb-memory-isolation"
+id="toc-concept-first-process-control-block-pcb-memory-isolation">1.
+Concept First: Process Control Block (PCB) &amp; Memory
+Isolation</a></li>
+<li><a href="#the-three-state-layers-of-an-xv6-process"
+id="toc-the-three-state-layers-of-an-xv6-process">2. The Three State
+Layers of an xv6 Process</a></li>
+<li><a href="#process-state-transitions-ownership"
+id="toc-process-state-transitions-ownership">3. Process State
+Transitions &amp; Ownership</a></li>
+<li><a href="#the-guided-trace-from-fork-to-first-scheduling-forkret"
+id="toc-the-guided-trace-from-fork-to-first-scheduling-forkret">4. The
+Guided Trace: From <code>fork()</code> to First Scheduling
+(<code>forkret</code>)</a></li>
+</ul></li>
+<li><a
+href="#part-2-context-switching-scheduling-policies-and-starvation"
+id="toc-part-2-context-switching-scheduling-policies-and-starvation">Part
+2: Context Switching, Scheduling Policies, and Starvation</a>
+<ul>
+<li><a href="#concept-first-cpu-scheduling-and-context-switching"
+id="toc-concept-first-cpu-scheduling-and-context-switching">1. Concept
+First: CPU Scheduling and Context Switching</a></li>
+<li><a href="#tracing-the-preemption-path-across-four-functions"
+id="toc-tracing-the-preemption-path-across-four-functions">2. Tracing
+the Preemption Path Across Four Functions</a></li>
+<li><a href="#the-callee-saved-register-rule-swtch.s"
+id="toc-the-callee-saved-register-rule-swtch.s">3. The Callee-Saved
+Register Rule (<code>swtch.S</code>)</a></li>
+<li><a href="#observing-baseline-behavior-schedtest.c-vs.-starvetest.c"
+id="toc-observing-baseline-behavior-schedtest.c-vs.-starvetest.c">4.
+Observing Baseline Behavior: <code>schedtest.c</code>
+vs. <code>starvetest.c</code></a></li>
+<li><a href="#strict-even-pid-priority-policy-starvation"
+id="toc-strict-even-pid-priority-policy-starvation">5. Strict Even-PID
+Priority Policy &amp; Starvation</a></li>
+</ul></li>
+<li><a href="#part-3-cooperative-user-level-threads-uthread"
+id="toc-part-3-cooperative-user-level-threads-uthread">Part 3:
+Cooperative User-Level Threads (<code>uthread</code>)</a>
+<ul>
+<li><a href="#concept-first-processes-vs.-threads"
+id="toc-concept-first-processes-vs.-threads">1. Concept First: Processes
+vs. Threads</a></li>
+<li><a href="#thread-implementation-many-to-one-model"
+id="toc-thread-implementation-many-to-one-model">2. Thread
+Implementation: Many-to-One Model</a></li>
+<li><a href="#engineering-the-uthread-library"
+id="toc-engineering-the-uthread-library">3. Engineering the
+<code>uthread</code> Library</a></li>
+<li><a href="#verification-checkpoint-uthread_test"
+id="toc-verification-checkpoint-uthread_test">4. Verification
+Checkpoint: <code>uthread_test</code></a></li>
+</ul></li>
+<li><a href="#lab-2-self-check-quiz-traps"
+id="toc-lab-2-self-check-quiz-traps">Lab 2 Self-Check &amp; Quiz
+Traps</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>This was written entirely with AI.</p>
+<h2 id="part-0-overview-source-files-and-baseline-verification">Part 0:
+Overview, Source Files, and Baseline Verification</h2>
+<h3 id="what-this-lab-is-about">1. What This Lab Is About</h3>
+<p>Lab 2 investigates how an operating system represents processes, how
+the CPU switches between them, how priority scheduling works, and how
+threading libraries operate inside a single address space.</p>
+<p>The lab exercises link four central OS concepts:</p>
+<ul>
+<li>Process state, process control blocks, and memory protection.</li>
+<li>Preemption and kernel context switching via hardware timer
+interrupts.</li>
+<li>CPU scheduling algorithms, priority disciplines, and
+starvation.</li>
+<li>Cooperative user-level thread libraries (the Many-to-One threading
+model).</li>
+</ul>
+<h3 id="source-files-used-in-each-part">2. Source Files Used in Each
+Part</h3>
+<ul>
+<li>Part 1 (Process State &amp; First Return):
+<ul>
+<li><code>kernel/proc.h</code>: Declares <code>enum procstate</code>,
+<code>struct context</code>, and <code>struct proc</code> (the xv6
+Process Control Block).</li>
+<li><code>kernel/proc.c</code>: Contains the global process table
+<code>proc[NPROC]</code>, <code>allocproc()</code>, <code>fork()</code>,
+and <code>forkret()</code>.</li>
+<li><code>user/sh.c</code>: The xv6 shell implementation that issues
+<code>fork()</code> to run user programs.</li>
+</ul></li>
+<li>Part 2 (Scheduling &amp; Context Switching):
+<ul>
+<li><code>kernel/proc.c</code>: Contains <code>yield()</code>,
+<code>sched()</code>, and the central CPU scheduling loop
+<code>scheduler()</code>.</li>
+<li><code>kernel/swtch.S</code>: The assembly-level context-switch
+routine that saves and restores CPU registers.</li>
+<li><code>kernel/trap.c</code>: Handles device and clock interrupts that
+trigger preemption.</li>
+<li><code>kernel/console.c</code>: Captures console keystrokes (such as
+<code>Ctrl-p</code> to invoke <code>procdump()</code>).</li>
+<li><code>user/schedtest.c</code>: Test program running four children
+through finite work rounds to test scheduling progress.</li>
+<li><code>user/starvetest.c</code>: Test program running two children in
+infinite CPU loops to demonstrate indefinite starvation.</li>
+</ul></li>
+<li>Part 3 (User-Level Threading Library):
+<ul>
+<li><code>user/uthread.c</code>: The cooperative user-level threading
+runtime, state management, and thread scheduling.</li>
+<li><code>user/uthread_switch.S</code>: The user-level assembly register
+save and restore engine.</li>
+<li><code>user/uthread_test.c</code>: Test driver running three threads
+that print values 0 through 99 and yield cooperatively.</li>
+</ul></li>
+</ul>
+<h3 id="establishing-the-baseline">3. Establishing the Baseline</h3>
+<ul>
+<li>Why a clean build is necessary: When switching Git branches from
+<code>lab1</code> to <code>lab2</code>, compiled object files, generated
+stubs, and old disk images can cause stale symbol references. Running
+<code>make clean</code> wipes these artifacts.</li>
+<li>Booting with 1 CPU: We use <code>make CPUS=1 qemu</code> because
+reasoning about scheduling starvation is deterministic on a single
+core.</li>
+<li>Unmodified Baseline Check: Running <code>uthread_test</code> on an
+unmodified <code>lab2</code> branch prints nothing and returns
+immediately to the shell because the user-level thread library is not
+yet implemented.</li>
+</ul>
+<hr />
+<h2
+id="part-1-process-state-ownership-and-the-first-return-forkret">Part 1:
+Process State, Ownership, and the First Return
+(<code>forkret</code>)</h2>
+<h3 id="concept-first-process-control-block-pcb-memory-isolation">1.
+Concept First: Process Control Block (PCB) &amp; Memory Isolation</h3>
+<p>In operating system theory, a program running on the computer is a
+<strong>process</strong>. To manage this process, the operating system
+kernel maintains an internal record called a <strong>Process Control
+Block (PCB)</strong>.</p>
+<p>The PCB stores everything the operating system needs to know about a
+program:</p>
+<ul>
+<li>Its current execution state (e.g., whether it is ready, running, or
+waiting).</li>
+<li>Its unique identifier (PID).</li>
+<li>Its saved register values and stack pointers.</li>
+<li>Its memory management structures (page tables) and open file
+list.</li>
+</ul>
+<p>In xv6, the PCB is represented by <code>struct proc</code> in
+<code>kernel/proc.h</code>, and the operating system keeps a global
+array of these structures called <code>proc[NPROC]</code> in
+<code>kernel/proc.c</code>.</p>
+<figure>
+<img width="1080" height="818" src="media/images/pcb-and-processes-in-memory.webp" loading="lazy"
+decoding="async" alt="PCB and Processes in Main Memory" />
+<figcaption aria-hidden="true">PCB and Processes in Main
+Memory</figcaption>
+</figure>
+<p><em>Figure 1: PCB and Processes in Main Memory (Lecture 2, Slide
+2.9). Notice the strict division: kernel memory holds the Process
+Control Blocks (PCBs) and kernel data, while user space holds separate
+memory regions (text, data, heap, stack) for each user process.</em></p>
+<h3 id="the-three-state-layers-of-an-xv6-process">2. The Three State
+Layers of an xv6 Process</h3>
+<p>Inside <code>struct proc</code>, xv6 separates process information
+into three distinct execution structures:</p>
+<ol type="1">
+<li><strong>User Page Table (<code>pagetable_t</code>):</strong> Maps
+the virtual memory addresses of the user program to physical memory
+frames. The kernel data segment (which includes <code>proc[]</code>) is
+mapped exclusively in Supervisor Mode. User programs execute in User
+Mode without permissions to read kernel memory; any attempt to directly
+dereference kernel addresses results in a hardware page fault.</li>
+<li><strong>Trapframe (<code>struct trapframe</code>):</strong> A
+dedicated memory page storing all 32 general-purpose user registers plus
+<code>sepc</code> and <code>sstatus</code>. This structure is populated
+whenever execution crosses the privilege boundary between User Mode and
+Supervisor Mode (due to a system call, interrupt, or hardware
+exception).</li>
+<li><strong>Kernel Context (<code>struct context</code>):</strong> A
+small structure storing only 14 registers (<code>ra</code>,
+<code>sp</code>, <code>s0</code>–<code>s11</code>). These are used
+exclusively during kernel-level context switches between different
+kernel threads or between a kernel thread and the CPU’s scheduler
+loop.</li>
+</ol>
+<h3 id="process-state-transitions-ownership">3. Process State
+Transitions &amp; Ownership</h3>
+<p>xv6 tracks process lifecycles via <code>enum procstate</code>:</p>
+<ul>
+<li><code>UNUSED</code>: Process slot is free.</li>
+<li><code>USED</code>: Initialized by <code>allocproc()</code>.</li>
+<li><code>SLEEPING</code>: Blocked waiting for an I/O event or
+lock.</li>
+<li><code>RUNNABLE</code>: Ready to execute and waiting for CPU
+allocation.</li>
+<li><code>RUNNING</code>: Currently executing on a CPU core.</li>
+<li><code>ZOMBIE</code>: Finished execution, waiting for its parent to
+call <code>wait()</code>.</li>
+</ul>
+<p>Key transitions explored in this part:</p>
+<ol type="1">
+<li><strong>New child becomes <code>RUNNABLE</code> (<code>fork()</code>
+in <code>kernel/proc.c</code>):</strong>
+<ul>
+<li>Assignment: <code>np-&gt;state = RUNNABLE;</code></li>
+<li>Owner: The parent process executing the <code>fork()</code> system
+call.</li>
+</ul></li>
+<li><strong><code>RUNNABLE</code> becomes <code>RUNNING</code>
+(<code>scheduler()</code> in <code>kernel/proc.c</code>):</strong>
+<ul>
+<li>Assignment: <code>p-&gt;state = RUNNING;</code></li>
+<li>Owner: The per-CPU scheduler thread selecting an eligible ready
+process. Only a <code>RUNNABLE</code> process can be picked because
+choosing a sleeping or unused process would execute invalid or blocked
+code.</li>
+</ul></li>
+<li><strong><code>RUNNING</code> becomes <code>RUNNABLE</code>
+(<code>yield()</code> in <code>kernel/proc.c</code>):</strong>
+<ul>
+<li>Assignment: <code>myproc()-&gt;state = RUNNABLE;</code></li>
+<li>Owner: The currently running process itself, voluntarily yielding
+after a hardware timer interrupt or trap.</li>
+</ul></li>
+</ol>
+<h3 id="the-guided-trace-from-fork-to-first-scheduling-forkret">4. The
+Guided Trace: From <code>fork()</code> to First Scheduling
+(<code>forkret</code>)</h3>
+<p>When a shell command like <code>ls</code> is launched, it follows a
+guided path through the kernel:</p>
+<ol type="1">
+<li><strong><code>user/sh.c</code>:</strong> The shell calls
+<code>fork()</code>.</li>
+<li><strong><code>allocproc()</code> in
+<code>kernel/proc.c</code>:</strong>
+<ul>
+<li>Allocates a PID, kernel stack, and trapframe.</li>
+<li>Sets the initial saved kernel context:
+<ul>
+<li><code>p-&gt;context.ra = (uint64)forkret;</code> (Sets the context
+return address to <code>forkret</code>).</li>
+<li><code>p-&gt;context.sp = p-&gt;kstack + PGSIZE;</code> (Sets the
+context stack pointer to the top of the newly allocated kernel
+stack).</li>
+</ul></li>
+</ul></li>
+<li><strong><code>fork()</code> in <code>kernel/proc.c</code>:</strong>
+<ul>
+<li>Copies parent memory and trapframe.</li>
+<li>Sets <code>child-&gt;trapframe-&gt;a0 = 0</code> (so
+<code>fork()</code> returns <code>0</code> in the child).</li>
+<li>Transitions state: <code>np-&gt;state = RUNNABLE;</code></li>
+</ul></li>
+<li><strong><code>scheduler()</code> and <code>swtch()</code> in
+<code>kernel/proc.c</code>:</strong>
+<ul>
+<li>The CPU scheduler finds the child <code>RUNNABLE</code>, sets its
+state to <code>RUNNING</code>, sets <code>c-&gt;proc = p</code>, and
+calls <code>swtch(&amp;c-&gt;context, &amp;p-&gt;context)</code>.</li>
+<li><code>swtch.S</code> restores the registers stored in
+<code>p-&gt;context</code> and executes <code>ret</code>.</li>
+<li>Because <code>ra</code> was initialized to <code>forkret</code>, the
+CPU jumps to <code>forkret()</code>.</li>
+</ul></li>
+<li><strong><code>forkret()</code>:</strong>
+<ul>
+<li><strong>The comment above <code>forkret()</code> explains its
+purpose:</strong> Every newly created process must release the lock
+(<code>p-&gt;lock</code>) that was acquired by the scheduler loop before
+returning to user space.</li>
+<li>On the very first run, <code>forkret()</code> also initializes file
+system disk subsystems.</li>
+<li>It then calls <code>usertrapret()</code>, which restores the user
+registers from <code>trapframe</code> and issues <code>sret</code> to
+place the child at the user instruction immediately following
+<code>fork()</code> with <code>0</code> in register
+<code>a0</code>.</li>
+</ul></li>
+</ol>
+<hr />
+<h2
+id="part-2-context-switching-scheduling-policies-and-starvation">Part 2:
+Context Switching, Scheduling Policies, and Starvation</h2>
+<h3 id="concept-first-cpu-scheduling-and-context-switching">1. Concept
+First: CPU Scheduling and Context Switching</h3>
+<p>In a multiprogramming system, several processes share CPU time. The
+CPU scheduler determines which ready process is allocated the CPU
+core.</p>
+<p>When switching from Process A to Process B, the OS performs a
+<strong>context switch</strong>: saving Process A’s execution context
+into its PCB and loading Process B’s execution context from its PCB.
+Context switch time is pure overhead because the CPU performs no
+application work during the transition.</p>
+<figure>
+<img width="803" height="669" src="media/images/context-switch-between-processes.webp"
+loading="lazy" decoding="async"
+alt="Context Switch Between Processes" />
+<figcaption aria-hidden="true">Context Switch Between
+Processes</figcaption>
+</figure>
+<p><em>Figure 2: Context Switch Between Processes (Lecture 2, Slide
+2.11). When a timer interrupt or system call occurs, the OS saves state
+into PCB 0, reloads state from PCB 1, and lets Process 1
+execute.</em></p>
+<h3 id="tracing-the-preemption-path-across-four-functions">2. Tracing
+the Preemption Path Across Four Functions</h3>
+<p>Preemptive scheduling forces a running process to give up the CPU
+without its consent.</p>
+<p>xv6 accomplishes timer preemption through four specific
+functions:</p>
+<pre class="text"><code>User Mode Execution
+       │
+       ▼ (Hardware Clock Timer Interrupt)
+kernel/trap.c: usertrap() / devintr()
+       │
+       ▼ (Identifies timer tick; decides process must yield)
+kernel/proc.c: yield()
+       │  Acquires p-&gt;lock
+       │  Changes p-&gt;state: RUNNING ──&gt; RUNNABLE
+       ▼
+kernel/proc.c: sched()
+       │  Verifies pre-conditions: holding p-&gt;lock, interrupts disabled, state == RUNNABLE
+       ▼
+kernel/swtch.S: swtch(&amp;p-&gt;context, &amp;c-&gt;context) [Call Site 1]
+       │  Saves process registers into p-&gt;context
+       │  Restores scheduler loop registers from c-&gt;context
+       │  Returns into scheduler()
+       ▼
+kernel/proc.c: scheduler()
+       │  Releases p-&gt;lock
+       │  Scans proc[] for the next RUNNABLE candidate
+       │  Acquires next p-&gt;lock; sets p-&gt;state = RUNNING; sets c-&gt;proc = p
+       ▼
+kernel/swtch.S: swtch(&amp;c-&gt;context, &amp;p-&gt;context) [Call Site 2]
+       │  Saves scheduler loop registers into c-&gt;context
+       │  Restores new process registers from p-&gt;context
+       ▼
+kernel/proc.c: sched()
+       │  Resumes execution immediately after Call Site 1
+       ▼
+kernel/proc.c: yield()
+       │  Releases p-&gt;lock
+       ▼
+kernel/trap.c: usertrapret() ──&gt; sret ──&gt; User Mode</code></pre>
+<h4 id="key-invariants-of-context-switching">Key Invariants of Context
+Switching:</h4>
+<ul>
+<li>xv6 never switches directly between two processes. Every switch hops
+through the CPU’s dedicated <code>scheduler()</code> context.</li>
+<li><strong>The Lock Rule:</strong> <code>p-&gt;lock</code> must be
+acquired before changing <code>p-&gt;state = RUNNABLE</code> in
+<code>yield()</code>, held across <code>sched()</code> and
+<code>swtch()</code>, and released by the CPU scheduler only after the
+switch completes. This lock protects against race conditions where
+another CPU might try to schedule the process while it is still in the
+middle of saving its registers.</li>
+</ul>
+<h3 id="the-callee-saved-register-rule-swtch.s">3. The Callee-Saved
+Register Rule (<code>swtch.S</code>)</h3>
+<p>Under the RISC-V Calling Convention (ABI):</p>
+<ul>
+<li>Registers are categorized into <strong>caller-saved</strong>
+(<code>t0</code>–<code>t6</code>, <code>a0</code>–<code>a7</code>) and
+<strong>callee-saved</strong> (<code>s0</code>–<code>s11</code>,
+<code>sp</code>, <code>ra</code>).</li>
+<li><code>swtch(&amp;old, &amp;new)</code> is invoked as a standard C
+function call from within <code>sched()</code> or
+<code>scheduler()</code>.</li>
+<li>According to compiler conventions, if the caller function needs
+values in caller-saved registers preserved across a function call, it
+must save them onto its stack before calling <code>swtch()</code>.</li>
+<li>Therefore, <code>swtch()</code> only needs to save and restore the
+registers that a called C function is obligated to preserve: the
+callee-saved registers (<code>s0</code>–<code>s11</code>), the stack
+pointer (<code>sp</code>), and the return address
+(<code>ra</code>).</li>
+</ul>
+<pre class="assembly"><code>.globl swtch
+swtch:
+    # a0 points to struct context *old
+    # a1 points to struct context *new
+    sd ra, 0(a0)
+    sd sp, 8(a0)
+    sd s0, 16(a0)
+    sd s1, 24(a0)
+    # ... saves s2 through s11 ...
+
+    ld ra, 0(a1)
+    ld sp, 8(a1)
+    ld s0, 16(a1)
+    ld s1, 24(a1)
+    # ... restores s2 through s11 ...
+    ret</code></pre>
+<h3 id="observing-baseline-behavior-schedtest.c-vs.-starvetest.c">4.
+Observing Baseline Behavior: <code>schedtest.c</code>
+vs. <code>starvetest.c</code></h3>
+<ul>
+<li><strong><code>procdump()</code> Snapshot
+(<code>Ctrl-p</code>):</strong> Pressing <code>Ctrl-p</code> triggers a
+console interrupt that prints the PID, state (<code>runble</code>,
+<code>run</code>, <code>sleep</code>), and process name. This is only an
+instantaneous debugging snapshot; it reflects process status at that
+specific instant.</li>
+<li><strong><code>schedtest.c</code> (Testing Postponement &amp;
+Progress):</strong> Creates 4 children, releases them through a pipe
+gate, and runs each through 4 rounds of 4,000,000 compute loops. Because
+children eventually complete their loops and exit, this test
+demonstrates temporary postponement and progress, but not permanent
+starvation.</li>
+<li><strong><code>starvetest.c</code> (Testing Indefinite
+Starvation):</strong> Spawns two children—one verified to have an even
+PID and the other an odd PID. After release through a pipe gate, both
+enter infinite CPU loops (no sleep, no I/O, no exit).
+<ul>
+<li>Baseline (Default Scheduler): Both even and odd children make
+forward progress because the stock scheduler scans <code>proc[]</code>
+round-robin, giving each child turns on timer preemption.</li>
+</ul></li>
+</ul>
+<h3 id="strict-even-pid-priority-policy-starvation">5. Strict Even-PID
+Priority Policy &amp; Starvation</h3>
+<p>You modify <code>scheduler()</code> in <code>kernel/proc.c</code> to
+implement strict priority:</p>
+<ul>
+<li><strong>The Policy:</strong> Whenever an eligible even-PID process
+is <code>RUNNABLE</code>, it must be selected. An odd-PID
+<code>RUNNABLE</code> process can run only when no eligible even-PID
+processes exist.</li>
+</ul>
+<h4 id="implementation-strategy-two-pass-scan">Implementation Strategy
+(Two-Pass Scan):</h4>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> scheduler<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> proc <span class="op">*</span>p<span class="op">;</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> cpu <span class="op">*</span>c <span class="op">=</span> mycpu<span class="op">();</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  c<span class="op">-&gt;</span>proc <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span><span class="op">(;;){</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    intr_on<span class="op">();</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> found_even <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Pass 1: Look exclusively for runnable EVEN-PID processes</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span><span class="op">(</span>p <span class="op">=</span> proc<span class="op">;</span> p <span class="op">&lt;</span> <span class="op">&amp;</span>proc<span class="op">[</span>NPROC<span class="op">];</span> p<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      acquire<span class="op">(&amp;</span>p<span class="op">-&gt;</span>lock<span class="op">);</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span><span class="op">(</span>p<span class="op">-&gt;</span>state <span class="op">==</span> RUNNABLE <span class="op">&amp;&amp;</span> <span class="op">(</span>p<span class="op">-&gt;</span>pid <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">0</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>        p<span class="op">-&gt;</span>state <span class="op">=</span> RUNNING<span class="op">;</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>        c<span class="op">-&gt;</span>proc <span class="op">=</span> p<span class="op">;</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>        swtch<span class="op">(&amp;</span>c<span class="op">-&gt;</span>context<span class="op">,</span> <span class="op">&amp;</span>p<span class="op">-&gt;</span>context<span class="op">);</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>        c<span class="op">-&gt;</span>proc <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        found_even <span class="op">=</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        release<span class="op">(&amp;</span>p<span class="op">-&gt;</span>lock<span class="op">);</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span> <span class="co">// Re-evaluate priority from the top</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>      release<span class="op">(&amp;</span>p<span class="op">-&gt;</span>lock<span class="op">);</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Pass 2: Look for runnable ODD-PID processes ONLY if no even process ran</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span><span class="op">(!</span>found_even<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>      <span class="cf">for</span><span class="op">(</span>p <span class="op">=</span> proc<span class="op">;</span> p <span class="op">&lt;</span> <span class="op">&amp;</span>proc<span class="op">[</span>NPROC<span class="op">];</span> p<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>        acquire<span class="op">(&amp;</span>p<span class="op">-&gt;</span>lock<span class="op">);</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span><span class="op">(</span>p<span class="op">-&gt;</span>state <span class="op">==</span> RUNNABLE <span class="op">&amp;&amp;</span> <span class="op">(</span>p<span class="op">-&gt;</span>pid <span class="op">%</span> <span class="dv">2</span> <span class="op">!=</span> <span class="dv">0</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>          p<span class="op">-&gt;</span>state <span class="op">=</span> RUNNING<span class="op">;</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>          c<span class="op">-&gt;</span>proc <span class="op">=</span> p<span class="op">;</span></span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>          swtch<span class="op">(&amp;</span>c<span class="op">-&gt;</span>context<span class="op">,</span> <span class="op">&amp;</span>p<span class="op">-&gt;</span>context<span class="op">);</span></span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>          c<span class="op">-&gt;</span>proc <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>          release<span class="op">(&amp;</span>p<span class="op">-&gt;</span>lock<span class="op">);</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>          <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>        release<span class="op">(&amp;</span>p<span class="op">-&gt;</span>lock<span class="op">);</span></span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h4 id="starvation-analysis-on-starvetest">Starvation Analysis on
+<code>starvetest</code>:</h4>
+<ul>
+<li>Under strict even-PID priority with <code>CPUS=1</code>, the even
+child runs until a timer interrupt triggers <code>yield()</code>,
+placing it back into the <code>RUNNABLE</code> state.</li>
+<li>When the scheduler loop runs, Pass 1 immediately discovers that the
+even child is <code>RUNNABLE</code>.</li>
+<li>The scheduler picks the even child again. Pass 2 is never
+reached.</li>
+<li><strong>Result:</strong> The odd child remains permanently trapped
+in the <code>RUNNABLE</code> state. It experiences
+<strong>starvation</strong> (indefinite postponement) because the
+compute-bound even child never blocks or exits.</li>
+<li><strong>Why <code>CPUS=1</code> is Mandatory:</strong> If
+<code>CPUS &gt; 1</code>, an even process executing on CPU 0 is marked
+<code>RUNNING</code>. When CPU 1 evaluates Pass 1, that even process is
+not <code>RUNNABLE</code>, allowing CPU 1 to fall through to Pass 2 and
+run the odd process, masking the starvation behavior.</li>
+</ul>
+<hr />
+<h2 id="part-3-cooperative-user-level-threads-uthread">Part 3:
+Cooperative User-Level Threads (<code>uthread</code>)</h2>
+<h3 id="concept-first-processes-vs.-threads">1. Concept First: Processes
+vs. Threads</h3>
+<p>A traditional process is heavyweight: it has its own private address
+space, page table, open file table, and kernel PCB.</p>
+<p>A <strong>thread</strong> is a lightweight unit of CPU utilization
+within a process:</p>
+<ul>
+<li>All threads inside a process share the same code, global data, heap,
+and open files.</li>
+<li>However, each thread must have its own private <strong>Program
+Counter (PC)</strong>, <strong>CPU register state</strong>, and
+<strong>stack space</strong> to track execution and local variables
+independently.</li>
+</ul>
+<figure>
+<img width="953" height="573" src="media/images/single-vs-multithreaded-processes.webp"
+loading="lazy" decoding="async"
+alt="Single vs Multithreaded Processes" />
+<figcaption aria-hidden="true">Single vs Multithreaded
+Processes</figcaption>
+</figure>
+<p><em>Figure 3: Single vs Multithreaded Processes (Lecture 2, Slide
+2.31). Threads within the same process share code, data, and open files,
+but maintain private stacks and register sets.</em></p>
+<h3 id="thread-implementation-many-to-one-model">2. Thread
+Implementation: Many-to-One Model</h3>
+<p>Lecture 2 outlines three multithreading models: Many-to-One,
+One-to-One, and Many-to-Many.</p>
+<p>Part 3 of Lab 2 builds a <strong>Many-to-One user-level thread
+library</strong> (<code>uthread</code>):</p>
+<ul>
+<li>The xv6 operating system kernel is unaware of the individual user
+threads. It schedules only the parent process.</li>
+<li>The application links with a user library
+(<code>user/uthread.c</code>) that creates and switches user threads
+entirely inside user address space.</li>
+<li><strong>Cooperative Scheduling:</strong> User space has no hardware
+timer interrupt. Threads run until they voluntarily yield the CPU by
+calling <code>thread_yield()</code> or exit via
+<code>thread_exit()</code>.</li>
+</ul>
+<figure>
+<img width="842" height="519" src="media/images/multithreading-models.webp" loading="lazy"
+decoding="async" alt="Many-to-One Mapping" />
+<figcaption aria-hidden="true">Many-to-One Mapping</figcaption>
+</figure>
+<p><em>Figure 4: Many-to-One Mapping (Lecture 2, Slide 2.36). Multiple
+user-level threads are multiplexed on top of a single kernel-managed
+thread.</em></p>
+<h3 id="engineering-the-uthread-library">3. Engineering the
+<code>uthread</code> Library</h3>
+<h4
+id="step-1-thread-representation-struct-thread-in-useruthread.c">Step 1:
+Thread Representation (<code>struct thread</code> in
+<code>user/uthread.c</code>)</h4>
+<p>Inside <code>user/uthread.c</code>, each thread is represented by a
+control block:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> thread_context <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  uint64 ra<span class="op">;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  uint64 sp<span class="op">;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  uint64 s0<span class="op">;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  uint64 s1<span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  uint64 s2<span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  uint64 s3<span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  uint64 s4<span class="op">;</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  uint64 s5<span class="op">;</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  uint64 s6<span class="op">;</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  uint64 s7<span class="op">;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  uint64 s8<span class="op">;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  uint64 s9<span class="op">;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  uint64 s10<span class="op">;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  uint64 s11<span class="op">;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> thread <span class="op">{</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span>                   stack<span class="op">[</span>STACK_SIZE<span class="op">];</span> <span class="co">/* Private execution stack */</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span>                    state<span class="op">;</span>             <span class="co">/* FREE, RUNNING, RUNNABLE */</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> thread_context  context<span class="op">;</span>           <span class="co">/* Saved register state */</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h4 id="step-2-the-assembly-engine-useruthread_switch.s">Step 2: The
+Assembly Engine (<code>user/uthread_switch.S</code>)</h4>
+<p>The C structure field order and assembly offsets must match
+exactly:</p>
+<pre class="assembly"><code>.globl thread_switch
+thread_switch:
+    /* a0 = pointer to old thread_context */
+    /* a1 = pointer to new thread_context */
+    sd ra, 0(a0)
+    sd sp, 8(a0)
+    sd s0, 16(a0)
+    sd s1, 24(a0)
+    sd s2, 32(a0)
+    sd s3, 40(a0)
+    sd s4, 48(a0)
+    sd s5, 56(a0)
+    sd s6, 64(a0)
+    sd s7, 72(a0)
+    sd s8, 80(a0)
+    sd s9, 88(a0)
+    sd s10, 96(a0)
+    sd s11, 104(a0)
+
+    ld ra, 0(a1)
+    ld sp, 8(a1)
+    ld s0, 16(a1)
+    ld s1, 24(a1)
+    ld s2, 32(a1)
+    ld s3, 40(a1)
+    ld s4, 48(a1)
+    ld s5, 56(a1)
+    ld s6, 64(a1)
+    ld s7, 72(a1)
+    ld s8, 80(a1)
+    ld s9, 88(a1)
+    ld s10, 96(a1)
+    ld s11, 104(a1)
+
+    ret</code></pre>
+<h4
+id="step-3-stack-alignment-and-initial-context-setup-thread_create">Step
+3: Stack Alignment and Initial Context Setup
+(<code>thread_create</code>)</h4>
+<p>Under the RISC-V ABI specification, the stack pointer <code>sp</code>
+must be 16-byte aligned on function entry. In
+<code>thread_create()</code>:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> thread_create<span class="op">(</span><span class="dt">void</span> <span class="op">(*</span>func<span class="op">)())</span> <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> thread <span class="op">*</span>t<span class="op">;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Find a FREE slot in all_thread[]</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  t<span class="op">-&gt;</span>state <span class="op">=</span> RUNNABLE<span class="op">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 1. Point sp to the top of the stack buffer (stacks grow downward)</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  uint64 sp <span class="op">=</span> <span class="op">(</span>uint64<span class="op">)</span>t<span class="op">-&gt;</span>stack <span class="op">+</span> STACK_SIZE<span class="op">;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 2. Align to 16-byte boundary</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  sp <span class="op">=</span> sp <span class="op">&amp;</span> <span class="op">~((</span>uint64<span class="op">)</span><span class="bn">0xF</span><span class="op">);</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="co">// 3. Set up the context so the first thread_switch jumps to func</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  t<span class="op">-&gt;</span>context<span class="op">.</span>sp <span class="op">=</span> sp<span class="op">;</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  t<span class="op">-&gt;</span>context<span class="op">.</span>ra <span class="op">=</span> <span class="op">(</span>uint64<span class="op">)</span>func<span class="op">;</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h4 id="step-4-first-execution-of-a-new-thread">Step 4: First Execution
+of a New Thread</h4>
+<ul>
+<li>Resumed Thread: Returns to the instruction following
+<code>thread_switch()</code> inside <code>thread_yield()</code>.</li>
+<li>Newly Created Thread: Has never called <code>thread_switch()</code>.
+Because <code>t-&gt;context.ra</code> was set to <code>func</code>, when
+<code>thread_switch</code> loads <code>t-&gt;context.ra</code> into the
+CPU’s <code>ra</code> register and executes <code>ret</code>, the CPU
+jumps directly to <code>func()</code> on its private stack.</li>
+</ul>
+<h4 id="step-5-why-no-trapframe-is-needed-for-user-threads">Step 5: Why
+No Trapframe is Needed for User Threads</h4>
+<p>A <strong>trapframe</strong> is required when transitioning across
+privilege rings (User Mode
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>↔</mo><annotation encoding="application/x-tex">\leftrightarrow</annotation></semantics></math>
+Supervisor Mode) due to hardware interrupts or system calls. In
+contrast, <code>thread_yield()</code> is a cooperative user-mode
+function call. Because the CPU mode never changes and no hardware traps
+occur, saving callee-saved registers using <code>thread_switch.S</code>
+is sufficient.</p>
+<h3 id="verification-checkpoint-uthread_test">4. Verification
+Checkpoint: <code>uthread_test</code></h3>
+<p>When correctly implemented, running <code>uthread_test</code>
+produces:</p>
+<ul>
+<li>Startup notifications: <code>thread_a started</code>,
+<code>thread_b started</code>, <code>thread_c started</code>.</li>
+<li>Each thread prints numbers 0 through 99 while cooperatively
+yielding.</li>
+<li>Counting order can differ from start order due to thread-selection
+scanning logic.</li>
+<li>Each thread reports completion:
+<code>thread_a: exit after 100</code>,
+<code>thread_b: exit after 100</code>,
+<code>thread_c: exit after 100</code>.</li>
+<li>The scheduler terminates cleanly:
+<code>thread_schedule: no runnable threads</code>.</li>
+</ul>
+<hr />
+<h2 id="lab-2-self-check-quiz-traps">Lab 2 Self-Check &amp; Quiz
+Traps</h2>
+<ol type="1">
+<li><strong>Why can <code>procdump()</code> read <code>proc[]</code>
+directly while an ordinary user program cannot?</strong>
+<code>procdump()</code> runs in Supervisor Mode inside the kernel, where
+the kernel page table maps the <code>proc[]</code> array. User programs
+execute in User Mode under a user page table that has no access
+permissions to kernel memory; any direct attempt to dereference kernel
+addresses results in a hardware page fault.</li>
+<li><strong>How does a timer interrupt lead from a running process to
+the scheduler and back?</strong> Hardware timer interrupt
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+<code>usertrap()</code> calls <code>yield()</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+marks state <code>RUNNABLE</code> and calls <code>sched()</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+<code>swtch()</code> saves process context and restores CPU scheduler
+context
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+<code>scheduler()</code> selects next <code>RUNNABLE</code> process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+<code>swtch()</code> restores that process’s context
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\rightarrow</annotation></semantics></math>
+<code>sched()</code> returns to <code>yield()</code>, which returns to
+<code>usertrapret()</code>, restoring user registers and executing
+<code>sret</code>.</li>
+<li><strong>Under the strict even-PID policy, what workload starves an
+odd-PID process?</strong> An even-PID process executing an infinite
+compute loop (no I/O, no sleep). When the timer interrupt triggers
+<code>yield()</code>, the even process is placed back in
+<code>RUNNABLE</code> state. Because the scheduler prioritizes even PIDs
+in Pass 1, it immediately reselects the even process on every pass,
+starving the odd process indefinitely.</li>
+<li><strong>Why are callee-saved registers, <code>ra</code>, and
+<code>sp</code> sufficient for <code>swtch()</code>?</strong>
+<code>swtch()</code> is called as a C function. By the RISC-V ABI
+convention, the calling function automatically saves any caller-saved
+registers it needs preserved onto its own stack prior to calling
+<code>swtch()</code>. Thus, <code>swtch()</code> only needs to preserve
+callee-saved registers (<code>s0</code>–<code>s11</code>),
+<code>sp</code>, and <code>ra</code>.</li>
+<li><strong>How does a never-run user thread begin executing its
+function on its own stack?</strong> <code>thread_create()</code>
+initializes the thread context’s <code>sp</code> to the top of its
+aligned stack buffer and assigns <code>ra</code> to the entry function
+pointer. When <code>thread_switch()</code> restores these registers and
+executes <code>ret</code>, the CPU jumps directly to the entry function
+executing on the designated stack.</li>
+<li><strong>What is the difference between the kernel scheduling a
+process and the library scheduling a user thread?</strong> Kernel
+process scheduling is preemptive, mediated by timer interrupts and
+hardware privilege switches, with each process possessing an isolated
+address space and PCB. User thread scheduling in <code>uthread</code> is
+cooperative (Many-to-One), running entirely within a single user address
+space without kernel intervention or trap overhead.</li>
+<li><strong>What does the comment above <code>forkret()</code>
+explain?</strong> It explains that <code>forkret()</code> exists because
+every newly created process must release the lock
+(<code>p-&gt;lock</code>) that was acquired by the scheduler loop before
+returning to user space for the first time.</li>
+<li><strong>Why must <code>CPUS=1</code> be set when demonstrating
+starvation in <code>starvetest</code>?</strong> If multiple CPUs are
+active, a compute-bound even process running on CPU 0 is marked
+<code>RUNNING</code>. When CPU 1 scans the table, that process is not
+<code>RUNNABLE</code>, allowing CPU 1 to schedule the odd process and
+masking starvation.</li>
+</ol>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="lab-1.html">← Lab 1 Guide</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1187 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Graph Traversals, Shortest Paths &amp; Minimum Spanning
+Trees · SC2301 Algorithm Design &amp; Analysis</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/style.css?v=D2A858E1">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Graph Traversals,
+Shortest Paths &amp; Minimum Spanning Trees</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">Graph Traversals, Shortest Paths &amp; Minimum
+Spanning Trees</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="1.html"
+                   data-nav="1.html">Foundations, Insertion Sort &amp;
+Mergesort</a></li>
+            <li><a href="2.html"
+                   data-nav="2.html">Priority Queues &amp; Advanced
+Sorting</a></li>
+            <li><a href="3.html"
+                   data-nav="3.html">Graph Traversals, Shortest Paths
+&amp; Minimum Spanning Trees</a></li>
+            <li><a href="cheatsheet.html"
+                   data-nav="cheatsheet.html">Revision
+Cheatsheet</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a
+href="#module-3-graph-traversals-shortest-paths-minimum-spanning-trees"
+id="toc-module-3-graph-traversals-shortest-paths-minimum-spanning-trees">Module
+3: Graph Traversals, Shortest Paths &amp; Minimum Spanning Trees</a>
+<ul>
+<li><a href="#graph-fundamentals-traversals"
+id="toc-graph-fundamentals-traversals">1. Graph Fundamentals &amp;
+Traversals</a>
+<ul>
+<li><a href="#ways-to-store-a-graph" id="toc-ways-to-store-a-graph">Ways
+to Store a Graph</a></li>
+<li><a href="#tracking-search-progress-with-colors"
+id="toc-tracking-search-progress-with-colors">Tracking Search Progress
+with Colors</a></li>
+<li><a href="#search-algorithms" id="toc-search-algorithms">Search
+Algorithms</a></li>
+<li><a href="#topological-sort-linear-ordering-of-tasks"
+id="toc-topological-sort-linear-ordering-of-tasks">Topological Sort
+(Linear Ordering of Tasks)</a></li>
+</ul></li>
+<li><a
+href="#dijkstras-algorithm-shortest-paths-from-one-starting-vertex"
+id="toc-dijkstras-algorithm-shortest-paths-from-one-starting-vertex">2.
+Dijkstra’s Algorithm (Shortest Paths from One Starting Vertex)</a>
+<ul>
+<li><a href="#code-1" id="toc-code-1">Code</a></li>
+<li><a href="#running-time-execution-rules"
+id="toc-running-time-execution-rules">Running Time &amp; Execution
+Rules</a></li>
+<li><a href="#how-to-count-shortest-paths"
+id="toc-how-to-count-shortest-paths">How to Count Shortest
+Paths</a></li>
+</ul></li>
+<li><a href="#minimum-spanning-tree-mst-rules"
+id="toc-minimum-spanning-tree-mst-rules">3. Minimum Spanning Tree (MST)
+Rules</a>
+<ul>
+<li><a href="#core-rules" id="toc-core-rules">Core Rules</a></li>
+<li><a href="#how-to-reconstruct-a-graph-and-mst-from-clues"
+id="toc-how-to-reconstruct-a-graph-and-mst-from-clues">How to
+Reconstruct a Graph and MST from Clues</a></li>
+</ul></li>
+<li><a href="#prims-algorithm" id="toc-prims-algorithm">4. Prim’s
+Algorithm</a>
+<ul>
+<li><a href="#code-2" id="toc-code-2">Code</a></li>
+<li><a href="#running-time-space-complexity"
+id="toc-running-time-space-complexity">Running Time &amp; Space
+Complexity</a></li>
+</ul></li>
+<li><a href="#tracking-connected-groups-union-find"
+id="toc-tracking-connected-groups-union-find">5. Tracking Connected
+Groups (Union-Find)</a>
+<ul>
+<li><a href="#comparison-of-methods"
+id="toc-comparison-of-methods">Comparison of Methods</a></li>
+</ul></li>
+<li><a href="#kruskals-algorithm" id="toc-kruskals-algorithm">6.
+Kruskal’s Algorithm</a>
+<ul>
+<li><a href="#code-3" id="toc-code-3">Code</a></li>
+<li><a href="#running-time-space-complexity-1"
+id="toc-running-time-space-complexity-1">Running Time &amp; Space
+Complexity</a></li>
+<li><a href="#how-the-number-of-groups-shrinks"
+id="toc-how-the-number-of-groups-shrinks">How the Number of Groups
+Shrinks</a></li>
+<li><a href="#faster-sorting-for-small-integer-weights"
+id="toc-faster-sorting-for-small-integer-weights">Faster Sorting for
+Small Integer Weights</a></li>
+<li><a href="#finding-the-maximum-spanning-tree"
+id="toc-finding-the-maximum-spanning-tree">Finding the Maximum Spanning
+Tree</a></li>
+</ul></li>
+<li><a href="#direct-comparison-dijkstra-vs.-prim-vs.-kruskal"
+id="toc-direct-comparison-dijkstra-vs.-prim-vs.-kruskal">7. Direct
+Comparison: Dijkstra vs. Prim vs. Kruskal</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1
+id="module-3-graph-traversals-shortest-paths-minimum-spanning-trees">Module
+3: Graph Traversals, Shortest Paths &amp; Minimum Spanning Trees</h1>
+<h2 id="graph-fundamentals-traversals">1. Graph Fundamentals &amp;
+Traversals</h2>
+<h3 id="ways-to-store-a-graph">Ways to Store a Graph</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 18%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Storage Method</th>
+<th style="text-align: center;">Memory Used</th>
+<th style="text-align: center;">Time to Find Neighbors of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math></th>
+<th style="text-align: center;">Time to Check Edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math></th>
+<th style="text-align: center;">Best Used For</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Adjacency Matrix</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow></mrow><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\vert{}V\vert{}^2)</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\vert{}V\vert{})</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math></td>
+<td style="text-align: center;">Graphs with many edges
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>≈</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow></mrow><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\vert{}E\vert{} \approx \vert{}V\vert{}^2</annotation></semantics></math>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Adjacency List</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>+</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\vert{}V\vert{} + \vert{}E\vert{})</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">deg</mtext><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\text{deg}(u))</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">deg</mtext><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\text{deg}(u))</annotation></semantics></math></td>
+<td style="text-align: center;">Graphs with few edges
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>≪</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow></mrow><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\vert{}E\vert{} \ll \vert{}V\vert{}^2</annotation></semantics></math>)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Running Breadth-First Search (BFS) or Depth-First Search (DFS) on an
+Adjacency Matrix takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow></mrow><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\vert{}V\vert{}^2)</annotation></semantics></math>
+time because the code must read every entry in a row of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow></mrow><annotation encoding="application/x-tex">\vert{}V\vert{}</annotation></semantics></math>
+for each vertex.</li>
+<li>Running BFS or DFS on an Adjacency List takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>+</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\vert{}V\vert{} + \vert{}E\vert{})</annotation></semantics></math>
+time because the code checks only neighbors that actually exist.</li>
+<li>A single run of BFS or DFS from one vertex visits only the vertices
+connected to that starting vertex.</li>
+<li>To visit every vertex in a disconnected graph, you must wrap the
+search inside a loop that checks every vertex in the graph.</li>
+</ul>
+<hr />
+<h3 id="tracking-search-progress-with-colors">Tracking Search Progress
+with Colors</h3>
+<p>Vertices change colors to track how far the search has
+progressed:</p>
+<ul>
+<li><p><code>White</code>: The vertex is unvisited.</p></li>
+<li><p><code>Grey</code>: The vertex has been reached, but some of its
+neighbors are not checked yet (it is currently inside the queue or call
+stack).</p></li>
+<li><p><code>Black</code>: The vertex and all of its direct neighbors
+are completely finished.</p></li>
+<li><p><strong>The Color Barrier Rule:</strong> An edge can never point
+directly from a finished <code>Black</code> vertex to an unvisited
+<code>White</code> vertex. Any path from explored areas to unvisited
+areas must pass through a <code>Grey</code> vertex.</p></li>
+<li><p><strong>Finding Cycles:</strong> A directed graph has a cycle if
+and only if DFS hits a neighbor that is currently colored
+<code>Grey</code> (an active ancestor on the call stack).</p></li>
+</ul>
+<hr />
+<h3 id="search-algorithms">Search Algorithms</h3>
+<h4 id="breadth-first-search-bfs">1. Breadth-First Search (BFS)</h4>
+<p>BFS visits vertices level by level using a queue (First-In,
+First-Out). It finds the shortest path in an unweighted graph.</p>
+<pre><code>function BFS(Graph G, Vertex s):
+    for each vertex u in G.V:
+        u.d = infinity
+        u.pi = null
+        u.color = White
+    s.d = 0
+    s.color = Grey
+    Queue Q = empty
+    Q.enqueue(s)
+
+    while Q is not empty:
+        u = Q.dequeue()
+        for each neighbor v in G.Adj[u]:
+            if v.color == White:
+                v.color = Grey
+                v.d = u.d + 1
+                v.pi = u
+                Q.enqueue(v)
+        u.color = Black</code></pre>
+<h4 id="depth-first-search-dfs">2. Depth-First Search (DFS)</h4>
+<p>DFS goes as deep as possible down one path before backtracking.</p>
+<pre><code>function DFS(Graph G):
+    for each vertex u in G.V:
+        u.color = White
+        u.pi = null
+
+    for each vertex u in G.V:
+        if u.color == White:
+            DFS_Visit(G, u)
+
+function DFS_Visit(Graph G, Vertex u):
+    u.color = Grey
+    for each neighbor v in G.Adj[u]:
+        if v.color == Grey:
+            // A cycle exists
+        else if v.color == White:
+            v.pi = u
+            DFS_Visit(G, v)
+    u.color = Black</code></pre>
+<hr />
+<h3 id="topological-sort-linear-ordering-of-tasks">Topological Sort
+(Linear Ordering of Tasks)</h3>
+<p>A Directed Acyclic Graph (DAG) is a directed graph that contains no
+cycles. A topological sort is a linear ordering of all vertices such
+that for every directed edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>,
+vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+appears before vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>.</p>
+<h4 id="core-rules-invariants">Core Rules &amp; Invariants</h4>
+<ul>
+<li><strong>Acyclic Requirement:</strong> A directed graph admits a
+topological sort if and only if it contains no cycles (it is a
+DAG).</li>
+<li><strong>Edge Types in DFS:</strong>
+<ul>
+<li><code>White</code> target: <strong>Tree edge</strong> (explores a
+new vertex).</li>
+<li><code>Grey</code> target: <strong>Back edge</strong> (points to an
+active ancestor; indicates a cycle exists, making topological sort
+impossible).</li>
+<li><code>Black</code> target: <strong>Forward or cross edge</strong>
+(target is already finished).</li>
+</ul></li>
+<li><strong>Why DFS Gives a Valid Order:</strong> For every edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>
+in a DAG, vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+is guaranteed to finish (turn <code>Black</code>) before vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>.
+Prepending each vertex to the front of a list the moment it turns
+<code>Black</code> places all prerequisites earlier in the list.</li>
+</ul>
+<h4 id="code">Code</h4>
+<pre><code>function TopSort(Graph G):
+    List L = empty list
+    for each vertex u in G.V:
+        u.color = White
+        u.pi = null
+
+    for each vertex u in G.V:
+        if u.color == White:
+            if not TopSort_Visit(G, u, L):
+                return &quot;Error: Graph has a cycle&quot;
+    return L
+
+function TopSort_Visit(Graph G, Vertex u, List L):
+    u.color = Grey
+    for each neighbor v in G.Adj[u]:
+        if v.color == Grey:
+            return false // Cycle detected via back edge
+        else if v.color == White:
+            v.pi = u
+            if not TopSort_Visit(G, v, L):
+                return false
+    u.color = Black
+    L.insertFront(u) // Add to front of list when finished
+    return true</code></pre>
+<ul>
+<li><strong>Running Time:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>+</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\vert{}V\vert{} + \vert{}E\vert{})</annotation></semantics></math>
+when using an Adjacency List.</li>
+<li><strong>Auxiliary Space:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{})</annotation></semantics></math>
+extra space for recursion call stack, color array, and the output list
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>.</li>
+</ul>
+<hr />
+<h2 id="dijkstras-algorithm-shortest-paths-from-one-starting-vertex">2.
+Dijkstra’s Algorithm (Shortest Paths from One Starting Vertex)</h2>
+<p>Dijkstra’s algorithm finds the shortest path from a starting vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+to all other vertices. All edge weights must be zero or positive
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">w \ge 0</annotation></semantics></math>).</p>
+<h3 id="code-1">Code</h3>
+<pre><code>function Dijkstra(Graph G, Vertex s):
+    for each vertex v in G.V:
+        v.d = infinity
+        v.pi = null
+        S[v] = 0 // S[v] = 1 means the shortest path to v is finalized
+    s.d = 0
+    PriorityQueue Q = buildMinQueue(G.V) // Uses v.d as the key
+
+    while Q is not empty:
+        u = Q.extractMin()
+        S[u] = 1
+
+        for each neighbor v in G.Adj[u]:
+            if S[v] == 0 and v.d &gt; u.d + w(u, v):
+                v.d = u.d + w(u, v) // Found a shorter path to v
+                v.pi = u
+                Q.decreaseKey(v, v.d)</code></pre>
+<hr />
+<h3 id="running-time-execution-rules">Running Time &amp; Execution
+Rules</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 28%" />
+<col style="width: 25%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Priority Queue Used</th>
+<th style="text-align: center;">Time to Pick Next Node
+(<code>extractMin</code>)</th>
+<th style="text-align: center;">Time to Update Node
+(<code>decreaseKey</code>)</th>
+<th style="text-align: center;">Total Running Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Simple Array</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{})</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow></mrow><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{}^2)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Binary Min-Heap</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log \vert{}V\vert{})</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log \vert{}V\vert{})</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>+</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O((\vert{}V\vert{} + \vert{}E\vert{}) \log \vert{}V\vert{})</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>Subgraphs Rule:</strong> If you delete edges or vertices to
+make a smaller graph, the shortest path between any two vertices can
+only stay the same or get longer.</li>
+<li><strong>Zero Weights Work:</strong> Edges with weight equal to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+work correctly in Dijkstra’s algorithm.</li>
+<li><strong>Why Negative Weights Break Dijkstra:</strong> Dijkstra
+permanently locks in a vertex as finished the moment it extracts it from
+the priority queue. If an edge has a negative weight, a longer-looking
+path could become cheaper later, but Dijkstra will never revisit
+vertices already marked in set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.</li>
+<li><strong>Why Adding a Constant Number Fails:</strong> You cannot fix
+negative weights by adding a constant number
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>C</mi></mrow><annotation encoding="application/x-tex">+C</annotation></semantics></math>
+to every edge. Paths with more edges get increased by more copies of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+than paths with fewer edges, which can change which path is the
+shortest.</li>
+</ul>
+<hr />
+<h3 id="how-to-count-shortest-paths">How to Count Shortest Paths</h3>
+<p>To count how many different paths tie for the shortest distance from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+to each vertex:</p>
+<ol type="1">
+<li>Set <code>v.paths = 0</code> for all vertices, and set
+<code>s.paths = 1</code>.</li>
+<li>When checking neighbor
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+from vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>:
+<ul>
+<li>If <code>v.d &gt; u.d + w(u, v)</code>: You found a strictly shorter
+path. Update <code>v.d = u.d + w(u, v)</code>, update
+<code>v.pi = u</code>, and reset <code>v.paths = u.paths</code>.</li>
+<li>If <code>v.d == u.d + w(u, v)</code>: You found an extra path with
+the exact same shortest distance. Keep <code>v.d</code> unchanged and
+add to the count: <code>v.paths = v.paths + u.paths</code>.</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="minimum-spanning-tree-mst-rules">3. Minimum Spanning Tree (MST)
+Rules</h2>
+<p>A Minimum Spanning Tree of a connected undirected graph is a tree
+that connects every vertex together with no cycles, using the minimum
+possible total edge weight. A graph with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow></mrow><annotation encoding="application/x-tex">\vert{}V\vert{}</annotation></semantics></math>
+vertices always has exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\vert{}V\vert{} - 1</annotation></semantics></math>
+edges in its tree.</p>
+<h3 id="core-rules">Core Rules</h3>
+<h4 id="the-cut-rule">1. The Cut Rule</h4>
+<p>If you split the vertices of a graph into two separate groups, the
+lightest edge connecting group 1 to group 2 is always part of a Minimum
+Spanning Tree.</p>
+<h4 id="the-cycle-rule">2. The Cycle Rule</h4>
+<p>In any cycle, the strictly heaviest edge can never be part of a
+Minimum Spanning Tree.</p>
+<h4 id="unique-weights-mean-one-unique-tree">3. Unique Weights Mean One
+Unique Tree</h4>
+<p>If every edge in the graph has a different weight, the graph has only
+one unique Minimum Spanning Tree.</p>
+<h4 id="negative-weights-work">4. Negative Weights Work</h4>
+<p>Both Prim’s algorithm and Kruskal’s algorithm work correctly on
+graphs with negative edge weights. MST algorithms compare individual
+edge weights to each other rather than adding up distances along a path.
+Adding a constant number
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>C</mi></mrow><annotation encoding="application/x-tex">+C</annotation></semantics></math>
+to every edge leaves the chosen tree unchanged.</p>
+<hr />
+<h3 id="how-to-reconstruct-a-graph-and-mst-from-clues">How to
+Reconstruct a Graph and MST from Clues</h3>
+<p>When an exam question gives a list of edge weights, a target MST
+total weight, and specific distances between vertices, use these
+steps:</p>
+<ol type="1">
+<li><strong>Find the Tree Edges:</strong> A graph with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow></mrow><annotation encoding="application/x-tex">\vert{}V\vert{}</annotation></semantics></math>
+vertices must use exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\vert{}V\vert{} - 1</annotation></semantics></math>
+edges. Pick the subset of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\vert{}V\vert{} - 1</annotation></semantics></math>
+weights from the list that adds up to the target MST total weight.</li>
+<li><strong>Use Distance Clues to Connect Vertices:</strong> Match the
+given distance clues between vertices to edges in your chosen tree
+subset. For example, if the path distance between two vertices in the
+tree is 3, they are connected by a single edge of weight 3 or a path of
+tree edges adding up to 3.</li>
+<li><strong>Draw the Spanning Tree Backbone:</strong> Draw all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow></mrow><annotation encoding="application/x-tex">\vert{}V\vert{}</annotation></semantics></math>
+vertices and connect them using your chosen
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\vert{}V\vert{} - 1</annotation></semantics></math>
+tree edges according to the distance clues.</li>
+<li><strong>Add Remaining Edges to the Graph:</strong> Place the unused
+edge weights between vertices as non-tree edges. Ensure each non-tree
+edge forms a cycle with the tree where it is the heaviest edge in that
+cycle, so it never gets chosen over a tree edge.</li>
+</ol>
+<hr />
+<h2 id="prims-algorithm">4. Prim’s Algorithm</h2>
+<p>Prim’s algorithm starts at one vertex and grows a single tree one
+edge at a time. In each step, it picks the lightest edge connecting a
+vertex in the tree to a vertex outside the tree.</p>
+<h3 id="code-2">Code</h3>
+<pre><code>function Prim(Graph G, Vertex s):
+    for each vertex v in G.V:
+        v.d = infinity
+        v.pi = null
+        S[v] = 0 // S[v] = 1 means v is already in the tree
+    s.d = 0
+    PriorityQueue pq = buildMinQueue(G.V) // Uses v.d as the key
+
+    while pq is not empty:
+        u = pq.extractMin()
+        S[u] = 1
+
+        for each neighbor v in G.Adj[u]:
+            if S[v] == 0 and w(u, v) &lt; v.d:
+                v.d = w(u, v) // Saves the weight of the edge to the tree
+                v.pi = u
+                pq.decreaseKey(v, v.d)</code></pre>
+<ul>
+<li>Dijkstra sets <code>v.d = u.d + w(u, v)</code> because it measures
+distance from the starting source.</li>
+<li>Prim sets <code>v.d = w(u, v)</code> because it only cares about the
+cost of the single edge attaching
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+directly to the current tree.</li>
+</ul>
+<h3 id="running-time-space-complexity">Running Time &amp; Space
+Complexity</h3>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 22%" />
+<col style="width: 19%" />
+<col style="width: 24%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Priority Queue Used</th>
+<th style="text-align: center;">Time to Pick Next Vertex
+(<code>extractMin</code>)</th>
+<th style="text-align: center;">Time to Update Neighbor Key
+(<code>decreaseKey</code>)</th>
+<th style="text-align: center;">Total Running Time</th>
+<th style="text-align: center;">Auxiliary Space</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Simple Array</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{})</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow></mrow><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{}^2)</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{})</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Binary Min-Heap</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log \vert{}V\vert{})</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log \vert{}V\vert{})</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>+</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O((\vert{}V\vert{} + \vert{}E\vert{}) \log \vert{}V\vert{})</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{})</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>Why Binary Heap Takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>+</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O((\vert{}V\vert{} + \vert{}E\vert{}) \log \vert{}V\vert{})</annotation></semantics></math>
+Time:</strong>
+<ul>
+<li>The algorithm extracts
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow></mrow><annotation encoding="application/x-tex">\vert{}V\vert{}</annotation></semantics></math>
+vertices from the min-heap, costing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>×</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\vert{}V\vert{} \times O(\log \vert{}V\vert{})</annotation></semantics></math>.</li>
+<li>Across the entire execution, it checks every edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>
+twice (once from each endpoint in an undirected graph) and may call
+<code>decreaseKey</code> at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow></mrow><annotation encoding="application/x-tex">2\vert{}E\vert{}</annotation></semantics></math>
+times, costing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>×</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\vert{}E\vert{} \times O(\log \vert{}V\vert{})</annotation></semantics></math>.</li>
+<li>Summing both parts gives
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>+</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O((\vert{}V\vert{} + \vert{}E\vert{}) \log \vert{}V\vert{})</annotation></semantics></math>.
+For connected graphs where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>≥</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\vert{}E\vert{} \ge \vert{}V\vert{} - 1</annotation></semantics></math>,
+this simplifies to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} \log \vert{}V\vert{})</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Why Simple Array is Better for Dense Graphs:</strong>
+<ul>
+<li>When the graph is complete or dense
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>≈</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow></mrow><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\vert{}E\vert{} \approx \vert{}V\vert{}^2</annotation></semantics></math>),
+an unsorted array achieves
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow></mrow><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{}^2)</annotation></semantics></math>
+time, which beats the binary heap’s
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow></mrow><mn>2</mn></msup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{}^2 \log \vert{}V\vert{})</annotation></semantics></math>
+because updating neighbor keys is an instant
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+lookup.</li>
+</ul></li>
+<li><strong>Space Complexity:</strong>
+<ul>
+<li><strong>Auxiliary Space:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{})</annotation></semantics></math>
+extra space to store the priority queue, the parent pointers
+<code>v.pi</code>, the distance array <code>v.d</code>, and the visited
+status set <code>S</code>.</li>
+<li><strong>Graph Representation:</strong> Takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>+</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{} + \vert{}E\vert{})</annotation></semantics></math>
+space if using an Adjacency List, or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow></mrow><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{}^2)</annotation></semantics></math>
+space if using an Adjacency Matrix.</li>
+</ul></li>
+</ul>
+<hr />
+<h2 id="tracking-connected-groups-union-find">5. Tracking Connected
+Groups (Union-Find)</h2>
+<p>Union-Find keeps track of which elements belong to which groups.</p>
+<h3 id="comparison-of-methods">Comparison of Methods</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Method</th>
+<th style="text-align: center;">Time for <code>find(p)</code></th>
+<th style="text-align: center;">Time for <code>union(p, q)</code></th>
+<th style="text-align: left;">Key Implementation Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>QuickFind</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(N)</annotation></semantics></math></td>
+<td style="text-align: left;">Save original IDs in temporary variables
+before running the loop.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>QuickUnion</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></td>
+<td style="text-align: left;">Follow parent links up to the root; trees
+can become long single chains.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Weighted QuickUnion</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log N)</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log N)</annotation></semantics></math></td>
+<td style="text-align: left;">Always attach the smaller tree under the
+root of the larger tree.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Weighted QuickUnion with Path
+Compression</strong></td>
+<td style="text-align: center;">Almost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+<td style="text-align: center;">Almost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+<td style="text-align: left;">Flattens tree pointers directly toward the
+root whenever <code>find</code> is called.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 id="why-weighted-quickunion-keeps-trees-short">Why Weighted
+QuickUnion Keeps Trees Short</h4>
+<ul>
+<li>A node only moves one level deeper when its tree is merged under a
+tree of equal or larger size.</li>
+<li>Every time a node’s depth increases by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>,
+the size of its group at least doubles.</li>
+<li>Starting from size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>,
+a group can double at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><mi>N</mi></mrow><annotation encoding="application/x-tex">\log_2 N</annotation></semantics></math>
+times before reaching the maximum size of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+items.</li>
+<li>Therefore, the height of the tree cannot exceed
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><mi>N</mi></mrow><annotation encoding="application/x-tex">\log_2 N</annotation></semantics></math>.</li>
+</ul>
+<h4 id="correct-quickfind-code">Correct QuickFind Code</h4>
+<pre><code>public void union(int p, int q) {
+    int pid = id[p]; // Store IDs first so id[p] does not change mid-loop
+    int qid = id[q];
+    if (pid == qid) return;
+    for (int i = 0; i &lt; id.length; i++) {
+        if (id[i] == pid) {
+            id[i] = qid;
+        }
+    }
+}</code></pre>
+<h4 id="quickunion-code">QuickUnion Code</h4>
+<pre><code>private int root(int p) {
+    while (p != id[p]) {
+        p = id[p]; // Follow parent links to the root
+    }
+    return p;
+}
+
+public void union(int p, int q) {
+    int proot = root(p);
+    int qroot = root(q);
+    if (proot == qroot) return;
+    id[proot] = qroot; // Make p&#39;s root point to q&#39;s root
+}</code></pre>
+<h4 id="weighted-quickunion-code">Weighted QuickUnion Code</h4>
+<pre><code>private int root(int p) {
+    while (p != id[p]) {
+        p = id[p]; // Follow parent links to the root
+    }
+    return p;
+}
+
+public void union(int p, int q) {
+    int proot = root(p);
+    int qroot = root(q);
+    if (proot == qroot) return;
+    if (size[proot] &lt; size[qroot]) {
+        id[proot] = qroot;
+        size[qroot] += size[proot];
+    } else {
+        id[qroot] = proot;
+        size[proot] += size[qroot];
+    }
+}</code></pre>
+<hr />
+<h2 id="kruskals-algorithm">6. Kruskal’s Algorithm</h2>
+<p>Kruskal’s algorithm sorts all edges from lightest to heaviest. It
+checks each edge one by one and adds it to the tree if it connects two
+previously separate groups.</p>
+<h3 id="code-3">Code</h3>
+<pre><code>function Kruskal(Graph G):
+    List mstEdges = empty
+    sort G.E from lightest to heaviest // Takes O(|E| log |E|)
+    DisjointSet uf = new DisjointSet(G.V) // Starts with |V| separate groups
+
+    for each edge (u, v) in sorted G.E:
+        if not uf.connected(u, v):
+            uf.union(u, v)
+            mstEdges.add((u, v))
+            if mstEdges.size() == G.V.size() - 1:
+                break // Stop when we have |V| - 1 edges
+    return mstEdges</code></pre>
+<hr />
+<h3 id="running-time-space-complexity-1">Running Time &amp; Space
+Complexity</h3>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 45%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Step</th>
+<th style="text-align: center;">Time Taken</th>
+<th style="text-align: left;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>1. Sort All Edges</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} \log \vert{}E\vert{})</annotation></semantics></math></td>
+<td style="text-align: left;">Using standard comparison sort (MergeSort,
+QuickSort, or a Min-Heap).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2. Initialize
+Union-Find</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{})</annotation></semantics></math></td>
+<td style="text-align: left;">Makes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow></mrow><annotation encoding="application/x-tex">\vert{}V\vert{}</annotation></semantics></math>
+sets with one element each.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>3. Process Edges
+(<code>find</code> &amp; <code>union</code>)</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>⋅</mo><mi>α</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} \cdot \alpha(\vert{}V\vert{}))</annotation></semantics></math></td>
+<td style="text-align: left;">Runs at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow></mrow><annotation encoding="application/x-tex">2\vert{}E\vert{}</annotation></semantics></math>
+finds and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\vert{}V\vert{} - 1</annotation></semantics></math>
+unions.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+is the Inverse Ackermann function.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Total Running Time</strong></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} \log \vert{}E\vert{})</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} \log \vert{}V\vert{})</annotation></semantics></math></td>
+<td style="text-align: left;">Dominating step is sorting edges.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>Why
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} \log \vert{}E\vert{})</annotation></semantics></math>
+is the Same as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} \log \vert{}V\vert{})</annotation></semantics></math>:</strong>
+<ul>
+<li>In any simple graph,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>≤</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow></mrow><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">\vert{}E\vert{} \le \vert{}V\vert{}^2</annotation></semantics></math>.</li>
+<li>Therefore,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>≤</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow></mrow><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow></mrow><annotation encoding="application/x-tex">\log \vert{}E\vert{} \le \log(\vert{}V\vert{}^2) = 2 \log \vert{}V\vert{}</annotation></semantics></math>.</li>
+<li>Dropping constant multipliers gives
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} \log \vert{}E\vert{}) = O(\vert{}E\vert{} \log \vert{}V\vert{})</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Why Union-Find Adds Almost No Cost:</strong>
+<ul>
+<li>With Weighted QuickUnion and Path Compression, the amortized cost
+per operation is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>α</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\alpha(\vert{}V\vert{}))</annotation></semantics></math>,
+which is effectively
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+for any practical value of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow></mrow><annotation encoding="application/x-tex">\vert{}V\vert{}</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">\alpha(\vert{}V\vert{}) \le 4</annotation></semantics></math>).</li>
+<li>Processing all edges through Union-Find takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>⋅</mo><mi>α</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} \cdot \alpha(\vert{}V\vert{}))</annotation></semantics></math>,
+meaning sorting is strictly the bottleneck.</li>
+</ul></li>
+<li><strong>Space Complexity:</strong>
+<ul>
+<li><strong>Auxiliary Space:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>+</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{} + \vert{}E\vert{})</annotation></semantics></math>
+total.
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{})</annotation></semantics></math>
+space for the <code>id</code> and <code>size</code> arrays inside the
+Union-Find structure.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{})</annotation></semantics></math>
+space to hold the sorted edge list (or pointers) and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}V\vert{})</annotation></semantics></math>
+space to store the resulting <code>mstEdges</code> list.</li>
+</ul></li>
+</ul></li>
+</ul>
+<h3 id="how-the-number-of-groups-shrinks">How the Number of Groups
+Shrinks</h3>
+<ul>
+<li>At the start, there are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow></mrow><annotation encoding="application/x-tex">\vert{}V\vert{}</annotation></semantics></math>
+separate groups.</li>
+<li>Each time an edge is accepted, it connects two previously separate
+groups into one group.</li>
+<li>The total number of groups drops by <strong>exactly 1 for every
+accepted edge</strong>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>→</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo>−</mo><mn>1</mn><mo>→</mo><mi>…</mi><mo>→</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\vert{}V\vert{} \to \vert{}V\vert{} - 1 \to \dots \to 1</annotation></semantics></math>.</li>
+<li>When the algorithm finishes, there is exactly 1 group containing all
+vertices.</li>
+</ul>
+<h3 id="faster-sorting-for-small-integer-weights">Faster Sorting for
+Small Integer Weights</h3>
+<ul>
+<li>If all edge weights are small integers (such as numbers between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow></mrow><annotation encoding="application/x-tex">\vert{}V\vert{}</annotation></semantics></math>),
+sort the edges using Counting Sort instead of a comparison sort.</li>
+<li>Counting Sort takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>+</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} + \vert{}V\vert{})</annotation></semantics></math>
+time.</li>
+<li>Processing edges with Union-Find costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><msup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo>*</mo></msup><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} \log^* \vert{}V\vert{})</annotation></semantics></math>,
+reducing the overall runtime to near-linear time:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><msup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo>*</mo></msup><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} \log^* \vert{}V\vert{})</annotation></semantics></math>.</li>
+</ul>
+<h3 id="finding-the-maximum-spanning-tree">Finding the Maximum Spanning
+Tree</h3>
+<ul>
+<li>To find a Maximum Spanning Tree instead of a minimum one, sort the
+edges from heaviest to lightest before running the loop, or negate all
+edge weights.</li>
+</ul>
+<hr />
+<h2 id="direct-comparison-dijkstra-vs.-prim-vs.-kruskal">7. Direct
+Comparison: Dijkstra vs. Prim vs. Kruskal</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 28%" />
+<col style="width: 28%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Detail</th>
+<th style="text-align: left;">Dijkstra</th>
+<th style="text-align: left;">Prim</th>
+<th style="text-align: left;">Kruskal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Problem Solved</strong></td>
+<td style="text-align: left;">Shortest paths from one source</td>
+<td style="text-align: left;">Minimum Spanning Tree</td>
+<td style="text-align: left;">Minimum Spanning Tree</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Graph Types</strong></td>
+<td style="text-align: left;">Directed or Undirected</td>
+<td style="text-align: left;">Connected, Undirected</td>
+<td style="text-align: left;">Connected, Undirected</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Works with Negative
+Weights?</strong></td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>How It Chooses Next</strong></td>
+<td style="text-align: left;">Smallest total distance:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mi>.</mi><mi>d</mi><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">u.d + w(u, v)</annotation></semantics></math></td>
+<td style="text-align: left;">Lightest edge to tree:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w(u, v)</annotation></semantics></math></td>
+<td style="text-align: left;">Lightest edge overall:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>e</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w(e)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Data Structure Used</strong></td>
+<td style="text-align: left;">Priority Queue</td>
+<td style="text-align: left;">Priority Queue</td>
+<td style="text-align: left;">Priority Queue + Union-Find</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Standard Running
+Time</strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>+</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O((\vert{}V\vert{} + \vert{}E\vert{}) \log \vert{}V\vert{})</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>+</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O((\vert{}V\vert{} + \vert{}E\vert{}) \log \vert{}V\vert{})</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\vert{}E\vert{} \log \vert{}E\vert{})</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Best Graph Type</strong></td>
+<td style="text-align: left;">Any graph with non-negative weights</td>
+<td style="text-align: left;">Dense graphs (many edges)</td>
+<td style="text-align: left;">Sparse graphs (few edges)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="2.html">← Priority Queues &amp;
+Advanced Sorting</a>
+  <a class="next-page" href="cheatsheet.html">Revision Cheatsheet →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

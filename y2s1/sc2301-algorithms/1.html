@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Foundations, Insertion Sort &amp; Mergesort · SC2301 Algorithm
+Design &amp; Analysis</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/style.css?v=D2A858E1">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Foundations,
+Insertion Sort &amp; Mergesort</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">Foundations, Insertion Sort &amp;
+Mergesort</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="1.html"
+                   data-nav="1.html">Foundations, Insertion Sort &amp;
+Mergesort</a></li>
+            <li><a href="2.html"
+                   data-nav="2.html">Priority Queues &amp; Advanced
+Sorting</a></li>
+            <li><a href="3.html"
+                   data-nav="3.html">Graph Traversals, Shortest Paths
+&amp; Minimum Spanning Trees</a></li>
+            <li><a href="cheatsheet.html"
+                   data-nav="cheatsheet.html">Revision
+Cheatsheet</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#module-1-foundations-insertion-sort-mergesort"
+id="toc-module-1-foundations-insertion-sort-mergesort">Module 1:
+Foundations, Insertion Sort &amp; Mergesort</a>
+<ul>
+<li><a href="#asymptotic-notation" id="toc-asymptotic-notation">1.
+Asymptotic Notation</a>
+<ul>
+<li><a href="#core-mathematical-definitions"
+id="toc-core-mathematical-definitions">Core Mathematical
+Definitions</a></li>
+<li><a href="#key-proof-templates" id="toc-key-proof-templates">Key
+Proof Templates</a></li>
+</ul></li>
+<li><a href="#insertion-sort" id="toc-insertion-sort">2. Insertion
+Sort</a>
+<ul>
+<li><a href="#canonical-implementation"
+id="toc-canonical-implementation">Canonical Implementation</a></li>
+<li><a href="#complexity-breakdown"
+id="toc-complexity-breakdown">Complexity Breakdown</a></li>
+<li><a href="#invariants-proof-templates"
+id="toc-invariants-proof-templates">Invariants &amp; Proof
+Templates</a></li>
+<li><a href="#important-exam-mechanics"
+id="toc-important-exam-mechanics">Important Exam Mechanics</a></li>
+</ul></li>
+<li><a href="#mergesort" id="toc-mergesort">3. Mergesort</a>
+<ul>
+<li><a href="#canonical-implementation-1"
+id="toc-canonical-implementation-1">Canonical Implementation</a></li>
+<li><a href="#in-place-merge-procedure"
+id="toc-in-place-merge-procedure">In-Place <code>merge()</code>
+Procedure</a></li>
+<li><a href="#complexity-recurrence-analysis"
+id="toc-complexity-recurrence-analysis">Complexity &amp; Recurrence
+Analysis</a></li>
+<li><a href="#implementation-comparisons-in-place-vs.-standard-buffer"
+id="toc-implementation-comparisons-in-place-vs.-standard-buffer">Implementation
+Comparisons: In-Place vs. Standard Buffer</a></li>
+<li><a href="#common-exam-problems-algorithms"
+id="toc-common-exam-problems-algorithms">Common Exam Problems &amp;
+Algorithms</a></li>
+</ul></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="module-1-foundations-insertion-sort-mergesort">Module 1:
+Foundations, Insertion Sort &amp; Mergesort</h1>
+<h2 id="asymptotic-notation">1. Asymptotic Notation</h2>
+<p>Asymptotic analysis describes how the resource consumption of an
+algorithm grows as the input size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+approaches infinity. Constant multiplicative factors and lower-order
+terms are ignored. All running time functions are assumed to be
+non-negative
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">f(n) \ge 0</annotation></semantics></math>).</p>
+<h3 id="core-mathematical-definitions">Core Mathematical
+Definitions</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 21%" />
+<col style="width: 19%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Notation</th>
+<th style="text-align: left;">Formal Definition</th>
+<th style="text-align: center;">Intuition</th>
+<th style="text-align: center;">Limit Test
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>=</mo><msub><mrow><mi mathvariant="normal">lim</mi><mo>&#8289;</mo></mrow><mrow><mi>n</mi><mo>→</mo><mi>∞</mi></mrow></msub><mfrac><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">L = \lim_{n \to \infty} \frac{f(n)}{g(n)}</annotation></semantics></math>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td
+style="text-align: left;"><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) \in O(g(n))</annotation></semantics></math></strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∃</mo><mspace width="0.167em"></mspace><mi>c</mi><mo>&gt;</mo><mn>0</mn><mo>,</mo><msub><mi>n</mi><mn>0</mn></msub><mo>&gt;</mo><mn>0</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> such that </mtext><mspace width="0.333em"></mspace></mrow><mn>0</mn><mo>≤</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>c</mi><mo>⋅</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="0.278em"></mspace><mo>∀</mo><mi>n</mi><mo>≥</mo><msub><mi>n</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\exists\, c &gt; 0, n_0 &gt; 0 \text{ such that } 0 \le f(n) \le c \cdot g(n), \; \forall n \ge n_0</annotation></semantics></math></td>
+<td style="text-align: center;">Upper bound
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≤</mo><annotation encoding="application/x-tex">\le</annotation></semantics></math>)</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>&lt;</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">L &lt; \infty</annotation></semantics></math></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) \in \Omega(g(n))</annotation></semantics></math></strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∃</mo><mspace width="0.167em"></mspace><mi>c</mi><mo>&gt;</mo><mn>0</mn><mo>,</mo><msub><mi>n</mi><mn>0</mn></msub><mo>&gt;</mo><mn>0</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> such that </mtext><mspace width="0.333em"></mspace></mrow><mn>0</mn><mo>≤</mo><mi>c</mi><mo>⋅</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="0.278em"></mspace><mo>∀</mo><mi>n</mi><mo>≥</mo><msub><mi>n</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\exists\, c &gt; 0, n_0 &gt; 0 \text{ such that } 0 \le c \cdot g(n) \le f(n), \; \forall n \ge n_0</annotation></semantics></math></td>
+<td style="text-align: center;">Lower bound
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≥</mo><annotation encoding="application/x-tex">\ge</annotation></semantics></math>)</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">L &gt; 0</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>=</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">L = \infty</annotation></semantics></math></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) \in \Theta(g(n))</annotation></semantics></math></strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∃</mo><mspace width="0.167em"></mspace><msub><mi>c</mi><mn>1</mn></msub><mo>,</mo><msub><mi>c</mi><mn>2</mn></msub><mo>,</mo><msub><mi>n</mi><mn>0</mn></msub><mo>&gt;</mo><mn>0</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> such that </mtext><mspace width="0.333em"></mspace></mrow><mn>0</mn><mo>≤</mo><msub><mi>c</mi><mn>1</mn></msub><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><msub><mi>c</mi><mn>2</mn></msub><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="0.278em"></mspace><mo>∀</mo><mi>n</mi><mo>≥</mo><msub><mi>n</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\exists\, c_1, c_2, n_0 &gt; 0 \text{ such that } 0 \le c_1 g(n) \le f(n) \le c_2 g(n), \; \forall n \ge n_0</annotation></semantics></math></td>
+<td style="text-align: center;">Tight bound
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>=</mo><annotation encoding="application/x-tex">=</annotation></semantics></math>)</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>&lt;</mo><mi>L</mi><mo>&lt;</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">0 &lt; L &lt; \infty</annotation></semantics></math></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><mi>o</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) \in o(g(n))</annotation></semantics></math></strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∀</mo><mspace width="0.167em"></mspace><mi>c</mi><mo>&gt;</mo><mn>0</mn><mo>,</mo><mo>∃</mo><mspace width="0.167em"></mspace><msub><mi>n</mi><mn>0</mn></msub><mo>&gt;</mo><mn>0</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> such that </mtext><mspace width="0.333em"></mspace></mrow><mn>0</mn><mo>≤</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>c</mi><mo>⋅</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="0.278em"></mspace><mo>∀</mo><mi>n</mi><mo>≥</mo><msub><mi>n</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\forall\, c &gt; 0, \exists\, n_0 &gt; 0 \text{ such that } 0 \le f(n) &lt; c \cdot g(n), \; \forall n \ge n_0</annotation></semantics></math></td>
+<td style="text-align: center;">Strictly slower
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>&lt;</mo><annotation encoding="application/x-tex">&lt;</annotation></semantics></math>)</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">L = 0</annotation></semantics></math></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><mi>ω</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) \in \omega(g(n))</annotation></semantics></math></strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∀</mo><mspace width="0.167em"></mspace><mi>c</mi><mo>&gt;</mo><mn>0</mn><mo>,</mo><mo>∃</mo><mspace width="0.167em"></mspace><msub><mi>n</mi><mn>0</mn></msub><mo>&gt;</mo><mn>0</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> such that </mtext><mspace width="0.333em"></mspace></mrow><mn>0</mn><mo>≤</mo><mi>c</mi><mo>⋅</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="0.278em"></mspace><mo>∀</mo><mi>n</mi><mo>≥</mo><msub><mi>n</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">\forall\, c &gt; 0, \exists\, n_0 &gt; 0 \text{ such that } 0 \le c \cdot g(n) &lt; f(n), \; \forall n \ge n_0</annotation></semantics></math></td>
+<td style="text-align: center;">Strictly faster
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>&gt;</mo><annotation encoding="application/x-tex">&gt;</annotation></semantics></math>)</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>=</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">L = \infty</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>Quantifier Distinction:</strong> Big bounds
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo>,</mo><mi mathvariant="normal">Ω</mi><mo>,</mo><mi mathvariant="normal">Θ</mi></mrow><annotation encoding="application/x-tex">O, \Omega, \Theta</annotation></semantics></math>)
+require the condition to hold for at least one positive constant
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>).
+Little bounds
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mo>,</mo><mi>ω</mi></mrow><annotation encoding="application/x-tex">o, \omega</annotation></semantics></math>)
+must hold for all chosen positive constants
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>).</li>
+<li><strong>Limit Test Fallback:</strong> The limit test is a one-way
+test. If the ratio
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n)/g(n)</annotation></semantics></math>
+oscillates without a limit, you must prove the relationship using the
+formal inequality definition directly.</li>
+</ul>
+<hr />
+<h3 id="key-proof-templates">Key Proof Templates</h3>
+<h4 id="two-way-theta-bounding-proof-iff">1. Two-Way
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Θ</mi><annotation encoding="application/x-tex">\Theta</annotation></semantics></math>-Bounding
+Proof
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⇔</mo><annotation encoding="application/x-tex">\iff</annotation></semantics></math>)</h4>
+<p>To prove that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) = \Theta(g(n))</annotation></semantics></math>
+if and only if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) = O(g(n))</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) = \Omega(g(n))</annotation></semantics></math>:</p>
+<ol type="1">
+<li><strong>Forward Direction
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>):</strong>
+<ul>
+<li>By definition of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(g(n))</annotation></semantics></math>,
+there exist constants
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mn>1</mn></msub><mo>,</mo><msub><mi>c</mi><mn>2</mn></msub><mo>,</mo><msub><mi>n</mi><mn>0</mn></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">c_1, c_2, n_0 &gt; 0</annotation></semantics></math>
+such that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mn>1</mn></msub><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><msub><mi>c</mi><mn>2</mn></msub><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">c_1 g(n) \le f(n) \le c_2 g(n)</annotation></semantics></math>
+for all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≥</mo><msub><mi>n</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">n \ge n_0</annotation></semantics></math>.</li>
+<li>Selecting constants
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>c</mi><mn>2</mn></msub><mo>,</mo><msub><mi>n</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(c_2, n_0)</annotation></semantics></math>
+satisfies the definition of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(g(n))</annotation></semantics></math>.</li>
+<li>Selecting constants
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>c</mi><mn>1</mn></msub><mo>,</mo><msub><mi>n</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(c_1, n_0)</annotation></semantics></math>
+satisfies the definition of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Omega(g(n))</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Reverse Direction
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟸</mo><annotation encoding="application/x-tex">\impliedby</annotation></semantics></math>):</strong>
+<ul>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) \in O(g(n))</annotation></semantics></math>,
+there exist constants
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mn>4</mn></msub><mo>,</mo><msub><mi>n</mi><mn>2</mn></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">c_4, n_2 &gt; 0</annotation></semantics></math>
+such that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><msub><mi>c</mi><mn>4</mn></msub><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) \le c_4 g(n)</annotation></semantics></math>
+for all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≥</mo><msub><mi>n</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">n \ge n_2</annotation></semantics></math>.</li>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) \in \Omega(g(n))</annotation></semantics></math>,
+there exist constants
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mn>3</mn></msub><mo>,</mo><msub><mi>n</mi><mn>1</mn></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">c_3, n_1 &gt; 0</annotation></semantics></math>
+such that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mn>3</mn></msub><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">c_3 g(n) \le f(n)</annotation></semantics></math>
+for all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≥</mo><msub><mi>n</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">n \ge n_1</annotation></semantics></math>.</li>
+<li>Set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mn>3</mn></msub><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>n</mi><mn>1</mn></msub><mo>,</mo><msub><mi>n</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">n_3 = \max(n_1, n_2)</annotation></semantics></math>
+to merge the valid domains.</li>
+<li>For all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≥</mo><msub><mi>n</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">n \ge n_3</annotation></semantics></math>,
+the compound inequality
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mn>3</mn></msub><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><msub><mi>c</mi><mn>4</mn></msub><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">c_3 g(n) \le f(n) \le c_4 g(n)</annotation></semantics></math>
+holds, which proves that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) \in \Theta(g(n))</annotation></semantics></math>.</li>
+</ul></li>
+</ol>
+<h4 id="proving-two-functions-cannot-be-compared">2. Proving Two
+Functions Cannot Be Compared</h4>
+<p>We show that neither function bounds the other by using a function
+that alternates between odd and even inputs:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>n</mi><mo>,</mo><mspace width="1.0em"></mspace><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mn>1</mn></mtd><mtd columnalign="left" style="text-align: left"><mrow><mtext mathvariant="normal">if </mtext><mspace width="0.333em"></mspace></mrow><mi>n</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> is even</mtext></mrow></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msup><mi>n</mi><mn>2</mn></msup></mtd><mtd columnalign="left" style="text-align: left"><mrow><mtext mathvariant="normal">if </mtext><mspace width="0.333em"></mspace></mrow><mi>n</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> is odd</mtext></mrow></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">f(n) = n, \quad g(n) = \begin{cases} 1 &amp; \text{if } n \text{ is even} \\ n^2 &amp; \text{if } n \text{ is odd} \end{cases}</annotation></semantics></math></p>
+<ol type="1">
+<li><strong>Proof that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>∉</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) \notin O(g(n))</annotation></semantics></math>:</strong>
+<ul>
+<li>Assume for contradiction that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) \in O(g(n))</annotation></semantics></math>,
+which implies
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≤</mo><mi>c</mi><mo>⋅</mo><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">n \le c \cdot g(n)</annotation></semantics></math>
+for all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≥</mo><msub><mi>n</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">n \ge n_1</annotation></semantics></math>.</li>
+<li>Choose an even integer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mn>2</mn></msub><annotation encoding="application/x-tex">n_2</annotation></semantics></math>
+such that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mn>2</mn></msub><mo>&gt;</mo><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>n</mi><mn>1</mn></msub><mo>,</mo><mi>c</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">n_2 &gt; \max(n_1, c)</annotation></semantics></math>.</li>
+<li>For even integers,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>n</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">g(n_2) = 1</annotation></semantics></math>,
+leading to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mn>2</mn></msub><mo>≤</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">n_2 \le c</annotation></semantics></math>,
+which directly contradicts
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>n</mi><mn>2</mn></msub><mo>&gt;</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">n_2 &gt; c</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Proof that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>∉</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g(n) \notin O(f(n))</annotation></semantics></math>:</strong>
+<ul>
+<li>Assume for contradiction that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">g(n) \in O(f(n))</annotation></semantics></math>,
+which implies
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><msup><mi>c</mi><mo>′</mo></msup><mo>⋅</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">g(n) \le c&#39; \cdot n</annotation></semantics></math>
+for all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≥</mo><msubsup><mi>n</mi><mn>1</mn><mo>′</mo></msubsup></mrow><annotation encoding="application/x-tex">n \ge n_1&#39;</annotation></semantics></math>.</li>
+<li>Choose an odd integer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>n</mi><mn>2</mn><mo>′</mo></msubsup><annotation encoding="application/x-tex">n_2&#39;</annotation></semantics></math>
+such that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>n</mi><mn>2</mn><mo>′</mo></msubsup><annotation encoding="application/x-tex">n_2&#39;</annotation></semantics></math>
+&gt;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>n</mi><mn>1</mn><mo>′</mo></msubsup><mo>,</mo><msup><mi>c</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\max(n_1&#39;, c&#39;)</annotation></semantics></math>.</li>
+<li>For odd integers,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><msubsup><mi>n</mi><mn>2</mn><mo>′</mo></msubsup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msubsup><mi>n</mi><mn>2</mn><mo>′</mo></msubsup><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">g(n_2&#39;) = (n_2&#39;)^2</annotation></semantics></math>,
+leading to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msubsup><mi>n</mi><mn>2</mn><mo>′</mo></msubsup><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>≤</mo><msup><mi>c</mi><mo>′</mo></msup><mo>⋅</mo><msubsup><mi>n</mi><mn>2</mn><mo>′</mo></msubsup><mo>⟹</mo><msubsup><mi>n</mi><mn>2</mn><mo>′</mo></msubsup><mo>≤</mo><msup><mi>c</mi><mo>′</mo></msup></mrow><annotation encoding="application/x-tex">(n_2&#39;)^2 \le c&#39; \cdot n_2&#39; \implies n_2&#39; \le c&#39;</annotation></semantics></math>,
+which directly contradicts
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>n</mi><mn>2</mn><mo>′</mo></msubsup><mo>&gt;</mo><msup><mi>c</mi><mo>′</mo></msup></mrow><annotation encoding="application/x-tex">n_2&#39; &gt; c&#39;</annotation></semantics></math>.</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="insertion-sort">2. Insertion Sort</h2>
+<p>Insertion Sort keeps a sorted section on the left side of the array
+and inserts items from the unsorted right side one by one into their
+correct places.</p>
+<h3 id="canonical-implementation">Canonical Implementation</h3>
+<pre><code>void InsertionSort(ALIST slot[], int n) {
+    for (int i = 1; i &lt; n; i++) {
+        for (int j = i; j &gt; 0; j--) {
+            if (slot[j].key &lt; slot[j-1].key) {
+                swap(slot[j], slot[j-1]);
+            } else {
+                break; // Target position found; slot[0 ... i] is sorted
+            }
+        }
+    }
+}</code></pre>
+<h3 id="complexity-breakdown">Complexity Breakdown</h3>
+<ul>
+<li><strong>Best-Case Time:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>.
+This occurs when the array is already sorted, performing exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+key comparisons and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+swaps.</li>
+<li><strong>Worst-Case Time:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n^2)</annotation></semantics></math>.
+This occurs when the array is reverse sorted, performing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msubsup><mi>i</mi><mo>=</mo><mfrac><mrow><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">\sum_{i=1}^{n-1} i = \frac{n(n - 1)}{2}</annotation></semantics></math>
+comparisons and swaps.</li>
+<li><strong>Average-Case Time:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n^2)</annotation></semantics></math>.
+Assuming all permutations are equally likely, an element moves halfway
+through the prefix on average, requiring
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mi>n</mi><mo>−</mo><mn>2</mn></mrow><mn>4</mn></mfrac><annotation encoding="application/x-tex">\frac{n^2 + n - 2}{4}</annotation></semantics></math>
+comparisons.</li>
+<li><strong>Auxiliary Space:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+(in-place).</li>
+<li><strong>Stability:</strong> <strong>Stable</strong>. Equal elements
+stop moving when compared via the <code>&lt;</code> operator, preserving
+their original input order.</li>
+</ul>
+<hr />
+<h3 id="invariants-proof-templates">Invariants &amp; Proof
+Templates</h3>
+<h4 id="loop-invariant-for-array-sorting">1. Loop Invariant for Array
+Sorting</h4>
+<ul>
+<li><strong>Invariant Statement:</strong> At the start of each iteration
+of the outer loop, subarray <code>slot[0 ... i-1]</code> contains the
+original elements from those indices, but rearranged in fully sorted
+order.</li>
+<li><strong>Initialization:</strong> Prior to the first iteration
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">i = 1</annotation></semantics></math>),
+<code>slot[0 ... 0]</code> contains a single element, which is trivially
+sorted.</li>
+<li><strong>Maintenance:</strong> The inner loop shifts elements that
+are strictly greater than <code>slot[i]</code> one position to the
+right. When the loop halts, <code>slot[i]</code> is placed such that
+<code>slot[0 ... i]</code> is sorted. Incrementing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+preserves the invariant for the next outer iteration.</li>
+<li><strong>Termination:</strong> The loop terminates when
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">i = n</annotation></semantics></math>.
+Substituting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">i = n</annotation></semantics></math>
+into the invariant establishes that <code>slot[0 ... n-1]</code>
+contains all original elements in sorted order.</li>
+</ul>
+<h4 id="loop-invariant-for-boolean-flags-primality-test-example">2. Loop
+Invariant for Boolean Flags (Primality Test Example)</h4>
+<ul>
+<li><strong>Invariant Statement:</strong> The boolean variable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+remains <code>True</code> if and only if there is no integer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>∈</mo><mo stretchy="false" form="prefix">[</mo><mn>2</mn><mo>,</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">k \in [2, i-1]</annotation></semantics></math>
+that divides
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.</li>
+<li><strong>Initialization:</strong> At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">i = 2</annotation></semantics></math>,
+the candidate range
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[2, 1]</annotation></semantics></math>
+is empty, so no divisor exists and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mtext mathvariant="normal">True</mtext></mrow><annotation encoding="application/x-tex">p = \text{True}</annotation></semantics></math>.</li>
+<li><strong>Maintenance:</strong> If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+divides
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+becomes <code>False</code>, which correctly indicates that a divisor
+exists in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>2</mn><mo>,</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[2, i]</annotation></semantics></math>.
+If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+does not divide
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+retains its previous value, correctly extending the property to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>2</mn><mo>,</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[2, i]</annotation></semantics></math>.</li>
+<li><strong>Termination:</strong> The loop terminates when
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><msqrt><mi>n</mi></msqrt><mo stretchy="false" form="postfix">⌋</mo><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">i = \lfloor\sqrt{n}\rfloor + 1</annotation></semantics></math>.
+The variable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+is <code>True</code> if and only if no integer in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>2</mn><mo>,</mo><mo stretchy="false" form="prefix">⌊</mo><msqrt><mi>n</mi></msqrt><mo stretchy="false" form="postfix">⌋</mo><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[2, \lfloor\sqrt{n}\rfloor]</annotation></semantics></math>
+divides
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>,
+confirming that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+is prime.</li>
+</ul>
+<hr />
+<h3 id="important-exam-mechanics">Important Exam Mechanics</h3>
+<h4 id="comparison-vs.-swap-counts-in-the-worst-case">Comparison
+vs. Swap Counts in the Worst Case</h4>
+<ul>
+<li>The worst-case comparison count of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><mn>2</mn></mfrac><annotation encoding="application/x-tex">\frac{n(n-1)}{2}</annotation></semantics></math>
+does not require the input to be strictly reversed.</li>
+<li>Any arrangement where the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>-th
+element must be compared against all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">i-1</annotation></semantics></math>
+preceding elements reaches the maximum comparison count.</li>
+<li><strong>Example:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>n</mi><mo>,</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mn>3</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[n, n-1, \dots, 3, 1, 2]</annotation></semantics></math>
+incurs maximum comparisons because the final element compares against
+all items, even if it does not trigger a swap on every step.</li>
+</ul>
+<h4 id="behavior-on-duplicate-elements">Behavior on Duplicate
+Elements</h4>
+<ul>
+<li>In the inner loop condition
+<code>slot[j].key &lt; slot[j-1].key</code>, comparing two identical
+keys evaluates to false.</li>
+<li>A duplicate key triggers the <code>else break;</code> statement
+immediately, requiring <strong>1 comparison and 0 swaps</strong> to stay
+in place.</li>
+</ul>
+<h4 id="steady-progress-under-interruption">Steady Progress Under
+Interruption</h4>
+<ul>
+<li>Every swap executed by Insertion Sort eliminates exactly one
+out-of-order pair.</li>
+<li>If the algorithm stops early, the total number of out-of-order pairs
+never increases.</li>
+<li>Restarting Insertion Sort on a partially sorted array always makes
+forward progress toward complete sortedness.</li>
+</ul>
+<hr />
+<h2 id="mergesort">3. Mergesort</h2>
+<p>Mergesort splits the array into two equal halves, sorts each half
+recursively, and merges the two sorted halves into one sorted array.</p>
+<h3 id="canonical-implementation-1">Canonical Implementation</h3>
+<pre><code>void mergesort(ALIST slot[], int n, int m) {
+    int mid = (n + m) / 2;
+    if (m - n &lt;= 0) {
+        return; // Base case: 0 or 1 element
+    } else if (m - n &gt; 1) {
+        // Optimization: skip recursion if subproblem size is exactly 2
+        mergesort(slot, n, mid);
+        mergesort(slot, mid + 1, m);
+    }
+    merge(slot, n, m);
+}</code></pre>
+<h3 id="in-place-merge-procedure">In-Place <code>merge()</code>
+Procedure</h3>
+<pre><code>void merge(ALIST slot[], int n, int m) {
+    int mid = (n + m) / 2;
+    int a = n;
+    int b = mid + 1;
+
+    while (a &lt;= mid &amp;&amp; b &lt;= m) {
+        if (slot[a].key &lt; slot[b].key) {
+            a++;
+        } else if (slot[a].key &gt; slot[b].key) {
+            ALIST temp = slot[b];
+            for (int k = mid; k &gt;= a; k--) {
+                slot[k + 1] = slot[k];
+            }
+            slot[a] = temp;
+            a++;
+            mid++;
+            b++;
+        } else {
+            ALIST temp = slot[b];
+            for (int k = mid; k &gt;= a + 1; k--) {
+                slot[k + 1] = slot[k];
+            }
+            slot[a + 1] = temp;
+            a += 2;
+            mid++;
+            b++;
+        }
+    }
+}</code></pre>
+<hr />
+<h3 id="complexity-recurrence-analysis">Complexity &amp; Recurrence
+Analysis</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 27%" />
+<col style="width: 26%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Case</th>
+<th style="text-align: left;">Recurrence Formulation</th>
+<th style="text-align: center;">Work Done During Merge</th>
+<th style="text-align: center;">Closed-Form Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Worst Case</strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">⌊</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">⌈</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌉</mo><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">W(n) = W(\lfloor n/2 \rfloor) + W(\lceil n/2 \rceil) + n - 1</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+comparisons</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>n</mi><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo>−</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">W(n) = n \lg n - n + 1 = \Theta(n \log n)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Best Case</strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">⌊</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">⌈</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌉</mo><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">⌊</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">B(n) = B(\lfloor n/2 \rfloor) + B(\lceil n/2 \rceil) + \lfloor n/2 \rfloor</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌊</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">\lfloor n/2 \rfloor</annotation></semantics></math>
+comparisons</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>n</mi><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">B(n) = \frac{1}{2} n \lg n = \Theta(n \log n)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Average Case</strong></td>
+<td style="text-align: left;">Squeezed between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">B(n)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">W(n)</annotation></semantics></math></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>
+comparisons</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">A(n) = \Theta(n \log n)</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>Average-Case Squeeze:</strong> Because both the best case
+and worst case take
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>
+time, the average case is squeezed between them
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>A</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">B(n) \le A(n) \le W(n)</annotation></semantics></math>)
+and also takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>
+time.</li>
+</ul>
+<h4 id="derivation-of-worst-case-comparisons-n-2k">1. Derivation of
+Worst-Case Comparisons
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">n = 2^k</annotation></semantics></math>)</h4>
+<p>When merging two subarrays of total length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>,
+each comparison places at least one element into its final position. The
+last comparison places two elements simultaneously, requiring at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+comparisons.</p>
+<p>Expanding the recurrence
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">W(n) = 2W(n/2) + n - 1</annotation></semantics></math>
+by substitution:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>W</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn>2</mn><mi>W</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mn>2</mn><mn>2</mn></msup><mi>W</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>2</mn></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></munderover><msup><mn>2</mn><mi>i</mi></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn>0</mn><mo>+</mo><mi>k</mi><mo>⋅</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>n</mi><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo>−</mo><mi>n</mi><mo>+</mo><mn>1</mn></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned} W(2^k) &amp;= 2W(2^{k-1}) + 2^k - 1 \\ &amp;= 2^2 W(2^{k-2}) + (2^k - 2) + (2^k - 1) \\ &amp;= 2^k W(1) + \sum_{j=1}^k 2^k - \sum_{i=0}^{k-1} 2^i \\ &amp;= 0 + k \cdot 2^k - (2^k - 1) \\ &amp;= n \lg n - n + 1 \end{aligned}</annotation></semantics></math></p>
+<h4 id="derivation-of-best-case-comparisons">2. Derivation of Best-Case
+Comparisons</h4>
+<p>The best case occurs when all elements in one subarray are strictly
+smaller than all elements in the other subarray. The merge loop finishes
+as soon as the first subarray is exhausted, requiring only
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌊</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">\lfloor n/2 \rfloor</annotation></semantics></math>
+comparisons.</p>
+<hr />
+<h3
+id="implementation-comparisons-in-place-vs.-standard-buffer">Implementation
+Comparisons: In-Place vs. Standard Buffer</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 38%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Property</th>
+<th style="text-align: left;">In-Place Mergesort (Lecture Slide
+Variant)</th>
+<th style="text-align: left;">Standard Buffered Mergesort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Auxiliary Space</strong></td>
+<td
+style="text-align: left;"><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+stack</strong> (allocates no data buffer, but recursion call stack has
+depth
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">\lceil \lg n \rceil</annotation></semantics></math>)</td>
+<td
+style="text-align: left;"><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math></strong>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+data buffer dominates the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+stack frames)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Data Movements</strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math>
+shifts due to shifting elements rightward</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>
+copies to and from the buffer</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Stability</strong></td>
+<td style="text-align: left;"><strong>Unstable</strong> (inserting
+duplicate items directly at <code>a + 1</code> flips order)</td>
+<td style="text-align: left;"><strong>Stable</strong> (ties consistently
+select from the left subarray first)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h3 id="common-exam-problems-algorithms">Common Exam Problems &amp;
+Algorithms</h3>
+<h4 id="finding-min-and-max-together-in-1.5n---2-comparisons">1. Finding
+Min and Max Together in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.5</mn><mi>n</mi><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">1.5n - 2</annotation></semantics></math>
+Comparisons</h4>
+<p>When finding both the minimum and maximum of an array, comparing
+elements in pairs at the base level reduces the total work:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mo>,</mo><mspace width="1.0em"></mspace><mrow><mtext mathvariant="normal">with </mtext><mspace width="0.333em"></mspace></mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">W(n) = 2W(n/2) + 2, \quad \text{with } W(2) = 1</annotation></semantics></math>
+Expanding the recurrence for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">n = 2^k</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mi>n</mi><mn>2</mn></mfrac><mo>+</mo><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>n</mi><mn>2</mn></mfrac><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mn>3</mn><mn>2</mn></mfrac><mi>n</mi><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">W(n) = 2^{k-1}W(2) + 2(2^{k-1} - 1) = \frac{n}{2} + 2\left(\frac{n}{2} - 1\right) = \frac{3}{2}n - 2</annotation></semantics></math>
+This takes about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.5</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">1.5n</annotation></semantics></math>
+comparisons, saving
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>25</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">25\%</annotation></semantics></math>
+over the standard
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>n</mi><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">2n - 2</annotation></semantics></math>
+scan that checks elements one by one.</p>
+<h4 id="checking-for-duplicate-elements-in-an-array">2. Checking for
+Duplicate Elements in an Array</h4>
+<ul>
+<li><strong>General Method Using Comparisons:</strong> Sort the array
+using Mergesort in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>
+time. Make one linear pass
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>)
+across the array to check if any two neighbor elements are equal
+(<code>A[i] == A[i-1]</code>). The total running time is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>.</li>
+<li><strong>Faster Method for Small Integers
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">2n</annotation></semantics></math>):</strong>
+If elements are integers within a known range like
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">2n</annotation></semantics></math>,
+do not use comparison sorting. Create a count array of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">2n</annotation></semantics></math>
+filled with zeros. Walk through the array once and increment the count
+for each number, stopping immediately if any count hits
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>2</mn><annotation encoding="application/x-tex">2</annotation></semantics></math>.
+This finds duplicates in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>
+time using
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+extra space.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="index.html">← Overview</a>
+  <a class="next-page" href="2.html">Priority Queues &amp; Advanced
+Sorting →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

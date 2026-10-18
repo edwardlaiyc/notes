@@ -17,7 +17,11 @@
            Title  = 'Data Link Layer (DLL): Medium Access Control & LANs' }
         @{ Source = '4-network-paradigms\4.md'
            Title  = 'Network Paradigms' }
-        @{ Source = 'cheatsheet.md'
-           Title  = 'Revision Cheatsheet' }
+        @{ Source = '5-ip-addressing\5.md'
+           Title  = 'Network Layer: IP Addressing' }
+        @{ Source = '6-ip-forwarding\6.md'
+           Title  = 'Network Layer: Forwarding, ARP, Fragmentation & ICMP' }
+        @{ Source = '7-routing\7.md'
+           Title  = 'Network Layer: Routing (RIP, OSPF, BGP)' }
     )
 }

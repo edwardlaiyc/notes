@@ -10,18 +10,18 @@
 
     Topics = @(
         @{ Source = '1-networklayers\1.md'
-           Title  = 'Network Layers and Physical Resilience' }
+           Title  = '1. Network Layers and Physical Resilience' }
         @{ Source = '2-dll-flow-error-control\2.md'
-           Title  = 'Data Link Layer (DLL): Flow & Error Control' }
+           Title  = '2. Data Link Layer (DLL): Flow & Error Control' }
         @{ Source = '3-dll-mac-lan\3.md'
-           Title  = 'Data Link Layer (DLL): Medium Access Control & LANs' }
+           Title  = '3. Data Link Layer (DLL): Medium Access Control & LANs' }
         @{ Source = '4-network-paradigms\4.md'
-           Title  = 'Network Paradigms' }
+           Title  = '4. Network Paradigms' }
         @{ Source = '5-ip-addressing\5.md'
-           Title  = 'Network Layer: IP Addressing' }
+           Title  = '5. Network Layer: IP Addressing' }
         @{ Source = '6-ip-forwarding\6.md'
-           Title  = 'Network Layer: Forwarding, ARP, Fragmentation & ICMP' }
+           Title  = '6. Network Layer: Forwarding, ARP, Fragmentation & ICMP' }
         @{ Source = '7-routing\7.md'
-           Title  = 'Network Layer: Routing (RIP, OSPF, BGP)' }
+           Title  = '7. Network Layer: Routing (RIP, OSPF, BGP)' }
     )
 }

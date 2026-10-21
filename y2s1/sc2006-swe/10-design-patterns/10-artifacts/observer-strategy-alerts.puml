@@ -1,0 +1,52 @@
+@startuml
+!theme plain
+!pragma layout smetana
+skinparam defaultFontName Arial
+hide empty members
+interface Subject {
+  +register(o: Subscriber, interest: GrainType)
+  +unregister(o: Subscriber, interest: GrainType)
+  +notify(interest: GrainType)
+}
+class ShipmentTracker {
+  -subscribers: Map<GrainType, List<Subscriber>>
+  +getShipment(interest): ShipmentDetails
+}
+interface Subscriber {
+  +update(interest: GrainType)
+}
+class ProcessingPlant {
+  -channel: NotificationChannel
+  +update(interest: GrainType)
+  +setChannel(c: NotificationChannel)
+}
+interface NotificationChannel {
+  +send(message: String)
+}
+class EmailChannel
+class SmsChannel
+class EmailAndSmsChannel
+class ChannelFactory {
+  +create(type: String): NotificationChannel
+}
+Subject <|.. ShipmentTracker
+Subscriber <|.. ProcessingPlant
+ShipmentTracker "1" o-- "*" Subscriber : subscribers
+ProcessingPlant --> "1" ShipmentTracker : subject
+ProcessingPlant --> "1" NotificationChannel : channel
+NotificationChannel <|.. EmailChannel
+NotificationChannel <|.. SmsChannel
+NotificationChannel <|.. EmailAndSmsChannel
+ChannelFactory ..> NotificationChannel : <<create>>
+ProcessingPlant ..> ChannelFactory : uses
+note right of ShipmentTracker
+  notify(interest):
+  for each s in subscribers[interest]
+    s.update(interest)
+end note
+note bottom of ProcessingPlant
+  update(interest):
+  d = subject.getShipment(interest)
+  channel.send(d.toText())
+end note
+@enduml

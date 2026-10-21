@@ -1,0 +1,66 @@
+@startuml
+!theme plain
+!pragma layout smetana
+skinparam defaultFontName Arial
+skinparam packageStyle rectangle
+hide circle
+package "Presentation (boundary)" {
+  class GuestAccessUI {
+    +showGrantForm()
+    +submitGrant(guestId, doorId, start, end)
+    +showResult(msg: String)
+  }
+  class UnlockDoorUI {
+    +requestUnlock(doorId)
+    +showResult(msg: String)
+  }
+  class DoorLockInterface {
+    +sendUnlock(doorId): boolean
+  }
+}
+package "Application Logic (control)" {
+  class AccessController {
+    +grantAccess(guestId, doorId, start, end): AccessGrant
+    +revokeAccess(grantId)
+  }
+  class UnlockController {
+    +unlock(guestId, doorId): boolean
+    -isInsideWindow(g: AccessGrant): boolean
+  }
+}
+package "Persistent Data (entity)" {
+  class Guest {
+    -guestId: String
+    -name: String
+    -phone: String
+  }
+  class AccessGrant {
+    -grantId: String
+    -startTime: DateTime
+    -endTime: DateTime
+    -status: GrantStatus
+  }
+  class Door {
+    -doorId: String
+    -location: String
+    -isLocked: boolean
+  }
+  class ActivityLog {
+    -doorId: String
+    -time: DateTime
+    -event: String
+    -result: String
+  }
+}
+GuestAccessUI ..> AccessController
+UnlockDoorUI ..> UnlockController
+UnlockController ..> DoorLockInterface
+AccessController ..> AccessGrant
+UnlockController ..> AccessGrant
+UnlockController ..> ActivityLog
+Guest "1" -right- "*" AccessGrant
+AccessGrant "*" -right- "1" Door
+
+AccessController -[hidden]down- AccessGrant
+GuestAccessUI -[hidden]down- AccessController
+@enduml

@@ -23,5 +23,9 @@
            Title  = '6. Network Layer: Forwarding, ARP, Fragmentation & ICMP' }
         @{ Source = '7-routing\7.md'
            Title  = '7. Network Layer: Routing (RIP, OSPF, BGP)' }
+        @{ Source = '8-routing-practice\8.md'
+           Title  = '8. Routing in Practice' }
+        @{ Source = '9-transport\9.md'
+           Title  = '9. Transport Layer: Ports, UDP and TCP' }
     )
 }

@@ -2,14 +2,15 @@
 
 SC2008 Computer Network, NTU AY25/26 Semester 1
 
+**Finals scope:** the final exam tests Part II only (IP addressing, forwarding, routing, transport and application). Part I was tested in the midterm.
+
 ## Pending
 
 What the notes do not cover yet:
 
-* **Part II Lecture 4, Transport layer:** ports, UDP, TCP connections, and flow, error and congestion control. The lecture is not released yet.
 * **Part II Lecture 5, Application layer:** HTTP and DNS. The lecture is not released yet.
-* **Tutorial 2.3 (transport and application):** waits for Lectures 4 and 5. Only its home-router question is in the IP Addressing notes.
-* **Tutorial 2.1 and 2.2 solutions:** not released. The answers in these notes are unofficial worked answers.
+* **Tutorial 2.3 Q3b (web page request frames):** waits for Lecture 5. Q1, Q2 and Q4 are in the Transport Layer notes. Q3a is in the IP Addressing notes.
+* **Tutorial 2.1, 2.2 and 2.3 solutions:** not released. The answers in these notes are unofficial worked answers.
 * **PDF notes on Google Drive:** the folder link is not set yet.
 
 ## SC2008 Ecosystem

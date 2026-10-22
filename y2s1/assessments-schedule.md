@@ -38,6 +38,7 @@ Italicised assessments have unconfirmed dates.
   - Topics tested till week 6
 - Finals, 30%
   - MCQ + Open-ended
+  - Tests Part II only (IP onwards); Part I was the midterm's
 - 5 Labs, 35%
   - Weeks 3, 5, 7, 9, *11*
   - Only L1, L3, L4 graded

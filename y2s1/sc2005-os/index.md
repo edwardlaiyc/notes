@@ -6,8 +6,9 @@ SC2005 Operating Systems, NTU AY25/26 Semester 1.
 
 What the notes do not cover yet:
 
-* **File systems, and I/O and disk:** the lectures are not released yet. The notes cover Lectures 1–8.
-* **Tutorial 7–9 solutions:** not released. The methods on the cheatsheet for these topics are unofficial.
+* **I/O management:** the lecture is not released yet. The notes cover Lectures 1–9.
+* **Cheatsheet for file systems:** the cheatsheet does not cover Lecture 9 yet.
+* **Tutorial 7–11 solutions:** not released. The methods on the cheatsheet for these topics are unofficial.
 * **PDF notes on Google Drive:** the lecture and cheatsheet PDFs are not uploaded to the Drive folder yet.
 
 ## SC2005 Ecosystem

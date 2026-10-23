@@ -29,6 +29,8 @@
            Title  = '7. Memory Organization' }
         @{ Source = '8-virtual-memory\8.md'
            Title  = '8. Virtual Memory' }
+        @{ Source = '9-file-systems\9.md'
+           Title  = '9. File Systems' }
         @{ Source = 'cheatsheet\cheatsheet.md'
            Title  = 'Exam Cheatsheet' }
         @{ Source = 'labs\lab-1.md'

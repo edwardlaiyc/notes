@@ -95,7 +95,7 @@ Each line is a statement that sounds right but is wrong, or a pair that people m
 * An **inverted page table** must be **searched**: it is ordered by frame, but looked up by page.
 * Segments of one process do **not** have to be contiguous.
 * The **dirty bit** = written; the **reference bit** = used. Only dirty pages are written back on replacement.
-* **FIFO has Belady's anomaly**; OPT and LRU do not.
+* **FIFO has Belady's anomaly**; OPT and LRU do not (inclusion property). **Clock can** have it too: it has no inclusion property, and it becomes FIFO when all R bits are set.
 * **Thrashing**: low CPU utilization with **high** multiprogramming. Adding processes makes it worse.
 * **Fixed allocation requires local replacement.** Variable allocation can be local **or** global.
 

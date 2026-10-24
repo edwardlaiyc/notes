@@ -2,12 +2,6 @@
 title: "Tutorial Revision"
 ---
 
-Tutorials 1–6, the ones with official solutions, on one page. Questions are copied from the sheets; answers follow the official solutions. Click a statement or **Answer** to reveal it. Each tutorial ends with its **Key points**, then **Extensions** on lecture topics the tutorial skips (unofficial answers).
-
-*new* marks a point that comes from the tutorial solutions and is not in the lecture notes.
-
----
-
 ## Tutorial 1: Overview of Operating Systems
 
 ### Q1. Computer system operation

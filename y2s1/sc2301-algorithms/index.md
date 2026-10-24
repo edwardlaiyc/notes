@@ -9,6 +9,7 @@ What the notes do not cover yet:
 * **Week 12, NP-completeness:** the lecture is not released yet. The past-year papers test it.
 * **Shortest paths in DAGs:** the dynamic programming outline lists it, but its slides are not released. Chapter 10 gives a short standard version.
 * **Tutorial 11** (string matching): not released yet.
+* **Tutorial revision page:** covers Tutorials 1–6 and 8–10, the ones with official solutions. There is no Tutorial 7. Past-paper questions are not on it yet.
 
 ## SC2301 Ecosystem
 

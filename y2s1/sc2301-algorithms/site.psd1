@@ -3,7 +3,9 @@
     #
     # SC2301 is authored in Markdown, one folder per chapter (N-slug/N.md,
     # figures cropped from the lecture PDFs in N-artifacts/), the same layout
-    # as SC2005 and SC2008. The revision cheatsheet has its own folder.
+    # as SC2005 and SC2008. The tutorial revision page lives in
+    # tutorial-questions/ (figures in tutorial-N-artifacts/); it replaced the
+    # old cheatsheet.
     # build.ps1 detects the .md extension and takes its Markdown path -- no
     # preamble or figure pre-rendering.
 
@@ -30,17 +32,18 @@
            Title  = '10. Dynamic Programming' }
         @{ Source = '11-string-matching\11.md'
            Title  = '11. String Matching' }
-        @{ Source = 'cheatsheet\cheatsheet.md'
-           Title  = 'Revision Cheatsheet' }
+        @{ Source = 'tutorial-questions\tutorial-revision.md'
+           Title  = 'Tutorial Revision' }
     )
 
     # The three flat chapter pages and the flat cheatsheet are replaced by the
-    # per-chapter folders above.
+    # per-chapter folders above; the cheatsheet folder by the tutorial page.
     Obsolete = @(
         '1.html',
         '2.html',
         '3.html',
         'cheatsheet.html',
+        'cheatsheet\cheatsheet.html',
         '1-sorting\1.html',
         '1-sorting\2.html',
         '1-sorting\new-1.html',

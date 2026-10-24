@@ -6,9 +6,9 @@ SC2301 Algorithm Design & Analysis, NTU AY25/26 Semester 1
 
 What the notes do not cover yet:
 
-* **Weeks 11–12, string matching** (simple scan, Rabin-Karp, Boyer-Moore) **and NP-completeness:** the lectures are not released yet. The past-year papers test both.
+* **Week 12, NP-completeness:** the lecture is not released yet. The past-year papers test it.
 * **Shortest paths in DAGs:** the dynamic programming outline lists it, but its slides are not released. Chapter 10 gives a short standard version.
-* **Tutorials from Week 10 onwards** (dynamic programming, string matching): not released yet.
+* **Tutorial 11** (string matching): not released yet.
 
 ## SC2301 Ecosystem
 

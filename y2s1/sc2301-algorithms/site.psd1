@@ -28,6 +28,8 @@
            Title  = '9. Amortized Analysis' }
         @{ Source = '10-dynamic-programming\10.md'
            Title  = '10. Dynamic Programming' }
+        @{ Source = '11-string-matching\11.md'
+           Title  = '11. String Matching' }
         @{ Source = 'cheatsheet\cheatsheet.md'
            Title  = 'Revision Cheatsheet' }
     )

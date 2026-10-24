@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>4. Process Synchronization · SC2005 Operating Systems</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">4. Process
+Synchronization</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">4. Process Synchronization</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-overview/1.html"
+                   data-nav="1-overview/1.html">1. Overview of Operating
+Systems</a></li>
+            <li><a href="../2-processes-threads/2.html"
+                   data-nav="2-processes-threads/2.html">2. Processes
+and Threads</a></li>
+            <li><a href="../3-cpu-scheduling/3.html"
+                   data-nav="3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../4-synchronization/4.html"
+                   data-nav="4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../5-deadlocks/5.html"
+                   data-nav="5-deadlocks/5.html">5. Deadlocks</a></li>
+            <li><a href="../6a-rtos/6a.html"
+                   data-nav="6a-rtos/6a.html">6a. Real-Time Operating
+Systems</a></li>
+            <li><a href="../6b-virtualization/6b.html"
+                   data-nav="6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../7-memory-organization/7.html"
+                   data-nav="7-memory-organization/7.html">7. Memory
+Organization</a></li>
+            <li><a href="../8-virtual-memory/8.html"
+                   data-nav="8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../9-file-systems/9.html"
+                   data-nav="9-file-systems/9.html">9. File
+Systems</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../labs/lab-1.html"
+                   data-nav="labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../labs/lab-2.html"
+                   data-nav="labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../labs/lab-3/lab-3.html"
+                   data-nav="labs/lab-3/lab-3.html">Lab 3 Guide</a></li>
+            <li><a href="../labs/lab-4/lab-4.html"
+                   data-nav="labs/lab-4/lab-4.html">Lab 4 Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#the-problem-shared-data-and-bad-timing"
+id="toc-the-problem-shared-data-and-bad-timing">1. The Problem: Shared
+Data and Bad Timing</a>
+<ul>
+<li><a href="#a-producer-and-a-consumer-share-a-counter"
+id="toc-a-producer-and-a-consumer-share-a-counter">1.1 A producer and a
+consumer share a counter</a></li>
+<li><a href="#why-counter-is-not-one-step"
+id="toc-why-counter-is-not-one-step">1.2 Why <code>counter++</code> is
+not one step</a></li>
+<li><a href="#names-for-this-problem"
+id="toc-names-for-this-problem">1.3 Names for this problem</a></li>
+</ul></li>
+<li><a href="#the-critical-section-problem"
+id="toc-the-critical-section-problem">2. The Critical-Section
+Problem</a>
+<ul>
+<li><a href="#what-a-critical-section-is"
+id="toc-what-a-critical-section-is">2.1 What a critical section
+is</a></li>
+<li><a href="#the-general-structure" id="toc-the-general-structure">2.2
+The general structure</a></li>
+<li><a href="#three-requirements-for-a-correct-solution"
+id="toc-three-requirements-for-a-correct-solution">2.3 Three
+requirements for a correct solution</a></li>
+</ul></li>
+<li><a href="#solutions-in-user-code-two-processes"
+id="toc-solutions-in-user-code-two-processes">3. Solutions in User Code
+(Two Processes)</a>
+<ul>
+<li><a href="#algorithm-1-take-turns"
+id="toc-algorithm-1-take-turns">3.1 Algorithm 1: take turns</a></li>
+<li><a href="#algorithm-2-show-interest-with-a-flag"
+id="toc-algorithm-2-show-interest-with-a-flag">3.2 Algorithm 2: show
+interest with a flag</a></li>
+<li><a href="#algorithm-3-flags-and-a-turn-petersons-solution"
+id="toc-algorithm-3-flags-and-a-turn-petersons-solution">3.3 Algorithm
+3: flags and a turn (Peterson’s solution)</a></li>
+</ul></li>
+<li><a href="#hardware-support" id="toc-hardware-support">4. Hardware
+Support</a>
+<ul>
+<li><a href="#why-the-os-needs-help" id="toc-why-the-os-needs-help">4.1
+Why the OS needs help</a></li>
+<li><a href="#disable-interrupts-one-cpu-only"
+id="toc-disable-interrupts-one-cpu-only">4.2 Disable interrupts (one CPU
+only)</a></li>
+<li><a href="#testandset-check-and-change-in-one-step"
+id="toc-testandset-check-and-change-in-one-step">4.3 TestAndSet: check
+and change in one step</a></li>
+<li><a href="#a-lock-built-from-testandset"
+id="toc-a-lock-built-from-testandset">4.4 A lock built from
+TestAndSet</a></li>
+<li><a href="#why-testandset-does-not-give-bounded-waiting"
+id="toc-why-testandset-does-not-give-bounded-waiting">4.5 Why TestAndSet
+does not give bounded waiting</a></li>
+</ul></li>
+<li><a href="#semaphores" id="toc-semaphores">5. Semaphores</a>
+<ul>
+<li><a href="#what-a-semaphore-is" id="toc-what-a-semaphore-is">5.1 What
+a semaphore is</a></li>
+<li><a href="#a-semaphore-solves-the-critical-section-problem"
+id="toc-a-semaphore-solves-the-critical-section-problem">5.2 A semaphore
+solves the critical-section problem</a></li>
+<li><a href="#implementation-1-busy-waiting"
+id="toc-implementation-1-busy-waiting">5.3 Implementation 1: busy
+waiting</a></li>
+<li><a href="#implementation-2-blocking"
+id="toc-implementation-2-blocking">5.4 Implementation 2:
+blocking</a></li>
+<li><a href="#blocking-wait-and-signal-must-still-be-atomic"
+id="toc-blocking-wait-and-signal-must-still-be-atomic">5.5 Blocking
+<code>Wait</code> and <code>Signal</code> must still be atomic</a></li>
+<li><a href="#why-s.value---must-come-before-the-check"
+id="toc-why-s.value---must-come-before-the-check">5.6 Why
+<code>S.value--</code> must come before the check</a></li>
+<li><a href="#from-flags-to-semaphores-what-each-step-fixes"
+id="toc-from-flags-to-semaphores-what-each-step-fixes">5.7 From flags to
+semaphores: what each step fixes</a></li>
+</ul></li>
+<li><a href="#how-to-use-semaphores-correctly"
+id="toc-how-to-use-semaphores-correctly">6. How to Use Semaphores
+Correctly</a>
+<ul>
+<li><a href="#a-three-step-method-slide-4.38"
+id="toc-a-three-step-method-slide-4.38">6.1 A three-step method (slide
+4.38)</a></li>
+<li><a href="#a-semaphore-can-force-an-order"
+id="toc-a-semaphore-can-force-an-order">6.2 A semaphore can force an
+order</a></li>
+<li><a href="#wrong-use-1-deadlock" id="toc-wrong-use-1-deadlock">6.3
+Wrong use 1: deadlock</a></li>
+<li><a href="#wrong-use-2-starvation"
+id="toc-wrong-use-2-starvation">6.4 Wrong use 2: starvation</a></li>
+</ul></li>
+<li><a href="#three-classical-problems"
+id="toc-three-classical-problems">7. Three Classical Problems</a>
+<ul>
+<li><a href="#the-bounded-buffer-producerconsumer"
+id="toc-the-bounded-buffer-producerconsumer">7.1 The bounded buffer
+(producer–consumer)</a></li>
+<li><a href="#the-dining-philosophers"
+id="toc-the-dining-philosophers">7.2 The dining philosophers</a></li>
+<li><a href="#the-readerswriters-problem"
+id="toc-the-readerswriters-problem">7.3 The readers–writers
+problem</a></li>
+</ul></li>
+<li><a href="#monitors-not-examinable"
+id="toc-monitors-not-examinable">8. Monitors (not examinable)</a></li>
+<li><a href="#what-you-know-now-lecture-4"
+id="toc-what-you-know-now-lecture-4">What You Know Now (Lecture
+4)</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>This was written entirely with AI.</p>
+<h2 id="the-problem-shared-data-and-bad-timing">1. The Problem: Shared
+Data and Bad Timing</h2>
+<h3 id="a-producer-and-a-consumer-share-a-counter">1.1 A producer and a
+consumer share a counter</h3>
+<p>Lecture 2 introduced the producer–consumer pattern. Here, the
+producer and the consumer share a buffer of 10 places in memory:</p>
+<figure>
+<img width="1400" height="524" src="media/4-artifacts/producer-consumer-buffer.webp" loading="lazy"
+decoding="async"
+alt="A producer and a consumer share a bounded buffer (Lecture 4, slide 4.4)" />
+<figcaption aria-hidden="true">A producer and a consumer share a bounded
+buffer (Lecture 4, slide 4.4)</figcaption>
+</figure>
+<p>They share three variables:</p>
+<ul>
+<li><code>buffer[10]</code>: the places.</li>
+<li><code>in</code>: the next empty place. Only the producer uses
+it.</li>
+<li><code>out</code>: the next full place. Only the consumer uses
+it.</li>
+<li><code>counter</code>: the number of items in the buffer.
+<strong>Both</strong> processes change it.</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Producer                                  // Consumer</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span>                                  <span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>counter <span class="op">==</span> BUFFER_SIZE<span class="op">)</span> <span class="op">;</span>  <span class="co">// wait    while (counter == 0) ;  // wait</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  buffer<span class="op">[</span>in<span class="op">]</span> <span class="op">=</span> nextProduced<span class="op">;</span>                   nextConsumed <span class="op">=</span> buffer<span class="op">[</span>out<span class="op">];</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  in <span class="op">=</span> <span class="op">(</span>in <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> BUFFER_SIZE<span class="op">;</span>                 out <span class="op">=</span> <span class="op">(</span>out <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> BUFFER_SIZE<span class="op">;</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  counter<span class="op">++;</span>                                   counter<span class="op">--;</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>                                            <span class="op">}</span></span></code></pre></div>
+<p>The code looks correct. But <code>counter++</code> and
+<code>counter--</code> can give a wrong result.</p>
+<h3 id="why-counter-is-not-one-step">1.2 Why <code>counter++</code> is
+not one step</h3>
+<p>The CPU runs <code>counter++</code> as three machine
+instructions:</p>
+<pre class="text"><code>register1 = counter          // read
+register1 = register1 + 1    // add
+counter = register1          // write</code></pre>
+<p><code>counter--</code> is the same, with <code>- 1</code>. A
+<strong>context switch</strong> can occur between any two
+instructions.</p>
+<p>Start with <code>counter = 5</code>. The producer adds one item and
+the consumer removes one item. The correct result is 5. Now look at this
+order (slide 4.9):</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 22%" />
+<col style="width: 36%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th>Step</th>
+<th>Process</th>
+<th>Instruction</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Producer</td>
+<td><code>register1 = counter</code></td>
+<td>register1 = 5</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Producer</td>
+<td><code>register1 = register1 + 1</code></td>
+<td>register1 = 6</td>
+</tr>
+<tr>
+<td>3</td>
+<td></td>
+<td>context switch to the consumer</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td>Consumer</td>
+<td><code>register2 = counter</code></td>
+<td>register2 = 5</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Consumer</td>
+<td><code>register2 = register2 - 1</code></td>
+<td>register2 = 4</td>
+</tr>
+<tr>
+<td>6</td>
+<td></td>
+<td>context switch to the producer</td>
+<td></td>
+</tr>
+<tr>
+<td>7</td>
+<td>Producer</td>
+<td><code>counter = register1</code></td>
+<td>counter = 6</td>
+</tr>
+<tr>
+<td>8</td>
+<td></td>
+<td>context switch to the consumer</td>
+<td></td>
+</tr>
+<tr>
+<td>9</td>
+<td>Consumer</td>
+<td><code>counter = register2</code></td>
+<td>counter = <strong>4</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The counter is 4, not 5. The consumer wrote over the producer’s
+result.</p>
+<h3 id="names-for-this-problem">1.3 Names for this problem</h3>
+<ul>
+<li>A <strong>race condition</strong> occurs when the result depends on
+the order in which the instructions of concurrent processes run, in
+other words on when the context switches occur.</li>
+<li>The data is then <strong>inconsistent</strong>: its value is not the
+value that a correct order would give.</li>
+</ul>
+<p>To keep data consistent, the OS must control the order of the reads
+and writes to shared data.</p>
+<h2 id="the-critical-section-problem">2. The Critical-Section
+Problem</h2>
+<h3 id="what-a-critical-section-is">2.1 What a critical section is</h3>
+<p>Think about <code>n</code> processes that share some data. Each
+process has a part of its code that reads or changes the shared data.
+That part is its <strong>critical section</strong>. At least one process
+<strong>writes</strong> the shared data. (If all processes only read,
+there is no problem.)</p>
+<p><strong>The problem:</strong> design a protocol so that <strong>when
+one process runs its critical section, no other process runs its
+critical section</strong>.</p>
+<h3 id="the-general-structure">2.2 The general structure</h3>
+<p>Every solution has the same shape:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    entry section       <span class="co">// ask for permission to enter</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    critical section</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    exit section        <span class="co">// tell the other processes that you have left</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    remainder section   <span class="co">// all other code</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>The question is always: <strong>what code goes into the entry section
+and the exit section?</strong></p>
+<h3 id="three-requirements-for-a-correct-solution">2.3 Three
+requirements for a correct solution</h3>
+<p>A correct solution must satisfy all three:</p>
+<ol type="1">
+<li><strong>Mutual exclusion.</strong> If a process is in its critical
+section, no other process can be in its critical section at the same
+time.</li>
+<li><strong>Progress.</strong> If no process is in its critical section
+and some processes want to enter, the choice of the next process
+<strong>cannot be postponed forever</strong>. In simple words: if the
+critical section is free, someone must be able to enter.</li>
+<li><strong>Bounded waiting.</strong> After a process asks to enter, the
+other processes can enter before it only a <strong>limited number of
+times</strong>. In simple words: no process waits forever while others
+go in again and again.</li>
+</ol>
+<p>Progress and bounded waiting together make sure that a process does
+not stay in the entry section forever.</p>
+<p><strong>Progress does not give bounded waiting.</strong> Think about
+a solution that always lets P0 in first. If the critical section is
+free, someone always enters, so progress holds. But P1 can wait forever
+while P0 enters again and again. So bounded waiting fails.</p>
+<p>The solutions make two assumptions:</p>
+<ul>
+<li>Every process makes progress in its critical section and remainder
+section. It does not stop there forever.</li>
+<li>The solutions make <strong>no assumption about speed</strong>. The
+processes can run at any relative speed.</li>
+</ul>
+<h2 id="solutions-in-user-code-two-processes">3. Solutions in User Code
+(Two Processes)</h2>
+<p>First, look at solutions in normal user code, with no help from the
+OS or special hardware. There are two processes, P0 and P1. In the code
+for process Pi, <code>k</code> is the other process.</p>
+<h3 id="algorithm-1-take-turns">3.1 Algorithm 1: take turns</h3>
+<p>One shared variable, <code>turn</code>, starts at 0.
+<code>turn == i</code> means that Pi can enter.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Process Pi</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>turn <span class="op">!=</span> i<span class="op">)</span> <span class="op">;</span>   <span class="co">// entry: wait for my turn</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    critical section</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    turn <span class="op">=</span> k<span class="op">;</span>             <span class="co">// exit: give the turn to the other process</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    remainder section</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<ul>
+<li><strong>Mutual exclusion: yes.</strong> Only the process whose turn
+it is can enter. The turn changes only in the exit section.</li>
+<li><strong>Progress: no.</strong> Suppose <code>turn = 0</code>, but P0
+is in a long remainder section (for example an endless loop, or blocked
+I/O). P1 wants to enter. The critical section is free, but P1 must wait
+for P0 to give it the turn. That may never occur.</li>
+<li><strong>Bounded waiting: yes.</strong> The turn goes back and forth,
+so each process waits at most one turn.</li>
+</ul>
+<p>The weakness: Algorithm 1 does not know if the other process even
+<strong>wants</strong> to enter.</p>
+<h3 id="algorithm-2-show-interest-with-a-flag">3.2 Algorithm 2: show
+interest with a flag</h3>
+<p>Each process has a flag. <code>flag[i] = true</code> means that Pi
+wants to enter. Both flags start as <code>false</code>.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Process Pi</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    flag<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>        <span class="co">// entry: I want to enter</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>flag<span class="op">[</span>k<span class="op">])</span> <span class="op">;</span>      <span class="co">//        wait while the other process wants to enter</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    critical section</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    flag<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span>       <span class="co">// exit: I no longer want to enter</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    remainder section</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<ul>
+<li><strong>Mutual exclusion: yes.</strong> If P0 is inside,
+<code>flag[0]</code> is true, so P1 waits.</li>
+<li><strong>Progress: no.</strong> Look at this order:
+<ol type="1">
+<li>P0 sets <code>flag[0] = true</code>.</li>
+<li>Context switch to P1.</li>
+<li>P1 sets <code>flag[1] = true</code>.</li>
+</ol>
+Now both flags are true. Each process waits for the other, forever.
+Neither process is inside.</li>
+<li><strong>Bounded waiting: yes.</strong> Once P0 has set its flag, P1
+cannot enter before it.</li>
+</ul>
+<p>The weakness: when both processes want to enter at the same time,
+Algorithm 2 cannot choose between them.</p>
+<h3 id="algorithm-3-flags-and-a-turn-petersons-solution">3.3 Algorithm
+3: flags and a turn (Peterson’s solution)</h3>
+<p>Combine both ideas. The flag says “I want to enter”. The turn breaks
+a tie.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Process Pi</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    flag<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>                     <span class="co">// entry: I want to enter</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    turn <span class="op">=</span> k<span class="op">;</span>                           <span class="co">//        but you can go first</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>flag<span class="op">[</span>k<span class="op">]</span> <span class="op">&amp;&amp;</span> turn <span class="op">==</span> k<span class="op">)</span> <span class="op">;</span>      <span class="co">//        wait only if you want in AND it is your turn</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    critical section</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    flag<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span>                    <span class="co">// exit</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    remainder section</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<ul>
+<li><strong>Mutual exclusion: yes.</strong> If P0 is inside,
+<code>flag[0]</code> is true. If P1 now wants to enter, it first sets
+<code>turn = 0</code>. Then P1 waits, because <code>flag[0]</code> is
+true and <code>turn == 0</code>.</li>
+<li><strong>Progress: yes.</strong> If P1 is in its remainder section,
+<code>flag[1]</code> is false, and P0 enters at once. If both are in the
+entry section, <code>turn</code> lets exactly one of them in: the one
+that did <strong>not</strong> write <code>turn</code> last.</li>
+<li><strong>Bounded waiting: yes.</strong> Each process gives the turn
+to the other, so a waiting process enters after at most one turn of the
+other.</li>
+</ul>
+<p>Algorithm 3 satisfies all three requirements. But it works for two
+processes, and it is difficult to extend to more.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 26%" />
+<col style="width: 22%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Mutual exclusion</th>
+<th>Progress</th>
+<th>Bounded waiting</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Algorithm 1 (<code>turn</code>)</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Algorithm 2 (<code>flag</code>)</td>
+<td>Yes</td>
+<td><strong>No</strong></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Algorithm 3 (<code>flag</code> + <code>turn</code>)</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>How to test a solution yourself.</strong> To show that a
+requirement <strong>fails</strong>, find one order of instructions (with
+context switches) that breaks it. To show that it
+<strong>holds</strong>, argue about all possible orders, usually by
+looking at which variable blocks the other process.</p>
+<h2 id="hardware-support">4. Hardware Support</h2>
+<h3 id="why-the-os-needs-help">4.1 Why the OS needs help</h3>
+<p>The user-level solutions are hard to write for more than two
+processes. So the OS offers three tools, from low level to high
+level:</p>
+<ol type="1">
+<li>Synchronization hardware</li>
+<li>Semaphores</li>
+<li>Monitors</li>
+</ol>
+<h3 id="disable-interrupts-one-cpu-only">4.2 Disable interrupts (one CPU
+only)</h3>
+<p>On a computer with <strong>one</strong> CPU, a process can disable
+interrupts before its critical section and enable them after it. With no
+interrupts, no context switch can occur, so no other process (not even
+the OS) runs. This gives mutual exclusion.</p>
+<p>This does not work on a computer with many CPUs: the other CPUs
+continue to run. Also, disabling interrupts is a privileged instruction,
+so a user program cannot do it.</p>
+<h3 id="testandset-check-and-change-in-one-step">4.3 TestAndSet: check
+and change in one step</h3>
+<p>Modern CPUs have special <strong>atomic</strong> instructions.
+<strong>Atomic</strong> means that the instruction cannot be
+interrupted: no context switch can occur in the middle of it.</p>
+<p><code>TestAndSet</code> reads a variable and sets it to
+<code>true</code>, as one atomic step:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>boolean TestAndSet<span class="op">(</span>boolean <span class="op">*</span>target<span class="op">)</span> <span class="op">{</span>   <span class="co">// runs as ONE atomic instruction</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    boolean rv <span class="op">=</span> <span class="op">*</span>target<span class="op">;</span>               <span class="co">// get the old value</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>target <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>                     <span class="co">// set it to true</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rv<span class="op">;</span>                          <span class="co">// return the old value</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="a-lock-built-from-testandset">4.4 A lock built from
+TestAndSet</h3>
+<p>One shared variable, <code>lock</code>, starts as <code>false</code>
+(free).</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Process Pi</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>TestAndSet<span class="op">(&amp;</span>lock<span class="op">))</span> <span class="op">;</span>   <span class="co">// entry: acquire the lock</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    critical section</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    lock <span class="op">=</span> <span class="kw">false</span><span class="op">;</span>                 <span class="co">// exit: release the lock</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    remainder section</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>How it works:</p>
+<ul>
+<li>If <code>lock</code> was <code>false</code>, TestAndSet returns
+<code>false</code> and sets <code>lock</code> to <code>true</code>. The
+loop ends, and the process enters. It is the one that changed the lock
+from free to taken.</li>
+<li>If <code>lock</code> was <code>true</code>, TestAndSet returns
+<code>true</code> and changes nothing. The process tries again.</li>
+</ul>
+<p>Because the read and the write are one step, two processes can never
+both read <code>false</code>.</p>
+<ul>
+<li><strong>Mutual exclusion: yes.</strong> Only the process that
+changed <code>lock</code> from false to true enters. <code>lock</code>
+becomes false again only in its exit section.</li>
+<li><strong>Progress: yes.</strong> If <code>lock</code> is false, the
+first process that runs TestAndSet enters at once.</li>
+<li><strong>Bounded waiting: no.</strong> See the next section.</li>
+</ul>
+<h3 id="why-testandset-does-not-give-bounded-waiting">4.5 Why TestAndSet
+does not give bounded waiting</h3>
+<p>Look at the example from slide 4.27. P0 and P1 both use the
+TestAndSet lock. The scheduler uses round robin with a 10 ms quantum.
+The timing is such that <strong>every time P0 loses the CPU, it is
+inside its critical section</strong>:</p>
+<figure>
+<img width="1400" height="857" src="media/4-artifacts/testandset-bounded-waiting.webp"
+loading="lazy" decoding="async"
+alt="TestAndSet does not give bounded waiting (Lecture 4, slide 4.27)" />
+<figcaption aria-hidden="true">TestAndSet does not give bounded waiting
+(Lecture 4, slide 4.27)</figcaption>
+</figure>
+<ul>
+<li>P0 gets the lock and is inside the critical section when its quantum
+ends.</li>
+<li>P1 runs. It finds <code>lock = true</code> and spins for its whole
+quantum.</li>
+<li>P0 runs again. It leaves the critical section, loops, and takes the
+lock again before its quantum ends.</li>
+<li>This repeats forever. P1 never enters.</li>
+</ul>
+<p>So the plain TestAndSet lock gives no bound on how long a process
+waits. (The textbook has a more complex version that does give bounded
+waiting. It is not examinable.)</p>
+<h2 id="semaphores">5. Semaphores</h2>
+<h3 id="what-a-semaphore-is">5.1 What a semaphore is</h3>
+<p>A <strong>semaphore</strong> <code>S</code> is a shared integer.
+Processes can use it only through two <strong>atomic</strong>
+operations:</p>
+<ul>
+<li><strong><code>Wait(S)</code>:</strong> if <code>S &gt; 0</code>,
+subtract 1 from <code>S</code>. Otherwise, wait.</li>
+<li><strong><code>Signal(S)</code>:</strong> add 1 to
+<code>S</code>.</li>
+</ul>
+<p>There are two types:</p>
+<ul>
+<li><strong>Counting semaphore:</strong> the value can be any
+integer.</li>
+<li><strong>Binary semaphore:</strong> the value is never more than 1.
+It is used as a lock, often with the name <code>mutex</code>.</li>
+</ul>
+<h3 id="a-semaphore-solves-the-critical-section-problem">5.2 A semaphore
+solves the critical-section problem</h3>
+<p>One shared semaphore, <code>mutex</code>, starts at 1.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Process Pi</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    Wait<span class="op">(</span>mutex<span class="op">);</span>       <span class="co">// entry: acquire the semaphore</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    critical section</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    Signal<span class="op">(</span>mutex<span class="op">);</span>     <span class="co">// exit: release the semaphore</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    remainder section</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>The first process that runs <code>Wait(mutex)</code> changes it from
+1 to 0 and enters. Every other process must wait until
+<code>Signal(mutex)</code> makes it 1 again.</p>
+<h3 id="implementation-1-busy-waiting">5.3 Implementation 1: busy
+waiting</h3>
+<p>The simple implementation makes the process loop until the semaphore
+is free:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>S<span class="op">):</span>   <span class="cf">while</span> <span class="op">(</span>S <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">;</span>   <span class="co">// busy wait</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>           S<span class="op">--;</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>S<span class="op">):</span> S<span class="op">++;</span></span></code></pre></div>
+<ul>
+<li><strong>Advantage:</strong> no context switch. This is good when
+critical sections are short.</li>
+<li><strong>Disadvantage:</strong> a waiting process wastes CPU cycles.
+This is bad when critical sections are long.</li>
+</ul>
+<p><strong>Why <code>Wait</code> must be atomic.</strong> In machine
+code, <code>while (S &lt;= 0)</code> and <code>S--</code> are separate
+instructions. Start with <code>S = 1</code>:</p>
+<ol type="1">
+<li>P0 checks <code>S &lt;= 0</code>. It is false, so P0 leaves the
+loop.</li>
+<li>Context switch to P1.</li>
+<li>P1 checks <code>S &lt;= 0</code>. It is still false. P1 runs
+<code>S--</code>. Now S = 0, and P1 enters.</li>
+<li>Context switch to P0.</li>
+<li>P0 runs <code>S--</code>. Now S = −1, and P0 enters too.</li>
+</ol>
+<p>Both processes are in the critical section. Also <code>S++</code> and
+<code>S--</code> on their own can lose updates, as
+<code>counter++</code> did in section 1. So <strong>every check and
+change of S must be atomic.</strong></p>
+<h3 id="implementation-2-blocking">5.4 Implementation 2: blocking</h3>
+<p>The current implementation lets a waiting process
+<strong>sleep</strong> instead of spinning. The semaphore becomes a
+record:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span> <span class="op">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> value<span class="op">;</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> process <span class="op">*</span>L<span class="op">;</span>    <span class="co">// queue of the processes that wait on this semaphore (a list of PCBs)</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> semaphore<span class="op">;</span></span></code></pre></div>
+<p>Two helper operations change the state of a process:</p>
+<ul>
+<li><strong><code>block()</code>:</strong> take the current process off
+the ready queue, add it to list <code>L</code>, and change its state to
+<strong>waiting</strong>.</li>
+<li><strong><code>wakeup(P)</code>:</strong> take a process P off list
+<code>L</code>, add it to the ready queue, and change its state to
+<strong>ready</strong>. This leads to a context switch later.</li>
+</ul>
+<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>S<span class="op">):</span>                         Signal<span class="op">(</span>S<span class="op">):</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    S<span class="op">.</span>value<span class="op">--;</span>                       S<span class="op">.</span>value<span class="op">++;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span>                 <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>        block<span class="op">();</span>                         wakeup<span class="op">(</span>P<span class="op">);</span>   <span class="co">// P is a process from S.L</span></span></code></pre></div>
+<p><strong>What the value means.</strong> Here the value can be
+negative:</p>
+<ul>
+<li>If <code>S.value &gt; 0</code>, it is the number of processes that
+can still pass <code>Wait</code> without blocking.</li>
+<li>If <code>S.value &lt; 0</code>, then <code>-S.value</code> is the
+<strong>number of processes waiting</strong> in list <code>L</code>. For
+example, <code>S.value = -2</code> means two processes wait.</li>
+</ul>
+<p>Why <code>Signal</code> uses <code>&lt;= 0</code>: after
+<code>S.value++</code>, a value of 0 or less means that at least one
+process was waiting before the increment. So <code>Signal</code> must
+wake one.</p>
+<p><strong>A simple way to track the value.</strong> Each
+<code>Wait</code> subtracts 1 and each <code>Signal</code> adds 1. So at
+any time:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mi>.</mi><mtext mathvariant="normal">value</mtext><mo>=</mo><mtext mathvariant="normal">start value</mtext><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">number of Waits</mtext><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">number of Signals</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">S.\text{value} = \text{start value} - (\text{number of Waits}) + (\text{number of Signals})</annotation></semantics></math></p>
+<h3 id="blocking-wait-and-signal-must-still-be-atomic">5.5 Blocking
+<code>Wait</code> and <code>Signal</code> must still be atomic</h3>
+<p>The blocking version does not remove the need for atomic operations.
+Slide 4.35 shows two failures if <code>Wait</code> and
+<code>Signal</code> are not atomic:</p>
+<p><strong>Failure 1: two Waits.</strong> Start with
+<code>S.value = 1</code>.</p>
+<ol type="1">
+<li>P0 runs <code>S.value--</code>. The value becomes 0. A context
+switch occurs <strong>before</strong> P0 checks the value.</li>
+<li>P1 runs <code>S.value--</code>. The value becomes −1. P1 checks it,
+sees −1, and blocks.</li>
+<li>Context switch to P0. P0 now checks the value. It sees −1, and it
+blocks too.</li>
+</ol>
+<p>Both processes block, but the semaphore was free for one of them. No
+one will wake them. <strong>Progress fails.</strong></p>
+<p><strong>Failure 2: two Signals.</strong> Start with
+<code>S.value = -1</code>. Process P2 is blocked.</p>
+<ol type="1">
+<li>P0 runs <code>S.value++</code> and a context switch occurs before
+its check.</li>
+<li>P1 runs <code>S.value++</code>. Now the value is 1. P1 checks
+<code>S.value &lt;= 0</code>. It is false, so P1 does not wake
+anyone.</li>
+<li>P0 continues. It also sees 1 and does not wake anyone.</li>
+</ol>
+<p>P2 stays blocked forever although two Signals occurred.
+<strong>Progress fails for P2.</strong> Also, <code>--</code> and
+<code>++</code> without atomicity can lose updates, and then mutual
+exclusion can fail.</p>
+<p>So: <strong>every update and check of S must be atomic.</strong> The
+OS makes them atomic, for example with TestAndSet or by disabling
+interrupts for these few instructions.</p>
+<h3 id="why-s.value---must-come-before-the-check">5.6 Why
+<code>S.value--</code> must come before the check</h3>
+<p>Slide 4.36 looks at a version that checks first and subtracts at the
+end:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>S<span class="op">):</span>                           Signal<span class="op">(</span>S<span class="op">):</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span> block<span class="op">();</span>         S<span class="op">.</span>value<span class="op">++;</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    S<span class="op">.</span>value<span class="op">--;</span>                         <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;=</span> <span class="dv">1</span><span class="op">)</span> wakeup<span class="op">(</span>P<span class="op">);</span></span></code></pre></div>
+<p>Here, a process that blocks must later continue and run
+<code>S.value--</code>. A context switch can occur between
+<code>block()</code> returning and <code>S.value--</code>. Then:</p>
+<ol type="1">
+<li><code>S.value = 0</code>. P0 calls <code>Wait</code> and
+blocks.</li>
+<li>P1 calls <code>Signal</code>. The value becomes 1, and P1 wakes
+P0.</li>
+<li>Before P0 runs, P2 calls <code>Wait</code>. The value is 1, so P2
+does not block. It subtracts 1 and enters the critical section.</li>
+<li>P0 runs. It subtracts 1 (the value becomes −1) and also enters.</li>
+</ol>
+<p>Two processes are inside. <strong>Mutual exclusion fails.</strong>
+The decrement must happen before the check, so that a process reserves
+its place at the moment it calls <code>Wait</code>.</p>
+<h3 id="from-flags-to-semaphores-what-each-step-fixes">5.7 From flags to
+semaphores: what each step fixes</h3>
+<p>Sections 3 to 5 build one solution on top of the last:</p>
+<ol type="1">
+<li><strong>Algorithms 1 to 3</strong> use only normal reads and writes.
+Peterson’s solution is correct, but only for two processes.</li>
+<li><strong>TestAndSet</strong> adds one atomic hardware instruction.
+Now one lock works for any number of processes. But a waiting process
+spins, and there is no bound on how long it waits.</li>
+<li><strong>A semaphore</strong> puts the atomic step inside two OS
+operations, <code>Wait</code> and <code>Signal</code>. It can count more
+than one unit, and the blocking version lets a waiting process
+sleep.</li>
+</ol>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 21%" />
+<col style="width: 23%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Algorithms 1 to 3 (user code)</th>
+<th>TestAndSet lock</th>
+<th>Semaphore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Where the atomic step comes from</strong></td>
+<td>Nowhere. The order of the <code>flag</code> and <code>turn</code>
+writes must make it correct</td>
+<td>One hardware instruction reads and sets <code>lock</code></td>
+<td>The OS makes <code>Wait</code> and <code>Signal</code> atomic, for
+example with TestAndSet or by disabling interrupts</td>
+</tr>
+<tr>
+<td><strong>Number of processes</strong></td>
+<td>Two. Difficult to extend</td>
+<td>Any number</td>
+<td>Any number</td>
+</tr>
+<tr>
+<td><strong>Shared variables</strong></td>
+<td><code>turn</code>, <code>flag[2]</code>, or both</td>
+<td>One boolean, <code>lock</code></td>
+<td>One integer (the blocking version also has list <code>L</code>)</td>
+</tr>
+<tr>
+<td><strong>Entry section</strong></td>
+<td><code>while (...) ;</code> on <code>flag</code> and
+<code>turn</code></td>
+<td><code>TestAndSet</code> in a <code>while</code> loop</td>
+<td><code>Wait(S)</code></td>
+</tr>
+<tr>
+<td><strong>Exit section</strong></td>
+<td><code>turn = k</code> or <code>flag[i] = false</code></td>
+<td><code>lock = false</code></td>
+<td><code>Signal(S)</code></td>
+</tr>
+<tr>
+<td><strong>Mutual exclusion</strong></td>
+<td>Yes (all three)</td>
+<td>Yes</td>
+<td>Yes, if <code>Wait</code> and <code>Signal</code> are atomic</td>
+</tr>
+<tr>
+<td><strong>Progress</strong></td>
+<td>Algorithms 1 and 2: <strong>no</strong>. Peterson: yes</td>
+<td>Yes</td>
+<td>Yes, if <code>Wait</code> and <code>Signal</code> are atomic</td>
+</tr>
+<tr>
+<td><strong>Bounded waiting</strong></td>
+<td>Yes (all three)</td>
+<td><strong>No</strong> (section 4.5)</td>
+<td>Busy waiting: no bound. Blocking: yes if list <code>L</code> is
+FIFO, <strong>no</strong> if it uses priority or LIFO (section 6.4)</td>
+</tr>
+<tr>
+<td><strong>How a process waits</strong></td>
+<td>Spins: uses the CPU</td>
+<td>Spins: uses the CPU</td>
+<td>Busy waiting: spins. Blocking: sleeps in list <code>L</code> and
+uses no CPU</td>
+</tr>
+<tr>
+<td><strong>What it can count</strong></td>
+<td>Only “inside” or “not inside”</td>
+<td>Only free or taken</td>
+<td>Any number of units (counting semaphore), for example the empty
+places in a buffer</td>
+</tr>
+<tr>
+<td><strong>Other uses</strong></td>
+<td>None</td>
+<td>None</td>
+<td>Forces an order between processes (start value 0, section 6.2)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="how-to-use-semaphores-correctly">6. How to Use Semaphores
+Correctly</h2>
+<h3 id="a-three-step-method-slide-4.38">6.1 A three-step method (slide
+4.38)</h3>
+<ol type="1">
+<li><strong>Understand the problem.</strong> List the <strong>shared
+variables</strong> (data that processes change) and the <strong>shared
+resources</strong> (things that processes use up and give back, for
+example empty places in a buffer).</li>
+<li><strong>Protect the shared variables.</strong> Find each critical
+section. Use a <strong>binary semaphore</strong> for it:
+<code>Wait</code> in the entry section, <code>Signal</code> in the exit
+section.</li>
+<li><strong>Manage the shared resources.</strong> Use <strong>one
+counting semaphore for each kind of resource</strong>.
+<ul>
+<li>Start value: the number of units of that resource at the start.</li>
+<li>When a process takes or uses up a unit: <code>Wait</code>.</li>
+<li>When a process gives back or creates a unit:
+<code>Signal</code>.</li>
+</ul></li>
+</ol>
+<h3 id="a-semaphore-can-force-an-order">6.2 A semaphore can force an
+order</h3>
+<p>A semaphore can also make one process wait for another. Suppose code
+B in process Pk must run only <strong>after</strong> code A in process
+Pi. Use a semaphore <code>flag</code> with start value
+<strong>0</strong>:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Process Pi          // Process Pk</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>A<span class="op">;</span>                     Wait<span class="op">(</span>flag<span class="op">);</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>flag<span class="op">);</span>          B<span class="op">;</span></span></code></pre></div>
+<p>If Pk reaches <code>Wait(flag)</code> first, it waits, because
+<code>flag</code> is 0. It continues only after Pi runs A and then
+<code>Signal(flag)</code>.</p>
+<h3 id="wrong-use-1-deadlock">6.3 Wrong use 1: deadlock</h3>
+<p>A <strong>deadlock</strong> occurs when two or more processes wait
+forever for an event that only one of the waiting processes can
+cause.</p>
+<p>Let S and Q be two semaphores, both starting at 1:</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// P0           // P1</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>S<span class="op">);</span>        Wait<span class="op">(</span>Q<span class="op">);</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>Q<span class="op">);</span>        Wait<span class="op">(</span>S<span class="op">);</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="op">...</span>             <span class="op">...</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>S<span class="op">);</span>      Signal<span class="op">(</span>Q<span class="op">);</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>Q<span class="op">);</span>      Signal<span class="op">(</span>S<span class="op">);</span></span></code></pre></div>
+<ol type="1">
+<li>P0 runs <code>Wait(S)</code>. S becomes 0.</li>
+<li>Context switch to P1. P1 runs <code>Wait(Q)</code>. Q becomes 0.
+Then P1 runs <code>Wait(S)</code> and blocks.</li>
+<li>Context switch to P0. P0 runs <code>Wait(Q)</code> and blocks.</li>
+</ol>
+<p>P0 holds S and waits for Q. P1 holds Q and waits for S. Neither can
+continue. Lecture 5 studies deadlock in detail.</p>
+<h3 id="wrong-use-2-starvation">6.4 Wrong use 2: starvation</h3>
+<p><strong>Starvation</strong> means that a process waits forever
+(indefinite postponement). With semaphores, a process can starve because
+of the <strong>order</strong> in which the OS removes processes from
+list <code>L</code>:</p>
+<ul>
+<li><strong>Priority order:</strong> a low-priority process can starve
+if higher-priority processes keep joining the list.</li>
+<li><strong>Last-in-first-out (LIFO):</strong> the process that joined
+first can starve.</li>
+</ul>
+<p>A first-in-first-out queue prevents this.</p>
+<h2 id="three-classical-problems">7. Three Classical Problems</h2>
+<p>Exams use these three problems to test semaphores. Each one shows a
+different pattern.</p>
+<h3 id="the-bounded-buffer-producerconsumer">7.1 The bounded buffer
+(producer–consumer)</h3>
+<p>Now there are <strong>several</strong> producers and
+<strong>several</strong> consumers. Apply the three-step method:</p>
+<p><strong>Step 1. What is shared?</strong></p>
+<ul>
+<li>Shared data: the buffer and its indexes <code>in</code> and
+<code>out</code>. Several producers share <code>in</code>, and several
+consumers share <code>out</code>.</li>
+<li>Shared resources: the <strong>empty places</strong> (producers use
+them up) and the <strong>full places</strong> (consumers use them
+up).</li>
+</ul>
+<p><strong>Steps 2 and 3. Three semaphores:</strong></p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 22%" />
+<col style="width: 21%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th>Semaphore</th>
+<th>Type</th>
+<th>Start value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mutex</code></td>
+<td>Binary</td>
+<td>1</td>
+<td>Only one process changes the buffer at a time</td>
+</tr>
+<tr>
+<td><code>empty</code></td>
+<td>Counting</td>
+<td>n (the buffer size)</td>
+<td>Number of empty places</td>
+</tr>
+<tr>
+<td><code>full</code></td>
+<td>Counting</td>
+<td>0</td>
+<td>Number of full places</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The old <code>counter</code> variable is no longer necessary:
+<code>full</code> and <code>empty</code> already count the items.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Producer                         // Consumer</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span>                         <span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    produce an item<span class="op">;</span>                    Wait<span class="op">(</span>full<span class="op">);</span>     <span class="co">// take one full place</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    Wait<span class="op">(</span>empty<span class="op">);</span>   <span class="co">// take one          Wait(mutex);</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>                   <span class="co">// empty place       remove an item from the buffer;</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    Wait<span class="op">(</span>mutex<span class="op">);</span>                        Signal<span class="op">(</span>mutex<span class="op">);</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    add the item to the buffer<span class="op">;</span>         Signal<span class="op">(</span>empty<span class="op">);</span>  <span class="co">// one more empty place</span></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    Signal<span class="op">(</span>mutex<span class="op">);</span>                      consume the item<span class="op">;</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    Signal<span class="op">(</span>full<span class="op">);</span>  <span class="co">// one more      }</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>                   <span class="co">// full place</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>The order of the two Waits is important.</strong> The
+consumer must call <code>Wait(full)</code> <strong>before</strong>
+<code>Wait(mutex)</code>.</p>
+<figure>
+<img width="1400" height="835" src="media/4-artifacts/bounded-buffer-consumer.webp" loading="lazy"
+decoding="async"
+alt="Swapping the two Waits causes deadlock (Lecture 4, slide 4.46)" />
+<figcaption aria-hidden="true">Swapping the two Waits causes deadlock
+(Lecture 4, slide 4.46)</figcaption>
+</figure>
+<p>If the consumer calls <code>Wait(mutex)</code> first, and the buffer
+is empty:</p>
+<ol type="1">
+<li>The consumer takes <code>mutex</code>. Then it blocks on
+<code>Wait(full)</code>, and it <strong>still holds
+<code>mutex</code></strong>.</li>
+<li>A producer wants to add an item. It blocks on
+<code>Wait(mutex)</code>.</li>
+<li>Only a producer can signal <code>full</code>. Only the consumer can
+release <code>mutex</code>. Neither can happen:
+<strong>deadlock</strong>.</li>
+</ol>
+<p>The producer has the same problem if it calls
+<code>Wait(mutex)</code> before <code>Wait(empty)</code> when the buffer
+is full.</p>
+<p><strong>Rule: wait for the resource first, then for the
+mutex.</strong> Never block for a resource while you hold the mutex. The
+order of the two <strong>Signals</strong> does not matter, because
+<code>Signal</code> never blocks.</p>
+<h3 id="the-dining-philosophers">7.2 The dining philosophers</h3>
+<p>Five philosophers sit at a round table. Each philosopher thinks, then
+eats, then thinks again. There are five plates and only <strong>five
+chopsticks</strong>, one between each pair of plates. A philosopher
+needs <strong>both</strong> chopsticks next to them to eat.</p>
+<figure>
+<img width="737" height="641" src="media/4-artifacts/dining-philosophers.webp" loading="lazy"
+decoding="async"
+alt="Five philosophers, five plates and five chopsticks (Lecture 4, slide 4.47)" />
+<figcaption aria-hidden="true">Five philosophers, five plates and five
+chopsticks (Lecture 4, slide 4.47)</figcaption>
+</figure>
+<p><strong>First solution.</strong> Each chopstick is a binary
+semaphore, <code>chopstick[i]</code>, starting at 1. Philosopher
+<code>i</code> uses chopstick <code>i</code> and chopstick
+<code>(i+1) % 5</code>:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>    Wait<span class="op">(</span>chopstick<span class="op">[</span>i<span class="op">]);</span>             <span class="co">// pick up one chopstick</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>    Wait<span class="op">(</span>chopstick<span class="op">[(</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> <span class="dv">5</span><span class="op">]);</span>   <span class="co">// pick up the other</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    eat<span class="op">;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    Signal<span class="op">(</span>chopstick<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    Signal<span class="op">(</span>chopstick<span class="op">[(</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> <span class="dv">5</span><span class="op">]);</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>    think<span class="op">;</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>This can deadlock.</strong> Look at this order:</p>
+<ol type="1">
+<li>P0 picks up chopstick 0. Context switch.</li>
+<li>P1 picks up chopstick 1. Context switch.</li>
+<li>P2 picks up chopstick 2. Then P3 picks up 3, and P4 picks up 4.</li>
+</ol>
+<p>Now each philosopher holds one chopstick and waits for the next one,
+which a neighbour holds. All five wait forever.</p>
+<p><strong>Why the deadlock occurs.</strong> Two conditions together
+cause it:</p>
+<ul>
+<li>Each philosopher <strong>holds</strong> one chopstick while it
+<strong>waits</strong> for the other one.</li>
+<li>The waits make a <strong>closed circle</strong>: P0 waits for P1, P1
+waits for P2, and so on, and P4 waits for P0.</li>
+</ul>
+<p>If one of these conditions cannot occur, the deadlock cannot occur.
+Slide 4.50 gives three remedies. Each one removes one condition. Below,
+chopstick <code>i</code> is the <strong>left</strong> chopstick of
+philosopher <code>i</code>, and chopstick <code>(i+1) % 5</code> is the
+<strong>right</strong> one.</p>
+<p><strong>Remedy 1: allow at most four philosophers to be hungry at the
+same time.</strong></p>
+<p><em>What it does.</em> Add a counting semaphore <code>seats</code>
+with start value 4. A philosopher calls <code>Wait(seats)</code> before
+it picks up a chopstick, and <code>Signal(seats)</code> after it puts
+both down. The fifth hungry philosopher blocks on <code>seats</code> and
+holds no chopstick.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    Wait<span class="op">(</span>seats<span class="op">);</span>                    <span class="co">// at most 4 philosophers get past here</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    Wait<span class="op">(</span>chopstick<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    Wait<span class="op">(</span>chopstick<span class="op">[(</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> <span class="dv">5</span><span class="op">]);</span></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    eat<span class="op">;</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    Signal<span class="op">(</span>chopstick<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    Signal<span class="op">(</span>chopstick<span class="op">[(</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> <span class="dv">5</span><span class="op">]);</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    Signal<span class="op">(</span>seats<span class="op">);</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    think<span class="op">;</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><em>Why it works.</em> The circle needs all five philosophers, but
+only four can take part. Example: P4 waits on <code>seats</code>. P0,
+P1, P2 and P3 each pick up their left chopstick (0, 1, 2 and 3).
+Chopstick 4 is still free, because only P3 and P4 use it, and P4 holds
+nothing. So P3 picks up chopstick 4 and eats. When P3 puts its
+chopsticks down, P2 gets chopstick 3 and eats, and so on. The chain of
+waiting has an end, so it is not a circle.</p>
+<p><strong>Remedy 2: pick up the chopsticks only if both are
+free.</strong></p>
+<p><em>What it does.</em> A philosopher checks both chopsticks inside a
+critical section (protected by a <code>mutex</code>). If both are free,
+it picks up both. If not, it picks up <strong>neither</strong> and
+waits.</p>
+<p><em>Why it works.</em> A philosopher never holds one chopstick while
+it waits for the other. So the first condition, “hold one and wait”,
+cannot occur. Without it, no circle can form.</p>
+<p><strong>Remedy 3: use an asymmetric order.</strong></p>
+<p><em>What it does.</em> An odd-numbered philosopher picks up the left
+chopstick first, then the right one. An even-numbered philosopher picks
+up the right chopstick first, then the left one.</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>i <span class="op">%</span> <span class="dv">2</span> <span class="op">==</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span>                   <span class="co">// odd: left, then right</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>        Wait<span class="op">(</span>chopstick<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>        Wait<span class="op">(</span>chopstick<span class="op">[(</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> <span class="dv">5</span><span class="op">]);</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span>                            <span class="co">// even: right, then left</span></span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>        Wait<span class="op">(</span>chopstick<span class="op">[(</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> <span class="dv">5</span><span class="op">]);</span></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>        Wait<span class="op">(</span>chopstick<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    eat<span class="op">;</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    Signal<span class="op">(</span>chopstick<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>    Signal<span class="op">(</span>chopstick<span class="op">[(</span>i <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> <span class="dv">5</span><span class="op">]);</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>    think<span class="op">;</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><em>Why it works.</em> For a circle, all five philosophers must hold
+their first chopstick at the same time. But some neighbours now want the
+<strong>same</strong> chopstick first. For example, P0 (even) wants
+chopstick 1 first (its right), and P1 (odd) also wants chopstick 1 first
+(its left). Only one of them gets it. The other one holds
+<strong>nothing</strong> while it waits, so it is not part of a circle.
+Thus the circle cannot close.</p>
+<h3 id="the-readerswriters-problem">7.3 The readers–writers problem</h3>
+<p>A database or file is shared:</p>
+<ul>
+<li>A <strong>writer</strong> needs <strong>exclusive</strong> access.
+No one else can read or write at the same time.</li>
+<li>Many <strong>readers</strong> can read <strong>at the same
+time</strong>, because reading does not change the data.</li>
+</ul>
+<p>The lecture’s version gives <strong>readers the preference</strong>:
+if a reader is already inside, new readers can enter too.</p>
+<p>Shared data and semaphores:</p>
+<ul>
+<li><code>readcount = 0</code>: the number of readers inside.</li>
+<li><code>mutex = 1</code>: a binary semaphore that protects
+<code>readcount</code>.</li>
+<li><code>wrt = 1</code>: a binary semaphore for exclusive access to the
+database.</li>
+</ul>
+<div class="sourceCode" id="cb20"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Writer                          // Reader</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>wrt<span class="op">);</span>                         Wait<span class="op">(</span>mutex<span class="op">);</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>write<span class="op">;</span>                             readcount<span class="op">++;</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>wrt<span class="op">);</span>                       <span class="cf">if</span> <span class="op">(</span>readcount <span class="op">==</span> <span class="dv">1</span><span class="op">)</span> Wait<span class="op">(</span>wrt<span class="op">);</span>   <span class="co">// first reader locks out writers</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>                                   Signal<span class="op">(</span>mutex<span class="op">);</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>                                   read<span class="op">;</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>                                   Wait<span class="op">(</span>mutex<span class="op">);</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>                                   readcount<span class="op">--;</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>                                   <span class="cf">if</span> <span class="op">(</span>readcount <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> Signal<span class="op">(</span>wrt<span class="op">);</span> <span class="co">// last reader lets writers in</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>                                   Signal<span class="op">(</span>mutex<span class="op">);</span></span></code></pre></div>
+<p>How it works:</p>
+<ul>
+<li><strong>The first reader</strong> takes <code>wrt</code>. This
+blocks all writers. Later readers see <code>readcount &gt; 1</code> and
+go straight in.</li>
+<li><strong>The last reader</strong> releases <code>wrt</code>. Now a
+writer can enter.</li>
+<li><code>mutex</code> protects <code>readcount</code>, because all
+readers change it.</li>
+</ul>
+<p>Because readers have the preference, a writer can
+<strong>starve</strong> if readers keep arriving. (A writer-preference
+version is also possible.)</p>
+<h2 id="monitors-not-examinable">8. Monitors (not examinable)</h2>
+<p>A <strong>monitor</strong> is a high-level tool. It groups shared
+data with the procedures that use it. Only one process at a time can run
+a procedure of the monitor, and only those procedures can use the data.
+The lecture marks this slide as not examinable.</p>
+<h2 id="what-you-know-now-lecture-4">What You Know Now (Lecture 4)</h2>
+<ul>
+<li>A race condition occurs when the result depends on when context
+switches occur. <code>counter++</code> is three instructions.</li>
+<li>A correct critical-section solution needs mutual exclusion, progress
+and bounded waiting. Progress does not imply bounded waiting.</li>
+<li>Algorithm 1 (turn) and Algorithm 2 (flag) fail progress. Algorithm 3
+(flag + turn) satisfies all three.</li>
+<li>TestAndSet reads and sets in one atomic step. A TestAndSet lock
+gives mutual exclusion and progress, but not bounded waiting.</li>
+<li>A blocking semaphore puts waiting processes in list L. A negative
+value is the number of waiting processes. Wait and Signal must be
+atomic, and Wait must decrement before it checks.</li>
+<li>Use a binary semaphore for each critical section and a counting
+semaphore for each kind of resource. A semaphore that starts at 0 forces
+an order.</li>
+<li>In the bounded buffer, wait for <code>empty</code>/<code>full</code>
+before <code>mutex</code>, or deadlock occurs.</li>
+<li>The simple dining-philosophers solution can deadlock. Limit the
+eaters to four, take both chopsticks together, or use an asymmetric
+order.</li>
+<li>In readers–writers, the first reader locks out writers and the last
+reader lets them in.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../3-cpu-scheduling/3.html">← 3. CPU
+Scheduling</a>
+  <a class="next-page" href="../5-deadlocks/5.html">5. Deadlocks →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

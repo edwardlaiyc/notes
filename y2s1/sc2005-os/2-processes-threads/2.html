@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>2. Processes and Threads · SC2005 Operating Systems</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">2. Processes and
+Threads</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">2. Processes and Threads</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-overview/1.html"
+                   data-nav="1-overview/1.html">1. Overview of Operating
+Systems</a></li>
+            <li><a href="../2-processes-threads/2.html"
+                   data-nav="2-processes-threads/2.html">2. Processes
+and Threads</a></li>
+            <li><a href="../3-cpu-scheduling/3.html"
+                   data-nav="3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../4-synchronization/4.html"
+                   data-nav="4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../5-deadlocks/5.html"
+                   data-nav="5-deadlocks/5.html">5. Deadlocks</a></li>
+            <li><a href="../6a-rtos/6a.html"
+                   data-nav="6a-rtos/6a.html">6a. Real-Time Operating
+Systems</a></li>
+            <li><a href="../6b-virtualization/6b.html"
+                   data-nav="6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../7-memory-organization/7.html"
+                   data-nav="7-memory-organization/7.html">7. Memory
+Organization</a></li>
+            <li><a href="../8-virtual-memory/8.html"
+                   data-nav="8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../9-file-systems/9.html"
+                   data-nav="9-file-systems/9.html">9. File
+Systems</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../labs/lab-1.html"
+                   data-nav="labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../labs/lab-2.html"
+                   data-nav="labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../labs/lab-3/lab-3.html"
+                   data-nav="labs/lab-3/lab-3.html">Lab 3 Guide</a></li>
+            <li><a href="../labs/lab-4/lab-4.html"
+                   data-nav="labs/lab-4/lab-4.html">Lab 4 Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#what-a-process-is" id="toc-what-a-process-is">1. What a
+Process Is</a>
+<ul>
+<li><a href="#a-program-and-a-process-are-different"
+id="toc-a-program-and-a-process-are-different">1.1 A program and a
+process are different</a></li>
+<li><a href="#what-a-process-looks-like-in-memory"
+id="toc-what-a-process-looks-like-in-memory">1.2 What a process looks
+like in memory</a></li>
+</ul></li>
+<li><a href="#the-life-of-a-process-process-states"
+id="toc-the-life-of-a-process-process-states">2. The Life of a Process:
+Process States</a>
+<ul>
+<li><a href="#the-five-states" id="toc-the-five-states">2.1 The five
+states</a></li>
+<li><a href="#the-transitions-between-states"
+id="toc-the-transitions-between-states">2.2 The transitions between
+states</a></li>
+</ul></li>
+<li><a href="#how-the-os-keeps-track-of-a-process"
+id="toc-how-the-os-keeps-track-of-a-process">3. How the OS Keeps Track
+of a Process</a>
+<ul>
+<li><a href="#the-process-control-block-pcb"
+id="toc-the-process-control-block-pcb">3.1 The process control block
+(PCB)</a></li>
+<li><a href="#the-context-switch" id="toc-the-context-switch">3.2 The
+context switch</a></li>
+<li><a href="#scheduling-queues" id="toc-scheduling-queues">3.3
+Scheduling queues</a></li>
+<li><a href="#three-schedulers" id="toc-three-schedulers">3.4 Three
+schedulers</a></li>
+</ul></li>
+<li><a href="#creating-and-ending-processes"
+id="toc-creating-and-ending-processes">4. Creating and Ending
+Processes</a>
+<ul>
+<li><a href="#process-creation" id="toc-process-creation">4.1 Process
+creation</a></li>
+<li><a href="#process-termination" id="toc-process-termination">4.2
+Process termination</a></li>
+</ul></li>
+<li><a href="#interprocess-communication-ipc"
+id="toc-interprocess-communication-ipc">5. Interprocess Communication
+(IPC)</a>
+<ul>
+<li><a href="#independent-and-cooperating-processes"
+id="toc-independent-and-cooperating-processes">5.1 Independent and
+cooperating processes</a></li>
+<li><a href="#model-1-shared-memory" id="toc-model-1-shared-memory">5.2
+Model 1: shared memory</a></li>
+<li><a href="#model-2-message-passing"
+id="toc-model-2-message-passing">5.3 Model 2: message passing</a></li>
+<li><a href="#direct-and-indirect-message-passing"
+id="toc-direct-and-indirect-message-passing">5.4 Direct and indirect
+message passing</a></li>
+<li><a href="#the-producerconsumer-pattern"
+id="toc-the-producerconsumer-pattern">5.5 The producer–consumer
+pattern</a></li>
+</ul></li>
+<li><a href="#threads" id="toc-threads">6. Threads</a>
+<ul>
+<li><a href="#what-a-thread-is" id="toc-what-a-thread-is">6.1 What a
+thread is</a></li>
+<li><a href="#why-use-more-than-one-thread"
+id="toc-why-use-more-than-one-thread">6.2 Why use more than one
+thread</a></li>
+<li><a href="#user-threads-and-kernel-threads"
+id="toc-user-threads-and-kernel-threads">6.3 User threads and kernel
+threads</a></li>
+<li><a href="#the-three-mapping-models"
+id="toc-the-three-mapping-models">6.4 The three mapping models</a></li>
+</ul></li>
+<li><a href="#what-you-know-now-lecture-2"
+id="toc-what-you-know-now-lecture-2">What You Know Now (Lecture
+2)</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>This was written entirely with AI.</p>
+<h2 id="what-a-process-is">1. What a Process Is</h2>
+<h3 id="a-program-and-a-process-are-different">1.1 A program and a
+process are different</h3>
+<p>A <strong>program</strong> is a file on the disk. It contains
+instructions, but it does nothing on its own.</p>
+<p>A <strong>process</strong> is a <strong>program in
+execution</strong>. When you start a program, the OS loads it into
+memory and starts to run it. Now it is a process. If you start the same
+program two times, you get two processes.</p>
+<p>A process runs its instructions <strong>one after another</strong>
+(sequentially). The textbook also uses the word <strong>job</strong> for
+a process. In these notes, job and process mean the same thing.</p>
+<h3 id="what-a-process-looks-like-in-memory">1.2 What a process looks
+like in memory</h3>
+<p>The OS gives each process a region of memory. The region has four
+parts:</p>
+<figure>
+<img width="1400" height="776" src="media/2-artifacts/process-in-memory.webp" loading="lazy"
+decoding="async" alt="A process in memory (Lecture 2, slide 2.4)" />
+<figcaption aria-hidden="true">A process in memory (Lecture 2, slide
+2.4)</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 55%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Part</th>
+<th>What it holds</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Text</strong></td>
+<td>The program code</td>
+<td>Fixed</td>
+</tr>
+<tr>
+<td><strong>Data</strong></td>
+<td>Global variables</td>
+<td>Fixed</td>
+</tr>
+<tr>
+<td><strong>Heap</strong></td>
+<td>Memory that the program asks for while it runs, for example
+<code>a = new int[10]</code></td>
+<td>Grows and shrinks</td>
+</tr>
+<tr>
+<td><strong>Stack</strong></td>
+<td>The parameters and local variables of each function call</td>
+<td>Grows and shrinks</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The heap and the stack grow toward each other, into the free space
+between them.</p>
+<p><strong>Data and stack: two differences</strong></p>
+<ol type="1">
+<li>The data part has a fixed size. The stack grows and shrinks while
+the process runs.</li>
+<li>The data part holds global variables. The stack holds the local
+variables and parameters of functions.</li>
+</ol>
+<p>The base and limit registers from Lecture 1 mark the start and the
+end of this region.</p>
+<h2 id="the-life-of-a-process-process-states">2. The Life of a Process:
+Process States</h2>
+<h3 id="the-five-states">2.1 The five states</h3>
+<p>While a process exists, it changes <strong>state</strong>. The state
+tells what the process does now:</p>
+<ol type="1">
+<li><strong>New:</strong> the OS is creating the process.</li>
+<li><strong>Ready:</strong> the process can run, but it waits for the
+CPU.</li>
+<li><strong>Running:</strong> the CPU runs the instructions of the
+process now.</li>
+<li><strong>Waiting:</strong> the process cannot run. It waits for an
+event, for example the end of an I/O operation.</li>
+<li><strong>Terminated:</strong> the process has finished.</li>
+</ol>
+<p>A one-core CPU runs only <strong>one</strong> process at a time. All
+other processes are ready or waiting.</p>
+<h3 id="the-transitions-between-states">2.2 The transitions between
+states</h3>
+<figure>
+<img width="1400" height="700" src="media/2-artifacts/process-state-diagram.webp" loading="lazy"
+decoding="async"
+alt="Process state transitions (Lecture 2, slide 2.6)" />
+<figcaption aria-hidden="true">Process state transitions (Lecture 2,
+slide 2.6)</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 66%" />
+</colgroup>
+<thead>
+<tr>
+<th>Transition</th>
+<th>What causes it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New → Ready</td>
+<td>The OS <strong>admits</strong> the process</td>
+</tr>
+<tr>
+<td>Ready → Running</td>
+<td>The scheduler <strong>dispatches</strong> the process (gives it the
+CPU)</td>
+</tr>
+<tr>
+<td>Running → Ready</td>
+<td>An <strong>interrupt</strong>, for example the timer. The process
+can still run, but it must give the CPU to another process</td>
+</tr>
+<tr>
+<td>Running → Waiting</td>
+<td>The process asks for I/O or waits for an event</td>
+</tr>
+<tr>
+<td>Waiting → Ready</td>
+<td>The I/O or the event finishes</td>
+</tr>
+<tr>
+<td>Running → Terminated</td>
+<td>The process <strong>exits</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Two facts that exams test:</p>
+<ul>
+<li><strong>A waiting process never goes directly to running.</strong>
+It goes to ready first, and then waits for the scheduler.</li>
+<li><strong>“Ready” and “waiting” are different.</strong> A ready
+process waits only for the CPU. A waiting process waits for an event,
+and the CPU cannot help it.</li>
+</ul>
+<p>The <strong>timer interrupt</strong> is what lets a multiprogrammed
+system move the CPU from one ready process to another.</p>
+<h2 id="how-the-os-keeps-track-of-a-process">3. How the OS Keeps Track
+of a Process</h2>
+<h3 id="the-process-control-block-pcb">3.1 The process control block
+(PCB)</h3>
+<p>The OS keeps a record for each process, the <strong>process control
+block (PCB)</strong>. The PCB holds everything the OS needs to stop the
+process and continue it later:</p>
+<figure>
+<img width="1093" height="885" src="media/2-artifacts/pcb.webp" loading="lazy" decoding="async"
+alt="The fields of a PCB, grouped by what the OS uses them for (Lecture 2, slide 2.7)" />
+<figcaption aria-hidden="true">The fields of a PCB, grouped by what the
+OS uses them for (Lecture 2, slide 2.7)</figcaption>
+</figure>
+<ol type="1">
+<li>A <strong>pointer</strong> to other PCBs (the OS keeps PCBs in
+queues or lists)</li>
+<li>The <strong>process state</strong></li>
+<li>The <strong>process number</strong> (process ID)</li>
+<li>The <strong>program counter</strong>: the address of the next
+instruction</li>
+<li>The <strong>CPU registers</strong></li>
+<li>The <strong>priority</strong>, which the scheduler uses</li>
+<li><strong>Memory-management information</strong>, for example the base
+and limit values</li>
+<li><strong>File information</strong>, for example the list of open
+files</li>
+</ol>
+<p>All PCBs are in <strong>kernel memory</strong>. User programs cannot
+read or change them.</p>
+<h3 id="the-context-switch">3.2 The context switch</h3>
+<p>When the OS moves the CPU from process P0 to process P1, it must do
+two things:</p>
+<ol type="1">
+<li><strong>Save the context of P0</strong> into PCB0. The context is
+the state of the CPU: the registers and the program counter.</li>
+<li><strong>Load the context of P1</strong> from PCB1 into the CPU.</li>
+</ol>
+<p>This is a <strong>context switch</strong>.</p>
+<figure>
+<img width="1400" height="1129" src="media/2-artifacts/context-switch.webp" loading="lazy"
+decoding="async"
+alt="Context switch between processes (Lecture 2, slide 2.11)" />
+<figcaption aria-hidden="true">Context switch between processes (Lecture
+2, slide 2.11)</figcaption>
+</figure>
+<p><strong>A context switch is overhead.</strong> While the OS switches,
+no user process runs, so the system does no useful work. The OS runs
+this code in kernel mode, because the PCBs are in kernel memory.</p>
+<h3 id="scheduling-queues">3.3 Scheduling queues</h3>
+<p>The OS keeps processes in queues. Each queue holds the PCBs of
+processes in the same state:</p>
+<ul>
+<li>The <strong>ready queue</strong> holds all processes in the ready
+state.</li>
+<li>A <strong>device queue</strong> holds the processes that wait for
+one particular I/O device.</li>
+</ul>
+<figure>
+<img width="1400" height="860" src="media/2-artifacts/scheduling-queues.webp" loading="lazy"
+decoding="async"
+alt="Ready queue and I/O device queues (Lecture 2, slide 2.14)" />
+<figcaption aria-hidden="true">Ready queue and I/O device queues
+(Lecture 2, slide 2.14)</figcaption>
+</figure>
+<p>When a process changes state, the OS moves its PCB from one queue to
+another. All queues are in kernel memory.</p>
+<h3 id="three-schedulers">3.4 Three schedulers</h3>
+<p>The OS has three schedulers. Each one makes a different decision:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 44%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr>
+<th>Scheduler</th>
+<th>Decision</th>
+<th>How often it runs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Long-term</strong> (job scheduler)</td>
+<td>Which new processes to load from the disk into memory</td>
+<td>Seldom: seconds or minutes</td>
+</tr>
+<tr>
+<td><strong>Short-term</strong> (CPU scheduler)</td>
+<td>Which ready process gets the CPU next</td>
+<td>Very often: for example every 100 ms</td>
+</tr>
+<tr>
+<td><strong>Medium-term</strong></td>
+<td>When the load is heavy, <strong>swap out</strong> a partly-run
+process from memory to the disk. When the load is light, swap it back
+in</td>
+<td>When the load changes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The <strong>degree of multiprogramming</strong> is the number of
+processes in memory. The long-term scheduler sets it at the start.
+Later, the medium-term scheduler controls it.</p>
+<p>The short-term scheduler runs often, because it must keep the CPU
+busy and the system responsive. Lecture 3 studies it in detail.</p>
+<h2 id="creating-and-ending-processes">4. Creating and Ending
+Processes</h2>
+<h3 id="process-creation">4.1 Process creation</h3>
+<p>A process (the <strong>parent</strong>) can create new processes (its
+<strong>children</strong>). The children can create their own children.
+This makes a <strong>tree</strong> of processes. In Unix, a process
+creates a child with <code>fork()</code>.</p>
+<figure>
+<img width="1400" height="560" src="media/2-artifacts/process-tree.webp" loading="lazy"
+decoding="async" alt="A tree of processes (Lecture 2, slide 2.18)" />
+<figcaption aria-hidden="true">A tree of processes (Lecture 2, slide
+2.18)</figcaption>
+</figure>
+<p>After the parent creates a child, there are two choices:</p>
+<ol type="1">
+<li>The parent and the child run <strong>at the same time</strong>,
+independently.</li>
+<li>The parent <strong>waits</strong> until its children finish. It uses
+<code>wait()</code> (also called <code>join()</code>).</li>
+</ol>
+<p><strong><code>wait()</code> is for the parent.</strong> The parent
+calls <code>wait()</code> to wait until a child finishes. A child does
+not use <code>wait()</code> to get instructions from the parent.</p>
+<p>Examples: a web browser can create a new process for each tab. The OS
+creates background processes for maintenance work.</p>
+<h3 id="process-termination">4.2 Process termination</h3>
+<p>A process ends in one of two ways:</p>
+<ul>
+<li><strong>Exit.</strong> The process runs its last statement and asks
+the OS to delete it. It can return data to its parent. The OS takes back
+all its resources.</li>
+<li><strong>Abort.</strong> The parent ends the child. The parent can do
+this because the child used too many resources, because the task of the
+child is no longer necessary, or because the parent itself is
+exiting.</li>
+</ul>
+<h2 id="interprocess-communication-ipc">5. Interprocess Communication
+(IPC)</h2>
+<h3 id="independent-and-cooperating-processes">5.1 Independent and
+cooperating processes</h3>
+<ul>
+<li>An <strong>independent</strong> process cannot affect other
+processes, and other processes cannot affect it.</li>
+<li>A <strong>cooperating</strong> process can affect other processes,
+or other processes can affect it. Cooperating processes must exchange
+data.</li>
+</ul>
+<p>Processes exchange data by <strong>interprocess communication
+(IPC)</strong>. There are two models.</p>
+<figure>
+<img width="1400" height="862" src="media/2-artifacts/ipc-models.webp" loading="lazy"
+decoding="async"
+alt="Message passing and shared memory (Lecture 2, slide 2.23)" />
+<figcaption aria-hidden="true">Message passing and shared memory
+(Lecture 2, slide 2.23)</figcaption>
+</figure>
+<h3 id="model-1-shared-memory">5.2 Model 1: shared memory</h3>
+<p>The processes share a region of memory. Process A writes into the
+region. Process B reads from it. After the OS sets up the region, the
+processes exchange data <strong>without the kernel</strong>.</p>
+<p>The processes must coordinate their access to the shared region
+themselves. Lecture 4 explains how.</p>
+<h3 id="model-2-message-passing">5.3 Model 2: message passing</h3>
+<p>The processes do not share variables. They use two system calls:</p>
+<ul>
+<li><code>send(message)</code></li>
+<li><code>receive(message)</code></li>
+</ul>
+<p>A message can have a fixed or a variable size. Before two processes
+can communicate, they must set up a <strong>communication
+link</strong>.</p>
+<p>Each message goes through the kernel: the sender copies it into
+kernel memory, and the receiver copies it out. So <strong>message
+passing uses more memory than shared memory</strong>, and each send and
+receive is a system call.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 33%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Shared memory</th>
+<th>Message passing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>How data moves</td>
+<td>Through a shared region</td>
+<td>Through the kernel, with <code>send</code> and
+<code>receive</code></td>
+</tr>
+<tr>
+<td>Kernel involvement</td>
+<td>Only to set up the region</td>
+<td>For every message</td>
+</tr>
+<tr>
+<td>Memory use</td>
+<td>Less</td>
+<td>More (copies in the kernel)</td>
+</tr>
+<tr>
+<td>Who coordinates access</td>
+<td>The processes themselves</td>
+<td>The kernel</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="direct-and-indirect-message-passing">5.4 Direct and indirect
+message passing</h3>
+<ul>
+<li><strong>Direct:</strong> each process names the other process.
+<ul>
+<li><code>send(P, message)</code>: send a message to process P.</li>
+<li><code>receive(Q, message)</code>: receive a message from process
+Q.</li>
+</ul></li>
+<li><strong>Indirect:</strong> processes send messages to a
+<strong>mailbox</strong> (also called a <strong>port</strong>) and
+receive from it. A mailbox works like a queue.
+<ul>
+<li><code>send(A, message)</code>: send a message to mailbox A.</li>
+<li><code>receive(A, message)</code>: receive a message from mailbox
+A.</li>
+</ul></li>
+</ul>
+<h3 id="the-producerconsumer-pattern">5.5 The producer–consumer
+pattern</h3>
+<p>This is the classic example of cooperating processes:</p>
+<ul>
+<li>A <strong>producer</strong> process makes information.</li>
+<li>A <strong>consumer</strong> process uses it.</li>
+<li>A <strong>buffer</strong> holds the information between them.</li>
+</ul>
+<p>There are two types of buffer:</p>
+<ol type="1">
+<li>An <strong>unbounded</strong> buffer has no practical size limit.
+The producer never needs to wait.</li>
+<li>A <strong>bounded</strong> buffer has a fixed size. The producer
+must wait when the buffer is full. The consumer must wait when the
+buffer is empty.</li>
+</ol>
+<p>The lecture shows a bounded buffer that uses a mailbox with space for
+B messages. The producer waits while the mailbox is full, then sends.
+The consumer waits while the mailbox is empty, then receives. This uses
+<strong>indirect</strong> communication, because both processes use the
+mailbox and do not name each other.</p>
+<h2 id="threads">6. Threads</h2>
+<h3 id="what-a-thread-is">6.1 What a thread is</h3>
+<p>A <strong>thread</strong> is the basic unit that the CPU runs.
+Another name is <strong>lightweight process</strong>. Each thread has
+its own:</p>
+<ul>
+<li>thread ID</li>
+<li>program counter</li>
+<li>set of registers</li>
+<li>stack</li>
+</ul>
+<p>The threads in one process <strong>share</strong>:</p>
+<ul>
+<li>the code (text) and the data</li>
+<li>the heap</li>
+<li>OS resources, for example open files</li>
+</ul>
+<p>Each thread also has a <strong>thread control block (TCB)</strong>,
+which is similar to a PCB.</p>
+<p>A traditional process is a <strong>heavyweight</strong> process: it
+has only one thread.</p>
+<figure>
+<img width="1400" height="942" src="media/2-artifacts/single-vs-multithreaded.webp" loading="lazy"
+decoding="async"
+alt="A single-threaded and a multithreaded process (Lecture 2, slide 2.31)" />
+<figcaption aria-hidden="true">A single-threaded and a multithreaded
+process (Lecture 2, slide 2.31)</figcaption>
+</figure>
+<h3 id="why-use-more-than-one-thread">6.2 Why use more than one
+thread</h3>
+<p>In a multithreaded process, <strong>when one thread waits</strong>
+(for example for I/O), <strong>another thread of the same process can
+run</strong>. So the process does more work in the same time: throughput
+goes up.</p>
+<p>Example: a word processor. One thread reads the keyboard, another
+thread displays the text, and a third thread saves the file in the
+background.</p>
+<p>Example: a web server. When a request arrives, the server creates a
+new thread to handle it, and then listens for the next request at
+once.</p>
+<figure>
+<img width="1400" height="584" src="media/2-artifacts/multithreaded-server.webp" loading="lazy"
+decoding="async" alt="A multithreaded server (Lecture 2, slide 2.33)" />
+<figcaption aria-hidden="true">A multithreaded server (Lecture 2, slide
+2.33)</figcaption>
+</figure>
+<h3 id="user-threads-and-kernel-threads">6.3 User threads and kernel
+threads</h3>
+<p>There is a conflict:</p>
+<ul>
+<li>Programmers want to create as many threads as they like.</li>
+<li>The kernel can support only a limited number of threads, because
+each thread uses kernel resources.</li>
+</ul>
+<p>The solution has two layers:</p>
+<ul>
+<li><strong>User threads</strong> are created in user space, by a thread
+library. They are fast to create. A program can create as many as it
+wants.</li>
+<li><strong>Kernel threads</strong> are created in kernel space, by the
+OS. They are slower to create and manage. The kernel gives real
+resources (for example CPU time) only to kernel threads.</li>
+</ul>
+<p>The OS <strong>maps</strong> user threads onto kernel threads. A user
+thread can run only when the OS maps it to a kernel thread.</p>
+<h3 id="the-three-mapping-models">6.4 The three mapping models</h3>
+<p><strong>Many-to-one.</strong> Many user threads map to one kernel
+thread.</p>
+<figure>
+<img width="1400" height="816" src="media/2-artifacts/many-to-one.webp" loading="lazy"
+decoding="async" alt="Many-to-one mapping (Lecture 2, slide 2.36)" />
+<figcaption aria-hidden="true">Many-to-one mapping (Lecture 2, slide
+2.36)</figcaption>
+</figure>
+<ul>
+<li>Problem: if one user thread makes a blocking system call, the kernel
+thread blocks. Then <strong>all</strong> the user threads on that kernel
+thread block too.</li>
+</ul>
+<p><strong>One-to-one.</strong> Each user thread maps to its own kernel
+thread. Examples: Windows 95/98/NT/2000, OS/2.</p>
+<ul>
+<li>Advantage: more concurrency. When one thread blocks, the others can
+still run.</li>
+<li>Problem: each new user thread needs a new kernel thread. Too many
+kernel threads put a heavy load on the system.</li>
+</ul>
+<p><strong>Many-to-many.</strong> Many user threads map to a smaller or
+equal number of kernel threads. Examples: C++20 coroutines, Go
+goroutines.</p>
+<figure>
+<img width="1188" height="996" src="media/2-artifacts/many-to-many.webp" loading="lazy"
+decoding="async" alt="Many-to-many mapping (Lecture 2, slide 2.38)" />
+<figcaption aria-hidden="true">Many-to-many mapping (Lecture 2, slide
+2.38)</figcaption>
+</figure>
+<ul>
+<li>Advantage: the OS can create just enough kernel threads. It avoids
+the problems of the other two models.</li>
+<li>Problem: it is difficult to decide the best mapping.</li>
+</ul>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 21%" />
+<col style="width: 24%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th>Model</th>
+<th>A blocked thread blocks the others?</th>
+<th>Kernel threads created</th>
+<th>Main problem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Many-to-one</td>
+<td>Yes</td>
+<td>One</td>
+<td>One blocking call stops all threads</td>
+</tr>
+<tr>
+<td>One-to-one</td>
+<td>No</td>
+<td>One for each user thread</td>
+<td>Too many kernel threads</td>
+</tr>
+<tr>
+<td>Many-to-many</td>
+<td>No</td>
+<td>As many as necessary</td>
+<td>The mapping is hard to decide</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Why is there no one-to-many model?</strong> Mapping one user
+thread onto many kernel threads wastes kernel resources. One user thread
+runs only one sequence of instructions, so it can use only one kernel
+thread at a time.</p>
+<h2 id="what-you-know-now-lecture-2">What You Know Now (Lecture 2)</h2>
+<ul>
+<li>A process is a program in execution. Its memory has text, data, heap
+and stack.</li>
+<li>A process moves between new, ready, running, waiting and terminated.
+A waiting process always goes to ready before it runs again.</li>
+<li>The PCB holds the state of a process. A context switch saves one PCB
+and loads another. It is pure overhead.</li>
+<li>The long-term scheduler loads jobs, the short-term scheduler picks
+the next process to run, and the medium-term scheduler swaps processes
+out and in.</li>
+<li>A parent creates children and can <code>wait()</code> for them.</li>
+<li>IPC uses shared memory (fast, no kernel per message) or message
+passing (through the kernel, more memory).</li>
+<li>Threads in one process share code, data, heap and files. Each thread
+has its own registers, program counter and stack.</li>
+<li>Many-to-one blocks all threads on one blocking call. One-to-one
+creates too many kernel threads. Many-to-many avoids both.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../1-overview/1.html">← 1. Overview of
+Operating Systems</a>
+  <a class="next-page" href="../3-cpu-scheduling/3.html">3. CPU
+Scheduling →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

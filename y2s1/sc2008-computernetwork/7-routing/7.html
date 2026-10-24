@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>7. Network Layer: Routing (RIP, OSPF, BGP) · SC2008 Computer
+Network</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=6EF8D236">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">7. Network Layer:
+Routing (RIP, OSPF, BGP)</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2008</p>
+  <p class="site-title">Computer Network</p>
+  <h1 class="page-title">7. Network Layer: Routing (RIP, OSPF, BGP)</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-networklayers/1.html"
+                   data-nav="1-networklayers/1.html">1. Network Layers
+and Physical Resilience</a></li>
+            <li><a href="../2-dll-flow-error-control/2.html"
+                   data-nav="2-dll-flow-error-control/2.html">2. Data
+Link Layer (DLL): Flow &amp; Error Control</a></li>
+            <li><a href="../3-dll-mac-lan/3.html"
+                   data-nav="3-dll-mac-lan/3.html">3. Data Link Layer
+(DLL): Medium Access Control &amp; LANs</a></li>
+            <li><a href="../4-network-paradigms/4.html"
+                   data-nav="4-network-paradigms/4.html">4. Network
+Paradigms</a></li>
+            <li><a href="../5-ip-addressing/5.html"
+                   data-nav="5-ip-addressing/5.html">5. Network Layer:
+IP Addressing</a></li>
+            <li><a href="../6-ip-forwarding/6.html"
+                   data-nav="6-ip-forwarding/6.html">6. Network Layer:
+Forwarding, ARP, Fragmentation &amp; ICMP</a></li>
+            <li><a href="../7-routing/7.html"
+                   data-nav="7-routing/7.html">7. Network Layer: Routing
+(RIP, OSPF, BGP)</a></li>
+            <li><a href="../8-routing-practice/8.html"
+                   data-nav="8-routing-practice/8.html">8. Routing in
+Practice</a></li>
+            <li><a href="../9-transport/9.html"
+                   data-nav="9-transport/9.html">9. Transport Layer:
+Ports, UDP and TCP</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#network-layer-routing-rip-ospf-bgp"
+id="toc-network-layer-routing-rip-ospf-bgp">7. Network Layer: Routing
+(RIP, OSPF, BGP)</a>
+<ul>
+<li><a href="#where-routes-come-from" id="toc-where-routes-come-from">1.
+Where Routes Come From</a></li>
+<li><a href="#two-levels-of-routing" id="toc-two-levels-of-routing">2.
+Two Levels of Routing</a>
+<ul>
+<li><a href="#autonomous-systems" id="toc-autonomous-systems">2.1
+Autonomous systems</a></li>
+<li><a href="#intra-as-and-inter-as" id="toc-intra-as-and-inter-as">2.2
+Intra-AS and inter-AS</a></li>
+</ul></li>
+<li><a href="#distance-vector-rip" id="toc-distance-vector-rip">3.
+Distance Vector: RIP</a>
+<ul>
+<li><a href="#the-idea" id="toc-the-idea">3.1 The idea</a></li>
+<li><a href="#the-update-rule-bellmanford"
+id="toc-the-update-rule-bellmanford">3.2 The update rule
+(Bellman–Ford)</a></li>
+<li><a href="#worked-example-building-as-table-lecture"
+id="toc-worked-example-building-as-table-lecture">3.3 Worked example:
+building A’s table (lecture)</a></li>
+<li><a href="#worked-example-distance-vector-with-link-costs"
+id="toc-worked-example-distance-vector-with-link-costs">3.4 Worked
+example: distance vector with link costs</a></li>
+<li><a href="#the-problem-count-to-infinity"
+id="toc-the-problem-count-to-infinity">3.5 The problem:
+count-to-infinity</a></li>
+<li><a href="#safeguards" id="toc-safeguards">3.6 Safeguards</a></li>
+</ul></li>
+<li><a href="#link-state-ospf" id="toc-link-state-ospf">4. Link State:
+OSPF</a>
+<ul>
+<li><a href="#the-idea-1" id="toc-the-idea-1">4.1 The idea</a></li>
+<li><a href="#hop-count-against-link-cost"
+id="toc-hop-count-against-link-cost">4.2 Hop count against link
+cost</a></li>
+<li><a href="#the-five-steps-of-ospf"
+id="toc-the-five-steps-of-ospf">4.3 The five steps of OSPF</a></li>
+<li><a href="#dijkstras-algorithm" id="toc-dijkstras-algorithm">4.4
+Dijkstra’s algorithm</a></li>
+<li><a href="#worked-example-lecture"
+id="toc-worked-example-lecture">4.5 Worked example (lecture)</a></li>
+<li><a href="#a-second-example-the-direct-link-is-not-always-best"
+id="toc-a-second-example-the-direct-link-is-not-always-best">4.6 A
+second example: the direct link is not always best</a></li>
+</ul></li>
+<li><a href="#rip-against-ospf" id="toc-rip-against-ospf">5. RIP Against
+OSPF</a></li>
+<li><a href="#inter-as-routing-bgp" id="toc-inter-as-routing-bgp">6.
+Inter-AS Routing: BGP</a>
+<ul>
+<li><a href="#types-of-as" id="toc-types-of-as">6.1 Types of AS</a></li>
+<li><a href="#business-relationships"
+id="toc-business-relationships">6.2 Business relationships</a></li>
+<li><a href="#why-not-run-ospf-over-the-whole-internet"
+id="toc-why-not-run-ospf-over-the-whole-internet">6.3 Why not run OSPF
+over the whole Internet?</a></li>
+<li><a href="#what-bgp-is" id="toc-what-bgp-is">6.4 What BGP is</a></li>
+<li><a href="#what-bgp-sends-path-vectors"
+id="toc-what-bgp-sends-path-vectors">6.5 What BGP sends: path
+vectors</a></li>
+<li><a href="#how-an-as-chooses-and-passes-on-routes"
+id="toc-how-an-as-chooses-and-passes-on-routes">6.6 How an AS chooses
+and passes on routes</a></li>
+<li><a href="#multihomed-does-not-mean-transit"
+id="toc-multihomed-does-not-mean-transit">6.7 Multihomed does not mean
+transit</a></li>
+<li><a href="#when-a-false-announcement-spreads-youtube-2008"
+id="toc-when-a-false-announcement-spreads-youtube-2008">6.8 When a false
+announcement spreads (YouTube, 2008)</a></li>
+<li><a href="#building-a-bgp-table" id="toc-building-a-bgp-table">6.9
+Building a BGP table</a></li>
+</ul></li>
+<li><a href="#common-traps" id="toc-common-traps">7. Common
+Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="network-layer-routing-rip-ospf-bgp">7. Network Layer: Routing
+(RIP, OSPF, BGP)</h1>
+<p>This chapter covers Part II Lecture 3. Chapter 6 showed how a router
+<strong>uses</strong> its routing table (forwarding). This chapter shows
+how the table <strong>gets filled in</strong> (routing).</p>
+<p>High-yield exam tasks:</p>
+<ul>
+<li>Update a distance-vector table from the vectors of the
+neighbours.</li>
+<li>Run Dijkstra’s algorithm step by step and give the next hops.</li>
+<li>Explain count-to-infinity and poisoned reverse.</li>
+<li>Build a BGP table (AS paths, next hops, preferred path) and explain
+transit and policy.</li>
+</ul>
+<hr />
+<h2 id="where-routes-come-from">1. Where Routes Come From</h2>
+<p>A routing table lists destination networks and how to reach them,
+usually through a next-hop router. An entry can come from three
+places:</p>
+<ol type="1">
+<li><strong>Directly connected networks:</strong> the router knows these
+from its own interfaces.</li>
+<li><strong>Static routes:</strong> an administrator types them in.</li>
+<li><strong>Dynamic routing protocols:</strong> routers exchange
+information with each other and update the routes when the network
+changes.</li>
+</ol>
+<blockquote>
+<p><strong>Forwarding</strong> is looking up the table for each packet.
+<strong>Routing</strong> is how the table gets filled in.</p>
+</blockquote>
+<p>Typing routes by hand works for a tiny network. In a large network,
+links change, and the networks belong to different organisations. So we
+need routing protocols.</p>
+<hr />
+<h2 id="two-levels-of-routing">2. Two Levels of Routing</h2>
+<h3 id="autonomous-systems">2.1 Autonomous systems</h3>
+<ul>
+<li>An <strong>autonomous system (AS)</strong> is a group of IP networks
+and routers under <strong>one administration</strong> with <strong>one
+routing policy</strong>. Examples: a university campus, an ISP, a data
+centre.</li>
+<li>An <strong>AS number (ASN)</strong> identifies the AS. An <strong>IP
+prefix</strong> identifies a destination network inside it.</li>
+</ul>
+<figure>
+<img width="1400" height="570" src="media/7-artifacts/intra-inter-as.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="Intra-AS routing (RIP, OSPF) inside each AS; inter-AS routing (BGP) between ASes. Border router 1b runs both." />
+<figcaption aria-hidden="true">Intra-AS routing (RIP, OSPF) inside each
+AS; inter-AS routing (BGP) between ASes. Border router 1b runs
+both.</figcaption>
+</figure>
+<h3 id="intra-as-and-inter-as">2.2 Intra-AS and inter-AS</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 38%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Intra-AS (inside one AS)</th>
+<th style="text-align: left;">Inter-AS (between ASes)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Protocols</td>
+<td style="text-align: left;">RIP, OSPF (called <strong>IGPs</strong>,
+interior gateway protocols)</td>
+<td style="text-align: left;"><strong>BGP</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Policy</td>
+<td style="text-align: left;">One administrator sets common goals.</td>
+<td style="text-align: left;">Each AS decides which routes it accepts
+and which traffic it carries.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Performance</td>
+<td style="text-align: left;">Can find efficient paths with a shared
+cost measure.</td>
+<td style="text-align: left;">Business agreements and policy can matter
+more than the shortest path.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Scale</td>
+<td style="text-align: left;">One organisation’s network.</td>
+<td style="text-align: left;">The whole Internet is too large for one
+detailed map. ASes share reachability, not their internal links.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="distance-vector-rip">3. Distance Vector: RIP</h2>
+<h3 id="the-idea">3.1 The idea</h3>
+<p><strong>RIP (Routing Information Protocol)</strong> is a
+<strong>distance-vector</strong> protocol used inside an AS.</p>
+<ul>
+<li>A <strong>distance vector</strong> is a list: for each destination
+network, the router’s current distance to it.</li>
+<li>Each router sends its distance vector to its
+<strong>neighbours</strong> (the routers directly connected to it). It
+does this regularly (about every <strong>30 s</strong>) and also when a
+route changes (a <strong>triggered update</strong>).</li>
+<li>RIP normally measures distance in <strong>hops</strong>: each router
+crossed costs 1.</li>
+</ul>
+<h3 id="the-update-rule-bellmanford">3.2 The update rule
+(Bellman–Ford)</h3>
+<p>When router X gets a vector from neighbour N:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><msub><mtext mathvariant="normal">distance</mtext><mi>X</mi></msub><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">dest</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munder><mi mathvariant="normal">min</mi><mi>N</mi></munder><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">[</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">cost</mtext><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>→</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mrow><mtext mathvariant="normal">distance reported by </mtext><mspace width="0.333em"></mspace></mrow><mi>N</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">dest</mtext><mo stretchy="false" form="postfix">)</mo><mspace width="0.222em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="postfix">]</mo></mrow></menclose><annotation encoding="application/x-tex">\boxed{\text{distance}_X(\text{dest}) = \min_{N}\Big[\ \text{cost}(X \to N) + \text{distance reported by } N(\text{dest})\ \Big]}</annotation></semantics></math></p>
+<p>The next hop for that destination is the neighbour
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+that gave the minimum.</p>
+<ul>
+<li>With normal RIP,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">cost</mtext><mo stretchy="false" form="prefix">(</mo><mi>X</mi><mo>→</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\text{cost}(X \to N) = 1</annotation></semantics></math>.</li>
+<li>If the question gives a <strong>link cost</strong>, add
+<strong>that</strong> cost instead of 1. Example: a neighbour reports 4
+and the link costs 3. The total is <strong>7</strong>, via that
+neighbour.</li>
+</ul>
+<h3 id="worked-example-building-as-table-lecture">3.3 Worked example:
+building A’s table (lecture)</h3>
+<figure>
+<img width="1192" height="713" src="media/7-artifacts/rip-network.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="RIP example: routers A–E and networks Net1–Net7" />
+<figcaption aria-hidden="true">RIP example: routers A–E and networks
+Net1–Net7</figcaption>
+</figure>
+<ul>
+<li><strong>Start:</strong> A knows only its own networks: Net1, Net2,
+Net4 and Net5, each with distance 1 and next hop “direct”.</li>
+<li><strong>A gets reports:</strong> B reports Net2, Net3 and Net6 at
+distance 1. C reports Net5, Net6 and Net7 at 1. D reports Net4 at
+1.</li>
+<li><strong>A adds 1</strong> to each reported distance and keeps the
+smallest:</li>
+</ul>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 44%" />
+<col style="width: 26%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Destination</th>
+<th style="text-align: left;">Distance</th>
+<th style="text-align: left;">Next hop</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Net1, Net2, Net4, Net5</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">direct</td>
+</tr>
+<tr>
+<td style="text-align: left;">Net3</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">B</td>
+</tr>
+<tr>
+<td style="text-align: left;">Net6</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">B or C (a tie)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Net7</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">C</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>When later updates do not change any entry, the routes have
+<strong>converged</strong>.</p>
+<h3 id="worked-example-distance-vector-with-link-costs">3.4 Worked
+example: distance vector with link costs</h3>
+<p>Router G has three neighbours. The link costs that G measures are: to
+H = 4, to J = 1, to K = 6. G receives these vectors (destinations in the
+order G, H, J, K, M, N):</p>
+<ul>
+<li>from H: (4, 0, 3, 5, 2, 7)</li>
+<li>from J: (1, 4, 0, 4, 6, 3)</li>
+<li>from K: (6, 5, 4, 0, 3, 2)</li>
+</ul>
+<p><strong>Step 1.</strong> Add the link cost to every entry of each
+vector. Then take the smallest total in each row:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 13%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Destination</th>
+<th style="text-align: left;">Via H (+4)</th>
+<th style="text-align: left;">Via J (+1)</th>
+<th style="text-align: left;">Via K (+6)</th>
+<th style="text-align: left;"><strong>Best</strong></th>
+<th style="text-align: left;"><strong>Next hop</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">G</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;"><strong>0</strong></td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">H</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;"><strong>4</strong></td>
+<td style="text-align: left;">H</td>
+</tr>
+<tr>
+<td style="text-align: left;">J</td>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">10</td>
+<td style="text-align: left;"><strong>1</strong></td>
+<td style="text-align: left;">J</td>
+</tr>
+<tr>
+<td style="text-align: left;">K</td>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;"><strong>5</strong></td>
+<td style="text-align: left;">J</td>
+</tr>
+<tr>
+<td style="text-align: left;">M</td>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;"><strong>6</strong></td>
+<td style="text-align: left;">H</td>
+</tr>
+<tr>
+<td style="text-align: left;">N</td>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;"><strong>4</strong></td>
+<td style="text-align: left;">J</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Step 2.</strong> G’s new table is (0, 4, 1, 5, 6, 4) with
+next hops (–, H, J, J, H, J).</p>
+<p>Two points to notice:</p>
+<ul>
+<li><strong>K is a neighbour, but G does not use the direct link to
+reach it.</strong> The direct link costs 6. The path through J costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mn>4</mn><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">1 + 4 = 5</annotation></semantics></math>.
+Distance vector always picks the lowest total, not the direct link.</li>
+<li><strong>G ignores its old table.</strong> The new table depends only
+on the neighbours’ new vectors and the link costs. G’s own entry is
+always 0.</li>
+</ul>
+<h3 id="the-problem-count-to-infinity">3.5 The problem:
+count-to-infinity</h3>
+<p>A vector gives only a <strong>distance</strong>, not the
+<strong>path</strong>. So a router cannot see that a neighbour’s route
+goes back through itself.</p>
+<figure>
+<img width="1400" height="338" src="media/7-artifacts/count-to-infinity.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="Count-to-infinity after A’s link to Net1 fails" />
+<figcaption aria-hidden="true">Count-to-infinity after A’s link to Net1
+fails</figcaption>
+</figure>
+<ol type="1">
+<li>Before the failure: A reaches Net1 directly (1). B reaches Net1
+through A (2).</li>
+<li>A’s link to Net1 fails.</li>
+<li>Before B hears this, B tells A: “Net1: 2”. A thinks it has a new
+path:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">1 + 2 = 3</annotation></semantics></math>
+via B. But B’s route goes through A. <strong>Packets now loop between A
+and B.</strong></li>
+<li>A tells B “3”. B updates to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mn>3</mn><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">1 + 3 = 4</annotation></semantics></math>
+via A. A updates to 5. This goes on and on.</li>
+</ol>
+<p>Each router keeps adding 1 to the other’s distance. This is
+<strong>count-to-infinity</strong>.</p>
+<h3 id="safeguards">3.6 Safeguards</h3>
+<p><strong>1. RIP’s limit: 16 = infinity.</strong> RIP treats a distance
+of <strong>16</strong> as <strong>unreachable</strong>. So the count
+stops at 16. The usable distances are <strong>1 to 15</strong>.</p>
+<p>This limit also restricts the network. With a cost of 5 per hop, 3
+hops give 15 (reachable), but 4 hops give 20, which becomes 16
+(unreachable), even though the path exists.</p>
+<p><strong>2. Poisoned reverse.</strong> A router tells its next hop for
+a destination that <strong>it cannot reach</strong> that destination
+(distance 16).</p>
+<figure>
+<img width="1400" height="217" src="media/7-artifacts/poisoned-reverse.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="Poisoned reverse: B uses A to reach Net1, so B tells A “Net1 = 16”" />
+<figcaption aria-hidden="true">Poisoned reverse: B uses A to reach Net1,
+so B tells A “Net1 = 16”</figcaption>
+</figure>
+<ul>
+<li>B reaches Net1 through A. So B tells A: “Net1 = 16”. In effect: “You
+cannot reach Net1 through me, because I reach it through you.”</li>
+<li>B does this <strong>all the time</strong>, even while the route
+works.</li>
+<li>If A’s link then fails, A will not use B as an alternative.</li>
+<li>Poisoned reverse stops <strong>two-router</strong> loops.
+<strong>Loops of three or more routers can still happen.</strong></li>
+</ul>
+<hr />
+<h2 id="link-state-ospf">4. Link State: OSPF</h2>
+<h3 id="the-idea-1">4.1 The idea</h3>
+<p><strong>OSPF (Open Shortest Path First)</strong> is a
+<strong>link-state</strong> protocol used inside an AS.</p>
+<ul>
+<li>RIP shares <strong>distances to destinations</strong>. OSPF shares
+<strong>links and their costs</strong>.</li>
+<li>Every router collects every link report and builds a
+<strong>map</strong> of the whole area.</li>
+<li>Each router then runs <strong>Dijkstra’s algorithm</strong> on the
+map to find the least-cost path <strong>from itself</strong> to every
+destination.</li>
+<li>An OSPF <strong>cost</strong> is a number that an administrator
+sets. Lower is better. It is commonly based on
+<strong>bandwidth</strong>, so links need not count equally.</li>
+</ul>
+<h3 id="hop-count-against-link-cost">4.2 Hop count against link
+cost</h3>
+<figure>
+<img width="753" height="406" src="media/7-artifacts/hop-vs-cost.webp" style="width:35.0%"
+loading="lazy" decoding="async"
+alt="Choose between S–A–D and S–B–C–D" />
+<figcaption aria-hidden="true">Choose between S–A–D and
+S–B–C–D</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 44%" />
+<col style="width: 27%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Hops (RIP)</th>
+<th style="text-align: left;">Cost (OSPF)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">S–A–D</td>
+<td style="text-align: left;"><strong>2</strong></td>
+<td style="text-align: left;">20</td>
+</tr>
+<tr>
+<td style="text-align: left;">S–B–C–D</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;"><strong>3</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>RIP chooses the 2-hop path. OSPF chooses the path with cost 3. The
+difference comes from the metric.</p>
+<h3 id="the-five-steps-of-ospf">4.3 The five steps of OSPF</h3>
+<ol type="1">
+<li><strong>Discover neighbours:</strong> each router sends
+<strong>Hello</strong> packets on its links. (On Ethernet they go by
+multicast, so no list of neighbours is needed.) Regular Hellos also
+check that the neighbours still answer.</li>
+<li><strong>Describe local links:</strong> each router builds a
+<strong>link-state advertisement (LSA)</strong> that lists its own links
+and their costs. It does not need to know the rest of the network.</li>
+<li><strong>Flood the reports:</strong> each new LSA is passed from
+neighbour to neighbour through the whole <strong>area</strong> (a group
+of routers that share detailed link information). OSPF acknowledges
+LSAs, sends them again if they are lost, and ignores duplicates and old
+copies.</li>
+<li><strong>Build the database:</strong> each router stores every LSA in
+its <strong>link-state database (LSDB)</strong>. This is the map. After
+convergence, every router in the area has the <strong>same</strong>
+map.</li>
+<li><strong>Calculate routes:</strong> each router runs Dijkstra from
+<strong>its own</strong> position. So the routing tables differ, even
+though the maps are the same.</li>
+</ol>
+<figure>
+<img width="1400" height="408" src="media/7-artifacts/ospf-lsdb.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="The link-state database: every router’s links and costs" />
+<figcaption aria-hidden="true">The link-state database: every router’s
+links and costs</figcaption>
+</figure>
+<h3 id="dijkstras-algorithm">4.4 Dijkstra’s algorithm</h3>
+<p><strong>Terms:</strong></p>
+<ul>
+<li><strong>Tentative distance:</strong> the best cost found so
+far.</li>
+<li><strong>Settled:</strong> a router whose distance is confirmed as
+the minimum.</li>
+<li><strong>Predecessor:</strong> the router just before this one on the
+best path.</li>
+</ul>
+<p><strong>Steps:</strong></p>
+<ol type="1">
+<li>Give the source distance 0 and every other router
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>∞</mi><annotation encoding="application/x-tex">\infty</annotation></semantics></math>.</li>
+<li><strong>Settle</strong> the unsettled router with the
+<strong>smallest</strong> tentative distance.</li>
+<li>For each neighbour of that router: if (settled distance + link cost)
+is less than the neighbour’s tentative distance, update it and record
+the predecessor.</li>
+<li>Repeat steps 2 and 3 until every router is settled.</li>
+<li>To get the <strong>next hop</strong> for a destination, follow the
+predecessors back to the source. The <strong>first</strong> router after
+the source is the next hop.</li>
+</ol>
+<h3 id="worked-example-lecture">4.5 Worked example (lecture)</h3>
+<p>Links: R1–R2 = 20, R1–R3 = 5, R1–R4 = 20, R2–R5 = 10, R3–R4 = 10,
+R4–R5 = 10. The source is R1.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 15%" />
+<col style="width: 14%" />
+<col style="width: 15%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Settled</th>
+<th style="text-align: left;">R2</th>
+<th style="text-align: left;">R3</th>
+<th style="text-align: left;">R4</th>
+<th style="text-align: left;">R5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">R1</td>
+<td style="text-align: left;">20 (R1)</td>
+<td style="text-align: left;"><strong>5 (R1)</strong></td>
+<td style="text-align: left;">20 (R1)</td>
+<td style="text-align: left;">∞</td>
+</tr>
+<tr>
+<td style="text-align: left;">R1, R3</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;"><strong>15 (R3)</strong></td>
+<td style="text-align: left;">∞</td>
+</tr>
+<tr>
+<td style="text-align: left;">R1, R3, R4</td>
+<td style="text-align: left;"><strong>20</strong></td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">25 (R4)</td>
+</tr>
+<tr>
+<td style="text-align: left;">R1, R3, R4, R2</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;"><strong>25</strong> (via R2 it would be
+30, so keep 25)</td>
+</tr>
+<tr>
+<td style="text-align: left;">all</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">25</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img width="1400" height="464" src="media/7-artifacts/dijkstra-table.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="Dijkstra from R1: the final tree is shown in blue" />
+<figcaption aria-hidden="true">Dijkstra from R1: the final tree is shown
+in blue</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 13%" />
+<col style="width: 41%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Destination</th>
+<th style="text-align: left;">Cost</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Next hop from R1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">R2</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">R1–R2</td>
+<td style="text-align: left;">R2</td>
+</tr>
+<tr>
+<td style="text-align: left;">R3</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">R1–R3</td>
+<td style="text-align: left;">R3</td>
+</tr>
+<tr>
+<td style="text-align: left;">R4</td>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">R1–R3–R4</td>
+<td style="text-align: left;">R3</td>
+</tr>
+<tr>
+<td style="text-align: left;">R5</td>
+<td style="text-align: left;">25</td>
+<td style="text-align: left;">R1–R3–R4–R5</td>
+<td style="text-align: left;"><strong>R3</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Router paths to IP prefixes.</strong> If each network
+attachment costs 2, then a network behind R5 (10.11.0.0/16) costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>25</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>27</mn></mrow><annotation encoding="application/x-tex">25 + 2 = 27</annotation></semantics></math>,
+and the next hop is still R3.</p>
+<p><strong>After the R3–R4 link fails:</strong> R3 and R4 notice the
+failure. They send new LSAs, and flooding spreads them. R1 removes the
+link from its map and runs Dijkstra again. Now R4 = 20 (direct), and R5
+= 30 through <strong>either</strong> R2 or R4. These are
+<strong>equal-cost</strong> paths, and OSPF can use both.</p>
+<figure>
+<img width="1400" height="468" src="media/7-artifacts/ospf-after-failure.webp" style="width:80.0%"
+loading="lazy" decoding="async" alt="New routes after R3–R4 fails" />
+<figcaption aria-hidden="true">New routes after R3–R4 fails</figcaption>
+</figure>
+<h3 id="a-second-example-the-direct-link-is-not-always-best">4.6 A
+second example: the direct link is not always best</h3>
+<p>Links: S–A = 2, S–B = 5, A–B = 1, A–C = 6, B–C = 2, B–D = 7, C–D = 1.
+The source is S.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 26%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 15%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Step</th>
+<th style="text-align: left;">Settled</th>
+<th style="text-align: left;">A</th>
+<th style="text-align: left;">B</th>
+<th style="text-align: left;">C</th>
+<th style="text-align: left;">D</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">S</td>
+<td style="text-align: left;"><strong>2 (S)</strong></td>
+<td style="text-align: left;">5 (S)</td>
+<td style="text-align: left;">∞</td>
+<td style="text-align: left;">∞</td>
+</tr>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">S, A</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;"><strong>3 (A)</strong></td>
+<td style="text-align: left;">8 (A)</td>
+<td style="text-align: left;">∞</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">S, A, B</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;"><strong>5 (B)</strong></td>
+<td style="text-align: left;">10 (B)</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">S, A, B, C</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;"><strong>6 (C)</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">all</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">6</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>At step 1, B’s distance drops from 5 to 3. The direct link S–B costs
+5, but the path S–A–B costs only
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">2 + 1 = 3</annotation></semantics></math>.
+A tentative distance can go <strong>down</strong> until the router is
+settled. It never changes after that.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 13%" />
+<col style="width: 41%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Destination</th>
+<th style="text-align: left;">Cost</th>
+<th style="text-align: left;">Path</th>
+<th style="text-align: left;">Next hop from S</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">A</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">S–A</td>
+<td style="text-align: left;">A</td>
+</tr>
+<tr>
+<td style="text-align: left;">B</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">S–A–B</td>
+<td style="text-align: left;">A</td>
+</tr>
+<tr>
+<td style="text-align: left;">C</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">S–A–B–C</td>
+<td style="text-align: left;">A</td>
+</tr>
+<tr>
+<td style="text-align: left;">D</td>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">S–A–B–C–D</td>
+<td style="text-align: left;">A</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>To read a path, follow the predecessors back from the destination:
+D’s predecessor is C, C’s is B, B’s is A, and A’s is S. Reverse the list
+to get S–A–B–C–D.</p>
+<hr />
+<h2 id="rip-against-ospf">5. RIP Against OSPF</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 43%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">RIP (distance vector)</th>
+<th style="text-align: left;">OSPF (link state)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">What is shared</td>
+<td style="text-align: left;">Distances to destinations, with
+<strong>neighbours only</strong></td>
+<td style="text-align: left;">Link costs, <strong>flooded to the whole
+area</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">How routes are found</td>
+<td style="text-align: left;">Add the cost to the neighbour to the
+neighbour’s distance (Bellman–Ford)</td>
+<td style="text-align: left;">Run <strong>Dijkstra</strong> on the full
+map</td>
+</tr>
+<tr>
+<td style="text-align: left;">Usual metric</td>
+<td style="text-align: left;">Hop count (configured costs are
+possible)</td>
+<td style="text-align: left;">Configured cost, often based on
+bandwidth</td>
+</tr>
+<tr>
+<td style="text-align: left;">Metric range</td>
+<td style="text-align: left;">Total of 15 at most (16 =
+unreachable)</td>
+<td style="text-align: left;">Much wider</td>
+</tr>
+<tr>
+<td style="text-align: left;">After a failure</td>
+<td style="text-align: left;">Can count to infinity. Poisoned reverse
+stops two-router loops.</td>
+<td style="text-align: left;">Flood the changed LSA, then recalculate.
+Converges fast.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Knowledge</td>
+<td style="text-align: left;">Each router knows only its neighbours’
+vectors</td>
+<td style="text-align: left;">Each router knows the whole area’s
+map</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>True/false traps:</strong> “RIP is distance vector” (true).
+“OSPF is link state” (true). “OSPF uses Bellman–Ford”
+(<strong>false</strong>: it uses Dijkstra). “BGP uses UDP”
+(<strong>false</strong>: BGP runs over <strong>TCP</strong>). “BGP is
+used between ASes” (true).</p>
+</blockquote>
+<hr />
+<h2 id="inter-as-routing-bgp">6. Inter-AS Routing: BGP</h2>
+<h3 id="types-of-as">6.1 Types of AS</h3>
+<p><strong>Transit traffic</strong> passes through an AS when both its
+source and its destination are outside that AS.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 32%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">External connections</th>
+<th style="text-align: left;">Carries transit traffic?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Stub AS</strong></td>
+<td style="text-align: left;">One</td>
+<td style="text-align: left;">No. Traffic starts or ends here.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Multihomed non-transit
+AS</strong></td>
+<td style="text-align: left;">More than one</td>
+<td style="text-align: left;">No. Traffic starts or ends here.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Transit AS</strong></td>
+<td style="text-align: left;">Several</td>
+<td style="text-align: left;"><strong>Yes.</strong> It carries traffic
+between other ASes.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img width="1400" height="657" src="media/7-artifacts/as-types.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="Stub, multihomed non-transit and transit ASes. Red arrows point from provider to customer." />
+<figcaption aria-hidden="true">Stub, multihomed non-transit and transit
+ASes. Red arrows point from provider to customer.</figcaption>
+</figure>
+<h3 id="business-relationships">6.2 Business relationships</h3>
+<ul>
+<li><strong>Customer–provider (transit):</strong> the customer (for
+example a campus) <strong>pays</strong> the provider to reach the rest
+of the Internet.</li>
+<li><strong>Peering:</strong> two ASes (P and Q) exchange traffic
+<strong>between their own networks and customers</strong>. They do not
+give each other unlimited transit. Peering is often free
+(settlement-free), but paid peering also exists.</li>
+</ul>
+<h3 id="why-not-run-ospf-over-the-whole-internet">6.3 Why not run OSPF
+over the whole Internet?</h3>
+<ul>
+<li><strong>Policy:</strong> each AS decides whose traffic it carries
+and which routes it offers. A physical link does not mean permission to
+use it.</li>
+<li><strong>Policy can beat performance:</strong> a business agreement
+can matter more than a shorter path.</li>
+<li><strong>Scale:</strong> ASes exchange <strong>reachability</strong>
+without sharing every internal router, link and change.</li>
+</ul>
+<h3 id="what-bgp-is">6.4 What BGP is</h3>
+<ul>
+<li><strong>BGP (Border Gateway Protocol)</strong> exchanges
+reachability information <strong>between ASes</strong>.</li>
+<li>A <strong>border router</strong> (gateway router) connects its AS to
+another AS.</li>
+<li><strong>eBGP (external BGP):</strong> route exchange between routers
+in <strong>different</strong> ASes.</li>
+<li><strong>iBGP (internal BGP):</strong> route exchange between routers
+in the <strong>same</strong> AS. It spreads routes learnt from outside
+to the other routers inside.</li>
+<li>BGP sends its messages over <strong>TCP</strong>.</li>
+</ul>
+<h3 id="what-bgp-sends-path-vectors">6.5 What BGP sends: path
+vectors</h3>
+<p>A <strong>BGP advertisement</strong> says: “You can reach
+<strong>this prefix</strong> through me.” It carries the <strong>AS
+path</strong>: the list of AS numbers on the route to that prefix. So
+BGP is a <strong>path-vector</strong> protocol.</p>
+<ul>
+<li>When an AS advertises a route to another AS, it adds
+(<strong>prepends</strong>) its own ASN to the <strong>front</strong> of
+the path.</li>
+<li>The data packets travel in the <strong>opposite</strong> direction
+to the advertisements.</li>
+</ul>
+<figure>
+<img width="1400" height="455" src="media/7-artifacts/bgp-as-path.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="The data centre (AS 500) announces 203.0.113.0/24. The provider (AS 200) passes it on with path “200 500”." />
+<figcaption aria-hidden="true">The data centre (AS 500) announces
+203.0.113.0/24. The provider (AS 200) passes it on with path “200
+500”.</figcaption>
+</figure>
+<h3 id="how-an-as-chooses-and-passes-on-routes">6.6 How an AS chooses
+and passes on routes</h3>
+<p><strong>Import policy:</strong> which received routes the AS accepts,
+and what preference it gives them. <strong>Export policy:</strong> which
+routes it advertises to each neighbour.</p>
+<p><strong>Route selection (in this course):</strong></p>
+<ol type="1">
+<li><strong>Loop check:</strong> <strong>reject</strong> any AS path
+that already contains <strong>your own</strong> ASN.</li>
+<li><strong>Local preference:</strong> choose the route with the
+<strong>highest local preference</strong> first. The AS sets this value
+with its import policy.</li>
+<li>If preferences are equal: choose the <strong>shortest AS
+path</strong>.</li>
+<li>If export policy allows, advertise the chosen route to the next AS
+<strong>with your own ASN prepended</strong>.</li>
+</ol>
+<p><strong>Lecture example.</strong> Campus AS 100 gets three routes to
+the same prefix:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 23%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Via</th>
+<th style="text-align: left;">AS path</th>
+<th style="text-align: left;">Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">P</td>
+<td style="text-align: left;">200 500</td>
+<td style="text-align: left;"><strong>Choose</strong> (2 ASes)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Q</td>
+<td style="text-align: left;">300 400 500</td>
+<td style="text-align: left;">Usable, but longer (3 ASes)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Another neighbour</td>
+<td style="text-align: left;">600 100 500</td>
+<td style="text-align: left;"><strong>Reject:</strong> it contains our
+ASN 100 (a loop)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>If the campus advertises its route, the path becomes <strong>100 200
+500</strong>.</p>
+<p><strong>Must the campus choose the shorter path?</strong> No. If
+traffic through Q is cheaper, the campus gives Q’s routes a
+<strong>higher local preference</strong>. Local preference is checked
+<strong>before</strong> the AS-path length, so the longer path through Q
+wins.</p>
+<h3 id="multihomed-does-not-mean-transit">6.7 Multihomed does not mean
+transit</h3>
+<figure>
+<img width="1400" height="583" src="media/7-artifacts/bgp-non-transit.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="The campus connects to P and Q but does not give transit between them" />
+<figcaption aria-hidden="true">The campus connects to P and Q but does
+not give transit between them</figcaption>
+</figure>
+<p>The campus connects to providers P and Q. It uses P’s route to the
+data centre for its own traffic. If it <strong>advertised</strong> that
+P-learnt route to Q, Q could send its traffic <strong>through</strong>
+the campus. The campus would then carry transit traffic.</p>
+<p>The campus stops this with its <strong>export policy</strong>: it
+does <strong>not</strong> advertise P’s routes to Q (or Q’s routes to
+P). It still advertises its <strong>own</strong> prefix to both
+providers. Choosing a route for your own traffic and offering a route to
+another AS are <strong>separate decisions</strong>.</p>
+<h3 id="when-a-false-announcement-spreads-youtube-2008">6.8 When a false
+announcement spreads (YouTube, 2008)</h3>
+<figure>
+<img width="1400" height="591" src="media/7-artifacts/bgp-youtube.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="An unauthorised /24 announcement attracts YouTube’s traffic" />
+<figcaption aria-hidden="true">An unauthorised /24 announcement attracts
+YouTube’s traffic</figcaption>
+</figure>
+<ul>
+<li>YouTube announced <strong>208.65.152.0/22</strong>.</li>
+<li>Pakistan Telecom announced <strong>208.65.153.0/24</strong> without
+authority, and its provider (PCCW) passed it on.</li>
+<li>For 208.65.153.238, <strong>both</strong> prefixes match. Routers
+that installed both chose the <strong>/24 by longest-prefix
+match</strong>. So the traffic went to Pakistan Telecom.</li>
+</ul>
+<p><strong>Lessons:</strong> a route announcement is only a
+<strong>claim</strong> about reachability. Operators must
+<strong>filter</strong> the announcements they accept and pass on.
+<strong>RPKI origin validation</strong> checks whether an AS is allowed
+to announce a prefix. It does <strong>not</strong> check the whole AS
+path.</p>
+<h3 id="building-a-bgp-table">6.9 Building a BGP table</h3>
+<p>A BGP table lists, for each prefix, every route the AS has received.
+Each route shows the <strong>next hop</strong> and the <strong>AS
+path</strong>. One route per prefix is marked as preferred.</p>
+<p><strong>Example.</strong> Four ASes are joined by these links:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 37%" />
+<col style="width: 62%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Link</th>
+<th style="text-align: left;">Addresses on the link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">AS 100 – AS 200</td>
+<td style="text-align: left;">AS 100: 192.0.2.1, AS 200: 192.0.2.2</td>
+</tr>
+<tr>
+<td style="text-align: left;">AS 200 – AS 300</td>
+<td style="text-align: left;">AS 200: 198.51.100.1, AS 300:
+198.51.100.2</td>
+</tr>
+<tr>
+<td style="text-align: left;">AS 300 – AS 400</td>
+<td style="text-align: left;">AS 300: 203.0.113.1, AS 400:
+203.0.113.2</td>
+</tr>
+<tr>
+<td style="text-align: left;">AS 200 – AS 400</td>
+<td style="text-align: left;">AS 200: 192.0.2.5, AS 400: 192.0.2.6</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Each AS owns one prefix: AS 100 has 172.16.1.0/24, AS 200 has
+172.16.2.0/24, AS 300 has 172.16.3.0/24, and AS 400 has
+172.16.4.0/24.</p>
+<p><strong>AS 300’s BGP table.</strong> AS 300 has two neighbours, AS
+200 and AS 400, so it can hear up to two routes for each prefix. There
+is no local-preference setting, so the shortest AS path wins. The
+<strong>next hop</strong> is the neighbour’s interface address on the
+shared link.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 29%" />
+<col style="width: 13%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Network prefix</th>
+<th style="text-align: left;">Next hop</th>
+<th style="text-align: left;">AS path</th>
+<th style="text-align: left;">Preferred?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">172.16.1.0/24 (AS 100)</td>
+<td style="text-align: left;">198.51.100.1</td>
+<td style="text-align: left;">200 100</td>
+<td style="text-align: left;"><strong>Yes</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">172.16.1.0/24 (AS 100)</td>
+<td style="text-align: left;">203.0.113.2</td>
+<td style="text-align: left;">400 200 100</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">172.16.2.0/24 (AS 200)</td>
+<td style="text-align: left;">198.51.100.1</td>
+<td style="text-align: left;">200</td>
+<td style="text-align: left;"><strong>Yes</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">172.16.2.0/24 (AS 200)</td>
+<td style="text-align: left;">203.0.113.2</td>
+<td style="text-align: left;">400 200</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">172.16.4.0/24 (AS 400)</td>
+<td style="text-align: left;">203.0.113.2</td>
+<td style="text-align: left;">400</td>
+<td style="text-align: left;"><strong>Yes</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">172.16.4.0/24 (AS 400)</td>
+<td style="text-align: left;">198.51.100.1</td>
+<td style="text-align: left;">200 400</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>How to build each row:</p>
+<ol type="1">
+<li>Start at the AS that owns the prefix. Its first advertisement has
+the path “owner”.</li>
+<li>Each AS that passes the route on prepends its own ASN.</li>
+<li>The route reaches AS 300 through one neighbour. The next hop is that
+neighbour’s address on the link to AS 300, and the path starts with that
+neighbour’s ASN.</li>
+<li>AS 300 does not list its own prefix as a learnt route. Any route
+whose path contains 300 would be rejected as a loop.</li>
+</ol>
+<p><strong>Traceroute across ASes.</strong> A host 172.16.1.10 in AS 100
+traces to 172.16.3.30 in AS 300. The packets follow the preferred AS
+path 100 → 200 → 300. Each router replies with its interface
+<strong>towards the source</strong>:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 34%" />
+<col style="width: 47%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Hop</th>
+<th style="text-align: left;">Address</th>
+<th style="text-align: left;">Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">172.16.1.1</td>
+<td style="text-align: left;">AS 100’s router, on the host’s LAN</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">192.0.2.2</td>
+<td style="text-align: left;">AS 200’s interface towards AS 100</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">198.51.100.2</td>
+<td style="text-align: left;">AS 300’s interface towards AS 200</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">172.16.3.30</td>
+<td style="text-align: left;">The destination</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="common-traps">7. Common Traps</h2>
+<ul>
+<li>Distance vector: for each destination, take
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mi>N</mi></msub><mo stretchy="false" form="prefix">[</mo><mrow><mtext mathvariant="normal">cost to </mtext><mspace width="0.333em"></mspace></mrow><mi>N</mi><mo>+</mo><mi>N</mi><mtext mathvariant="normal">’s distance</mtext><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\min_N[\text{cost to } N + N\text{&#39;s distance}]</annotation></semantics></math>.
+The next hop is that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>.
+Ignore your old table.</li>
+<li>The direct link to a neighbour is not always the best route to it.
+Compare it with the paths through the other neighbours.</li>
+<li>With link costs, add the <strong>link cost</strong>, not 1.</li>
+<li>RIP: 16 = unreachable, so totals 1–15 are usable. A long path can be
+“unreachable” even though it exists.</li>
+<li>Poisoned reverse = advertise 16 to your own next hop, all the time.
+It stops two-router loops only.</li>
+<li>OSPF: Hello, LSA, flooding, LSDB, Dijkstra. Every router has the
+same map but a different table.</li>
+<li>An OSPF cost is configured. It is not a measured delay. “Shortest”
+means lowest total cost, not fewest hops.</li>
+<li>Dijkstra: write the step table with the predecessor in brackets.
+Settle the smallest tentative distance each time. The next hop is the
+first router after the source.</li>
+<li>BGP: reject a path that contains your own ASN. Then highest local
+preference, then shortest AS path. Prepend your ASN when you
+advertise.</li>
+<li>In a BGP table, the next hop is the neighbour’s interface on the
+shared link, not a router deep inside another AS.</li>
+<li>A multihomed AS avoids transit with its <strong>export</strong>
+policy.</li>
+<li>BGP runs over TCP. OSPF uses Dijkstra. RIP uses Bellman–Ford.</li>
+<li>RPKI checks who may announce a prefix (the origin). It does not
+check the whole AS path.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../6-ip-forwarding/6.html">← 6. Network
+Layer: Forwarding, ARP, Fragmentation &amp; ICMP</a>
+  <a class="next-page" href="../8-routing-practice/8.html">8. Routing in
+Practice →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

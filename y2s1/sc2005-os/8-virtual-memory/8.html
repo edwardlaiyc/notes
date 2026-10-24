@@ -1,0 +1,2367 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>8. Virtual Memory · SC2005 Operating Systems</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">8. Virtual
+Memory</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">8. Virtual Memory</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-overview/1.html"
+                   data-nav="1-overview/1.html">1. Overview of Operating
+Systems</a></li>
+            <li><a href="../2-processes-threads/2.html"
+                   data-nav="2-processes-threads/2.html">2. Processes
+and Threads</a></li>
+            <li><a href="../3-cpu-scheduling/3.html"
+                   data-nav="3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../4-synchronization/4.html"
+                   data-nav="4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../5-deadlocks/5.html"
+                   data-nav="5-deadlocks/5.html">5. Deadlocks</a></li>
+            <li><a href="../6a-rtos/6a.html"
+                   data-nav="6a-rtos/6a.html">6a. Real-Time Operating
+Systems</a></li>
+            <li><a href="../6b-virtualization/6b.html"
+                   data-nav="6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../7-memory-organization/7.html"
+                   data-nav="7-memory-organization/7.html">7. Memory
+Organization</a></li>
+            <li><a href="../8-virtual-memory/8.html"
+                   data-nav="8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../9-file-systems/9.html"
+                   data-nav="9-file-systems/9.html">9. File
+Systems</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../labs/lab-1.html"
+                   data-nav="labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../labs/lab-2.html"
+                   data-nav="labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../labs/lab-3/lab-3.html"
+                   data-nav="labs/lab-3/lab-3.html">Lab 3 Guide</a></li>
+            <li><a href="../labs/lab-4/lab-4.html"
+                   data-nav="labs/lab-4/lab-4.html">Lab 4 Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#why-virtual-memory" id="toc-why-virtual-memory">1. Why
+Virtual Memory</a>
+<ul>
+<li><a href="#swapping" id="toc-swapping">1.1 Swapping</a></li>
+<li><a href="#the-limit-of-lecture-7"
+id="toc-the-limit-of-lecture-7">1.2 The limit of Lecture 7</a></li>
+</ul></li>
+<li><a href="#demand-paging" id="toc-demand-paging">2. Demand Paging</a>
+<ul>
+<li><a href="#load-a-page-only-when-the-program-needs-it"
+id="toc-load-a-page-only-when-the-program-needs-it">2.1 Load a page only
+when the program needs it</a></li>
+<li><a href="#the-page-fault" id="toc-the-page-fault">2.2 The page
+fault</a></li>
+<li><a href="#one-memory-access-from-start-to-end"
+id="toc-one-memory-access-from-start-to-end">2.3 One memory access, from
+start to end</a></li>
+<li><a href="#how-much-page-faults-cost"
+id="toc-how-much-page-faults-cost">2.4 How much page faults
+cost</a></li>
+</ul></li>
+<li><a href="#page-replacement" id="toc-page-replacement">3. Page
+Replacement</a>
+<ul>
+<li><a href="#when-there-is-no-free-frame"
+id="toc-when-there-is-no-free-frame">3.1 When there is no free
+frame</a></li>
+<li><a href="#the-dirty-bit-saves-the-write"
+id="toc-the-dirty-bit-saves-the-write">3.2 The dirty bit saves the
+write</a></li>
+<li><a href="#how-to-compare-algorithms"
+id="toc-how-to-compare-algorithms">3.3 How to compare
+algorithms</a></li>
+</ul></li>
+<li><a href="#page-replacement-algorithms"
+id="toc-page-replacement-algorithms">4. Page-Replacement Algorithms</a>
+<ul>
+<li><a href="#first-in-first-out-fifo"
+id="toc-first-in-first-out-fifo">4.1 First-in, first-out (FIFO)</a></li>
+<li><a href="#optimal-opt" id="toc-optimal-opt">4.2 Optimal
+(OPT)</a></li>
+<li><a href="#least-recently-used-lru"
+id="toc-least-recently-used-lru">4.3 Least recently used (LRU)</a></li>
+<li><a href="#how-to-build-lru" id="toc-how-to-build-lru">4.4 How to
+build LRU</a></li>
+<li><a href="#lru-approximation-the-reference-bit"
+id="toc-lru-approximation-the-reference-bit">4.5 LRU approximation: the
+reference bit</a></li>
+</ul></li>
+<li><a href="#second-chance-and-the-clock-algorithm"
+id="toc-second-chance-and-the-clock-algorithm">5. Second Chance and the
+Clock Algorithm</a>
+<ul>
+<li><a href="#the-problem-with-fifo" id="toc-the-problem-with-fifo">5.1
+The problem with FIFO</a></li>
+<li><a href="#second-chance" id="toc-second-chance">5.2 Second
+chance</a></li>
+<li><a href="#the-clock-algorithm" id="toc-the-clock-algorithm">5.3 The
+clock algorithm</a></li>
+<li><a href="#clock-traced-step-by-step"
+id="toc-clock-traced-step-by-step">5.4 Clock, traced step by
+step</a></li>
+<li><a href="#the-worst-case-clock-becomes-fifo"
+id="toc-the-worst-case-clock-becomes-fifo">5.5 The worst case: clock
+becomes FIFO</a></li>
+<li><a href="#what-each-algorithm-looks-at"
+id="toc-what-each-algorithm-looks-at">5.6 What each algorithm looks
+at</a></li>
+</ul></li>
+<li><a href="#beladys-anomaly" id="toc-beladys-anomaly">6. Belady’s
+Anomaly</a>
+<ul>
+<li><a href="#what-it-is" id="toc-what-it-is">6.1 What it is</a></li>
+<li><a href="#why-fifo-shows-it" id="toc-why-fifo-shows-it">6.2 Why FIFO
+shows it</a></li>
+<li><a href="#why-lru-and-opt-never-show-it-the-inclusion-property"
+id="toc-why-lru-and-opt-never-show-it-the-inclusion-property">6.3 Why
+LRU and OPT never show it: the inclusion property</a></li>
+<li><a href="#does-clock-show-beladys-anomaly"
+id="toc-does-clock-show-beladys-anomaly">6.4 Does clock show Belady’s
+anomaly?</a></li>
+<li><a href="#the-algorithms-side-by-side"
+id="toc-the-algorithms-side-by-side">6.5 The algorithms side by
+side</a></li>
+</ul></li>
+<li><a href="#how-many-frames-each-process-gets"
+id="toc-how-many-frames-each-process-gets">7. How Many Frames Each
+Process Gets</a>
+<ul>
+<li><a href="#the-trade-off" id="toc-the-trade-off">7.1 The
+trade-off</a></li>
+<li><a href="#fixed-and-variable-allocation"
+id="toc-fixed-and-variable-allocation">7.2 Fixed and variable
+allocation</a></li>
+<li><a href="#local-and-global-replacement"
+id="toc-local-and-global-replacement">7.3 Local and global
+replacement</a></li>
+<li><a href="#which-combinations-are-possible"
+id="toc-which-combinations-are-possible">7.4 Which combinations are
+possible</a></li>
+</ul></li>
+<li><a href="#thrashing" id="toc-thrashing">8. Thrashing</a>
+<ul>
+<li><a href="#what-thrashing-is" id="toc-what-thrashing-is">8.1 What
+thrashing is</a></li>
+<li><a href="#how-thrashing-makes-itself-worse"
+id="toc-how-thrashing-makes-itself-worse">8.2 How thrashing makes itself
+worse</a></li>
+<li><a href="#locality-of-reference" id="toc-locality-of-reference">8.3
+Locality of reference</a></li>
+<li><a href="#the-working-set-model" id="toc-the-working-set-model">8.4
+The working-set model</a></li>
+<li><a href="#the-page-fault-frequency-pff-scheme"
+id="toc-the-page-fault-frequency-pff-scheme">8.5 The page-fault
+frequency (PFF) scheme</a></li>
+</ul></li>
+<li><a href="#what-you-know-now-lecture-8"
+id="toc-what-you-know-now-lecture-8">What You Know Now (Lecture
+8)</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>This was written entirely with AI.</p>
+<p>These notes cover Lecture 8. Lecture 7 put every page of a process
+into memory before the process ran. This lecture removes that rule: only
+the pages in use need to be in memory. That raises three new questions,
+which the sections answer in order: what happens when a page is missing,
+which page to remove when memory is full, and how many frames each
+process should get.</p>
+<h2 id="why-virtual-memory">1. Why Virtual Memory</h2>
+<h3 id="swapping">1.1 Swapping</h3>
+<p>The OS can move a whole process <strong>out</strong> of memory to a
+<strong>backing store</strong>, and later move it back
+<strong>in</strong> to continue. This is <strong>swapping</strong>. The
+backing store is a fast disk, large enough to hold a copy of the memory
+image of every process, with direct access to each one.</p>
+<figure>
+<img width="1360" height="1189" src="media/8-artifacts/swapping.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="Swapping: process A swaps out, process B swaps in (Lecture 8, slide 8.3)" />
+<figcaption aria-hidden="true">Swapping: process A swaps out, process B
+swaps in (Lecture 8, slide 8.3)</figcaption>
+</figure>
+<ul>
+<li>Most of the swap time is <strong>transfer time</strong>. It grows
+with the amount of memory that moves.</li>
+<li>Swapping frees memory for processes that need more. It also lets
+more processes be in progress at the same time (a higher <strong>degree
+of multiprogramming</strong>).</li>
+</ul>
+<h3 id="the-limit-of-lecture-7">1.2 The limit of Lecture 7</h3>
+<p>In Lecture 7, the <strong>whole</strong> program had to be in memory
+to run. So a program, with all its library code, could never be larger
+than physical memory.</p>
+<p><strong>Virtual memory</strong> removes this limit. It
+<strong>separates</strong> the logical memory of a program from physical
+memory:</p>
+<ul>
+<li>The logical address space can be <strong>much larger</strong> than
+physical memory. Only the address format of the computer limits its
+size.</li>
+<li>Only <strong>part</strong> of a program needs to be in memory to
+run.</li>
+</ul>
+<figure>
+<img width="1400" height="873" src="media/8-artifacts/virtual-memory-concept.webp"
+style="width:75.0%" loading="lazy" decoding="async"
+alt="Virtual memory: n logical pages map onto m frames, with n &gt; m (Lecture 8, slide 8.5)" />
+<figcaption aria-hidden="true">Virtual memory: n logical pages map onto
+m frames, with n &gt; m (Lecture 8, slide 8.5)</figcaption>
+</figure>
+<p>The results:</p>
+<ul>
+<li>More processes fit in memory, so the degree of multiprogramming and
+the CPU utilization go up.</li>
+<li>The OS must be able to move pages <strong>in and out</strong> of
+memory while processes run.</li>
+</ul>
+<p>Virtual memory is usually built with <strong>demand
+paging</strong>.</p>
+<hr />
+<h2 id="demand-paging">2. Demand Paging</h2>
+<h3 id="load-a-page-only-when-the-program-needs-it">2.1 Load a page only
+when the program needs it</h3>
+<p>With <strong>demand paging</strong>, the OS loads a page into memory
+only when the program refers to it. When the CPU generates a logical
+address ⟨page number, offset⟩, that is a <strong>reference</strong> to
+the page, so the page is needed.</p>
+<p>To know which pages are in memory, each page-table entry gets a
+<strong>valid–invalid bit</strong>:</p>
+<ul>
+<li><strong>v (valid):</strong> the page is in memory. The entry holds
+its frame number.</li>
+<li><strong>i (invalid):</strong> the page is not in memory. The entry
+holds where the page is on the disk.</li>
+</ul>
+<p>At the start, every entry is <strong>i</strong>. The backing store
+always holds a copy of the whole process image.</p>
+<figure>
+<img width="1400" height="856" src="media/8-artifacts/demand-paging.webp" loading="lazy"
+decoding="async"
+alt="Demand paging: only some pages are in memory, the rest are marked i (Lecture 8, slide 8.8)" />
+<figcaption aria-hidden="true">Demand paging: only some pages are in
+memory, the rest are marked i (Lecture 8, slide 8.8)</figcaption>
+</figure>
+<h3 id="the-page-fault">2.2 The page fault</h3>
+<p>When the hardware translates an address and finds <strong>i</strong>
+in the page-table entry, it causes a <strong>page fault</strong>: a trap
+to the OS. The OS then brings the page in:</p>
+<figure>
+<img width="1400" height="866" src="media/8-artifacts/page-fault-steps.webp" loading="lazy"
+decoding="async"
+alt="The steps of a page fault (Lecture 8, slide 8.9)" />
+<figcaption aria-hidden="true">The steps of a page fault (Lecture 8,
+slide 8.9)</figcaption>
+</figure>
+<ol type="1">
+<li>The program refers to a page. The hardware checks the page
+table.</li>
+<li>The page is not in memory, so the hardware <strong>traps</strong> to
+the OS. The OS saves the state of the interrupted process.</li>
+<li>The OS uses the page-table entry to find the page on the backing
+store.</li>
+<li>The OS finds a <strong>free frame</strong> (from the free-frame
+list, or with a page-replacement algorithm, section 3). It starts a disk
+read of the page into that frame.</li>
+<li>When the disk read is complete, the OS updates the page-table entry:
+it sets the bit to <strong>v</strong> and writes the frame number
+k.</li>
+<li>The OS restores the state of the process and <strong>restarts the
+instruction</strong> that caused the fault. This time the access
+succeeds.</li>
+</ol>
+<p>The disk read is slow. While it runs, the OS gives the CPU to another
+process. So a page fault also causes context switches.</p>
+<h3 id="one-memory-access-from-start-to-end">2.3 One memory access, from
+start to end</h3>
+<p>Lecture 7’s TLB and this lecture’s valid bit work together. On every
+memory access:</p>
+<ol type="1">
+<li><strong>Look in the TLB.</strong> If the page number is there (TLB
+hit), take the frame number and access memory. Done.</li>
+<li><strong>TLB miss: read the page table.</strong> If the entry is
+<strong>v</strong>, take the frame number, put the pair into the TLB,
+and access memory. Done.</li>
+<li><strong>The entry is i: page fault.</strong> The OS loads the page
+(section 2.2), updates the page table, and restarts the instruction. The
+instruction then goes through steps 1 and 2 again.</li>
+</ol>
+<p>So three outcomes are possible: TLB hit; TLB miss but the page is in
+memory; TLB miss and page fault.</p>
+<p>A TLB hit <strong>always</strong> means the page is in memory. The
+TLB holds only pairs for pages in memory. When the OS removes a page
+from memory, it also removes the page’s pair from the TLB.</p>
+<h3 id="how-much-page-faults-cost">2.4 How much page faults cost</h3>
+<p>Let p be the <strong>probability of a page fault</strong> on an
+access (0 ≤ p ≤ 1). If p = 0, there are no faults. If p = 1, every
+access faults.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">EAT</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mtext mathvariant="normal">memory access time</mtext><mo>+</mo><mi>p</mi><mo>×</mo><mtext mathvariant="normal">page fault time</mtext></mrow><annotation encoding="application/x-tex">\text{EAT} = (1 - p) \times \text{memory access time} + p \times \text{page fault time}</annotation></semantics></math></p>
+<p><strong>Memory access time is much smaller than page fault
+time.</strong> A memory access takes nanoseconds. A page fault needs a
+disk read, which takes milliseconds.</p>
+<p><strong>Example.</strong> Memory access time is 100 ns. Page fault
+time is 8 ms = 8,000,000 ns.</p>
+<ul>
+<li>With p = 0.001 (one fault in 1000 accesses): EAT = 0.999 × 100 +
+0.001 × 8,000,000 = 99.9 + 8000 = 8099.9 ns. Memory is now about
+<strong>80 times slower</strong>.</li>
+<li>To keep the slow-down under 10% (EAT ≤ 110 ns): 100 + p × (8,000,000
+− 100) ≤ 110, so p ≤ 10 / 7,999,900 ≈ 0.00000125. That is less than one
+fault in 800,000 accesses.</li>
+</ul>
+<p>So p must be very small. The rest of this lecture is about keeping it
+small.</p>
+<hr />
+<h2 id="page-replacement">3. Page Replacement</h2>
+<h3 id="when-there-is-no-free-frame">3.1 When there is no free
+frame</h3>
+<p>A page fault occurs, but every frame is in use:</p>
+<figure>
+<img width="1400" height="859" src="media/8-artifacts/need-for-replacement.webp" loading="lazy"
+decoding="async"
+alt="A page fault when memory is full (Lecture 8, slide 8.13)" />
+<figcaption aria-hidden="true">A page fault when memory is full (Lecture
+8, slide 8.13)</figcaption>
+</figure>
+<p>The solution: choose a page in memory that is probably not in use,
+and <strong>replace</strong> it. The page that is removed is the
+<strong>victim</strong>.</p>
+<figure>
+<img width="1172" height="1062" src="media/8-artifacts/page-replacement-steps.webp"
+style="width:80.0%" loading="lazy" decoding="async"
+alt="The four steps of page replacement (Lecture 8, slide 8.15)" />
+<figcaption aria-hidden="true">The four steps of page replacement
+(Lecture 8, slide 8.15)</figcaption>
+</figure>
+<ol type="1">
+<li>Use a <strong>page-replacement algorithm</strong> to choose a
+victim. Write the victim to the backing store (<strong>page
+out</strong>).</li>
+<li>Change the victim’s page-table entry to
+<strong>invalid</strong>.</li>
+<li>Read the needed page into the freed frame (<strong>page
+in</strong>).</li>
+<li>Update the page-table entry of the new page.</li>
+</ol>
+<p>Now one page fault can need <strong>two</strong> disk transfers: one
+out and one in. This makes the page fault time even longer.</p>
+<h3 id="the-dirty-bit-saves-the-write">3.2 The dirty bit saves the
+write</h3>
+<p>Many victims have <strong>not changed</strong> since they were
+loaded. Their copy on the disk is still correct. So the OS does not need
+to write them out.</p>
+<p>The hardware sets a <strong>modify bit</strong>, also called the
+<strong>dirty bit</strong>, in a page’s entry when the process
+<strong>writes</strong> to the page. On replacement:</p>
+<ul>
+<li>a <strong>dirty</strong> page (bit set) is written to the backing
+store first,</li>
+<li>a <strong>clean</strong> page (bit clear) is simply
+overwritten.</li>
+</ul>
+<p>With page replacement, the separation of logical and physical memory
+is complete: a large virtual memory can run on a small physical
+memory.</p>
+<h3 id="how-to-compare-algorithms">3.3 How to compare algorithms</h3>
+<p>A good algorithm gives the <strong>lowest page-fault rate</strong>.
+To compare algorithms, run each one on the same <strong>reference
+string</strong>: the sequence of page numbers that a process refers to.
+Count the page faults.</p>
+<p>The lecture always uses this reference string:</p>
+<pre class="text"><code>1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5</code></pre>
+<p><strong>Limits on the count.</strong> Suppose the frames start empty,
+the string has L references, and it uses N different pages.</p>
+<ul>
+<li><strong>At least N faults.</strong> The first reference to each page
+is always a fault, whatever the algorithm.</li>
+<li><strong>At most L faults.</strong> Every reference faults, at
+worst.</li>
+<li>If there are <strong>N or more frames</strong>, every algorithm
+gives <strong>exactly N</strong> faults: nothing is ever replaced.</li>
+</ul>
+<p>The lecture’s string has L = 12 and N = 5. So every algorithm gives
+between 5 and 12 faults.</p>
+<p>You expect <strong>more frames → fewer faults</strong>:</p>
+<figure>
+<img width="1266" height="734" src="media/8-artifacts/faults-vs-frames.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="Usually, more frames give fewer page faults (Lecture 8, slide 8.18)" />
+<figcaption aria-hidden="true">Usually, more frames give fewer page
+faults (Lecture 8, slide 8.18)</figcaption>
+</figure>
+<p>But this is not always true. Section 6 explains when and why.</p>
+<hr />
+<h2 id="page-replacement-algorithms">4. Page-Replacement Algorithms</h2>
+<p>The tables show the content of each frame after each reference. “P”
+marks a page fault. A blank fault cell is a hit.</p>
+<h3 id="first-in-first-out-fifo">4.1 First-in, first-out (FIFO)</h3>
+<p><strong>Rule:</strong> replace the page that has been <strong>in
+memory the longest</strong>. Only the time the page was
+<strong>loaded</strong> matters. A later use of the page does not change
+its place.</p>
+<p><strong>How to trace it:</strong> keep a queue of the pages in load
+order. On a fault, the page at the front of the queue leaves, and the
+new page joins at the back. A hit does not change the queue.</p>
+<p>With 3 frames:</p>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr>
+<th>Reference</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>1</th>
+<th>2</th>
+<th>5</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frame 1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Frame 2</td>
+<td></td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Frame 3</td>
+<td></td>
+<td></td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Fault</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td></td>
+<td></td>
+<td>P</td>
+<td>P</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>9 page faults.</strong></p>
+<p>With 4 frames:</p>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr>
+<th>Reference</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>1</th>
+<th>2</th>
+<th>5</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frame 1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>4</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Frame 2</td>
+<td></td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Frame 3</td>
+<td></td>
+<td></td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Frame 4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Fault</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td></td>
+<td></td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>10 page faults</strong>: more frames, but more faults. This
+is <strong>Belady’s anomaly</strong>. Section 6 explains why it
+occurs.</p>
+<h3 id="optimal-opt">4.2 Optimal (OPT)</h3>
+<p><strong>Rule:</strong> replace the page that will <strong>not be used
+for the longest time in the future</strong>.</p>
+<p><strong>How to trace it:</strong> at each fault, look ahead in the
+string. For each page in memory, find its next use. Replace the page
+whose next use is furthest away, or that is never used again.</p>
+<p>With 4 frames:</p>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr>
+<th>Reference</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>1</th>
+<th>2</th>
+<th>5</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frame 1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>4</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Frame 2</td>
+<td></td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Frame 3</td>
+<td></td>
+<td></td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Frame 4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Fault</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td></td>
+<td></td>
+<td>P</td>
+<td></td>
+<td></td>
+<td></td>
+<td>P</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>6 page faults.</strong> At reference 5 (the 7th reference),
+memory holds 1, 2, 3 and 4. Look ahead: 1 is used next (8th), then 2
+(9th), then 3 (10th), then 4 (11th). Page 4 is used last, so OPT
+replaces it. At the 11th reference (page 4), memory holds 1, 2, 3 and 5.
+After this point, 5 is used once more, and 1, 2 and 3 are never used
+again. OPT can replace any of 1, 2 or 3; the slide replaces 1.</p>
+<ul>
+<li>OPT gives the <strong>lowest possible</strong> number of
+faults.</li>
+<li><strong>It cannot be built</strong>, because the OS does not know
+the future references. It is used as a <strong>benchmark</strong>: a
+good algorithm comes close to OPT.</li>
+</ul>
+<h3 id="least-recently-used-lru">4.3 Least recently used (LRU)</h3>
+<p><strong>Rule:</strong> replace the page that has <strong>not been
+used for the longest time in the past</strong>. It is OPT looking
+<strong>backward</strong> instead of forward. The idea: a page not used
+for a long time will probably not be used soon.</p>
+<p><strong>How to trace it:</strong> at each fault, look back in the
+string. For each page in memory, find its last use. Replace the page
+whose last use is furthest back. <strong>Unlike FIFO, a hit changes the
+order:</strong> it makes the page the most recently used.</p>
+<p>With 4 frames:</p>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr>
+<th>Reference</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>1</th>
+<th>2</th>
+<th>5</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frame 1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Frame 2</td>
+<td></td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Frame 3</td>
+<td></td>
+<td></td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>4</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Frame 4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Fault</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td></td>
+<td></td>
+<td>P</td>
+<td></td>
+<td></td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>8 page faults.</strong> At reference 5 (the 7th reference),
+the last uses are: 1 at the 5th, 2 at the 6th, 3 at the 3rd, 4 at the
+4th. Page 3 was used least recently, so LRU replaces it. (FIFO would
+replace page 1 here, because 1 was loaded first. The hit on 1 at the 5th
+reference saves it under LRU.)</p>
+<p>With 3 frames, LRU gives 10 faults on this string. So for LRU, 3 → 4
+frames gives 10 → 8 faults: more frames, fewer faults.</p>
+<h3 id="how-to-build-lru">4.4 How to build LRU</h3>
+<p>Exact LRU needs the order of <strong>all</strong> uses. The lecture
+gives two methods.</p>
+<p><strong>Counter method.</strong></p>
+<ul>
+<li>Each page-table entry has a <strong>time-of-use</strong> field.</li>
+<li>The CPU has a logical clock that goes up by 1 on every memory
+reference.</li>
+<li>On every reference, the clock value is copied into the time-of-use
+field of that page.</li>
+<li>On a page fault, replace the page with the <strong>smallest</strong>
+time-of-use.</li>
+</ul>
+<p><strong>Stack method.</strong></p>
+<ul>
+<li>Keep a stack of page numbers, as a doubly linked list.</li>
+<li>When a page is referenced, move it to the <strong>top</strong>.</li>
+<li>The <strong>bottom</strong> of the stack is always the LRU
+page.</li>
+<li>Each reference costs a list update, but a replacement needs no
+search.</li>
+</ul>
+<p>The lecture’s string with 4 frames, as a stack (top first, after each
+reference):</p>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr>
+<th>Reference</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>1</th>
+<th>2</th>
+<th>5</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Top</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>1</td>
+<td>2</td>
+<td>5</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>1</td>
+<td>2</td>
+<td>5</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+<td></td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>1</td>
+<td>2</td>
+<td>5</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Bottom</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>5</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>Fault</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+<td></td>
+<td></td>
+<td>P</td>
+<td></td>
+<td></td>
+<td>P</td>
+<td>P</td>
+<td>P</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>On each fault with a full stack, the bottom page leaves. At the 7th
+reference the bottom is 3, so 3 leaves. Again <strong>8 page
+faults</strong>.</p>
+<p>Both methods need hardware help on <strong>every</strong> memory
+reference. That is expensive, and most hardware does not have it.</p>
+<h3 id="lru-approximation-the-reference-bit">4.5 LRU approximation: the
+reference bit</h3>
+<p>Most hardware gives a simpler aid: a <strong>reference bit R</strong>
+for each page.</p>
+<ul>
+<li>At the start, R = 0.</li>
+<li>When the page is referenced (read or written), the hardware sets R =
+1.</li>
+</ul>
+<p>A page with R = 0 has not been used since the bit was last cleared.
+So it is a good victim. But R does not show the <strong>order</strong>
+of use, and many pages can have R = 0. So R only
+<strong>approximates</strong> LRU.</p>
+<p><strong>Do not confuse the reference bit with the dirty bit</strong>
+(section 3.2). The reference bit says “the page was
+<strong>used</strong>” (read or written). It helps to
+<strong>choose</strong> a victim. The dirty bit says “the page was
+<strong>written</strong>”. It decides whether the victim must be
+<strong>written back</strong>.</p>
+<hr />
+<h2 id="second-chance-and-the-clock-algorithm">5. Second Chance and the
+Clock Algorithm</h2>
+<h3 id="the-problem-with-fifo">5.1 The problem with FIFO</h3>
+<p>FIFO can remove a page that the program uses all the time, only
+because that page was loaded early. Example: a loop variable loaded at
+the start is the oldest page, so FIFO removes it, and the next reference
+faults again.</p>
+<p>The fix: before removing the oldest page, <strong>check whether it
+was used recently</strong>. The reference bit gives exactly that
+information.</p>
+<h3 id="second-chance">5.2 Second chance</h3>
+<p><strong>Second chance</strong> is FIFO with a check of the reference
+bit:</p>
+<ol type="1">
+<li>Take the <strong>oldest</strong> page as the candidate.</li>
+<li>If its R = 1, the page was used recently. Give it a <strong>second
+chance</strong>: set R = 0, and treat it as if it had just been loaded
+(it goes to the back of the queue). Go to step 1 with the next oldest
+page.</li>
+<li>If its R = 0, replace it.</li>
+</ol>
+<p><strong>Why it approximates LRU.</strong> A page survives as long as
+it is used at least once between two checks. A page is removed only when
+it has not been used for a whole pass through the queue. So the victim
+is a page that is old <strong>and</strong> not used recently.</p>
+<p><strong>How to apply it to a table of pages.</strong> Suppose you are
+given each page’s load time and R bit. Sort the pages by load time,
+oldest first. Go down the list. The first page with R = 0 is the victim.
+Every page with R = 1 that you pass gets R = 0. If all pages have R = 1,
+the oldest page is the victim (section 5.5).</p>
+<h3 id="the-clock-algorithm">5.3 The clock algorithm</h3>
+<p>Moving a page to the back of a queue costs time. The <strong>clock
+algorithm</strong> does the same thing without moving pages. It puts the
+frames in a <strong>circular list</strong>, and keeps a
+<strong>hand</strong> that points to the oldest page.</p>
+<figure>
+<img width="1400" height="968" src="media/8-artifacts/clock-algorithm.webp" style="width:55.0%"
+loading="lazy" decoding="async"
+alt="The clock algorithm: a hand moves round a circle of frames, each with an R bit (Lecture 8, slide 8.31)" />
+<figcaption aria-hidden="true">The clock algorithm: a hand moves round a
+circle of frames, each with an R bit (Lecture 8, slide
+8.31)</figcaption>
+</figure>
+<p><strong>On a page fault:</strong></p>
+<ol type="1">
+<li>Look at the page under the hand.</li>
+<li>If R = 1: set R = 0, and move the hand one place. Go to step 1.</li>
+<li>If R = 0: replace this page with the new page. Move the hand one
+place.</li>
+</ol>
+<p><strong>On a hit:</strong> the hardware sets the page’s R = 1. The
+hand does <strong>not</strong> move.</p>
+<p>Clearing R and moving the hand on is the same as “move the page to
+the back of the queue”. The page now sits just behind the hand, so the
+hand reaches it last.</p>
+<p><strong>Course convention (slide 8.32):</strong> a newly loaded page
+starts with <strong>R = 0</strong>. Some textbooks set R = 1 at load,
+because loading is caused by a reference. Use R = 0 in this course.</p>
+<h3 id="clock-traced-step-by-step">5.4 Clock, traced step by step</h3>
+<p>The lecture’s string with 4 frames. Each cell shows “page, R”. The
+“Hand after” column shows the frame that the hand points to after the
+reference.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 16%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 14%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Ref</th>
+<th>Fault?</th>
+<th>F1</th>
+<th>F2</th>
+<th>F3</th>
+<th>F4</th>
+<th>Hand after</th>
+<th>What happened</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>P</td>
+<td>1,0</td>
+<td></td>
+<td></td>
+<td></td>
+<td>F2</td>
+<td>Empty frame</td>
+</tr>
+<tr>
+<td>2</td>
+<td>P</td>
+<td>1,0</td>
+<td>2,0</td>
+<td></td>
+<td></td>
+<td>F3</td>
+<td>Empty frame</td>
+</tr>
+<tr>
+<td>3</td>
+<td>P</td>
+<td>1,0</td>
+<td>2,0</td>
+<td>3,0</td>
+<td></td>
+<td>F4</td>
+<td>Empty frame</td>
+</tr>
+<tr>
+<td>4</td>
+<td>P</td>
+<td>1,0</td>
+<td>2,0</td>
+<td>3,0</td>
+<td>4,0</td>
+<td>F1</td>
+<td>Empty frame</td>
+</tr>
+<tr>
+<td>1</td>
+<td></td>
+<td>1,1</td>
+<td>2,0</td>
+<td>3,0</td>
+<td>4,0</td>
+<td>F1</td>
+<td>Hit: R of page 1 set to 1</td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td>1,1</td>
+<td>2,1</td>
+<td>3,0</td>
+<td>4,0</td>
+<td>F1</td>
+<td>Hit: R of page 2 set to 1</td>
+</tr>
+<tr>
+<td>5</td>
+<td>P</td>
+<td>1,0</td>
+<td>2,0</td>
+<td>5,0</td>
+<td>4,0</td>
+<td>F4</td>
+<td>F1: R = 1, clear, move. F2: R = 1, clear, move. F3: R = 0, replace
+3</td>
+</tr>
+<tr>
+<td>1</td>
+<td></td>
+<td>1,1</td>
+<td>2,0</td>
+<td>5,0</td>
+<td>4,0</td>
+<td>F4</td>
+<td>Hit</td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td>1,1</td>
+<td>2,1</td>
+<td>5,0</td>
+<td>4,0</td>
+<td>F4</td>
+<td>Hit</td>
+</tr>
+<tr>
+<td>3</td>
+<td>P</td>
+<td>1,1</td>
+<td>2,1</td>
+<td>5,0</td>
+<td>3,0</td>
+<td>F1</td>
+<td>F4: R = 0, replace 4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>P</td>
+<td>1,0</td>
+<td>2,0</td>
+<td>4,0</td>
+<td>3,0</td>
+<td>F4</td>
+<td>F1: clear. F2: clear. F3: R = 0, replace 5</td>
+</tr>
+<tr>
+<td>5</td>
+<td>P</td>
+<td>1,0</td>
+<td>2,0</td>
+<td>4,0</td>
+<td>5,0</td>
+<td>F1</td>
+<td>F4: R = 0, replace 3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>8 page faults</strong>, the same as slide 8.32.</p>
+<p>Compare with FIFO at the 7th reference (page 5). FIFO removes page 1,
+the oldest. Clock skips pages 1 and 2, because the hits at the 5th and
+6th references set their R bits. So clock keeps 1 and 2, which are used
+again next. Here clock makes the same choice as LRU.</p>
+<h3 id="the-worst-case-clock-becomes-fifo">5.5 The worst case: clock
+becomes FIFO</h3>
+<p>Suppose every page has R = 1 at a fault. The hand goes all the way
+round and clears every bit. It comes back to the page where it started,
+which now has R = 0, and replaces it. That page is the oldest one. So
+when all bits are set, clock replaces the oldest page: it
+<strong>becomes FIFO</strong>.</p>
+<h3 id="what-each-algorithm-looks-at">5.6 What each algorithm looks
+at</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 42%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Information it uses to choose a victim</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FIFO</td>
+<td>The <strong>load</strong> time of each page</td>
+</tr>
+<tr>
+<td>OPT</td>
+<td>The <strong>future</strong> references</td>
+</tr>
+<tr>
+<td>LRU</td>
+<td>The time of the <strong>last use</strong> of each page</td>
+</tr>
+<tr>
+<td>Second chance / clock</td>
+<td>The <strong>load order</strong> and the <strong>reference
+bit</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="beladys-anomaly">6. Belady’s Anomaly</h2>
+<h3 id="what-it-is">6.1 What it is</h3>
+<p><strong>Belady’s anomaly:</strong> for some algorithms and some
+reference strings, <strong>more frames give more page faults</strong>.
+Section 4.1 showed it: FIFO gives 9 faults with 3 frames, but 10 faults
+with 4 frames.</p>
+<p>The anomaly is not about one bad string. It is about the
+<strong>algorithm</strong>. An algorithm either can show the anomaly on
+some string, or never shows it on any string.</p>
+<h3 id="why-fifo-shows-it">6.2 Why FIFO shows it</h3>
+<p>With 3 frames and 4 frames, FIFO keeps <strong>different sets of
+pages</strong>, and the 3-frame set is not always inside the 4-frame
+set. Look at the pages in memory after each reference:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 5%" />
+<col style="width: 7%" />
+<col style="width: 9%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr>
+<th>After reference</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>1</th>
+<th>2</th>
+<th>5</th>
+<th>1</th>
+<th>2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3 frames</td>
+<td>{1}</td>
+<td>{1,2}</td>
+<td>{1,2,3}</td>
+<td>{2,3,4}</td>
+<td>{3,4,1}</td>
+<td>{4,1,2}</td>
+<td>{1,2,5}</td>
+<td>{1,2,5}</td>
+<td>{1,2,5}</td>
+</tr>
+<tr>
+<td>4 frames</td>
+<td>{1}</td>
+<td>{1,2}</td>
+<td>{1,2,3}</td>
+<td>{1,2,3,4}</td>
+<td>{1,2,3,4}</td>
+<td>{1,2,3,4}</td>
+<td>{2,3,4,5}</td>
+<td>{3,4,5,1}</td>
+<td>{4,5,1,2}</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Follow it step by step:</p>
+<ol type="1">
+<li>Up to the 6th reference, every 3-frame set is inside the 4-frame
+set.</li>
+<li>At the 7th reference (page 5), both fault. With 3 frames, FIFO
+removes 4. With 4 frames, FIFO removes <strong>1</strong>, the oldest
+page there.</li>
+<li>Now page 1 is in the 3-frame memory, but <strong>not</strong> in the
+4-frame memory.</li>
+<li>The 8th reference is page 1. It <strong>hits</strong> with 3 frames
+and <strong>faults</strong> with 4 frames.</li>
+<li>That fault removes 2 from the 4-frame memory, so the 9th reference
+(page 2) faults again. The extra faults continue.</li>
+</ol>
+<p>The cause: with more frames, FIFO loads and removes pages at
+<strong>different times</strong>. So “oldest” means a different page,
+and the larger memory can drop a page that the smaller memory keeps.</p>
+<h3 id="why-lru-and-opt-never-show-it-the-inclusion-property">6.3 Why
+LRU and OPT never show it: the inclusion property</h3>
+<p>An algorithm has the <strong>inclusion property</strong> if, after
+every reference, the pages in memory with n frames are always a
+<strong>subset</strong> of the pages in memory with n + 1 frames. (An
+algorithm with this property is also called a <strong>stack
+algorithm</strong>.)</p>
+<p><strong>Inclusion means no anomaly.</strong> If a page is in memory
+with n frames, it is also in memory with n + 1 frames. So every hit with
+n frames is also a hit with n + 1 frames. Then n + 1 frames can never
+have more faults than n frames.</p>
+<p><strong>LRU has the inclusion property.</strong> With n frames, LRU
+always holds the <strong>n most recently used</strong> pages. With n + 1
+frames, it holds the n + 1 most recently used pages. The n most recent
+pages are always among the n + 1 most recent pages. So the subset rule
+always holds.</p>
+<p><strong>OPT has the inclusion property.</strong> The lecture says:
+one more frame gives “more look-ahead”. The pages that OPT keeps in n
+frames are always a subset of the pages it keeps in n + 1 frames.</p>
+<p><strong>FIFO does not have it</strong>, as section 6.2 showed.</p>
+<h3 id="does-clock-show-beladys-anomaly">6.4 Does clock show Belady’s
+anomaly?</h3>
+<p>The lecture does not say. The answer is <strong>yes, clock can show
+it</strong>, because clock does not have the inclusion property. Its
+choice depends on the hand position and the R bits, and both depend on
+the history of faults and hits. With a different number of frames, that
+history is different. Section 5.5 also shows that clock becomes FIFO
+when all R bits are set, and FIFO has the anomaly.</p>
+<p><strong>A short example</strong> (course convention, new pages start
+with R = 0). Reference string: 1, 2, 1, 2, 3, 4, 3.</p>
+<p>With 2 frames:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 17%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 16%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th>Ref</th>
+<th>Fault?</th>
+<th>F1</th>
+<th>F2</th>
+<th>Hand after</th>
+<th>What happened</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>P</td>
+<td>1,0</td>
+<td></td>
+<td>F2</td>
+<td>Empty frame</td>
+</tr>
+<tr>
+<td>2</td>
+<td>P</td>
+<td>1,0</td>
+<td>2,0</td>
+<td>F1</td>
+<td>Empty frame</td>
+</tr>
+<tr>
+<td>1</td>
+<td></td>
+<td>1,1</td>
+<td>2,0</td>
+<td>F1</td>
+<td>Hit</td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td>1,1</td>
+<td>2,1</td>
+<td>F1</td>
+<td>Hit</td>
+</tr>
+<tr>
+<td>3</td>
+<td>P</td>
+<td>3,0</td>
+<td>2,0</td>
+<td>F2</td>
+<td>F1: clear. F2: clear. F1: R = 0, replace 1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>P</td>
+<td>3,0</td>
+<td>4,0</td>
+<td>F1</td>
+<td>F2: R = 0, replace 2</td>
+</tr>
+<tr>
+<td>3</td>
+<td></td>
+<td>3,1</td>
+<td>4,0</td>
+<td>F1</td>
+<td>Hit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>4 page faults.</strong></p>
+<p>With 3 frames:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 16%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 15%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th>Ref</th>
+<th>Fault?</th>
+<th>F1</th>
+<th>F2</th>
+<th>F3</th>
+<th>Hand after</th>
+<th>What happened</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>P</td>
+<td>1,0</td>
+<td></td>
+<td></td>
+<td>F2</td>
+<td>Empty frame</td>
+</tr>
+<tr>
+<td>2</td>
+<td>P</td>
+<td>1,0</td>
+<td>2,0</td>
+<td></td>
+<td>F3</td>
+<td>Empty frame</td>
+</tr>
+<tr>
+<td>1</td>
+<td></td>
+<td>1,1</td>
+<td>2,0</td>
+<td></td>
+<td>F3</td>
+<td>Hit</td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td>1,1</td>
+<td>2,1</td>
+<td></td>
+<td>F3</td>
+<td>Hit</td>
+</tr>
+<tr>
+<td>3</td>
+<td>P</td>
+<td>1,1</td>
+<td>2,1</td>
+<td>3,0</td>
+<td>F1</td>
+<td>Empty frame</td>
+</tr>
+<tr>
+<td>4</td>
+<td>P</td>
+<td>1,0</td>
+<td>2,0</td>
+<td>4,0</td>
+<td>F1</td>
+<td>F1: clear. F2: clear. F3: R = 0, replace 3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>P</td>
+<td>3,0</td>
+<td>2,0</td>
+<td>4,0</td>
+<td>F2</td>
+<td>F1: R = 0, replace 1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>5 page faults</strong>: one frame more, one fault more.</p>
+<p>Why: with 3 frames, page 3 went into the empty frame, so the hand did
+not pass pages 1 and 2. Their R bits stayed 1. At the next fault, the
+hand skipped 1 and 2, and removed 3, the newest page, which was needed
+next. With 2 frames, the hand cleared the bits one fault earlier, so it
+removed old pages instead.</p>
+<p>(These traces were checked by simulation. A string with the anomaly
+also exists if new pages start with R = 1.)</p>
+<p>On the lecture’s own string, clock does <strong>not</strong> show the
+anomaly: 10 faults with 3 frames, 8 with 4. One string with no anomaly
+proves nothing about the algorithm. One string with the anomaly is
+enough to prove that the algorithm can have it.</p>
+<h3 id="the-algorithms-side-by-side">6.5 The algorithms side by
+side</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Replaces the page that…</th>
+<th>Faults (lecture string, 4 frames)</th>
+<th>Belady’s anomaly?</th>
+<th>Practical?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FIFO</td>
+<td>was <strong>loaded</strong> earliest</td>
+<td>10</td>
+<td><strong>Yes</strong></td>
+<td>Yes, simple</td>
+</tr>
+<tr>
+<td>OPT</td>
+<td>will be used <strong>furthest in the future</strong></td>
+<td>6</td>
+<td>No (inclusion property)</td>
+<td><strong>No</strong>, it needs the future</td>
+</tr>
+<tr>
+<td>LRU</td>
+<td>was <strong>used</strong> least recently</td>
+<td>8</td>
+<td>No (inclusion property)</td>
+<td>Expensive: hardware help on every reference</td>
+</tr>
+<tr>
+<td>Clock (second chance)</td>
+<td>is oldest with R = 0</td>
+<td>8</td>
+<td><strong>Yes, it can</strong> (not stated in the lecture)</td>
+<td>Yes: needs only a reference bit</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="how-many-frames-each-process-gets">7. How Many Frames Each
+Process Gets</h2>
+<h3 id="the-trade-off">7.1 The trade-off</h3>
+<p>The OS must decide how many frames to give each process:</p>
+<ul>
+<li>Fewer frames for each process → more processes fit in memory.</li>
+<li>But too few frames → more page faults.</li>
+<li>Above some number of frames, more frames no longer reduce the page
+faults much.</li>
+</ul>
+<h3 id="fixed-and-variable-allocation">7.2 Fixed and variable
+allocation</h3>
+<ul>
+<li><strong>Fixed allocation:</strong> each process gets a fixed number
+of frames. On a page fault, one of <strong>that process’s own</strong>
+pages must be replaced. Two ways to choose the number:
+<ul>
+<li><strong>Equal allocation:</strong> m frames and n processes give
+each process m / n frames.</li>
+<li><strong>Proportional allocation:</strong> each process gets frames
+in proportion to its size. With sizes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mi>i</mi></msub><annotation encoding="application/x-tex">s_i</annotation></semantics></math>
+and total size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mo>∑</mo><msub><mi>s</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">S = \sum s_i</annotation></semantics></math>,
+process i gets about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>s</mi><mi>i</mi></msub><mi>/</mi><mi>S</mi><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">(s_i / S) \times m</annotation></semantics></math>
+frames. Example: 60 frames, process A of 20 pages and process B of 100
+pages. S = 120. A gets 20/120 × 60 = 10 frames, B gets 100/120 × 60 = 50
+frames.</li>
+</ul></li>
+<li><strong>Variable allocation:</strong> the number of frames of a
+process can change during its life.</li>
+</ul>
+<h3 id="local-and-global-replacement">7.3 Local and global
+replacement</h3>
+<ul>
+<li><strong>Global replacement:</strong> the victim can be
+<strong>any</strong> frame in memory, including a frame of
+<strong>another</strong> process. One process can take a frame from
+another. A process’s performance then depends on what the other
+processes do.</li>
+<li><strong>Local replacement:</strong> the victim must be one of the
+process’s <strong>own</strong> frames. A process can then hold on to
+pages that it does not use much, and other processes cannot get
+them.</li>
+</ul>
+<figure>
+<img width="1400" height="862" src="media/8-artifacts/local-vs-global.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="Local and global replacement with LRU (Lecture 8, slide 8.36)" />
+<figcaption aria-hidden="true">Local and global replacement with LRU
+(Lecture 8, slide 8.36)</figcaption>
+</figure>
+<p>In the slide, process A refers to page A6, which is not in memory.
+The numbers are the time of last access.</p>
+<ul>
+<li>With <strong>local</strong> replacement, LRU looks only at A’s
+pages. A5 has the smallest time (3) among them, so A6 replaces A5.</li>
+<li>With <strong>global</strong> replacement, LRU looks at all pages. B3
+has the smallest time of all (2), so A6 replaces B3, a page of
+<strong>process B</strong>.</li>
+</ul>
+<h3 id="which-combinations-are-possible">7.4 Which combinations are
+possible</h3>
+<figure>
+<img width="1400" height="793" src="media/8-artifacts/frame-allocation-summary.webp"
+style="width:85.0%" loading="lazy" decoding="async"
+alt="Fixed or variable allocation with local or global replacement (Lecture 8, slide 8.37)" />
+<figcaption aria-hidden="true">Fixed or variable allocation with local
+or global replacement (Lecture 8, slide 8.37)</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 38%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Local replacement</th>
+<th>Global replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fixed allocation</strong></td>
+<td>The number of frames stays fixed. The victim is one of the process’s
+own pages</td>
+<td><strong>Not possible.</strong> Taking another process’s frame would
+change both processes’ frame counts</td>
+</tr>
+<tr>
+<td><strong>Variable allocation</strong></td>
+<td>The OS changes the number of frames from time to time, to fit the
+working set (section 8.4). The victim is one of the process’s own
+pages</td>
+<td>The victim can be any frame in memory. The number of frames of each
+process changes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Fixed allocation requires local replacement.</strong>
+Variable allocation can use either.</p>
+<hr />
+<h2 id="thrashing">8. Thrashing</h2>
+<h3 id="what-thrashing-is">8.1 What thrashing is</h3>
+<p>Suppose a process does not have “enough” frames. It needs a page, so
+it replaces a page. But it needs that page again soon, so it faults
+again, and so on. Its page-fault rate is very high.</p>
+<p><strong>Thrashing</strong> means that processes are busy moving pages
+in and out, and do almost no useful work.</p>
+<h3 id="how-thrashing-makes-itself-worse">8.2 How thrashing makes itself
+worse</h3>
+<ol type="1">
+<li>Processes fault a lot, so they wait for the disk. CPU utilization
+drops.</li>
+<li>The OS sees low CPU utilization. The usual reaction is to
+<strong>add another process</strong> (raise the degree of
+multiprogramming), to use the idle CPU.</li>
+<li>The new process takes frames from the others. They fault even
+more.</li>
+<li>CPU utilization drops further. Go back to step 2.</li>
+</ol>
+<figure>
+<img width="1344" height="862" src="media/8-artifacts/thrashing.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="CPU utilization falls sharply when thrashing starts (Lecture 8, slide 8.39)" />
+<figcaption aria-hidden="true">CPU utilization falls sharply when
+thrashing starts (Lecture 8, slide 8.39)</figcaption>
+</figure>
+<p>So <strong>low CPU utilization with a high degree of multiprogramming
+is a sign of thrashing</strong>, not a reason to add more processes.
+Another sign: the <strong>paging disk is busy almost all the
+time</strong> while the CPU is mostly idle.</p>
+<p><strong>What helps, and what does not.</strong> Thrashing means the
+processes need more frames than memory has. So a fix must either
+<strong>lower the demand</strong> or <strong>raise the supply</strong>
+of frames:</p>
+<ul>
+<li><strong>Helps:</strong> fewer processes in memory (a lower degree of
+multiprogramming), or more main memory. Both give each process more
+frames, so it faults less.</li>
+<li><strong>Helps a little:</strong> a faster paging disk. Each fault
+takes less time, but the processes still fault as often.</li>
+<li><strong>Does not help:</strong> a faster CPU. The CPU is not the
+bottleneck; it is idle, waiting for the disk.</li>
+<li><strong>Makes it worse:</strong> more processes. Each one takes
+frames from the others.</li>
+</ul>
+<p>There are two ways to fight thrashing: the working-set model and the
+page-fault frequency scheme. Both need the idea of locality first.</p>
+<h3 id="locality-of-reference">8.3 Locality of reference</h3>
+<p>Programs do not use their pages at random. For a while, they use a
+<strong>small group of pages</strong>, then they move to another group.
+This is <strong>locality of reference</strong>. It has two forms:</p>
+<ul>
+<li><strong>Temporal locality:</strong> a location used just now will
+probably be used again soon.</li>
+<li><strong>Spatial locality:</strong> locations near each other tend to
+be used together.</li>
+</ul>
+<p>The lecture’s example:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">+=</span> a<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> sum<span class="op">;</span></span></code></pre></div>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 33%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Temporal locality</th>
+<th>Spatial locality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data</td>
+<td><code>sum</code> is used in every iteration</td>
+<td><code>a[0]</code>, <code>a[1]</code>, … are next to each other, and
+are used in order</td>
+</tr>
+<tr>
+<td>Instructions</td>
+<td>The loop instructions run again and again</td>
+<td>The instructions run in sequence</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>The order of loops matters.</strong> C stores a 2D array
+<strong>row by row</strong>: all of row 0, then all of row 1, and so on.
+Take <code>int a[1024][1024]</code> with 4-byte integers and 4 KB pages.
+One row is 1024 × 4 = 4096 bytes, so <strong>each row fills exactly one
+page</strong>.</p>
+<ul>
+<li><strong>Row by row</strong> (<code>i</code> outside, <code>j</code>
+inside, <code>a[i][j]</code>): the inner loop stays in one row, so in
+one page, for 1024 accesses. The whole array costs at most 1024 page
+faults, one for each page.</li>
+<li><strong>Column by column</strong> (<code>j</code> outside,
+<code>i</code> inside, <code>a[i][j]</code>): each access moves to the
+next row, so to a <strong>different page</strong>. The inner loop
+touches 1024 different pages. If the process has fewer than 1024 frames,
+a page is often gone before the loop comes back to it. In the worst
+case, every access faults: 1024 × 1024, about one million page
+faults.</li>
+</ul>
+<p>The same data and the same work, but very different locality.</p>
+<h3 id="the-working-set-model">8.4 The working-set model</h3>
+<p><strong>Idea:</strong> give each process enough frames for the pages
+it uses <strong>now</strong>, that is, for its current locality.</p>
+<figure>
+<img width="1400" height="437" src="media/8-artifacts/working-set-window.webp" loading="lazy"
+decoding="async"
+alt="References stay inside a small set of pages for a while (Lecture 8, slide 8.43)" />
+<figcaption aria-hidden="true">References stay inside a small set of
+pages for a while (Lecture 8, slide 8.43)</figcaption>
+</figure>
+<ul>
+<li>The <strong>working-set window</strong> Δ is a fixed number of the
+most recent page references.</li>
+<li>The <strong>working set</strong> of a process at time t is the set
+of different pages referenced in the last Δ references.</li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>S</mi><msub><mi>S</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">WSS_i</annotation></semantics></math></strong>
+(working-set size) is the number of pages in the working set of process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>.
+It changes with time.</li>
+</ul>
+<p>In the slide, with Δ = 10, the working set at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mn>1</mn></msub><annotation encoding="application/x-tex">t_1</annotation></semantics></math>
+is {1, 2, 5, 6, 7}, so WSS = 5. At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mn>2</mn></msub><annotation encoding="application/x-tex">t_2</annotation></semantics></math>
+it is {3, 4}, so WSS = 2. The working set counts
+<strong>different</strong> pages, so a page referenced many times in the
+window counts once.</p>
+<p><strong>Choosing Δ:</strong></p>
+<ul>
+<li><strong>Δ too small:</strong> the window does not cover the whole
+current locality. The OS gives the process too few frames, and it faults
+often.</li>
+<li><strong>Δ too large:</strong> the window covers several localities,
+including old ones. The OS gives the process more frames than it needs,
+so fewer processes fit in memory.</li>
+</ul>
+<p><strong>Using it to prevent thrashing:</strong></p>
+<ul>
+<li>The total demand for frames is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>=</mo><msub><mo>∑</mo><mi>i</mi></msub><mi>W</mi><mi>S</mi><msub><mi>S</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">D = \sum_i WSS_i</annotation></semantics></math>.</li>
+<li>Let m be the total number of frames.</li>
+<li>If D &gt; m, the processes need more frames than exist, so thrashing
+will occur.</li>
+<li><strong>Policy:</strong> if D &gt; m, <strong>suspend</strong> (swap
+out) one of the processes. Its frames go to the others.</li>
+</ul>
+<p><strong>Using the working set to decide what stays in
+memory.</strong> The OS can also use the working set as the allocation
+itself: a process keeps <strong>exactly</strong> the pages of its
+current working set, and no others. The number of frames then grows and
+shrinks with the WSS. To trace it:</p>
+<ol type="1">
+<li>Before reference t, the pages in memory are the different pages
+among the last Δ references (t − Δ to t − 1).</li>
+<li>Reference t is a <strong>fault</strong> if its page is not in that
+set.</li>
+<li>After the reference, move the window forward by one. A page that no
+longer appears in the last Δ references leaves memory.</li>
+</ol>
+<p>If the question gives references made before the string starts, they
+count in the first windows.</p>
+<p><strong>Example</strong> (own numbers): Δ = 3, memory starts empty,
+references 1, 2, 1, 3, 2, 4, 4, 1.</p>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 12%" />
+<col style="width: 31%" />
+<col style="width: 17%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr>
+<th>t</th>
+<th>Page</th>
+<th>In the last 3 references before t?</th>
+<th>Fault?</th>
+<th>Working set after t</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>—</td>
+<td>P</td>
+<td>{1}</td>
+</tr>
+<tr>
+<td>2</td>
+<td>2</td>
+<td>No</td>
+<td>P</td>
+<td>{1, 2}</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1</td>
+<td>Yes</td>
+<td></td>
+<td>{1, 2}</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+<td>No</td>
+<td>P</td>
+<td>{1, 2, 3}</td>
+</tr>
+<tr>
+<td>5</td>
+<td>2</td>
+<td>Yes</td>
+<td></td>
+<td>{1, 2, 3}</td>
+</tr>
+<tr>
+<td>6</td>
+<td>4</td>
+<td>No</td>
+<td>P</td>
+<td>{2, 3, 4} (1 was last used at t = 3, so it leaves)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>4</td>
+<td>Yes</td>
+<td></td>
+<td>{2, 4}</td>
+</tr>
+<tr>
+<td>8</td>
+<td>1</td>
+<td>No</td>
+<td>P</td>
+<td>{1, 4}</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>5 page faults.</strong> The process used between 1 and 3
+frames, as its locality changed.</p>
+<h3 id="the-page-fault-frequency-pff-scheme">8.5 The page-fault
+frequency (PFF) scheme</h3>
+<p><strong>Idea:</strong> do not estimate the working set. Measure each
+process’s page-fault rate directly, and keep it between two bounds.</p>
+<figure>
+<img width="1400" height="857" src="media/8-artifacts/page-fault-frequency.webp"
+style="width:65.0%" loading="lazy" decoding="async"
+alt="Page-fault frequency: keep the rate between a lower and an upper bound (Lecture 8, slide 8.47)" />
+<figcaption aria-hidden="true">Page-fault frequency: keep the rate
+between a lower and an upper bound (Lecture 8, slide 8.47)</figcaption>
+</figure>
+<ul>
+<li>Set an acceptable range for the page-fault rate: a lower bound and
+an upper bound.</li>
+<li>If a process’s rate is <strong>too low</strong> (below the lower
+bound), it has more frames than it needs: <strong>take a frame
+away</strong>.</li>
+<li>If its rate is <strong>too high</strong> (above the upper bound), it
+needs more frames: <strong>give it a frame</strong>.</li>
+<li>If the rate is too high and there are no free frames,
+<strong>suspend</strong> (swap out) a process.</li>
+</ul>
+<h2 id="what-you-know-now-lecture-8">What You Know Now (Lecture 8)</h2>
+<ul>
+<li>Virtual memory separates logical memory from physical memory, so a
+program can be larger than RAM and only part of it needs to be in
+memory.</li>
+<li>Demand paging loads a page only when it is used. An invalid entry
+causes a page fault: the OS reads the page in, sets the entry to valid,
+and restarts the instruction.</li>
+<li>On each access: TLB hit, or TLB miss with the page in memory, or TLB
+miss and page fault. A TLB hit means the page is in memory.</li>
+<li>EAT = (1 − p) × memory time + p × fault time. A fault is tens of
+thousands of times slower than a memory access, so p must be tiny.</li>
+<li>With no free frame, the OS replaces a victim. Only dirty pages are
+written back. The reference bit (used) is not the dirty bit
+(written).</li>
+<li>FIFO replaces the oldest loaded page. OPT replaces the page used
+furthest in the future, and is only a benchmark. LRU replaces the least
+recently used page. Clock clears R = 1 bits and replaces the first page
+with R = 0. It becomes FIFO when all bits are set.</li>
+<li>Belady’s anomaly: more frames, more faults. LRU and OPT never show
+it, because they have the inclusion property. FIFO shows it. Clock can
+show it too.</li>
+<li>Fixed allocation needs local replacement. Variable allocation can
+use local or global.</li>
+<li>Thrashing: processes spend their time paging. The working-set model
+suspends a process when the total working sets exceed memory. PFF keeps
+each process’s fault rate between two bounds.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../7-memory-organization/7.html">← 7.
+Memory Organization</a>
+  <a class="next-page" href="../9-file-systems/9.html">9. File
+Systems →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

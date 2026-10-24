@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>6b. Virtualization · SC2005 Operating Systems</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">6b.
+Virtualization</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">6b. Virtualization</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-overview/1.html"
+                   data-nav="1-overview/1.html">1. Overview of Operating
+Systems</a></li>
+            <li><a href="../2-processes-threads/2.html"
+                   data-nav="2-processes-threads/2.html">2. Processes
+and Threads</a></li>
+            <li><a href="../3-cpu-scheduling/3.html"
+                   data-nav="3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../4-synchronization/4.html"
+                   data-nav="4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../5-deadlocks/5.html"
+                   data-nav="5-deadlocks/5.html">5. Deadlocks</a></li>
+            <li><a href="../6a-rtos/6a.html"
+                   data-nav="6a-rtos/6a.html">6a. Real-Time Operating
+Systems</a></li>
+            <li><a href="../6b-virtualization/6b.html"
+                   data-nav="6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../7-memory-organization/7.html"
+                   data-nav="7-memory-organization/7.html">7. Memory
+Organization</a></li>
+            <li><a href="../8-virtual-memory/8.html"
+                   data-nav="8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../9-file-systems/9.html"
+                   data-nav="9-file-systems/9.html">9. File
+Systems</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../labs/lab-1.html"
+                   data-nav="labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../labs/lab-2.html"
+                   data-nav="labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../labs/lab-3/lab-3.html"
+                   data-nav="labs/lab-3/lab-3.html">Lab 3 Guide</a></li>
+            <li><a href="../labs/lab-4/lab-4.html"
+                   data-nav="labs/lab-4/lab-4.html">Lab 4 Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#the-basic-idea" id="toc-the-basic-idea">1. The Basic
+Idea</a>
+<ul>
+<li><a href="#add-a-layer" id="toc-add-a-layer">1.1 Add a layer</a></li>
+<li><a href="#why-virtualize-the-cpu"
+id="toc-why-virtualize-the-cpu">1.2 Why virtualize the CPU</a></li>
+</ul></li>
+<li><a href="#three-ways-to-virtualize"
+id="toc-three-ways-to-virtualize">2. Three Ways to Virtualize</a>
+<ul>
+<li><a href="#multiplexing-one-looks-like-many"
+id="toc-multiplexing-one-looks-like-many">2.1 Multiplexing: one looks
+like many</a></li>
+<li><a href="#aggregation-many-look-like-one"
+id="toc-aggregation-many-look-like-one">2.2 Aggregation: many look like
+one</a></li>
+<li><a href="#emulation-one-thing-looks-like-another"
+id="toc-emulation-one-thing-looks-like-another">2.3 Emulation: one thing
+looks like another</a></li>
+</ul></li>
+<li><a href="#virtual-machines" id="toc-virtual-machines">3. Virtual
+Machines</a>
+<ul>
+<li><a href="#a-whole-computer-virtualized"
+id="toc-a-whole-computer-virtualized">3.1 A whole computer,
+virtualized</a></li>
+<li><a href="#the-popek-and-goldberg-definition-1974"
+id="toc-the-popek-and-goldberg-definition-1974">3.2 The Popek and
+Goldberg definition (1974)</a></li>
+<li><a href="#terms" id="toc-terms">3.3 Terms</a></li>
+<li><a href="#type-1-and-type-2-hypervisors"
+id="toc-type-1-and-type-2-hypervisors">3.4 Type 1 and Type 2
+hypervisors</a></li>
+<li><a href="#full-virtualization-and-para-virtualization"
+id="toc-full-virtualization-and-para-virtualization">3.5 Full
+virtualization and para-virtualization</a></li>
+</ul></li>
+<li><a href="#how-a-vmm-is-built" id="toc-how-a-vmm-is-built">4. How a
+VMM Is Built</a>
+<ul>
+<li><a href="#multiplex-the-cpu-and-memory-emulate-the-devices"
+id="toc-multiplex-the-cpu-and-memory-emulate-the-devices">4.1 Multiplex
+the CPU and memory, emulate the devices</a></li>
+<li><a href="#limited-direct-execution-on-a-normal-computer"
+id="toc-limited-direct-execution-on-a-normal-computer">4.2 Limited
+direct execution on a normal computer</a></li>
+<li><a href="#system-level-limited-direct-execution-in-a-vmm"
+id="toc-system-level-limited-direct-execution-in-a-vmm">4.3 System-level
+limited direct execution in a VMM</a></li>
+<li><a href="#the-virtual-cpu-in-one-paragraph"
+id="toc-the-virtual-cpu-in-one-paragraph">4.4 The virtual CPU in one
+paragraph</a></li>
+</ul></li>
+<li><a href="#beyond-this-lecture-not-examinable"
+id="toc-beyond-this-lecture-not-examinable">5. Beyond This Lecture (not
+examinable)</a></li>
+<li><a href="#what-you-know-now-lecture-6b"
+id="toc-what-you-know-now-lecture-6b">What You Know Now (Lecture
+6b)</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>This was written entirely with AI.</p>
+<h2 id="the-basic-idea">1. The Basic Idea</h2>
+<h3 id="add-a-layer">1.1 Add a layer</h3>
+<p>David Wheeler said: “Any problem in computer science can be solved by
+adding a level of indirection. But this usually creates another
+problem.” <strong>Indirection</strong> means: do not use a thing
+directly; go through a layer in the middle.</p>
+<p><strong>Virtualization</strong> is one type of indirection. A layer
+gives the programs above it an interface that looks <strong>the
+same</strong> as the layer below it. The lecture calls this
+<strong>layered and compatible</strong>:</p>
+<ul>
+<li>The new layer exports a <strong>virtual X</strong>, which looks like
+the <strong>physical X</strong> below it.</li>
+<li>The layer <strong>hides the physical names</strong>. A program sees
+only the virtual X, so it cannot reach other programs’ resources. This
+gives <strong>isolation</strong>.</li>
+</ul>
+<p>You already know examples. A process sees a whole CPU (Lecture 2),
+but the OS shares one physical CPU among many processes. A process sees
+its own memory addresses (Lecture 7), but they are not the real RAM
+addresses.</p>
+<h3 id="why-virtualize-the-cpu">1.2 Why virtualize the CPU</h3>
+<ul>
+<li><strong>Share</strong> the physical CPU among many virtual machines.
+Multiprogramming already showed that sharing uses the hardware
+better.</li>
+<li><strong>Isolate</strong> workloads, for security and for
+performance. A cloud server can run the jobs of tens to thousands of
+customers.</li>
+<li>Run <strong>several operating systems</strong> on the same
+hardware.</li>
+</ul>
+<h2 id="three-ways-to-virtualize">2. Three Ways to Virtualize</h2>
+<p>In each method below, <strong>P</strong> is the physical resource and
+<strong>V</strong> is the virtual resource that programs see.</p>
+<h3 id="multiplexing-one-looks-like-many">2.1 Multiplexing: one looks
+like many</h3>
+<p><strong>Multiplexing</strong> shares <strong>one</strong> physical
+resource among <strong>many</strong> virtual ones. Examples: the CPU,
+memory.</p>
+<p><strong>Virtual CPUs.</strong> Each virtual machine has one or more
+<strong>virtual CPU cores (vCPUs)</strong>:</p>
+<ul>
+<li>The <strong>host</strong> OS schedules the vCPUs onto the physical
+cores, like it schedules processes. Linux, for example, treats each vCPU
+as a process.</li>
+<li>Inside each virtual machine, the <strong>guest</strong> OS schedules
+its own processes onto its vCPUs, like a normal OS.</li>
+</ul>
+<p>Examples:</p>
+<ul>
+<li>A 4-core server can run 4 virtual machines with 1 vCPU each.</li>
+<li>A 4-core server can run 8 virtual machines with 2 vCPUs each, which
+is 16 vCPUs on 4 cores. This is <strong>CPU overcommitment</strong>. It
+works only because not all virtual machines run processes at the same
+time.</li>
+</ul>
+<h3 id="aggregation-many-look-like-one">2.2 Aggregation: many look like
+one</h3>
+<p><strong>Aggregation</strong> makes <strong>many</strong> physical
+resources look like <strong>one</strong> virtual resource. Examples:</p>
+<ul>
+<li>The memory controller joins several memory modules (DIMMs) into one
+memory address range.</li>
+<li><strong>RAID</strong> (Redundant Array of Inexpensive Disks) makes
+several disks look like one disk volume.</li>
+<li>Link aggregation joins several network links into one virtual link
+with more bandwidth.</li>
+</ul>
+<p><strong>Three RAID levels.</strong> Let N be the size of one disk, n
+the number of disks, and M the usable size of the volume.</p>
+<figure>
+<img width="1400" height="612" src="media/6b-artifacts/raid-levels.webp" loading="lazy"
+decoding="async"
+alt="RAID 0, RAID 1 and RAID 5 (Lecture 6b, slide 1.13)" />
+<figcaption aria-hidden="true">RAID 0, RAID 1 and RAID 5 (Lecture 6b,
+slide 1.13)</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 32%" />
+<col style="width: 19%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Level</th>
+<th>Method</th>
+<th>Usable size</th>
+<th>What it gives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RAID 0</td>
+<td><strong>Striping:</strong> spread the blocks across all disks</td>
+<td>M = N × n</td>
+<td>Speed (disks work in parallel), but no protection: one failed disk
+loses data</td>
+</tr>
+<tr>
+<td>RAID 1</td>
+<td><strong>Mirroring:</strong> write every block to two disks</td>
+<td>M = N, with n = 2</td>
+<td>Protection: one disk can fail. Half the space is used for
+copies</td>
+</tr>
+<tr>
+<td>RAID 5</td>
+<td><strong>Distributed parity:</strong> spread data and parity blocks
+across the disks</td>
+<td>M = N × (n − 1), with n ≥ 3</td>
+<td>Protection against one failed disk, at the cost of one disk of
+space</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="emulation-one-thing-looks-like-another">2.3 Emulation: one thing
+looks like another</h3>
+<p><strong>Emulation</strong> uses software to make a resource look like
+a <strong>different</strong> resource. Sometimes there is no physical X
+at all, or the physical resource is of a different kind. Examples:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 26%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr>
+<th>Example</th>
+<th>Physical (P)</th>
+<th>Virtual (V)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RAM disk</td>
+<td>Memory (DRAM)</td>
+<td>A disk, on which you can mount a file system (for example
+<code>/tmp</code>)</td>
+</tr>
+<tr>
+<td>Java Virtual Machine</td>
+<td>An x86-64 or ARM CPU</td>
+<td>A processor that runs Java bytecode</td>
+</tr>
+<tr>
+<td>Apple Rosetta (2006)</td>
+<td>An x86-64 core</td>
+<td>A PowerPC processor</td>
+</tr>
+<tr>
+<td>Apple Rosetta (2020)</td>
+<td>An ARM v8 core</td>
+<td>An x86-64 processor</td>
+</tr>
+<tr>
+<td><code>127.0.0.1</code> (localhost)</td>
+<td>None</td>
+<td>A network interface</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 17%" />
+<col style="width: 24%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr>
+<th>Method</th>
+<th>How many P</th>
+<th>How many V</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multiplexing</td>
+<td>1</td>
+<td>Many</td>
+<td>vCPUs on one core</td>
+</tr>
+<tr>
+<td>Aggregation</td>
+<td>Many</td>
+<td>1</td>
+<td>RAID</td>
+</tr>
+<tr>
+<td>Emulation</td>
+<td>1 of one kind</td>
+<td>1 of another kind</td>
+<td>JVM, RAM disk</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="virtual-machines">3. Virtual Machines</h2>
+<h3 id="a-whole-computer-virtualized">3.1 A whole computer,
+virtualized</h3>
+<p>A <strong>virtual machine (VM)</strong> applies virtualization to the
+<strong>whole computer</strong>: P is a computer system, and V is also a
+computer system.</p>
+<figure>
+<img width="1400" height="605" src="media/6b-artifacts/vm-concept.webp" loading="lazy"
+decoding="async"
+alt="Without and with virtualization (Lecture 6b, slide 1.18)" />
+<figcaption aria-hidden="true">Without and with virtualization (Lecture
+6b, slide 1.18)</figcaption>
+</figure>
+<p><strong>History.</strong> VMs were popular in the 1960s and 1970s,
+when hardware was expensive and operating systems were primitive. They
+came back after 2000:</p>
+<ul>
+<li>to run the OS of your choice (compatibility),</li>
+<li>to put many servers onto fewer machines (consolidation),</li>
+<li>to let different owners share one machine (multi-tenancy),</li>
+<li>because a VM is easier to set up than a real machine.</li>
+</ul>
+<p>For these reasons, VMs are the <strong>foundation of the
+cloud</strong>.</p>
+<h3 id="the-popek-and-goldberg-definition-1974">3.2 The Popek and
+Goldberg definition (1974)</h3>
+<p>A virtual machine is <strong>an efficient, isolated duplicate of the
+real machine</strong>. The software that runs the VMs is the
+<strong>virtual machine monitor (VMM)</strong>, also called the
+<strong>hypervisor</strong>. The VMM:</p>
+<ul>
+<li>is <strong>always in complete control</strong> of the system,
+and</li>
+<li>uses the hardware <strong>directly</strong>, so programs in a VM are
+at most a little slower.</li>
+</ul>
+<h3 id="terms">3.3 Terms</h3>
+<p><strong>Operating systems:</strong></p>
+<ul>
+<li><strong>Guest OS:</strong> the OS that runs inside a VM.</li>
+<li><strong>Host OS:</strong> the OS that runs directly on the hardware,
+together with the VMM. Example: Linux with KVM.</li>
+</ul>
+<p><strong>Memory:</strong></p>
+<ul>
+<li><strong>Virtual memory:</strong> as in Lecture 8, the addresses that
+a process uses.</li>
+<li><strong>Guest physical memory:</strong> what the guest OS thinks is
+physical memory. It belongs to the VM.</li>
+<li><strong>Host physical memory:</strong> the real physical
+memory.</li>
+</ul>
+<p><strong>The layers, from top to bottom:</strong> applications → guest
+OS → VMM (hypervisor) → hardware. So the <strong>guest OS</strong> gives
+its applications an interface to the virtual hardware, and the
+<strong>VMM</strong> gives the guest OS an interface to the real
+hardware. Managing the interaction between a guest OS and its own
+applications is the job of the guest OS, not the VMM.</p>
+<h3 id="type-1-and-type-2-hypervisors">3.4 Type 1 and Type 2
+hypervisors</h3>
+<figure>
+<img width="1400" height="613" src="media/6b-artifacts/type1-vs-type2.webp" loading="lazy"
+decoding="async"
+alt="Type 1 and Type 2 hypervisors (Lecture 6b, slide 1.22)" />
+<figcaption aria-hidden="true">Type 1 and Type 2 hypervisors (Lecture
+6b, slide 1.22)</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 32%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Type 1</th>
+<th>Type 2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Where the VMM is</td>
+<td>The VMM <strong>is</strong> the host OS. It runs directly on the
+hardware</td>
+<td>The VMM is an <strong>optional extension</strong> of a normal host
+OS</td>
+</tr>
+<tr>
+<td>Normal applications on the host</td>
+<td>No</td>
+<td>Yes: they run next to the VMs</td>
+</tr>
+<tr>
+<td>Examples</td>
+<td>Xen, vSphere</td>
+<td>KVM with Linux</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="full-virtualization-and-para-virtualization">3.5 Full
+virtualization and para-virtualization</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 33%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Full virtualization</th>
+<th>Para-virtualization</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What the VM shows</td>
+<td>A complete copy of the real hardware</td>
+<td>A special software interface (API) between the guest OS and the
+VMM</td>
+</tr>
+<tr>
+<td>Guest OS</td>
+<td>Runs <strong>unmodified</strong>. It does not know that the
+hypervisor exists</td>
+<td>Must be <strong>modified</strong> to use the new API</td>
+</tr>
+<tr>
+<td>Advantage</td>
+<td>Any OS can run</td>
+<td>More efficient: the VMM does not need to virtualize the hard parts
+of the instruction set</td>
+</tr>
+<tr>
+<td>Examples</td>
+<td>VMware ESXi, Microsoft Virtual Server</td>
+<td>Xen, VMware, XtratuM</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="how-a-vmm-is-built">4. How a VMM Is Built</h2>
+<h3 id="multiplex-the-cpu-and-memory-emulate-the-devices">4.1 Multiplex
+the CPU and memory, emulate the devices</h3>
+<p>A VMM uses all three methods from section 2:</p>
+<ul>
+<li><strong>Multiplex the CPU</strong>, with hardware support. Each VM
+has its own vCPUs (P = core, V = core).</li>
+<li><strong>Multiplex memory</strong>, with hardware support for virtual
+memory. Each VM has its own guest physical memory (P = physical memory,
+V = physical memory).</li>
+<li><strong>Emulate I/O devices</strong>: a virtual disk, keyboard,
+screen, network card and network switch.</li>
+</ul>
+<h3 id="limited-direct-execution-on-a-normal-computer">4.2 Limited
+direct execution on a normal computer</h3>
+<p>First, recall how a normal OS runs a program <strong>without</strong>
+a VMM:</p>
+<figure>
+<img width="1400" height="504" src="media/6b-artifacts/bare-metal-lde.webp" loading="lazy"
+decoding="async"
+alt="Bare-metal system: limited direct execution (Lecture 6b, slide 1.26)" />
+<figcaption aria-hidden="true">Bare-metal system: limited direct
+execution (Lecture 6b, slide 1.26)</figcaption>
+</figure>
+<ul>
+<li>The application runs its <strong>unprivileged</strong> instructions
+<strong>directly</strong> on the CPU. This is fast.</li>
+<li>For services, the application makes <strong>system calls</strong>,
+which switch to kernel mode.</li>
+<li><strong>Privileged</strong> instructions are reserved for the OS. If
+user code tries one, the CPU traps to the OS.</li>
+</ul>
+<p>This is <strong>limited direct execution</strong>: the program runs
+directly on the hardware, but only within limits that the OS
+enforces.</p>
+<h3 id="system-level-limited-direct-execution-in-a-vmm">4.3 System-level
+limited direct execution in a VMM</h3>
+<p>The VMM adds one more layer below the OS. Because the VMM shows the
+guest the <strong>same</strong> hardware/software interface (for example
+x86-64), the guest OS and its applications still work.</p>
+<figure>
+<img width="1400" height="551" src="media/6b-artifacts/system-level-lde.webp" loading="lazy"
+decoding="async"
+alt="System-level limited direct execution (Lecture 6b, slide 1.28)" />
+<figcaption aria-hidden="true">System-level limited direct execution
+(Lecture 6b, slide 1.28)</figcaption>
+</figure>
+<p>To stay efficient:</p>
+<ul>
+<li>The application <strong>and the guest OS</strong> run directly on
+the CPU.</li>
+<li>The VMM <strong>traps some privileged instructions</strong> that the
+guest OS issues, and handles them itself.</li>
+</ul>
+<p>The VM runs in a special <strong>non-root mode</strong>, so the VMM
+stays in control. This is the same idea as protected mode for processes,
+extended from applications to whole operating systems.</p>
+<h3 id="the-virtual-cpu-in-one-paragraph">4.4 The virtual CPU in one
+paragraph</h3>
+<p>A vCPU is multiplexed <strong>in space and in time</strong>, much
+like a kernel thread:</p>
+<ul>
+<li><strong>Space:</strong> the VMM runs vCPUs of different VMs on
+different cores.</li>
+<li><strong>Time:</strong> the VMM shares a few physical cores among
+many vCPUs.</li>
+</ul>
+<p>Isolation comes from non-root mode for the VM, and from the
+assumption that the VMM (or host OS) is correct.</p>
+<h2 id="beyond-this-lecture-not-examinable">5. Beyond This Lecture (not
+examinable)</h2>
+<p>The lecture also shows containers, serverless computing, and GPU
+virtualization for AI services. These slides are marked not
+examinable.</p>
+<h2 id="what-you-know-now-lecture-6b">What You Know Now (Lecture
+6b)</h2>
+<ul>
+<li>Virtualization adds a layer that shows the same interface as the
+layer below it, and hides the physical names for isolation.</li>
+<li>Multiplexing: one physical resource looks like many (vCPUs).
+Aggregation: many look like one (RAID). Emulation: one looks like
+another kind (JVM, RAM disk).</li>
+<li>RAID 0 stripes (size N × n, no protection), RAID 1 mirrors (size N
+with 2 disks), RAID 5 uses distributed parity (size N × (n − 1), n ≥
+3).</li>
+<li>A VM is an efficient, isolated duplicate of the real machine. The
+VMM (hypervisor) is always in control.</li>
+<li>Type 1: the VMM is the host OS. Type 2: the VMM extends a normal
+host OS.</li>
+<li>Full virtualization runs an unmodified guest. Para-virtualization
+modifies the guest to use a special API, which is more efficient.</li>
+<li>Limited direct execution: code runs directly on the CPU, and
+privileged instructions trap. A VMM extends this to the guest OS.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../6a-rtos/6a.html">← 6a. Real-Time
+Operating Systems</a>
+  <a class="next-page" href="../7-memory-organization/7.html">7. Memory
+Organization →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

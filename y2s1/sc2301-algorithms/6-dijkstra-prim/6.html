@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>6. Greedy Algorithms: Dijkstra's Shortest Paths and Prim's
+MST · SC2301 Algorithm Design &amp; Analysis</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">6. Greedy
+Algorithms: Dijkstra's Shortest Paths and Prim's MST</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">6. Greedy Algorithms: Dijkstra's Shortest Paths
+and Prim's MST</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-foundations/1.html"
+                   data-nav="1-foundations/1.html">1. Foundations:
+Asymptotic Notation and Insertion Sort</a></li>
+            <li><a href="../2-mergesort/2.html"
+                   data-nav="2-mergesort/2.html">2. Divide and Conquer:
+Mergesort</a></li>
+            <li><a href="../3-heapsort/3.html"
+                   data-nav="3-heapsort/3.html">3. Heaps and
+Heapsort</a></li>
+            <li><a href="../4-quicksort-linear-sorts/4.html"
+                   data-nav="4-quicksort-linear-sorts/4.html">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a></li>
+            <li><a href="../5-graph-traversal/5.html"
+                   data-nav="5-graph-traversal/5.html">5. Graphs:
+Representations, BFS, DFS and Topological Sort</a></li>
+            <li><a href="../6-dijkstra-prim/6.html"
+                   data-nav="6-dijkstra-prim/6.html">6. Greedy
+Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</a></li>
+            <li><a href="../7-union-find-kruskal/7.html"
+                   data-nav="7-union-find-kruskal/7.html">7. Union-Find
+and Kruskal’s Algorithm</a></li>
+            <li><a href="../8-recurrences/8.html"
+                   data-nav="8-recurrences/8.html">8. Analysis
+Techniques: Solving Recurrences</a></li>
+            <li><a href="../9-amortized-analysis/9.html"
+                   data-nav="9-amortized-analysis/9.html">9. Amortized
+Analysis</a></li>
+            <li><a href="../10-dynamic-programming/10.html"
+                   data-nav="10-dynamic-programming/10.html">10. Dynamic
+Programming</a></li>
+            <li><a href="../11-string-matching/11.html"
+                   data-nav="11-string-matching/11.html">11. String
+Matching</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#greedy-algorithms-dijkstras-shortest-paths-and-prims-mst"
+id="toc-greedy-algorithms-dijkstras-shortest-paths-and-prims-mst">6.
+Greedy Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</a>
+<ul>
+<li><a href="#the-greedy-strategy" id="toc-the-greedy-strategy">1. The
+Greedy Strategy</a>
+<ul>
+<li><a href="#optimization-problems" id="toc-optimization-problems">1.1
+Optimization problems</a></li>
+<li><a href="#what-greedy-means" id="toc-what-greedy-means">1.2 What
+“greedy” means</a></li>
+<li><a href="#greedy-is-usually-not-optimal"
+id="toc-greedy-is-usually-not-optimal">1.3 Greedy is usually not
+optimal</a></li>
+</ul></li>
+<li><a href="#the-shortest-path-problem"
+id="toc-the-shortest-path-problem">2. The Shortest Path Problem</a>
+<ul>
+<li><a href="#the-problem" id="toc-the-problem">2.1 The problem</a></li>
+<li><a href="#sub-paths-of-shortest-paths-are-shortest"
+id="toc-sub-paths-of-shortest-paths-are-shortest">2.2 Sub-paths of
+shortest paths are shortest</a></li>
+</ul></li>
+<li><a href="#dijkstras-algorithm" id="toc-dijkstras-algorithm">3.
+Dijkstra’s Algorithm</a>
+<ul>
+<li><a href="#the-idea" id="toc-the-idea">3.1 The idea</a></li>
+<li><a href="#the-steps" id="toc-the-steps">3.2 The steps</a></li>
+<li><a href="#the-code" id="toc-the-code">3.3 The code</a></li>
+<li><a href="#how-to-trace-it-by-hand"
+id="toc-how-to-trace-it-by-hand">3.4 How to trace it by hand</a></li>
+<li><a href="#why-the-greedy-choice-is-correct"
+id="toc-why-the-greedy-choice-is-correct">3.5 Why the greedy choice is
+correct</a></li>
+<li><a href="#running-time" id="toc-running-time">3.6 Running
+time</a></li>
+<li><a href="#what-dijkstras-algorithm-can-and-cannot-do"
+id="toc-what-dijkstras-algorithm-can-and-cannot-do">3.7 What Dijkstra’s
+algorithm can and cannot do</a></li>
+<li><a href="#extension-counting-the-shortest-paths"
+id="toc-extension-counting-the-shortest-paths">3.8 Extension: counting
+the shortest paths</a></li>
+</ul></li>
+<li><a href="#minimum-spanning-trees" id="toc-minimum-spanning-trees">4.
+Minimum Spanning Trees</a>
+<ul>
+<li><a href="#definitions" id="toc-definitions">4.1 Definitions</a></li>
+<li><a href="#the-mst-property" id="toc-the-mst-property">4.2 The MST
+property</a></li>
+<li><a href="#useful-facts-about-msts"
+id="toc-useful-facts-about-msts">4.3 Useful facts about MSTs</a></li>
+</ul></li>
+<li><a href="#prims-algorithm" id="toc-prims-algorithm">5. Prim’s
+Algorithm</a>
+<ul>
+<li><a href="#the-idea-1" id="toc-the-idea-1">5.1 The idea</a></li>
+<li><a href="#the-code-1" id="toc-the-code-1">5.2 The code</a></li>
+<li><a href="#prim-against-dijkstra-one-line"
+id="toc-prim-against-dijkstra-one-line">5.3 Prim against Dijkstra: one
+line</a></li>
+<li><a href="#how-to-trace-it-by-hand-1"
+id="toc-how-to-trace-it-by-hand-1">5.4 How to trace it by hand</a></li>
+<li><a href="#why-prim-is-correct" id="toc-why-prim-is-correct">5.5 Why
+Prim is correct</a></li>
+<li><a href="#running-time-1" id="toc-running-time-1">5.6 Running
+time</a></li>
+</ul></li>
+<li><a href="#common-traps" id="toc-common-traps">6. Common
+Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="greedy-algorithms-dijkstras-shortest-paths-and-prims-mst">6.
+Greedy Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</h1>
+<p>This chapter covers Lecture 5. It introduces the
+<strong>greedy</strong> strategy and two greedy algorithms that are
+provably correct:</p>
+<ul>
+<li><strong>Dijkstra’s algorithm</strong> finds the shortest paths from
+one vertex to every other vertex in a weighted graph.</li>
+<li><strong>Prim’s algorithm</strong> finds a <strong>minimum spanning
+tree</strong>: the cheapest set of edges that connects every
+vertex.</li>
+</ul>
+<p>The two algorithms have almost the same code. The difference is one
+line, and understanding that line is most of this chapter.</p>
+<hr />
+<h2 id="the-greedy-strategy">1. The Greedy Strategy</h2>
+<h3 id="optimization-problems">1.1 Optimization problems</h3>
+<p>In an <strong>optimization problem</strong>, you make a series of
+choices, and the goal is to make the total cost as small as possible (or
+the total benefit as large as possible). Examples: the shortest route,
+the cheapest network.</p>
+<h3 id="what-greedy-means">1.2 What “greedy” means</h3>
+<p>A <strong>greedy algorithm</strong> makes each choice using only what
+it knows at that moment. It picks the option that looks best
+<strong>right now</strong>.</p>
+<ul>
+<li>Each choice is cheap to compute.</li>
+<li>A choice is <strong>never undone</strong>, even if it later turns
+out to be a bad one.</li>
+</ul>
+<h3 id="greedy-is-usually-not-optimal">1.3 Greedy is usually not
+optimal</h3>
+<figure>
+<img width="1400" height="924" src="media/6-artifacts/greedy-local-optimum.webp"
+style="width:60.0%" loading="lazy" decoding="async"
+alt="You are at the red point. A greedy climber only goes uphill, so it reaches the $10 peak and stops. It never finds the $20 peak." />
+<figcaption aria-hidden="true">You are at the red point. A greedy
+climber only goes uphill, so it reaches the $10 peak and stops. It never
+finds the $20 peak.</figcaption>
+</figure>
+<p>A choice that is best locally is often not best overall. So greedy
+algorithms usually <strong>do not guarantee</strong> the optimal answer.
+For each greedy algorithm, you must <strong>prove</strong> that it is
+optimal. Dijkstra’s and Prim’s algorithms are two cases where the proof
+works. (Chapter 10 covers dynamic programming, which handles problems
+where greedy fails.)</p>
+<hr />
+<h2 id="the-shortest-path-problem">2. The Shortest Path Problem</h2>
+<h3 id="the-problem">2.1 The problem</h3>
+<p>Given a weighted graph
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo>,</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G = (V, E, W)</annotation></semantics></math>
+and a <strong>source</strong> vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>,
+find the shortest path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+to every other vertex. “Shortest” means the smallest total weight. This
+is the <strong>single-source shortest paths</strong> problem.</p>
+<p>BFS (Chapter 5) solves it when every edge has the same weight. With
+different weights, a path with more edges can be lighter, so BFS can
+give the wrong answer.</p>
+<h3 id="sub-paths-of-shortest-paths-are-shortest">2.2 Sub-paths of
+shortest paths are shortest</h3>
+<p><strong>Lemma 1.</strong> Suppose a shortest path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
+goes through
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>.
+Then its part from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+is a shortest path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>,
+and its part from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
+is a shortest path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>.</p>
+<p><strong>Proof by contradiction.</strong> Suppose the part
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+is not shortest. Then some path
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>P</mi><mo>′</mo></msup><annotation encoding="application/x-tex">P&#39;</annotation></semantics></math>
+from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+is shorter. Follow
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>P</mi><mo>′</mo></msup><annotation encoding="application/x-tex">P&#39;</annotation></semantics></math>,
+then the rest of the original path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>.
+That is a path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
+that is shorter than the shortest one. Contradiction.</p>
+<p>This property (an optimal solution is built from optimal solutions of
+smaller problems) appears again in Chapter 10 as the <strong>principle
+of optimality</strong>.</p>
+<hr />
+<h2 id="dijkstras-algorithm">3. Dijkstra’s Algorithm</h2>
+<h3 id="the-idea">3.1 The idea</h3>
+<p>Dijkstra’s algorithm works like BFS, but for weighted graphs. It
+finalizes vertices <strong>in order of their distance from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math></strong>:
+first the closest vertex, then the next closest, and so on.</p>
+<p>It keeps two groups of vertices:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>:
+the vertices whose shortest distance is <strong>final</strong>. They
+form a tree of shortest paths.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>−</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">V - S</annotation></semantics></math>:
+the rest.</li>
+</ul>
+<p>Each vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+has two values:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">v.d</annotation></semantics></math>:
+the length of the shortest path to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+found <strong>so far</strong>. It starts at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>∞</mi><annotation encoding="application/x-tex">\infty</annotation></semantics></math>.
+It can only go down.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>π</mi></mrow><annotation encoding="application/x-tex">v.\pi</annotation></semantics></math>:
+the vertex before
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+on that path (its <strong>predecessor</strong>).</li>
+</ul>
+<h3 id="the-steps">3.2 The steps</h3>
+<ol type="1">
+<li>Set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>d</mi><mo>=</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">v.d = \infty</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>π</mi><mo>=</mo><mtext mathvariant="normal">null</mtext></mrow><annotation encoding="application/x-tex">v.\pi = \text{null}</annotation></semantics></math>
+for every vertex. Set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mi>.</mi><mi>d</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">s.d = 0</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+is empty.</li>
+<li>While some vertex is not in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>:
+<ol type="1">
+<li>Choose the vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+outside
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+with the <strong>smallest</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mi>.</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">u.d</annotation></semantics></math>.
+Add it to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.
+Its distance is now final.</li>
+<li>For each neighbour
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+that is not in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>:
+if going through
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+is shorter, that is, if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mi>.</mi><mi>d</mi><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>v</mi><mi>.</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">u.d + w(u, v) &lt; v.d</annotation></semantics></math>,
+then set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>d</mi><mo>=</mo><mi>u</mi><mi>.</mi><mi>d</mi><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">v.d = u.d + w(u, v)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>π</mi><mo>=</mo><mi>u</mi></mrow><annotation encoding="application/x-tex">v.\pi = u</annotation></semantics></math>.</li>
+</ol></li>
+</ol>
+<p>Step 2.2 is called <strong>relaxing</strong> the edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>:
+it checks whether the edge gives a shorter way to reach
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>.</p>
+<h3 id="the-code">3.3 The code</h3>
+<pre><code>Dijkstra_ShortestPath(Graph G, Node source) {
+    for each vertex v {
+        v.d = infinity;
+        v.pi = null;
+        S[v] = 0;                         // 1 when v is in S
+    }
+    source.d = 0;
+    put every vertex in priority queue Q, ordered by v.d;
+    while (not Empty(Q)) {
+        u = ExtractCheapest(Q);           // smallest d
+        S[u] = 1;                         // u.d is now final
+        for each vertex v adjacent to u
+            if (S[v] != 1 &amp;&amp; v.d &gt; u.d + w[u, v]) {
+                remove v from Q;
+                v.d = u.d + w[u, v];      // shorter path through u
+                v.pi = u;
+                insert v into Q according to v.d;
+            }
+    }
+}</code></pre>
+<figure>
+<img width="1400" height="651" src="media/6-artifacts/dijkstra-run.webp" style="width:90.0%"
+loading="lazy" decoding="async"
+alt="Dijkstra’s algorithm from s. Blue vertices are in S. The numbers are the current d values. In each step the tan vertex with the smallest d joins S, and its neighbours’ d values may fall." />
+<figcaption aria-hidden="true">Dijkstra’s algorithm from s. Blue
+vertices are in S. The numbers are the current d values. In each step
+the tan vertex with the smallest d joins S, and its neighbours’ d values
+may fall.</figcaption>
+</figure>
+<h3 id="how-to-trace-it-by-hand">3.4 How to trace it by hand</h3>
+<p>Exam questions ask for the arrays
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>
+after each iteration. Use a table with one column per vertex:</p>
+<ol type="1">
+<li><strong>Initial row:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+all 0.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">d = 0</annotation></semantics></math>
+for the source,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>∞</mi><annotation encoding="application/x-tex">\infty</annotation></semantics></math>
+for the rest.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>
+all null.</li>
+<li><strong>Each iteration:</strong>
+<ul>
+<li>Among the vertices with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S = 0</annotation></semantics></math>,
+pick the one with the smallest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>.
+(If there is a tie, use the rule the question gives, for example
+alphabetical order.) Set its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+to 1.</li>
+<li>For each outgoing edge from that vertex to a vertex with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S = 0</annotation></semantics></math>:
+compute (its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>)
++ (edge weight). If this is <strong>smaller</strong> than the
+neighbour’s current
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>,
+write the new
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+and set the neighbour’s
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>
+to the chosen vertex.</li>
+<li>Write the full row of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>.</li>
+</ul></li>
+<li>After
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|V|</annotation></semantics></math>
+iterations, every
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+is 1. Read each shortest path backwards with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>,
+from the vertex back to the source.</li>
+</ol>
+<p>Two checks catch most mistakes:</p>
+<ul>
+<li>The vertices join
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+in order of <strong>non-decreasing</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>.</li>
+<li>Once a vertex is in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>
+never change.</li>
+</ul>
+<p>You can also run this backwards: if a table shows the state after
+some iterations, the source is the vertex with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">d = 0</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mo>=</mo><mtext mathvariant="normal">null</mtext></mrow><annotation encoding="application/x-tex">\pi = \text{null}</annotation></semantics></math>.</p>
+<h3 id="why-the-greedy-choice-is-correct">3.5 Why the greedy choice is
+correct</h3>
+<p><strong>Lemma 2.</strong> Suppose every vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+has the correct shortest distance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>.</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">y.d</annotation></semantics></math>.
+Among all edges from a vertex in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+to a vertex outside
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(y, z)</annotation></semantics></math>
+be the one that makes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>.</mi><mi>d</mi><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y.d + w(y, z)</annotation></semantics></math>
+smallest. Then the path “shortest path to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>,
+then the edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(y, z)</annotation></semantics></math>”
+is a shortest path to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>.</p>
+<p><strong>Proof idea.</strong> Call this path
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>.
+Its length is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>P</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>y</mi><mi>.</mi><mi>d</mi><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">W(P) = y.d + w(y, z)</annotation></semantics></math>.
+Take any other path
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>P</mi><mo>′</mo></msup><annotation encoding="application/x-tex">P&#39;</annotation></semantics></math>
+from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>P</mi><mo>′</mo></msup><annotation encoding="application/x-tex">P&#39;</annotation></semantics></math>
+starts inside
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+and ends outside
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+so at some point it <strong>leaves</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+for the first time, along some edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>z</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>,</mo><msub><mi>z</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(z_{k-1}, z_k)</annotation></semantics></math>.</p>
+<ul>
+<li>The part of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>P</mi><mo>′</mo></msup><annotation encoding="application/x-tex">P&#39;</annotation></semantics></math>
+up to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>k</mi></msub><annotation encoding="application/x-tex">z_k</annotation></semantics></math>
+has length at least
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>z</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mi>.</mi><mi>d</mi><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>z</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>,</mo><msub><mi>z</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">z_{k-1}.d + w(z_{k-1}, z_k)</annotation></semantics></math>.
+By the choice of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(y, z)</annotation></semantics></math>,
+this is at least
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mi>.</mi><mi>d</mi><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">y.d + w(y, z) = W(P)</annotation></semantics></math>.</li>
+<li>The rest of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>P</mi><mo>′</mo></msup><annotation encoding="application/x-tex">P&#39;</annotation></semantics></math>,
+from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>k</mi></msub><annotation encoding="application/x-tex">z_k</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>,
+has length
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\ge 0</annotation></semantics></math></strong>,
+because <strong>all weights are non-negative</strong>.</li>
+</ul>
+<p>So
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>P</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">W(P&#39;) \ge W(P)</annotation></semantics></math>.
+No path to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
+is shorter than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>.</p>
+<p><strong>Theorem.</strong> With non-negative weights, Dijkstra’s
+algorithm gives the correct shortest distance to every vertex reachable
+from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>.</p>
+<p><strong>Proof with a loop invariant:</strong> “for every vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">v.d</annotation></semantics></math>
+is the correct shortest distance”.</p>
+<ul>
+<li><strong>Initialization.</strong> The first vertex to join
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>,
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mi>.</mi><mi>d</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">s.d = 0</annotation></semantics></math>.
+Correct.</li>
+<li><strong>Maintenance.</strong> The algorithm adds the vertex outside
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+with the smallest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>.
+That
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+value is exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mi>.</mi><mi>d</mi><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\min (y.d + w(y, z))</annotation></semantics></math>
+over edges leaving
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.
+By Lemma 2 it is the correct distance.</li>
+<li><strong>Termination.</strong> At the end, every vertex is in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+so every
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+is correct.</li>
+</ul>
+<h3 id="running-time">3.6 Running time</h3>
+<p>The cost depends on how the priority queue
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>
+is stored. There are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|V|</annotation></semantics></math>
+extractions and up to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|E|</annotation></semantics></math>
+updates of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 23%" />
+<col style="width: 21%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Priority queue</th>
+<th style="text-align: left;">Extract min</th>
+<th style="text-align: left;">Update
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math></th>
+<th style="text-align: left;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Unsorted array (indexed by vertex)</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\lvert V \rvert)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="postfix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\lvert V \rvert^2)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Binary min-heap</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log \lvert V \rvert)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log \lvert V \rvert)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mo>+</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O((\lvert V \rvert + \lvert E \rvert) \log \lvert V \rvert)</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Each total is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|V|</annotation></semantics></math>
+extractions plus
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|E|</annotation></semantics></math>
+updates. Array:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>⋅</mi><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mi>⋅</mi><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">|V| \cdot O(|V|) + |E| \cdot O(1) = O(|V|^2)</annotation></semantics></math>,
+because
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo>≤</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">|E| \le |V|^2</annotation></semantics></math>.
+Heap:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>⋅</mi><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mi>⋅</mi><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">|V| \cdot O(\log |V|) + |E| \cdot O(\log |V|)</annotation></semantics></math>.</p>
+<ul>
+<li>For a <strong>dense</strong> graph
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo>≈</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">|E| \approx |V|^2</annotation></semantics></math>),
+the array is better:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|^2)</annotation></semantics></math>
+against
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|^2 \log |V|)</annotation></semantics></math>.</li>
+<li>For a <strong>sparse</strong> graph, the heap is better: about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|E| \log |V|)</annotation></semantics></math>.</li>
+</ul>
+<p>The lecture states
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|^2)</annotation></semantics></math>
+for the simple implementation.</p>
+<h3 id="what-dijkstras-algorithm-can-and-cannot-do">3.7 What Dijkstra’s
+algorithm can and cannot do</h3>
+<ul>
+<li><p><strong>Directed or undirected:</strong> both work. An undirected
+edge is two directed edges, one each way.</p></li>
+<li><p><strong>Cycles:</strong> fine.</p></li>
+<li><p><strong>Zero weights:</strong> fine. Lemma 2 only needs weights
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\ge 0</annotation></semantics></math>.</p></li>
+<li><p><strong>Negative weights: not allowed.</strong> Lemma 2 needs
+“the rest of the path costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\ge 0</annotation></semantics></math>”.
+With a negative edge, a path that leaves
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+through a more expensive vertex can come back cheaper later. But
+Dijkstra has already finalized the vertex and never looks at it
+again.</p>
+<p>Example: edges
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>→</mo><mi>a</mi></mrow><annotation encoding="application/x-tex">s \to a</annotation></semantics></math>
+(weight 2),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>→</mo><mi>b</mi></mrow><annotation encoding="application/x-tex">s \to b</annotation></semantics></math>
+(weight 3),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>→</mo><mi>a</mi></mrow><annotation encoding="application/x-tex">b \to a</annotation></semantics></math>
+(weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">-2</annotation></semantics></math>).
+Dijkstra finalizes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">d = 2</annotation></semantics></math>
+first. Later it finalizes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>,
+but
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+is already in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+so it ignores the edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>b</mi><mo>→</mo><mi>a</mi></mrow><annotation encoding="application/x-tex">b \to a</annotation></semantics></math>.
+The true shortest distance to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>−</mo><mn>2</mn><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">3 - 2 = 1</annotation></semantics></math>.</p></li>
+<li><p><strong>Adding a constant to every weight does not fix negative
+weights.</strong> It changes which path is shortest. A path with more
+edges gets the constant added more times. Example:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>→</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">s \to t</annotation></semantics></math>
+with weight 5, against
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>→</mo><mi>a</mi><mo>→</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">s \to a \to t</annotation></semantics></math>
+with weights 2 and 2 (total 4). Add 10 to every edge: the direct edge
+costs 15, and the two-edge path costs 24. The shortest path has changed.
+For the same reason, adding the same amount to every edge can change the
+shortest path even when all weights are positive.</p></li>
+<li><p><strong>Multiplying every weight by a positive constant</strong>
+does not change which path is shortest. Every path is scaled by the same
+factor.</p></li>
+<li><p><strong>One source only.</strong> One run gives shortest paths
+<strong>from one source</strong>. For all pairs of vertices, run it once
+from every vertex.</p></li>
+<li><p><strong>Smaller graphs give longer paths.</strong> If you delete
+edges or vertices, a shortest path between two remaining vertices can
+only stay the same or get longer, because every path in the smaller
+graph also exists in the larger one.</p></li>
+</ul>
+<h3 id="extension-counting-the-shortest-paths">3.8 Extension: counting
+the shortest paths</h3>
+<p>To count how many different shortest paths reach each vertex, add a
+counter <code>v.count</code>. Set <code>s.count = 1</code> and every
+other count to 0. When relaxing edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>:</p>
+<ul>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mi>.</mi><mi>d</mi><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>v</mi><mi>.</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">u.d + w(u, v) &lt; v.d</annotation></semantics></math>:
+a strictly shorter path. Update
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">v.d</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>π</mi></mrow><annotation encoding="application/x-tex">v.\pi</annotation></semantics></math>,
+and set <code>v.count = u.count</code>. The old paths to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+are no longer shortest.</li>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mi>.</mi><mi>d</mi><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>v</mi><mi>.</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">u.d + w(u, v) = v.d</annotation></semantics></math>:
+more paths of the same shortest length. Add them:
+<code>v.count = v.count + u.count</code>.</li>
+</ul>
+<p>Because all weights are positive, every vertex before
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+on a shortest path joins
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+before
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>,
+so all its paths are counted in time.</p>
+<hr />
+<h2 id="minimum-spanning-trees">4. Minimum Spanning Trees</h2>
+<h3 id="definitions">4.1 Definitions</h3>
+<ul>
+<li>A <strong>subgraph</strong> of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G = (V, E)</annotation></semantics></math>
+is a graph
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>G</mi><mo>′</mo></msup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msup><mi>V</mi><mo>′</mo></msup><mo>,</mo><msup><mi>E</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G&#39; = (V&#39;, E&#39;)</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>V</mi><mo>′</mo></msup><mo>⊆</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">V&#39; \subseteq V</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>E</mi><mo>′</mo></msup><mo>⊆</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">E&#39; \subseteq E</annotation></semantics></math>,
+where every edge in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>E</mi><mo>′</mo></msup><annotation encoding="application/x-tex">E&#39;</annotation></semantics></math>
+joins two vertices in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>V</mi><mo>′</mo></msup><annotation encoding="application/x-tex">V&#39;</annotation></semantics></math>.</li>
+<li>A <strong>spanning tree</strong> of a connected graph
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+is a subgraph that <strong>contains every vertex</strong>, is
+<strong>connected</strong>, and has <strong>no cycle</strong>.</li>
+<li>A spanning tree of a graph with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|V|</annotation></semantics></math>
+vertices has exactly
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">|V| - 1</annotation></semantics></math>
+edges</strong>. Fewer edges cannot connect all vertices. One more edge
+creates a cycle.</li>
+<li>A <strong>minimum spanning tree</strong> (MST) is a spanning tree
+with the smallest total edge weight.</li>
+</ul>
+<p>Example use: connect
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+towns with cables, using the least total cable.</p>
+<h3 id="the-mst-property">4.2 The MST property</h3>
+<p>Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+be a spanning tree. Take any edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+that is <strong>not</strong> in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>.
+Adding it to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+creates exactly one cycle, because
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+already has a path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>.</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+has the <strong>MST property</strong> if, for every such edge,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>
+is a <strong>maximum-weight edge on that cycle</strong>. In words: no
+edge outside the tree could replace a heavier edge inside the tree.</p>
+<figure>
+<img width="1400" height="470" src="media/6-artifacts/mst-property.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="Left: a graph G. Middle: a spanning tree with the MST property. Right: a spanning tree without it, because adding edge BD (weight 1) creates a cycle in which AB (weight 2) is heavier." />
+<figcaption aria-hidden="true">Left: a graph G. Middle: a spanning tree
+with the MST property. Right: a spanning tree without it, because adding
+edge BD (weight 1) creates a cycle in which AB (weight 2) is
+heavier.</figcaption>
+</figure>
+<p><strong>Theorem 1.</strong> A spanning tree
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+is a minimum spanning tree <strong>if and only if</strong> it has the
+MST property.</p>
+<ul>
+<li><strong>(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⇒</mo><annotation encoding="application/x-tex">\Rightarrow</annotation></semantics></math>)</strong>
+Suppose
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+is an MST but lacks the property. Then some outside edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>
+creates a cycle with a heavier tree edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(x, y)</annotation></semantics></math>.
+Remove
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(x, y)</annotation></semantics></math>
+and add
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>.
+The result is still a spanning tree, and it is lighter than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>.
+That contradicts
+“<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+is minimum”.</li>
+<li><strong>(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⇐</mo><annotation encoding="application/x-tex">\Leftarrow</annotation></semantics></math>)</strong>
+First, any two spanning trees with the MST property have the same total
+weight (Lemma 1 below). An MST exists and, by the first half, has the
+MST property. So
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+has the same weight as an MST, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+is an MST too.</li>
+</ul>
+<p><strong>Lemma 1 (idea).</strong> Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>1</mn></msub><annotation encoding="application/x-tex">T_1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>2</mn></msub><annotation encoding="application/x-tex">T_2</annotation></semantics></math>
+both have the MST property. Use induction on the number of edges where
+they differ. Take the lightest such edge,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mi>v</mi></mrow><annotation encoding="application/x-tex">uv</annotation></semantics></math>,
+say in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>2</mn></msub><annotation encoding="application/x-tex">T_2</annotation></semantics></math>
+only. The path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>1</mn></msub><annotation encoding="application/x-tex">T_1</annotation></semantics></math>
+must contain an edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>i</mi></msub><msub><mi>w</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">w_iw_{i+1}</annotation></semantics></math>
+that is not in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>2</mn></msub><annotation encoding="application/x-tex">T_2</annotation></semantics></math>.
+By the MST property of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>1</mn></msub><annotation encoding="application/x-tex">T_1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>w</mi><mi>i</mi></msub><msub><mi>w</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w(w_iw_{i+1}) \le w(uv)</annotation></semantics></math>.
+By the choice of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mi>v</mi></mrow><annotation encoding="application/x-tex">uv</annotation></semantics></math>
+as the lightest differing edge,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>w</mi><mi>i</mi></msub><msub><mi>w</mi><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w(w_iw_{i+1}) \ge w(uv)</annotation></semantics></math>.
+So they are equal. Swap them in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>1</mn></msub><annotation encoding="application/x-tex">T_1</annotation></semantics></math>:
+the weight does not change, and the trees now differ in one fewer
+edge.</p>
+<h3 id="useful-facts-about-msts">4.3 Useful facts about MSTs</h3>
+<ul>
+<li><p><strong>The cycle rule.</strong> The strictly heaviest edge on
+any cycle is in <strong>no</strong> MST. This follows from the MST
+property.</p></li>
+<li><p><strong>The cut rule.</strong> Split the vertices into two
+groups. The lightest edge that crosses between the groups is in
+<strong>some</strong> MST. If it is the only lightest crossing edge, it
+is in <strong>every</strong> MST.</p></li>
+<li><p><strong>The lightest edge.</strong> If one edge is strictly
+lighter than all others, every MST contains it. (Use the cut rule with
+one of its ends as a group by itself.)</p></li>
+<li><p><strong>Distinct weights mean one MST.</strong> If all edge
+weights are different, the MST is unique.</p>
+<p><em>Proof.</em> Suppose
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mn>1</mn></msub><mo>≠</mo><msub><mi>T</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">T_1 \ne T_2</annotation></semantics></math>
+are both MSTs. Among the edges in one tree but not the other, take the
+lightest,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>.
+Say it is in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>1</mn></msub><annotation encoding="application/x-tex">T_1</annotation></semantics></math>.
+Adding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>2</mn></msub><annotation encoding="application/x-tex">T_2</annotation></semantics></math>
+creates a cycle. That cycle has some edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>
+not in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>1</mn></msub><annotation encoding="application/x-tex">T_1</annotation></semantics></math>
+(otherwise
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>1</mn></msub><annotation encoding="application/x-tex">T_1</annotation></semantics></math>
+would contain a cycle).
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>
+is a differing edge, so it is heavier than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>
+(weights are distinct). Then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mn>2</mn></msub><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>e</mi></mrow><annotation encoding="application/x-tex">T_2 + (u, v) - e</annotation></semantics></math>
+is a spanning tree lighter than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>2</mn></msub><annotation encoding="application/x-tex">T_2</annotation></semantics></math>.
+Contradiction.</p></li>
+<li><p><strong>Equal weights can give several MSTs.</strong> Example: a
+triangle with three edges of weight 1 has three MSTs (drop any one
+edge). If weights are not distinct, Prim and Kruskal may return
+different MSTs, all with the same total weight.</p></li>
+<li><p><strong>Negative weights are fine.</strong> MST algorithms only
+compare edge weights with each other. They never add weights along a
+path. For the same reason, adding a constant to every edge does not
+change which tree is minimum: every spanning tree has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">|V| - 1</annotation></semantics></math>
+edges, so every tree’s weight goes up by the same amount.</p></li>
+<li><p><strong>Shortest paths and MSTs are different.</strong> The
+shortest path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+does not have to use only MST edges. Example: a triangle
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>,</mo><mi>b</mi><mo>,</mo><mi>c</mi></mrow><annotation encoding="application/x-tex">a, b, c</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">w(a,b) = 2</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo>,</mo><mi>c</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">w(b,c) = 2</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>c</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">w(a,c) = 3</annotation></semantics></math>.
+The MST is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>a</mi><mi>b</mi><mo>,</mo><mi>b</mi><mi>c</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{ab, bc\}</annotation></semantics></math>,
+but the shortest path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>
+is the direct edge, weight 3, not
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">2 + 2 = 4</annotation></semantics></math>.</p></li>
+</ul>
+<hr />
+<h2 id="prims-algorithm">5. Prim’s Algorithm</h2>
+<h3 id="the-idea-1">5.1 The idea</h3>
+<p>Prim’s algorithm grows <strong>one tree</strong> from a start vertex.
+At each step, it adds the <strong>cheapest edge that connects the tree
+to a vertex not yet in the tree</strong>.</p>
+<p>It sorts the vertices into three groups:</p>
+<ul>
+<li><strong>Tree vertices:</strong> already in the tree.</li>
+<li><strong>Fringe vertices:</strong> not in the tree, but adjacent to
+some tree vertex.</li>
+<li><strong>Unseen vertices:</strong> all the others.</li>
+</ul>
+<p>Each step picks the fringe vertex with the cheapest edge to the tree,
+moves it into the tree, and moves its unseen neighbours into the fringe.
+When the fringe is empty, the tree contains every vertex (for a
+connected graph).</p>
+<h3 id="the-code-1">5.2 The code</h3>
+<p>Each vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+stores
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">v.d</annotation></semantics></math>,
+the weight of the <strong>cheapest single edge</strong> from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+to the current tree, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>π</mi></mrow><annotation encoding="application/x-tex">v.\pi</annotation></semantics></math>,
+the tree vertex at the other end of that edge.</p>
+<pre><code>primMST(G, s) {
+    for each vertex v { v.d = infinity; S[v] = 0; v.pi = null; }
+    s.d = 0;
+    insert(pq, s, 0);
+    while (pq is not empty) {
+        u = getMin(pq); deleteMin(pq);
+        S[u] = 1;                         // u joins the tree, by edge (u.pi, u)
+        updateFringe(pq, G, u);
+    }
+}
+
+updateFringe(pq, G, v) {
+    for all vertices w adjacent to v {
+        if (S[w] != 1) {                  // w is not in the tree yet
+            newWgt = weight of edge vw;
+            if (w.d == infinity) {        // w was unseen: now fringe
+                w.d = newWgt; w.pi = v;
+                insert(pq, w, newWgt);
+            } else if (newWgt &lt; w.d) {    // a cheaper edge to the tree
+                w.d = newWgt; w.pi = v;
+                decreaseKey(pq, w, newWgt);
+            }
+        }
+    }
+}</code></pre>
+<p>At the end, the edges
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mi>.</mi><mi>π</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(v.\pi, v)</annotation></semantics></math>
+for every vertex except
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+form the MST.</p>
+<h3 id="prim-against-dijkstra-one-line">5.3 Prim against Dijkstra: one
+line</h3>
+<p>The two algorithms have the same structure: pick the cheapest vertex
+outside the set, add it, update its neighbours. The difference is what
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+means.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 39%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Dijkstra</th>
+<th style="text-align: left;">Prim</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">v.d</annotation></semantics></math>
+means</td>
+<td style="text-align: left;">length of the whole path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math></td>
+<td style="text-align: left;">weight of one edge from the tree to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Update rule</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>d</mi><mo>=</mo><mi>u</mi><mi>.</mi><mi>d</mi><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">v.d = u.d + w(u, v)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mi>.</mi><mi>d</mi><mo>=</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">v.d = w(u, v)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Result</td>
+<td style="text-align: left;">shortest-path tree from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math></td>
+<td style="text-align: left;">minimum spanning tree</td>
+</tr>
+<tr>
+<td style="text-align: left;">Negative weights</td>
+<td style="text-align: left;">not allowed</td>
+<td style="text-align: left;">allowed</td>
+</tr>
+<tr>
+<td style="text-align: left;">Graph</td>
+<td style="text-align: left;">directed or undirected</td>
+<td style="text-align: left;">undirected, connected</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>So the two trees are usually <strong>different</strong>. Dijkstra
+minimizes each vertex’s distance from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>.
+Prim minimizes the total weight of all the edges.</p>
+<h3 id="how-to-trace-it-by-hand-1">5.4 How to trace it by hand</h3>
+<p>Use the same table as for Dijkstra: rows
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>,
+one column per vertex.</p>
+<ol type="1">
+<li>Start:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">d = 0</annotation></semantics></math>
+for the start vertex,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>∞</mi><annotation encoding="application/x-tex">\infty</annotation></semantics></math>
+elsewhere.</li>
+<li>Each iteration: pick the vertex with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S = 0</annotation></semantics></math>
+and the smallest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>.
+Set its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">S = 1</annotation></semantics></math>.
+For each neighbour
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S = 0</annotation></semantics></math>:
+if the <strong>edge weight</strong> to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+is smaller than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mi>.</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">w.d</annotation></semantics></math>,
+set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mi>.</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">w.d</annotation></semantics></math>
+to that weight and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mi>.</mi><mi>π</mi></mrow><annotation encoding="application/x-tex">w.\pi</annotation></semantics></math>
+to the chosen vertex.</li>
+<li>The fringe after an iteration is the set of vertices with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S = 0</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>&lt;</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">d &lt; \infty</annotation></semantics></math>.
+Their
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+values are their distances to the tree.</li>
+</ol>
+<p>The order in which vertices join the tree is the order the question
+usually asks for. The total MST weight is the sum of the final
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+values.</p>
+<h3 id="why-prim-is-correct">5.5 Why Prim is correct</h3>
+<p>The lecture’s argument: let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>k</mi></msub><annotation encoding="application/x-tex">T_k</annotation></semantics></math>
+be the tree after
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+vertices have joined. One can show that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>k</mi></msub><annotation encoding="application/x-tex">T_k</annotation></semantics></math>
+has the MST property within the subgraph of those
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+vertices. (The proof is not required.) So the final tree
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>n</mi></msub><annotation encoding="application/x-tex">T_n</annotation></semantics></math>
+has the MST property in the whole graph, and by Theorem 1 it is an
+MST.</p>
+<p>Intuitively: each step adds the lightest edge crossing between “tree”
+and “not tree”. By the cut rule, that edge belongs to some MST.</p>
+<h3 id="running-time-1">5.6 Running time</h3>
+<p>The same as Dijkstra’s algorithm, for the same reasons:</p>
+<ul>
+<li>Unsorted array:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|^2)</annotation></semantics></math>.
+Best for dense graphs.</li>
+<li>Binary heap:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O((|V| + |E|) \log |V|)</annotation></semantics></math>,
+which is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|E| \log |V|)</annotation></semantics></math>
+for a connected graph. Best for sparse graphs.</li>
+</ul>
+<p>Extra memory:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|)</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>
+and the priority queue.</p>
+<hr />
+<h2 id="common-traps">6. Common Traps</h2>
+<ul>
+<li>Dijkstra needs <strong>non-negative</strong> weights. Zero weights
+are fine. Adding a constant to all weights does not fix negative
+weights, and it can change the shortest path.</li>
+<li>One run of Dijkstra gives shortest paths from <strong>one</strong>
+source, not between all pairs.</li>
+<li>In Dijkstra,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+is a <strong>path</strong> length:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mi>.</mi><mi>d</mi><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">u.d + w(u, v)</annotation></semantics></math>.
+In Prim,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+is a single <strong>edge</strong> weight:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w(u, v)</annotation></semantics></math>.</li>
+<li>Once a vertex is in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+never change its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>.</li>
+<li>Prim and Kruskal work with negative weights. Dijkstra does not.</li>
+<li>A spanning tree has exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">|V| - 1</annotation></semantics></math>
+edges.</li>
+<li>Distinct weights give a unique MST. Equal weights can give several
+MSTs with the same total weight.</li>
+<li>The strictly lightest edge is in every MST. The strictly heaviest
+edge of a cycle is in no MST.</li>
+<li>The MST does not contain all shortest paths.</li>
+<li>Greedy algorithms are usually not optimal. Dijkstra and Prim are
+optimal because they come with a proof.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../5-graph-traversal/5.html">← 5.
+Graphs: Representations, BFS, DFS and Topological Sort</a>
+  <a class="next-page" href="../7-union-find-kruskal/7.html">7.
+Union-Find and Kruskal's Algorithm →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

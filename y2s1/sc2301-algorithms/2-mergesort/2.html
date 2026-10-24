@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>2. Divide and Conquer: Mergesort · SC2301 Algorithm Design
+&amp; Analysis</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">2. Divide and
+Conquer: Mergesort</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">2. Divide and Conquer: Mergesort</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-foundations/1.html"
+                   data-nav="1-foundations/1.html">1. Foundations:
+Asymptotic Notation and Insertion Sort</a></li>
+            <li><a href="../2-mergesort/2.html"
+                   data-nav="2-mergesort/2.html">2. Divide and Conquer:
+Mergesort</a></li>
+            <li><a href="../3-heapsort/3.html"
+                   data-nav="3-heapsort/3.html">3. Heaps and
+Heapsort</a></li>
+            <li><a href="../4-quicksort-linear-sorts/4.html"
+                   data-nav="4-quicksort-linear-sorts/4.html">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a></li>
+            <li><a href="../5-graph-traversal/5.html"
+                   data-nav="5-graph-traversal/5.html">5. Graphs:
+Representations, BFS, DFS and Topological Sort</a></li>
+            <li><a href="../6-dijkstra-prim/6.html"
+                   data-nav="6-dijkstra-prim/6.html">6. Greedy
+Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</a></li>
+            <li><a href="../7-union-find-kruskal/7.html"
+                   data-nav="7-union-find-kruskal/7.html">7. Union-Find
+and Kruskal’s Algorithm</a></li>
+            <li><a href="../8-recurrences/8.html"
+                   data-nav="8-recurrences/8.html">8. Analysis
+Techniques: Solving Recurrences</a></li>
+            <li><a href="../9-amortized-analysis/9.html"
+                   data-nav="9-amortized-analysis/9.html">9. Amortized
+Analysis</a></li>
+            <li><a href="../10-dynamic-programming/10.html"
+                   data-nav="10-dynamic-programming/10.html">10. Dynamic
+Programming</a></li>
+            <li><a href="../11-string-matching/11.html"
+                   data-nav="11-string-matching/11.html">11. String
+Matching</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#divide-and-conquer-mergesort"
+id="toc-divide-and-conquer-mergesort">2. Divide and Conquer:
+Mergesort</a>
+<ul>
+<li><a href="#the-divide-and-conquer-strategy"
+id="toc-the-divide-and-conquer-strategy">1. The Divide and Conquer
+Strategy</a>
+<ul>
+<li><a href="#the-skeleton" id="toc-the-skeleton">1.1 The
+skeleton</a></li>
+<li><a href="#mergesort-in-one-picture"
+id="toc-mergesort-in-one-picture">1.2 Mergesort in one picture</a></li>
+</ul></li>
+<li><a href="#merging-two-sorted-lists"
+id="toc-merging-two-sorted-lists">2. Merging Two Sorted Lists</a>
+<ul>
+<li><a href="#the-idea" id="toc-the-idea">2.1 The idea</a></li>
+<li><a href="#how-many-comparisons-does-one-merge-make"
+id="toc-how-many-comparisons-does-one-merge-make">2.2 How many
+comparisons does one merge make?</a></li>
+<li><a href="#merging-inside-the-array-the-lecture-version"
+id="toc-merging-inside-the-array-the-lecture-version">2.3 Merging inside
+the array (the lecture version)</a></li>
+<li><a href="#the-mergesort-code" id="toc-the-mergesort-code">2.4 The
+mergesort code</a></li>
+<li><a href="#the-call-graph" id="toc-the-call-graph">2.5 The call
+graph</a></li>
+</ul></li>
+<li><a href="#running-time-of-mergesort"
+id="toc-running-time-of-mergesort">3. Running Time of Mergesort</a>
+<ul>
+<li><a href="#setting-up-the-recurrence"
+id="toc-setting-up-the-recurrence">3.1 Setting up the
+recurrence</a></li>
+<li><a href="#solving-it-by-repeated-substitution"
+id="toc-solving-it-by-repeated-substitution">3.2 Solving it by repeated
+substitution</a></li>
+<li><a href="#the-same-answer-from-the-recursion-tree"
+id="toc-the-same-answer-from-the-recursion-tree">3.3 The same answer
+from the recursion tree</a></li>
+<li><a href="#best-and-average-case" id="toc-best-and-average-case">3.4
+Best and average case</a></li>
+<li><a href="#space" id="toc-space">3.5 Space</a></li>
+<li><a href="#is-mergesort-stable" id="toc-is-mergesort-stable">3.6 Is
+mergesort stable?</a></li>
+<li><a href="#strengths-and-weaknesses"
+id="toc-strengths-and-weaknesses">3.7 Strengths and weaknesses</a></li>
+</ul></li>
+<li><a href="#using-divide-and-conquer-and-sorting-on-other-problems"
+id="toc-using-divide-and-conquer-and-sorting-on-other-problems">4. Using
+Divide and Conquer and Sorting on Other Problems</a>
+<ul>
+<li><a href="#finding-the-minimum-and-the-maximum-together"
+id="toc-finding-the-minimum-and-the-maximum-together">4.1 Finding the
+minimum and the maximum together</a></li>
+<li><a href="#sorting-first-makes-some-problems-easy"
+id="toc-sorting-first-makes-some-problems-easy">4.2 Sorting first makes
+some problems easy</a></li>
+</ul></li>
+<li><a href="#common-traps" id="toc-common-traps">5. Common
+Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="divide-and-conquer-mergesort">2. Divide and Conquer:
+Mergesort</h1>
+<p>This chapter covers Lecture 2.1. Mergesort is the course’s main
+example of the <strong>divide and conquer</strong> strategy. The chapter
+also shows how to write and solve a <strong>recurrence</strong> for a
+recursive algorithm. Chapter 8 returns to recurrences in general.</p>
+<hr />
+<h2 id="the-divide-and-conquer-strategy">1. The Divide and Conquer
+Strategy</h2>
+<h3 id="the-skeleton">1.1 The skeleton</h3>
+<p>Divide and conquer solves a problem in three steps:</p>
+<ol type="1">
+<li><strong>Divide</strong> the problem into smaller sub-problems of the
+same type.</li>
+<li><strong>Conquer</strong>: solve each sub-problem by calling the same
+algorithm recursively.</li>
+<li><strong>Combine</strong> the sub-solutions into a solution for the
+whole problem.</li>
+</ol>
+<p>When a sub-problem is small enough, you solve it directly. This is
+the <strong>base case</strong>, and it stops the recursion.</p>
+<pre><code>solve(problem of size n) {
+    if (n &lt;= minimum size)
+        solve the problem directly;
+    else {
+        divide the problem into p1, p2, ..., pk;
+        for each sub-problem ps
+            solutions = solve(ps);
+        combine all solutions;
+    }
+}</code></pre>
+<p>In divide and conquer, the sub-problems are
+<strong>independent</strong>: they do not share work. Sorting the left
+half of an array does not help with sorting the right half. Chapter 10
+(dynamic programming) deals with problems whose sub-problems
+<strong>overlap</strong>.</p>
+<h3 id="mergesort-in-one-picture">1.2 Mergesort in one picture</h3>
+<p>Mergesort applies the skeleton to sorting:</p>
+<ol type="1">
+<li><strong>Divide</strong>: split the list into two halves of (nearly)
+equal size.</li>
+<li><strong>Conquer</strong>: sort each half with mergesort.</li>
+<li><strong>Combine</strong>: <strong>merge</strong> the two sorted
+halves into one sorted list.</li>
+</ol>
+<p>A list of 0 or 1 element is already sorted. That is the base
+case.</p>
+<figure>
+<img width="1400" height="754" src="media/2-artifacts/mergesort-nutshell.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="Mergesort splits down to single elements, then merges sorted lists back up." />
+<figcaption aria-hidden="true">Mergesort splits down to single elements,
+then merges sorted lists back up.</figcaption>
+</figure>
+<p>All the real work happens in the merge step. Splitting only computes
+a middle index.</p>
+<hr />
+<h2 id="merging-two-sorted-lists">2. Merging Two Sorted Lists</h2>
+<h3 id="the-idea">2.1 The idea</h3>
+<p>You have two sorted lists. You want one sorted list that holds all
+their elements.</p>
+<p>The smallest element overall must be the first element of one of the
+two lists. So:</p>
+<ol type="1">
+<li>Compare the first elements of the two lists. (1 key
+comparison.)</li>
+<li>The smaller one goes to the end of the merged list. Remove it from
+its list.</li>
+<li>Repeat until one list is empty.</li>
+<li>Copy what is left of the other list to the end. No more comparisons
+are needed, because that list is already sorted and every element in it
+is larger than everything merged so far.</li>
+</ol>
+<h3 id="how-many-comparisons-does-one-merge-make">2.2 How many
+comparisons does one merge make?</h3>
+<p>Let the two lists have
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements in total.</p>
+<p><strong>Worst case:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+comparisons.</strong> Each comparison sends at least one element to the
+merged list, and that element is never compared again. When only one
+list still has elements, the merge stops comparing. In the worst case
+this happens when there are just 2 elements left, one in each list. The
+last comparison then places both. So at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+comparisons are made.</p>
+<p>This happens when the two lists <strong>interleave</strong>: the
+largest element and the second-largest element are in different halves.
+Example:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>7</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[1, 3, 5, 7]</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>2</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>8</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[2, 4, 6, 8]</annotation></semantics></math>.</p>
+<p><strong>Best case:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>
+comparisons</strong> (for two halves of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>).
+If every element of one half is smaller than every element of the other
+half, that half empties after
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>
+comparisons. The other half is then copied with no comparisons. Example:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[1, 2, 3, 4]</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>5</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>7</mn><mo>,</mo><mn>8</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[5, 6, 7, 8]</annotation></semantics></math>.</p>
+<h3 id="merging-inside-the-array-the-lecture-version">2.3 Merging inside
+the array (the lecture version)</h3>
+<p>The simple way to merge uses a second array, called a
+<strong>buffer</strong>, to hold the merged list. The lecture version
+merges <strong>inside the original array</strong>, with no buffer. It
+keeps two running indices:</p>
+<ul>
+<li><code>a</code> runs through the left half, from <code>n</code> to
+<code>mid</code>.</li>
+<li><code>b</code> runs through the right half, from
+<code>mid + 1</code> to <code>m</code>.</li>
+</ul>
+<p>The part of the array to the left of <code>a</code> is already
+merged. At each step, compare <code>slot[a]</code> with
+<code>slot[b]</code>. There are three cases.</p>
+<p><strong>Case 1: <code>slot[a] &lt; slot[b]</code>.</strong> The left
+element is already in its correct place. Move <code>a</code> one place
+right.</p>
+<p><strong>Case 2: <code>slot[a] &gt; slot[b]</code>.</strong> The right
+element must go before <code>slot[a]</code>. Save <code>slot[b]</code>,
+shift every element from <code>a</code> to <code>mid</code> one place
+right, and put the saved element into <code>slot[a]</code>. Then move
+<code>a</code>, <code>mid</code> and <code>b</code> one place right.</p>
+<figure>
+<img width="1400" height="770" src="media/2-artifacts/merge-case2-shift.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Case 2: 3 must come before 4. The left half 4, 5, 7, 8 shifts one place right, and 3 goes into the gap." />
+<figcaption aria-hidden="true">Case 2: 3 must come before 4. The left
+half 4, 5, 7, 8 shifts one place right, and 3 goes into the
+gap.</figcaption>
+</figure>
+<p><strong>Case 3: <code>slot[a] == slot[b]</code>.</strong> If these
+are the last element of each half, stop. Otherwise <code>slot[a]</code>
+is in its correct place. Move <code>slot[b]</code> to the place just
+after it, again by shifting, and move <code>a</code> two places right
+(and <code>mid</code>, <code>b</code> one place right).</p>
+<p>Two effects of working in place:</p>
+<ul>
+<li><strong>Moves are expensive.</strong> One Case 2 step can shift up
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>
+elements. The <strong>number of comparisons</strong> is still at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+per merge, but the number of <strong>data moves</strong> can grow to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math>
+over the whole sort. A buffer avoids this, at the cost of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+extra memory.</li>
+<li><strong>Equal keys save comparisons.</strong> In Case 3, one
+comparison places <strong>two</strong> elements. So if all keys are
+equal, a merge of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements makes only
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>
+comparisons, the same as the best case.</li>
+</ul>
+<h3 id="the-mergesort-code">2.4 The mergesort code</h3>
+<pre><code>void mergesort(int n, int m) {      // sort slot[n..m]
+    int mid = (n + m) / 2;
+    if (m - n &lt;= 0)                 // 0 or 1 element: already sorted
+        return;
+    else if (m - n &gt; 1) {           // 3 or more elements: recurse on both halves
+        mergesort(n, mid);
+        mergesort(mid + 1, m);
+    }
+    merge(n, m);                    // 2 or more elements: merge the halves
+}</code></pre>
+<p>Note the middle test. When the range has exactly <strong>2
+elements</strong> (<code>m - n == 1</code>), the code skips the two
+recursive calls, because each half would have only one element. It goes
+straight to <code>merge</code>, which makes 1 comparison.</p>
+<h3 id="the-call-graph">2.5 The call graph</h3>
+<p>An exam may ask you to trace mergesort and number each call. The
+lecture numbers <code>mergesort()</code> calls in the order they start,
+and labels each <code>merge()</code> with the number of the
+<code>mergesort()</code> call that runs it.</p>
+<figure>
+<img width="1400" height="742" src="media/2-artifacts/mergesort-call-graph.webp"
+style="width:90.0%" loading="lazy" decoding="async"
+alt="Call graph for 6 elements. The red labels number the mergesort() calls. Each merge()@k belongs to call k." />
+<figcaption aria-hidden="true">Call graph for 6 elements. The red labels
+number the mergesort() calls. Each merge()<span class="citation"
+data-cites="k">@k</span> belongs to call k.</figcaption>
+</figure>
+<p>Useful counts for an array of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements:</p>
+<ul>
+<li><code>merge()</code> runs once for every range with 2 or more
+elements. Each merge joins two groups into one. You start with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+groups of one element and end with one group. So <code>merge()</code>
+runs exactly
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+times</strong>.</li>
+<li>The recursion goes about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">\lceil \lg n \rceil</annotation></semantics></math>
+levels deep.</li>
+</ul>
+<hr />
+<h2 id="running-time-of-mergesort">3. Running Time of Mergesort</h2>
+<h3 id="setting-up-the-recurrence">3.1 Setting up the recurrence</h3>
+<p>Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">W(n)</annotation></semantics></math>
+be the worst-case number of key comparisons to mergesort
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements.</p>
+<ul>
+<li>Sorting 1 element needs no comparison:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">W(1) = 0</annotation></semantics></math>.</li>
+<li>Sorting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements means sorting two halves, then merging them:</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">⌊</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">⌈</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌉</mo><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">W(n) = W(\lfloor n/2 \rfloor) + W(\lceil n/2 \rceil) + (n - 1).</annotation></semantics></math></p>
+<p>The two
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
+terms are the recursive calls. The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+is the worst case of one merge.</p>
+<h3 id="solving-it-by-repeated-substitution">3.2 Solving it by repeated
+substitution</h3>
+<p>Assume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">n = 2^k</annotation></semantics></math>,
+so the halves are always equal:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">W(n) = 2W(n/2) + n - 1</annotation></semantics></math>.
+Then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">k = \lg n</annotation></semantics></math>
+halvings reach size 1. Replace
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">W(n/2)</annotation></semantics></math>
+with its own formula, again and again:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>W</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn>2</mn><mi>W</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mi>W</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>2</mn></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn><mo>=</mo><msup><mn>2</mn><mn>2</mn></msup><mi>W</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>2</mn></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mn>2</mn><mn>3</mn></msup><mi>W</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>3</mn></mrow></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><msup><mn>2</mn><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mspace width="0.278em"></mspace><mspace width="0.278em"></mspace><mi>⋮</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>k</mi><mo>⋅</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>4</mn><mo>+</mo><mi>…</mi><mo>+</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn>0</mn><mo>+</mo><mi>k</mi><mo>⋅</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned}
+W(2^k) &amp;= 2W(2^{k-1}) + 2^k - 1 \\
+&amp;= 2\left(2W(2^{k-2}) + 2^{k-1} - 1\right) + 2^k - 1 = 2^2 W(2^{k-2}) + (2^k - 2) + (2^k - 1) \\
+&amp;= 2^3 W(2^{k-3}) + (2^k - 2^2) + (2^k - 2) + (2^k - 1) \\
+&amp;\;\;\vdots \\
+&amp;= 2^k W(1) + k \cdot 2^k - (1 + 2 + 4 + \dots + 2^{k-1}) \\
+&amp;= 0 + k \cdot 2^k - (2^k - 1).
+\end{aligned}</annotation></semantics></math></p>
+<p>Each expansion adds one term
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><msup><mn>2</mn><mi>i</mi></msup></mrow><annotation encoding="application/x-tex">2^k - 2^i</annotation></semantics></math>.
+After
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+expansions, the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>k</mi></msup><annotation encoding="application/x-tex">2^k</annotation></semantics></math>
+parts give
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>⋅</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">k \cdot 2^k</annotation></semantics></math>.
+The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>i</mi></msup><annotation encoding="application/x-tex">2^i</annotation></semantics></math>
+parts give
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mo>+</mo><mi>…</mi><mo>+</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">1 + 2 + \dots + 2^{k-1}</annotation></semantics></math>,
+which we subtract.</p>
+<p>With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">n = 2^k</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">k = \lg n</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>n</mi><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo>−</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">W(n) = n \lg n - n + 1 = \Theta(n \log n).</annotation></semantics></math></p>
+<p>The last step uses the geometric series
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>4</mn><mo>+</mo><mi>…</mi><mo>+</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">1 + 2 + 4 + \dots + 2^{k-1} = 2^k - 1</annotation></semantics></math>.</p>
+<h3 id="the-same-answer-from-the-recursion-tree">3.3 The same answer
+from the recursion tree</h3>
+<p>Draw each call as a node, and write in it the work the call does
+<strong>itself</strong> (its merge), not counting its children.</p>
+<figure>
+<img width="1400" height="754" src="media/2-artifacts/mergesort-recursion-tree.webp"
+style="width:80.0%" loading="lazy" decoding="async"
+alt="Recursion tree for the worst case. Level j has 2^j nodes, each merging n/2^j elements." />
+<figcaption aria-hidden="true">Recursion tree for the worst case. Level
+j has 2^j nodes, each merging n/2^j elements.</figcaption>
+</figure>
+<ul>
+<li>The root merges
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+comparisons.</li>
+<li>Level 1 has 2 nodes, each merging
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>
+elements:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>n</mi><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">2(n/2 - 1) = n - 2</annotation></semantics></math>.</li>
+<li>Level
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>j</mi></msup><annotation encoding="application/x-tex">2^j</annotation></semantics></math>
+nodes:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>j</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><msup><mn>2</mn><mi>j</mi></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>n</mi><mo>−</mo><msup><mn>2</mn><mi>j</mi></msup></mrow><annotation encoding="application/x-tex">2^j (n/2^j - 1) = n - 2^j</annotation></semantics></math>.</li>
+<li>There are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">k = \lg n</annotation></semantics></math>
+levels with merges.</li>
+</ul>
+<p>Each level costs a little less than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>,
+and there are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\lg n</annotation></semantics></math>
+levels. So the total is about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n \lg n</annotation></semantics></math>.
+The recursion tree is a quick way to <strong>guess</strong> the answer.
+The substitution above <strong>proves</strong> it.</p>
+<h3 id="best-and-average-case">3.4 Best and average case</h3>
+<p><strong>Best case.</strong> Every merge makes only
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>
+comparisons:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn><mo>,</mo><mspace width="2.0em"></mspace><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi><mi>/</mi><mn>2</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">B(1) = 0, \qquad B(n) = 2B(n/2) + n/2.</annotation></semantics></math></p>
+<p>Each of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\lg n</annotation></semantics></math>
+levels costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mi>n</mi><mn>2</mn></mfrac><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">B(n) = \frac{n}{2} \lg n = \Theta(n \log n)</annotation></semantics></math>.</p>
+<p>This happens when, in every merge, one half is entirely smaller than
+the other. An array that is already sorted is a best case. So is an
+array in <strong>descending order</strong>: the left half is then
+entirely larger than the right half, and each merge stops when the right
+half runs out.</p>
+<p><strong>Average case.</strong> Every input costs at least
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">B(n)</annotation></semantics></math>
+and at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">W(n)</annotation></semantics></math>.
+Both are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>.
+So the average
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">A(n)</annotation></semantics></math>
+is squeezed between them:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>A</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mspace width="1.0em"></mspace><mo>⇒</mo><mspace width="1.0em"></mspace><mi>A</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">B(n) \le A(n) \le W(n) \quad \Rightarrow \quad A(n) = \Theta(n \log n).</annotation></semantics></math></p>
+<p>This “squeeze” argument is a standard way to get an average case
+without probabilities. It works <strong>only</strong> because the best
+and worst cases have the same order. For insertion sort it does not
+work: the best case is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>
+and the worst is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n^2)</annotation></semantics></math>.</p>
+<p>So mergesort is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>
+in <strong>every</strong> case. Its running time does not depend on the
+order of the input, only on how much the halves interleave, which
+changes the constant.</p>
+<h3 id="space">3.5 Space</h3>
+<ul>
+<li>With a buffer:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+extra memory for the buffer, plus
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+for the recursion stack. Total
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>.</li>
+<li>With the in-place merge of the lecture: no buffer, but still
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+for the recursion stack.</li>
+</ul>
+<h3 id="is-mergesort-stable">3.6 Is mergesort stable?</h3>
+<ul>
+<li><strong>The buffer version</strong> is stable if, on a tie, it takes
+the element from the <strong>left</strong> half first. Equal elements
+then keep their order.</li>
+<li><strong>The lecture’s in-place version is not stable.</strong> In
+Case 3 it puts the right element directly after the left element. If the
+left half has another equal element after that, the right element jumps
+over it. Example: left half
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><msub><mn>4</mn><mi>a</mi></msub><mo>,</mo><msub><mn>4</mn><mi>c</mi></msub><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[4_a, 4_c]</annotation></semantics></math>,
+right half
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><msub><mn>4</mn><mi>b</mi></msub><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[4_b]</annotation></semantics></math>.
+The first comparison finds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mn>4</mn><mi>a</mi></msub><mo>=</mo><msub><mn>4</mn><mi>b</mi></msub></mrow><annotation encoding="application/x-tex">4_a = 4_b</annotation></semantics></math>
+and moves
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mn>4</mn><mi>b</mi></msub><annotation encoding="application/x-tex">4_b</annotation></semantics></math>
+next to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mn>4</mn><mi>a</mi></msub><annotation encoding="application/x-tex">4_a</annotation></semantics></math>.
+The result is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mn>4</mn><mi>a</mi></msub><mo>,</mo><msub><mn>4</mn><mi>b</mi></msub><mo>,</mo><msub><mn>4</mn><mi>c</mi></msub></mrow><annotation encoding="application/x-tex">4_a, 4_b, 4_c</annotation></semantics></math>.
+But the original order was
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mn>4</mn><mi>a</mi></msub><mo>,</mo><msub><mn>4</mn><mi>c</mi></msub><mo>,</mo><msub><mn>4</mn><mi>b</mi></msub></mrow><annotation encoding="application/x-tex">4_a, 4_c, 4_b</annotation></semantics></math>,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mn>4</mn><mi>b</mi></msub><annotation encoding="application/x-tex">4_b</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mn>4</mn><mi>c</mi></msub><annotation encoding="application/x-tex">4_c</annotation></semantics></math>
+have changed places.</li>
+</ul>
+<h3 id="strengths-and-weaknesses">3.7 Strengths and weaknesses</h3>
+<ul>
+<li><strong>Strengths:</strong> simple, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>
+in every case. Easy to implement on linked lists, where merging needs no
+shifting.</li>
+<li><strong>Weaknesses:</strong> on an array, merging needs either a
+buffer
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+extra memory) or many data moves.</li>
+</ul>
+<hr />
+<h2 id="using-divide-and-conquer-and-sorting-on-other-problems">4. Using
+Divide and Conquer and Sorting on Other Problems</h2>
+<h3 id="finding-the-minimum-and-the-maximum-together">4.1 Finding the
+minimum and the maximum together</h3>
+<p>The simple method scans the array twice, or compares each element
+with both the current minimum and the current maximum. That takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">2(n - 1)</annotation></semantics></math>
+comparisons.</p>
+<p>Divide and conquer does better:</p>
+<ul>
+<li>Base cases: 1 element is both min and max (0 comparisons). 2
+elements need 1 comparison: the smaller is the min, the larger is the
+max.</li>
+<li>Otherwise, find (min, max) of each half recursively. Then compare
+the two minimums (1 comparison) and the two maximums (1
+comparison).</li>
+</ul>
+<p>Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">n = 2^k</annotation></semantics></math>.
+The two calls on halves cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">2W(n/2)</annotation></semantics></math>.
+The two final comparisons add 2. Two elements cost 1:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mo>,</mo><mspace width="2.0em"></mspace><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">W(2) = 1, \qquad W(n) = 2W(n/2) + 2.</annotation></semantics></math></p>
+<p>Expand until the size is 2. That leaves
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">2^{k-1}</annotation></semantics></math>
+pairs, at 1 comparison each. The levels above add
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>+</mo><mn>4</mn><mo>+</mo><mi>…</mi><mo>+</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">2 + 4 + \dots + 2^{k-1}</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>+</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>2</mn></mrow></msup><mo>+</mo><mi>…</mi><mo>+</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mi>n</mi><mn>2</mn></mfrac><mo>+</mo><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mi>n</mi><mn>2</mn></mfrac><mo>−</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><mn>3</mn><mi>n</mi></mrow><mn>2</mn></mfrac><mo>−</mo><mn>2</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">W(n) = 2^{k-1} W(2) + (2^{k-1} + 2^{k-2} + \dots + 2) = \frac{n}{2} + 2\left(\frac{n}{2} - 1\right) = \frac{3n}{2} - 2.</annotation></semantics></math></p>
+<p>That is about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1.5</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">1.5n</annotation></semantics></math>
+comparisons, 25% fewer than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">2n</annotation></semantics></math>.
+The saving comes from the base case: one comparison between a pair
+decides both which one can be the min and which one can be the max.</p>
+<h3 id="sorting-first-makes-some-problems-easy">4.2 Sorting first makes
+some problems easy</h3>
+<p>Many problems become simple once the data is sorted, because related
+elements end up next to each other.</p>
+<ul>
+<li><strong>Duplicates.</strong> To check whether an array has two equal
+elements, sort it in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>,
+then scan once and compare each element with its neighbour,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>.
+Total
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>.
+Without sorting, comparing every pair takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n^2)</annotation></semantics></math>.</li>
+<li><strong>Two sets with no common element.</strong> Sort one set, then
+binary-search each element of the other set. Total
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>.</li>
+<li><strong>Faster than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n \log n</annotation></semantics></math>
+with extra information.</strong> If the keys are small integers in a
+known range, for example
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">2n</annotation></semantics></math>,
+you do not need comparisons at all. Use an array of counters, one per
+possible value. Add 1 to the counter of each element. A counter that
+reaches 2 means a duplicate. This takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>
+time and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>
+extra memory. Chapter 4 (counting sort) uses the same idea.</li>
+</ul>
+<hr />
+<h2 id="common-traps">5. Common Traps</h2>
+<ul>
+<li>One merge of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements costs at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+comparisons, not
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.</li>
+<li><code>merge()</code> runs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+times in total. A 2-element range goes straight to <code>merge()</code>
+without recursive calls.</li>
+<li>Mergesort is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>
+in the best, average and worst case. A descending array is a
+<strong>best</strong> case for mergesort, not a worst case.</li>
+<li>The worst case of one merge needs the two halves to interleave. It
+does not depend on the array being reversed.</li>
+<li>The average case follows from the squeeze
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>A</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">B(n) \le A(n) \le W(n)</annotation></semantics></math>,
+because
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
+have the same order.</li>
+<li>Mergesort is a divide-and-conquer algorithm. Insertion sort is
+<strong>not</strong>: it is incremental.</li>
+<li>Stability depends on the merge. The buffer version (left first on
+ties) is stable. The lecture’s in-place version is not.</li>
+<li>In-place mergesort still uses
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+stack memory.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../1-foundations/1.html">← 1.
+Foundations: Asymptotic Notation and Insertion Sort</a>
+  <a class="next-page" href="../3-heapsort/3.html">3. Heaps and
+Heapsort →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

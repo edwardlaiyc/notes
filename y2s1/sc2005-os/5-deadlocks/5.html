@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>5. Deadlocks · SC2005 Operating Systems</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">5.
+Deadlocks</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">5. Deadlocks</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-overview/1.html"
+                   data-nav="1-overview/1.html">1. Overview of Operating
+Systems</a></li>
+            <li><a href="../2-processes-threads/2.html"
+                   data-nav="2-processes-threads/2.html">2. Processes
+and Threads</a></li>
+            <li><a href="../3-cpu-scheduling/3.html"
+                   data-nav="3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../4-synchronization/4.html"
+                   data-nav="4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../5-deadlocks/5.html"
+                   data-nav="5-deadlocks/5.html">5. Deadlocks</a></li>
+            <li><a href="../6a-rtos/6a.html"
+                   data-nav="6a-rtos/6a.html">6a. Real-Time Operating
+Systems</a></li>
+            <li><a href="../6b-virtualization/6b.html"
+                   data-nav="6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../7-memory-organization/7.html"
+                   data-nav="7-memory-organization/7.html">7. Memory
+Organization</a></li>
+            <li><a href="../8-virtual-memory/8.html"
+                   data-nav="8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../9-file-systems/9.html"
+                   data-nav="9-file-systems/9.html">9. File
+Systems</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../labs/lab-1.html"
+                   data-nav="labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../labs/lab-2.html"
+                   data-nav="labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../labs/lab-3/lab-3.html"
+                   data-nav="labs/lab-3/lab-3.html">Lab 3 Guide</a></li>
+            <li><a href="../labs/lab-4/lab-4.html"
+                   data-nav="labs/lab-4/lab-4.html">Lab 4 Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#what-a-deadlock-is" id="toc-what-a-deadlock-is">1. What a
+Deadlock Is</a>
+<ul>
+<li><a href="#definition" id="toc-definition">1.1 Definition</a></li>
+<li><a href="#a-picture-the-narrow-bridge"
+id="toc-a-picture-the-narrow-bridge">1.2 A picture: the narrow
+bridge</a></li>
+<li><a href="#deadlock-and-starvation-are-different"
+id="toc-deadlock-and-starvation-are-different">1.3 Deadlock and
+starvation are different</a></li>
+</ul></li>
+<li><a href="#the-system-model" id="toc-the-system-model">2. The System
+Model</a>
+<ul>
+<li><a href="#resources" id="toc-resources">2.1 Resources</a></li>
+<li><a href="#the-resource-allocation-graph"
+id="toc-the-resource-allocation-graph">2.2 The resource-allocation
+graph</a></li>
+<li><a href="#reading-a-graph-is-there-a-deadlock"
+id="toc-reading-a-graph-is-there-a-deadlock">2.3 Reading a graph: is
+there a deadlock?</a></li>
+<li><a href="#the-basic-facts-about-cycles"
+id="toc-the-basic-facts-about-cycles">2.4 The basic facts about
+cycles</a></li>
+</ul></li>
+<li><a href="#the-four-conditions-for-deadlock"
+id="toc-the-four-conditions-for-deadlock">3. The Four Conditions for
+Deadlock</a></li>
+<li><a href="#how-an-os-can-deal-with-deadlock"
+id="toc-how-an-os-can-deal-with-deadlock">4. How an OS Can Deal With
+Deadlock</a></li>
+<li><a href="#deadlock-prevention-break-one-condition"
+id="toc-deadlock-prevention-break-one-condition">5. Deadlock Prevention:
+Break One Condition</a></li>
+<li><a href="#deadlock-avoidance-look-ahead-before-you-grant"
+id="toc-deadlock-avoidance-look-ahead-before-you-grant">6. Deadlock
+Avoidance: Look Ahead Before You Grant</a>
+<ul>
+<li><a href="#the-idea" id="toc-the-idea">6.1 The idea</a></li>
+<li><a href="#safe-sequences-and-safe-states"
+id="toc-safe-sequences-and-safe-states">6.2 Safe sequences and safe
+states</a></li>
+<li><a href="#safe-unsafe-and-deadlock"
+id="toc-safe-unsafe-and-deadlock">6.3 Safe, unsafe and deadlock</a></li>
+</ul></li>
+<li><a href="#the-bankers-algorithm" id="toc-the-bankers-algorithm">7.
+The Banker’s Algorithm</a>
+<ul>
+<li><a href="#the-data" id="toc-the-data">7.1 The data</a></li>
+<li><a href="#part-1-the-safety-algorithm"
+id="toc-part-1-the-safety-algorithm">7.2 Part 1: the safety
+algorithm</a></li>
+<li><a href="#part-2-the-resource-request-algorithm"
+id="toc-part-2-the-resource-request-algorithm">7.3 Part 2: the
+resource-request algorithm</a></li>
+<li><a href="#the-lecture-example" id="toc-the-lecture-example">7.4 The
+lecture example</a></li>
+</ul></li>
+<li><a href="#deadlock-detection-not-examinable"
+id="toc-deadlock-detection-not-examinable">8. Deadlock Detection (not
+examinable)</a></li>
+<li><a href="#what-you-know-now-lecture-5"
+id="toc-what-you-know-now-lecture-5">What You Know Now (Lecture
+5)</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>This was written entirely with AI.</p>
+<h2 id="what-a-deadlock-is">1. What a Deadlock Is</h2>
+<h3 id="definition">1.1 Definition</h3>
+<p>A <strong>deadlock</strong> is a situation where a set of processes
+are all <strong>blocked</strong>. Each process <strong>holds</strong> a
+resource and <strong>waits</strong> for a resource that another process
+in the set holds. None of them can continue, so they wait forever.</p>
+<p><strong>Example 1.</strong> A system has two tape drives. Processes
+P1 and P2 each need both drives. P1 holds one drive and P2 holds the
+other. Each waits for the other’s drive.</p>
+<p><strong>Example 2.</strong> Semaphores A and B both start at 1:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// P0           // P1</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>A<span class="op">);</span>        Wait<span class="op">(</span>B<span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>B<span class="op">);</span>        Wait<span class="op">(</span>A<span class="op">);</span></span></code></pre></div>
+<p>If a context switch occurs after P0’s <code>Wait(A)</code>, P1 takes
+B. Then each process holds one semaphore and waits for the other.</p>
+<h3 id="a-picture-the-narrow-bridge">1.2 A picture: the narrow
+bridge</h3>
+<p>Only one car fits on the bridge at a time. The bridge is the shared
+resource. Two cars drive onto it from opposite ends. Neither can move
+forward.</p>
+<figure>
+<img width="1400" height="418" src="media/5-artifacts/bridge-crossing.webp" loading="lazy"
+decoding="async"
+alt="Deadlock on a narrow bridge (Lecture 5, slide 5.5)" />
+<figcaption aria-hidden="true">Deadlock on a narrow bridge (Lecture 5,
+slide 5.5)</figcaption>
+</figure>
+<p>To end the deadlock, one car must <strong>back up</strong>. This
+means: release the resource and roll back. Sometimes several cars must
+back up.</p>
+<h3 id="deadlock-and-starvation-are-different">1.3 Deadlock and
+starvation are different</h3>
+<ul>
+<li>In a <strong>deadlock</strong>, the processes wait for <strong>each
+other</strong>. None of them can ever continue.</li>
+<li>In <strong>starvation</strong>, a process waits forever, but other
+processes continue. For example, the scheduler keeps choosing
+others.</li>
+</ul>
+<p><strong>A deadlock needs at least two processes.</strong> One process
+alone cannot both hold a resource and wait for another process to
+release one.</p>
+<h2 id="the-system-model">2. The System Model</h2>
+<h3 id="resources">2.1 Resources</h3>
+<ul>
+<li>There are resource <strong>types</strong> R1, R2, …, Rm. Examples:
+memory space, I/O devices, semaphores.</li>
+<li>Each type Ri has <strong>Wi identical instances</strong>. For
+example, the type “printer” can have 3 instances. A process that asks
+for a printer can get any of the 3.</li>
+</ul>
+<p>A process uses a resource in three steps:</p>
+<ol type="1">
+<li><strong>Request</strong> a number of instances. If they are not
+free, the process waits.</li>
+<li><strong>Use</strong> them.</li>
+<li><strong>Release</strong> them.</li>
+</ol>
+<h3 id="the-resource-allocation-graph">2.2 The resource-allocation
+graph</h3>
+<p>A <strong>resource-allocation graph</strong> shows who holds what and
+who waits for what.</p>
+<figure>
+<img width="1297" height="1037" src="media/5-artifacts/rag-notation.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Resource-allocation graph notation (Lecture 5, slide 5.9)" />
+<figcaption aria-hidden="true">Resource-allocation graph notation
+(Lecture 5, slide 5.9)</figcaption>
+</figure>
+<ul>
+<li>A <strong>circle</strong> is a process.</li>
+<li>A <strong>box</strong> is a resource type. Each dot inside the box
+is one instance.</li>
+<li>A <strong>request edge</strong> Pi → Rj: process Pi waits for an
+instance of Rj. When the OS grants the request, this edge becomes an
+assignment edge.</li>
+<li>An <strong>assignment edge</strong> Rj → Pi: an instance of Rj is
+held by Pi. The edge starts at a dot. When Pi releases the instance, the
+edge disappears.</li>
+</ul>
+<h3 id="reading-a-graph-is-there-a-deadlock">2.3 Reading a graph: is
+there a deadlock?</h3>
+<p>Try to find an order in which every process can finish:</p>
+<ol type="1">
+<li>Find a process whose requests can all be met by <strong>free
+instances</strong> now.</li>
+<li>Let it finish. It releases everything it holds. Those instances are
+now free.</li>
+<li>Repeat. If every process can finish, there is no deadlock.</li>
+</ol>
+<figure>
+<img width="844" height="1093" src="media/5-artifacts/rag-no-deadlock.webp" style="width:45.0%"
+loading="lazy" decoding="async"
+alt="No deadlock: P3, then P2, then P1 can finish (Lecture 5, slide 5.10)" />
+<figcaption aria-hidden="true">No deadlock: P3, then P2, then P1 can
+finish (Lecture 5, slide 5.10)</figcaption>
+</figure>
+<p>In slide 5.10, P3 waits for nothing, so it finishes and frees its
+instance of R3. Then P2 can get R3 and finish. Then P1 can finish. The
+order P3 → P2 → P1 works, so there is no deadlock.</p>
+<p><strong>What a cycle is.</strong> A <strong>cycle</strong> is a path
+that follows the arrows and comes back to where it started. In a
+resource-allocation graph, a cycle means: each process on the path waits
+for a resource that the next process on the path holds.</p>
+<p><strong>How to find a cycle:</strong></p>
+<ol type="1">
+<li>Start at a process.</li>
+<li>Follow an arrow <strong>in its direction only</strong>. From a
+process, follow its request edge to a box. From a box, follow an
+assignment edge (it starts at a dot) to a process.</li>
+<li>Continue in the same way. If a box has several assignment edges, try
+each one.</li>
+<li>If you come back to a circle or box that is already on your path,
+you found a cycle.</li>
+<li>If you reach a process with no request edge, this path ends there.
+That process waits for nothing, so this path has no cycle. Try another
+start or another branch.</li>
+</ol>
+<p>In slide 5.10, start at P1: P1 → R1 → P2 → R3 → P3. P3 has no request
+edge, so the path ends. Every other path also ends. So slide 5.10 has
+<strong>no cycle</strong>.</p>
+<figure>
+<img width="843" height="1093" src="media/5-artifacts/rag-deadlock.webp" style="width:45.0%"
+loading="lazy" decoding="async"
+alt="A deadlock (Lecture 5, slide 5.11)" />
+<figcaption aria-hidden="true">A deadlock (Lecture 5, slide
+5.11)</figcaption>
+</figure>
+<p>In slide 5.11, P3 now also requests R2. Now P3 has a request edge, so
+the path continues. There are two cycles (the red lines):</p>
+<ul>
+<li>P1 → R1 → P2 → R3 → P3 → R2 → P1</li>
+<li>P2 → R3 → P3 → R2 → P2</li>
+</ul>
+<p>All instances of R2 are held. P1, P2 and P3 each wait for something
+another one holds, and no process can finish. This is a deadlock.</p>
+<figure>
+<img width="1006" height="1150" src="media/5-artifacts/rag-cycle-no-deadlock.webp"
+style="width:50.0%" loading="lazy" decoding="async"
+alt="A cycle but no deadlock (Lecture 5, slide 5.12)" />
+<figcaption aria-hidden="true">A cycle but no deadlock (Lecture 5, slide
+5.12)</figcaption>
+</figure>
+<p>In slide 5.12, the graph has one cycle (the red line): P1 → R1 → P3 →
+R2 → P1. But R1 and R2 each have two instances, and the other instances
+are held by P2 and P4 (circled in yellow). P2 and P4 are not on the
+cycle, and they wait for nothing. They finish and release instances of
+R1 and R2. Then P3 and P1 can get them. The order P2 → P4 → P3 → P1
+works. So <strong>a cycle does not always mean a deadlock</strong>.</p>
+<h3 id="the-basic-facts-about-cycles">2.4 The basic facts about
+cycles</h3>
+<ul>
+<li><strong>No cycle → no deadlock.</strong></li>
+<li><strong>A cycle, and every resource type has only one instance →
+deadlock.</strong></li>
+<li><strong>A cycle, and some resource types have several instances → a
+deadlock is possible, but not certain.</strong> You must check with the
+method in section 2.3.</li>
+</ul>
+<h2 id="the-four-conditions-for-deadlock">3. The Four Conditions for
+Deadlock</h2>
+<p>A deadlock can occur only if <strong>all four</strong> of these
+conditions hold <strong>at the same time</strong>:</p>
+<ol type="1">
+<li><strong>Mutual exclusion.</strong> Only one process at a time can
+use a resource instance.</li>
+<li><strong>Hold and wait.</strong> A process holds at least one
+resource and waits for more resources that other processes hold.</li>
+<li><strong>No preemption.</strong> A resource cannot be taken away. The
+process releases it only voluntarily, after it finishes its task.</li>
+<li><strong>Circular wait.</strong> There is a set of waiting processes
+{P0, P1, …, Pn} where P0 waits for P1, P1 waits for P2, …, and Pn waits
+for P0.</li>
+</ol>
+<p>These conditions are <strong>necessary but not sufficient</strong>.
+If one condition is missing, deadlock <strong>cannot</strong> occur. If
+all four hold, deadlock <strong>may</strong> occur, but it does not have
+to.</p>
+<h2 id="how-an-os-can-deal-with-deadlock">4. How an OS Can Deal With
+Deadlock</h2>
+<p>There are three approaches:</p>
+<ol type="1">
+<li><strong>Never enter a deadlock.</strong> Use
+<strong>prevention</strong> (section 5) or <strong>avoidance</strong>
+(section 6).</li>
+<li><strong>Allow deadlock, then detect it and recover.</strong>
+(Detection is not examinable.)</li>
+<li><strong>Ignore the problem.</strong> Pretend that deadlocks never
+occur. <strong>Most operating systems do this, including UNIX and
+Windows</strong>, because the other methods cost time all the time,
+while deadlocks are rare.</li>
+</ol>
+<h2 id="deadlock-prevention-break-one-condition">5. Deadlock Prevention:
+Break One Condition</h2>
+<p><strong>Idea:</strong> make sure that at least one of the four
+conditions can never hold. The lecture uses the dining philosophers
+(Lecture 4) as the example. Recall: five philosophers, five chopsticks,
+each chopstick a binary semaphore, and each philosopher picks up
+chopstick <code>i</code> and then chopstick <code>(i+1) % 5</code>.</p>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 32%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr>
+<th>Condition</th>
+<th>How to break it</th>
+<th>For the philosophers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Mutual exclusion</td>
+<td>Make the resource shareable</td>
+<td><strong>Not possible.</strong> Two people cannot use one chopstick
+at the same time</td>
+</tr>
+<tr>
+<td>2. Hold and wait</td>
+<td>A process may request resources only if it holds none, or it must
+get all of them at once</td>
+<td>Pick up chopsticks only if <strong>both</strong> are free</td>
+</tr>
+<tr>
+<td>3. No preemption</td>
+<td>If a process cannot get the next resource, it releases what it
+holds</td>
+<td>If the second chopstick is not free, put down the first one</td>
+</tr>
+<tr>
+<td>4. Circular wait</td>
+<td>Make a cycle impossible</td>
+<td>Allow at most four hungry philosophers; or the odd–even order; or
+number the chopsticks and always pick them up in order</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Breaking circular wait by ordering.</strong> Give every
+resource a number. Every process must request resources in
+<strong>increasing</strong> order of number. Then a cycle cannot form: a
+cycle would need some process to hold a higher-numbered resource while
+it waits for a lower-numbered one.</p>
+<figure>
+<img width="1400" height="1081" src="media/5-artifacts/chopstick-ordering.webp" loading="lazy"
+decoding="async"
+alt="Ordering the chopsticks prevents circular wait (Lecture 5, slide 5.22)" />
+<figcaption aria-hidden="true">Ordering the chopsticks prevents circular
+wait (Lecture 5, slide 5.22)</figcaption>
+</figure>
+<p>For the philosophers: number the chopsticks 0 to 4. Each philosopher
+first picks up the lower-numbered of its two chopsticks. Philosopher E
+sits between chopsticks 4 and 0, so E picks up chopstick 0 first, not 4.
+This breaks the circle.</p>
+<h2 id="deadlock-avoidance-look-ahead-before-you-grant">6. Deadlock
+Avoidance: Look Ahead Before You Grant</h2>
+<h3 id="the-idea">6.1 The idea</h3>
+<p>Prevention puts fixed rules on how processes request resources.
+<strong>Avoidance</strong> is more flexible. When a process requests a
+free resource, the OS looks at the whole state and asks: <strong>“If I
+grant this, can the system still be sure to finish every
+process?”</strong> If yes, it grants the request. If no, the process
+waits, even though the resource is free.</p>
+<h3 id="safe-sequences-and-safe-states">6.2 Safe sequences and safe
+states</h3>
+<p>A sequence of processes ⟨P1, P2, …, Pn⟩ is a <strong>safe
+sequence</strong> if each Pi can get what it still needs from:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">currently available resources</mtext><mo>+</mo><mrow><mtext mathvariant="normal">the resources held by all </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>P</mi><mi>j</mi></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> with </mtext><mspace width="0.333em"></mspace></mrow><mi>j</mi><mo>&lt;</mo><mi>i</mi></mrow><annotation encoding="application/x-tex">\text{currently available resources} + \text{the resources held by all } P_j \text{ with } j &lt; i</annotation></semantics></math></p>
+<p>The idea: if Pi cannot get its resources now, it waits until P1, …,
+Pi−1 finish and release their resources. Then Pi gets what it needs,
+finishes and releases. Then Pi+1 can continue, and so on. All processes
+finish.</p>
+<p>A system is in a <strong>safe state</strong> if <strong>at least
+one</strong> safe sequence exists. Other sequences can be unsafe; that
+does not matter.</p>
+<p><strong>Example (slide 5.26).</strong> Available = 1. Each process
+holds and requests units of one resource type:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 25%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th>Process</th>
+<th>Holds</th>
+<th>Still requests</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>1</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>⟨P1, P2, P3⟩: P1 needs 1 ≤ 1 available. P1 finishes and frees 1, so
+2 are free. P2 needs 2 ≤ 2. P2 frees 1 more, so 3 are free. P3 needs 3 ≤
+3. <strong>Safe.</strong></li>
+<li>⟨P3, P2, P1⟩: P3 needs 3, but only 1 is available. <strong>Not
+safe.</strong></li>
+<li>The system is <strong>safe</strong>, because one safe sequence (⟨P1,
+P2, P3⟩) exists.</li>
+</ul>
+<h3 id="safe-unsafe-and-deadlock">6.3 Safe, unsafe and deadlock</h3>
+<figure>
+<img width="804" height="638" src="media/5-artifacts/safe-unsafe-deadlock.webp" loading="lazy"
+decoding="async"
+alt="Safe, unsafe and deadlock states (Lecture 5, slide 5.27)" />
+<figcaption aria-hidden="true">Safe, unsafe and deadlock states (Lecture
+5, slide 5.27)</figcaption>
+</figure>
+<ul>
+<li><strong>Safe state → no deadlock.</strong></li>
+<li><strong>Unsafe state → a deadlock is possible</strong>, not certain.
+A process may release resources long before it finishes, and then no
+deadlock occurs.</li>
+<li>Every deadlock state is unsafe, but not every unsafe state is a
+deadlock.</li>
+</ul>
+<p><strong>Avoidance means: never let the system enter an unsafe
+state.</strong></p>
+<h2 id="the-bankers-algorithm">7. The Banker’s Algorithm</h2>
+<p>The <strong>Banker’s algorithm</strong> is an avoidance algorithm for
+resource types with <strong>several instances</strong>. Like a bank, it
+lends resources only if it can still meet the maximum needs of all
+customers.</p>
+<p><strong>Assumptions:</strong></p>
+<ul>
+<li>Each process declares in advance the <strong>maximum</strong> number
+of instances of each type that it may need.</li>
+<li>When a process gets all the resources it needs, it returns them in a
+finite time.</li>
+</ul>
+<h3 id="the-data">7.1 The data</h3>
+<p>Let n = the number of processes and m = the number of resource
+types.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 21%" />
+<col style="width: 51%" />
+</colgroup>
+<thead>
+<tr>
+<th>Name</th>
+<th>Shape</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Available</code></td>
+<td>vector of length m</td>
+<td><code>Available[j]</code> = free instances of type Rj</td>
+</tr>
+<tr>
+<td><code>Max</code></td>
+<td>n × m matrix</td>
+<td><code>Max[i][j]</code> = the most instances of Rj that Pi may
+request</td>
+</tr>
+<tr>
+<td><code>Allocation</code></td>
+<td>n × m matrix</td>
+<td><code>Allocation[i][j]</code> = instances of Rj that Pi holds
+now</td>
+</tr>
+<tr>
+<td><code>Need</code></td>
+<td>n × m matrix</td>
+<td><code>Need[i][j]</code> = instances of Rj that Pi may still
+request</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Need</mtext><mo>=</mo><mtext mathvariant="normal">Max</mtext><mo>−</mo><mtext mathvariant="normal">Allocation</mtext></mrow><annotation encoding="application/x-tex">\text{Need} = \text{Max} - \text{Allocation}</annotation></semantics></math></p>
+<p><strong>Comparing vectors.</strong> For two vectors,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mn>1</mn></msub><mo>≤</mo><msub><mi>V</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">V_1 \le V_2</annotation></semantics></math>
+means that <strong>every</strong> element of V1 is ≤ the same element of
+V2. For example, (1, 2, 2) ≤ (3, 3, 2) is true. But (1, 2, 3) ≤ (3, 3,
+2) is false, because 3 &gt; 2 in the last element.</p>
+<h3 id="part-1-the-safety-algorithm">7.2 Part 1: the safety
+algorithm</h3>
+<p>This part answers: “Is the current state safe?”</p>
+<ol type="1">
+<li>Set <code>Work = Available</code>. Set
+<code>Finish[i] = false</code> for every process.</li>
+<li>Find a process i with <code>Finish[i] == false</code>
+<strong>and</strong> <code>Need[i] ≤ Work</code>. If there is none, go
+to step 4.</li>
+<li>Pretend Pi finishes and returns what it holds:
+<code>Work = Work + Allocation[i]</code>, <code>Finish[i] = true</code>.
+Go back to step 2.</li>
+<li>If <code>Finish[i] == true</code> for all i, the state is
+<strong>safe</strong>. Otherwise it is <strong>unsafe</strong>.</li>
+</ol>
+<p>At every point, <code>Work</code> = Available + the resources of all
+the processes that have finished so far.</p>
+<p><strong>What if several processes qualify in step 2?</strong> Pick
+any of them. A finished process only adds resources to
+<code>Work</code>, so a process that could run now can still run later.
+The final answer (safe or unsafe) does not depend on the choice. Only
+the safe sequence you write down changes.</p>
+<h3 id="part-2-the-resource-request-algorithm">7.3 Part 2: the
+resource-request algorithm</h3>
+<p>This part answers: “Process Pi requests the vector
+<code>Request_i</code>. Can the OS grant it now?”</p>
+<ol type="1">
+<li>If <code>Request_i ≤ Need_i</code>, go to step 2. Otherwise, it is
+an <strong>error</strong>: the process asked for more than its declared
+maximum.</li>
+<li>If <code>Request_i ≤ Available</code>, go to step 3. Otherwise, Pi
+must <strong>wait</strong>: the resources are not free.</li>
+<li><strong>Pretend</strong> to grant the request. Change the state:
+<ul>
+<li><code>Available = Available − Request_i</code></li>
+<li><code>Allocation_i = Allocation_i + Request_i</code></li>
+<li><code>Need_i = Need_i − Request_i</code></li>
+</ul></li>
+<li>Run the safety algorithm on this new state.
+<ul>
+<li><strong>Safe:</strong> grant the request. Keep the new state.</li>
+<li><strong>Unsafe:</strong> Pi must wait. <strong>Restore</strong> the
+old state.</li>
+</ul></li>
+</ol>
+<h3 id="the-lecture-example">7.4 The lecture example</h3>
+<p>Five processes P0–P4 and three types: A (10 instances), B (5) and C
+(7). The state at time T0:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 30%" />
+<col style="width: 16%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th>Process</th>
+<th>Allocation (A B C)</th>
+<th>Max (A B C)</th>
+<th>Need = Max − Allocation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td>0 1 0</td>
+<td>7 5 3</td>
+<td>7 4 3</td>
+</tr>
+<tr>
+<td>P1</td>
+<td>2 0 0</td>
+<td>3 2 2</td>
+<td>1 2 2</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>3 0 2</td>
+<td>9 0 2</td>
+<td>6 0 0</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>2 1 1</td>
+<td>2 2 2</td>
+<td>0 1 1</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>0 0 2</td>
+<td>4 3 3</td>
+<td>4 3 1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Available = (3, 3, 2).</p>
+<p><strong>Is the state safe?</strong> Run the safety algorithm:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 26%" />
+<col style="width: 27%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th>Step</th>
+<th>Process that can finish</th>
+<th>Its Need ≤ Work?</th>
+<th>Work after it finishes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>start</td>
+<td></td>
+<td></td>
+<td>(3, 3, 2)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>P1</td>
+<td>(1,2,2) ≤ (3,3,2)</td>
+<td>(3,3,2) + (2,0,0) = (5, 3, 2)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>P3</td>
+<td>(0,1,1) ≤ (5,3,2)</td>
+<td>+ (2,1,1) = (7, 4, 3)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>P4</td>
+<td>(4,3,1) ≤ (7,4,3)</td>
+<td>+ (0,0,2) = (7, 4, 5)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>P2</td>
+<td>(6,0,0) ≤ (7,4,5)</td>
+<td>+ (3,0,2) = (10, 4, 7)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>P0</td>
+<td>(7,4,3) ≤ (10,4,7)</td>
+<td>+ (0,1,0) = (10, 5, 7)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>All processes finish. The state is <strong>safe</strong>, with the
+safe sequence ⟨P1, P3, P4, P2, P0⟩. The final Work equals the total
+number of instances (10, 5, 7), as it must.</p>
+<p><strong>P1 requests (1, 0, 2).</strong></p>
+<ol type="1">
+<li>(1,0,2) ≤ Need1 = (1,2,2). True.</li>
+<li>(1,0,2) ≤ Available = (3,3,2). True.</li>
+<li>Pretend: Available = (2, 3, 0). Allocation1 = (3, 0, 2). Need1 = (0,
+2, 0).</li>
+<li>Safety: the sequence ⟨P1, P3, P4, P0, P2⟩ works. <strong>Safe, so
+grant the request.</strong></li>
+</ol>
+<p><strong>Next, P0 requests (0, 2, 0).</strong></p>
+<ol type="1">
+<li>(0,2,0) ≤ Need0 = (7,4,3). True.</li>
+<li>(0,2,0) ≤ Available = (2,3,0). True.</li>
+<li>Pretend: Available = (2, 1, 0). Need0 = (7, 2, 3).</li>
+<li>Safety: no process has Need ≤ (2, 1, 0). <strong>Unsafe, so P0 must
+wait.</strong> Restore the old state.</li>
+</ol>
+<p>The resources were free, but the OS still refused. That is the point
+of avoidance.</p>
+<h2 id="deadlock-detection-not-examinable">8. Deadlock Detection (not
+examinable)</h2>
+<p>A system can also let deadlocks occur, then run a detection algorithm
+and recover. For resource types with several instances, the detection
+algorithm looks like the safety algorithm, but it uses each process’s
+<strong>current request</strong> instead of its <strong>Need</strong>.
+Any process that cannot finish at the end is deadlocked. The lecture
+marks this part as not examinable.</p>
+<h2 id="what-you-know-now-lecture-5">What You Know Now (Lecture 5)</h2>
+<ul>
+<li>A deadlock is a set of processes that each hold a resource and wait
+for a resource held by another one in the set.</li>
+<li>In a resource-allocation graph: no cycle means no deadlock. A cycle
+with single-instance resources means deadlock. A cycle with
+multi-instance resources only means a deadlock is possible.</li>
+<li>Deadlock needs all four conditions: mutual exclusion, hold and wait,
+no preemption, circular wait. They are necessary, not sufficient.</li>
+<li>Prevention breaks one condition. Ordering the resources breaks
+circular wait.</li>
+<li>Avoidance keeps the system in a safe state. Safe means at least one
+safe sequence exists. Unsafe means deadlock is possible.</li>
+<li>The Banker’s algorithm checks Request ≤ Need, then Request ≤
+Available, then pretends to grant and runs the safety algorithm.</li>
+<li>Most operating systems ignore deadlock.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../4-synchronization/4.html">← 4.
+Process Synchronization</a>
+  <a class="next-page" href="../6a-rtos/6a.html">6a. Real-Time Operating
+Systems →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

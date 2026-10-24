@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>6a. Real-Time Operating Systems · SC2005 Operating
+Systems</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">6a. Real-Time
+Operating Systems</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">6a. Real-Time Operating Systems</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-overview/1.html"
+                   data-nav="1-overview/1.html">1. Overview of Operating
+Systems</a></li>
+            <li><a href="../2-processes-threads/2.html"
+                   data-nav="2-processes-threads/2.html">2. Processes
+and Threads</a></li>
+            <li><a href="../3-cpu-scheduling/3.html"
+                   data-nav="3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../4-synchronization/4.html"
+                   data-nav="4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../5-deadlocks/5.html"
+                   data-nav="5-deadlocks/5.html">5. Deadlocks</a></li>
+            <li><a href="../6a-rtos/6a.html"
+                   data-nav="6a-rtos/6a.html">6a. Real-Time Operating
+Systems</a></li>
+            <li><a href="../6b-virtualization/6b.html"
+                   data-nav="6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../7-memory-organization/7.html"
+                   data-nav="7-memory-organization/7.html">7. Memory
+Organization</a></li>
+            <li><a href="../8-virtual-memory/8.html"
+                   data-nav="8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../9-file-systems/9.html"
+                   data-nav="9-file-systems/9.html">9. File
+Systems</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../labs/lab-1.html"
+                   data-nav="labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../labs/lab-2.html"
+                   data-nav="labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../labs/lab-3/lab-3.html"
+                   data-nav="labs/lab-3/lab-3.html">Lab 3 Guide</a></li>
+            <li><a href="../labs/lab-4/lab-4.html"
+                   data-nav="labs/lab-4/lab-4.html">Lab 4 Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#what-a-real-time-system-is"
+id="toc-what-a-real-time-system-is">1. What a Real-Time System Is</a>
+<ul>
+<li><a href="#computers-that-control-physical-things"
+id="toc-computers-that-control-physical-things">1.1 Computers that
+control physical things</a></li>
+<li><a href="#real-time-means-predictable-not-fast"
+id="toc-real-time-means-predictable-not-fast">1.2 Real-time means
+predictable, not fast</a></li>
+<li><a href="#definition" id="toc-definition">1.3 Definition</a></li>
+</ul></li>
+<li><a href="#describing-a-real-time-process"
+id="toc-describing-a-real-time-process">2. Describing a Real-Time
+Process</a>
+<ul>
+<li><a href="#one-process-r-c-d" id="toc-one-process-r-c-d">2.1 One
+process: ⟨R, C, D⟩</a></li>
+<li><a href="#recurrent-and-periodic-processes"
+id="toc-recurrent-and-periodic-processes">2.2 Recurrent and periodic
+processes</a></li>
+</ul></li>
+<li><a href="#why-normal-schedulers-fail"
+id="toc-why-normal-schedulers-fail">3. Why Normal Schedulers
+Fail</a></li>
+<li><a href="#real-time-scheduling" id="toc-real-time-scheduling">4.
+Real-Time Scheduling</a>
+<ul>
+<li><a href="#the-problem" id="toc-the-problem">4.1 The problem</a></li>
+<li><a href="#fixed-priority-scheduling"
+id="toc-fixed-priority-scheduling">4.2 Fixed-priority
+scheduling</a></li>
+<li><a href="#rate-monotonic-rm" id="toc-rate-monotonic-rm">4.3 Rate
+monotonic (RM)</a></li>
+<li><a href="#earliest-deadline-first-edf"
+id="toc-earliest-deadline-first-edf">4.4 Earliest deadline first
+(EDF)</a></li>
+<li><a href="#rm-and-edf-side-by-side"
+id="toc-rm-and-edf-side-by-side">4.5 RM and EDF side by side</a></li>
+</ul></li>
+<li><a href="#what-you-know-now-lecture-6a"
+id="toc-what-you-know-now-lecture-6a">What You Know Now (Lecture
+6a)</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>This was written entirely with AI.</p>
+<h2 id="what-a-real-time-system-is">1. What a Real-Time System Is</h2>
+<h3 id="computers-that-control-physical-things">1.1 Computers that
+control physical things</h3>
+<p>A <strong>cyber-physical system</strong> is a physical system that a
+computer monitors and controls. Examples:</p>
+<ul>
+<li>Cars: autonomous driving, parking assist, airbag control.</li>
+<li>Aircraft: flight navigation and control.</li>
+<li>Factories: robots and process control.</li>
+<li>Medicine: robotic surgery, pacemakers.</li>
+</ul>
+<p>All these systems repeat three steps:</p>
+<ol type="1">
+<li><strong>Sense.</strong> Collect data from sensors.</li>
+<li><strong>Decide.</strong> Run a control law to compute the
+response.</li>
+<li><strong>Act.</strong> Send commands to the actuators (motors,
+valves, the airbag), <strong>within a reasonable time</strong>.</li>
+</ol>
+<p>What is “reasonable” depends on the job: milliseconds for collision
+avoidance in a car, up to a second for a pacemaker. It also depends on
+the available hardware, the timing of the sensors and actuators, and the
+time to detect and recover from failures.</p>
+<h3 id="real-time-means-predictable-not-fast">1.2 Real-time means
+predictable, not fast</h3>
+<p>A common mistake is to think that “real-time” means “fast”. It does
+not.</p>
+<ul>
+<li><strong>Real-time ≠ fast.</strong></li>
+<li><strong>Real-time = predictable, even in the worst
+case.</strong></li>
+</ul>
+<p>The lecture gives a picture: a man drowned in a river whose
+<strong>average</strong> depth was 20 cm. The average was safe, but one
+deep place was not. In the same way, a real-time system must meet its
+deadline <strong>every</strong> time, not only on average.</p>
+<h3 id="definition">1.3 Definition</h3>
+<p>A <strong>real-time system</strong> is a system whose correctness
+depends on two things:</p>
+<ol type="1">
+<li>The <strong>logical</strong> result: is the answer right?</li>
+<li>The <strong>time</strong> of the result: does the answer come before
+its <strong>deadline</strong>?</li>
+</ol>
+<p>A late answer is a wrong answer.</p>
+<p>A <strong>real-time OS (RTOS)</strong> gives OS services to such
+systems. Examples: FreeRTOS, MicriumOS. An RTOS is measured by
+<strong>timeliness</strong>: how predictably it meets deadlines. The
+<strong>worst case</strong> matters more than the average case.</p>
+<p><strong>Normal desktop OSes are not real-time.</strong> Windows and
+Linux for personal computers are time-sharing systems. They aim for good
+average performance, not guaranteed deadlines.</p>
+<h2 id="describing-a-real-time-process">2. Describing a Real-Time
+Process</h2>
+<h3 id="one-process-r-c-d">2.1 One process: ⟨R, C, D⟩</h3>
+<p>A real-time process is described by three numbers ⟨R, C, D⟩:</p>
+<ul>
+<li><strong>R</strong> (release time): the time when the process becomes
+ready.</li>
+<li><strong>C</strong> (execution requirement): the CPU time that the
+process needs.</li>
+<li><strong>D</strong> (relative deadline): how long after its release
+the process must finish.</li>
+</ul>
+<p>So the process needs <strong>C units of CPU time in the interval [R,
+R + D)</strong>. Its <strong>absolute deadline</strong> is R + D.</p>
+<p>In this lecture, each process has a single CPU burst of length C.</p>
+<figure>
+<img width="1400" height="222" src="media/6a-artifacts/rt-process-timeline.webp" loading="lazy"
+decoding="async"
+alt="Three real-time processes on a time line (Lecture 6a, slide 1.9)" />
+<figcaption aria-hidden="true">Three real-time processes on a time line
+(Lecture 6a, slide 1.9)</figcaption>
+</figure>
+<p>Example: P1⟨0, 5, 10⟩ is released at 0, needs 5 units, and must
+finish by 0 + 10 = 10. P3⟨20, 10, 30⟩ is released at 20 and must finish
+by 50.</p>
+<h3 id="recurrent-and-periodic-processes">2.2 Recurrent and periodic
+processes</h3>
+<p>Real-time work usually <strong>repeats</strong>: sense, decide, act,
+again and again. A <strong>recurrent</strong> real-time process runs the
+same function many times. Each run is called an
+<strong>instance</strong>, and each instance is a real-time process ⟨R,
+C, D⟩.</p>
+<p>A <strong>periodic</strong> process repeats at fixed intervals. For
+example, a sensor sends new data every 10 ms. A periodic process is
+described by ⟨T, C, D⟩:</p>
+<ul>
+<li><strong>T</strong> (period): the time between two releases.</li>
+<li><strong>C</strong> and <strong>D</strong>: as before.</li>
+</ul>
+<p>Its instances are released at R = 0, T, 2T, 3T, …. Instance k is
+released at kT and must finish by kT + D.</p>
+<figure>
+<img width="1400" height="234" src="media/6a-artifacts/periodic-process.webp" loading="lazy"
+decoding="async"
+alt="The periodic process P⟨10, 5, 7⟩ (Lecture 6a, slide 1.11)" />
+<figcaption aria-hidden="true">The periodic process P⟨10, 5, 7⟩ (Lecture
+6a, slide 1.11)</figcaption>
+</figure>
+<p>Example: P⟨10, 5, 7⟩ is released at 0, 10, 20, 30, …. Each instance
+needs 5 units and must finish 7 units after its release: by 7, 17, 27,
+37, ….</p>
+<p><strong>Be careful with the order of the numbers.</strong> A single
+process is ⟨R, C, D⟩. A periodic process is ⟨T, C, D⟩. The first number
+changes meaning.</p>
+<h2 id="why-normal-schedulers-fail">3. Why Normal Schedulers Fail</h2>
+<p>Lecture 3’s algorithms (FCFS, SJF, RR) do not look at deadlines. The
+lecture runs them on five processes: P1⟨0,20,30⟩, P2⟨0,5,10⟩,
+P3⟨5,10,35⟩, P4⟨20,10,30⟩, P5⟨25,5,10⟩.</p>
+<figure>
+<img width="1400" height="800" src="media/6a-artifacts/classic-algorithms-fail.webp" loading="lazy"
+decoding="async"
+alt="FCFS, SJF and RR miss deadlines (Lecture 6a, slide 1.13)" />
+<figcaption aria-hidden="true">FCFS, SJF and RR miss deadlines (Lecture
+6a, slide 1.13)</figcaption>
+</figure>
+<p>All three miss some deadlines. For example, under FCFS, P1 (20 units)
+runs first, and P2 must wait until 20, but P2’s deadline is 10. The
+algorithms do not give priority to urgent work.</p>
+<h2 id="real-time-scheduling">4. Real-Time Scheduling</h2>
+<h3 id="the-problem">4.1 The problem</h3>
+<p>Given a set of periodic (or sporadic) real-time processes, find a
+scheduler for <strong>one</strong> CPU that meets <strong>every</strong>
+deadline of <strong>every</strong> instance.</p>
+<p>The lecture’s running example has three periodic processes:</p>
+<ul>
+<li>P1⟨10, 6, 10⟩: every 10 units, needs 6, deadline 10 after
+release.</li>
+<li>P2⟨19, 4, 19⟩: every 19 units, needs 4, deadline 19.</li>
+<li>P3⟨20, 2, 20⟩: every 20 units, needs 2, deadline 20.</li>
+</ul>
+<p>The schedulers below are <strong>preemptive</strong>: when a
+higher-priority instance is released, it takes the CPU at once.</p>
+<h3 id="fixed-priority-scheduling">4.2 Fixed-priority scheduling</h3>
+<p>In <strong>fixed-priority</strong> scheduling, each recurrent process
+has <strong>one priority for all of its instances</strong>. If P1 has a
+higher priority than P2, then <strong>every</strong> instance of P1 has
+a higher priority than <strong>every</strong> instance of P2, whatever
+their release times.</p>
+<h3 id="rate-monotonic-rm">4.3 Rate monotonic (RM)</h3>
+<p><strong>RM</strong> is a fixed-priority scheduler. Its rule:</p>
+<ul>
+<li><strong>The shorter the period T, the higher the priority.</strong>
+Ties are broken arbitrarily.</li>
+</ul>
+<p>The name comes from the <strong>rate</strong> (1/T): a process with a
+high rate gets a high priority.</p>
+<p>In the example, T1 = 10 &lt; T2 = 19 &lt; T3 = 20, so P1 &gt; P2 &gt;
+P3.</p>
+<p><strong>How to build an RM schedule:</strong></p>
+<ol type="1">
+<li>Give each process a fixed priority by period: shorter T, higher
+priority.</li>
+<li>Mark the release times and deadlines of every instance.</li>
+<li>At every moment, run the released, unfinished instance of the
+<strong>highest-priority process</strong>. A release of a
+higher-priority process preempts a lower one.</li>
+<li>Check each instance against its deadline.</li>
+</ol>
+<figure>
+<img width="1400" height="339" src="media/6a-artifacts/rm-schedule.webp" loading="lazy"
+decoding="async"
+alt="The RM schedule for the running example (Lecture 6a, slide 1.16)" />
+<figcaption aria-hidden="true">The RM schedule for the running example
+(Lecture 6a, slide 1.16)</figcaption>
+</figure>
+<p>RM is very popular in industry, because it is simple and predictable
+(section 4.5).</p>
+<p><strong>RM can miss a deadline.</strong> RM looks only at periods,
+not at deadlines. Change P3 to ⟨20, 2, <strong>14</strong>⟩. P3 still
+has the lowest priority, because its period is still 20. P1 and P2 run
+first, and P3 cannot finish by 14:</p>
+<figure>
+<img width="1400" height="390" src="media/6a-artifacts/rm-deadline-miss.webp" loading="lazy"
+decoding="async"
+alt="RM misses P3’s deadline at 14 (Lecture 6a, slide 1.17)" />
+<figcaption aria-hidden="true">RM misses P3’s deadline at 14 (Lecture
+6a, slide 1.17)</figcaption>
+</figure>
+<h3 id="earliest-deadline-first-edf">4.4 Earliest deadline first
+(EDF)</h3>
+<p><strong>EDF</strong> is a <strong>dynamic-priority</strong>
+scheduler. Its rule:</p>
+<ul>
+<li><strong>The instance with the earliest absolute deadline gets the
+highest priority.</strong> Ties are broken arbitrarily.</li>
+</ul>
+<p>“Dynamic” means that the priority belongs to each
+<strong>instance</strong>, not to the process. Instance 1 of P2 can have
+a higher priority than instance 2 of P1, and later instance 3 of P1 can
+have a higher priority than instance 2 of P2.</p>
+<p><strong>Use the absolute deadline of the instance (R + D), not the
+parameter D.</strong> An instance with a large D that was released long
+ago can have an earlier absolute deadline than a new instance with a
+small D.</p>
+<figure>
+<img width="1400" height="320" src="media/6a-artifacts/edf-schedule.webp" loading="lazy"
+decoding="async"
+alt="EDF meets every deadline (Lecture 6a, slide 1.18)" />
+<figcaption aria-hidden="true">EDF meets every deadline (Lecture 6a,
+slide 1.18)</figcaption>
+</figure>
+<p>With P3⟨20, 2, 14⟩ and P2⟨19, 4, 17⟩, EDF meets every deadline. At
+time 6, P3’s deadline (14) is earlier than P2’s (17), so P3 runs
+first.</p>
+<p><strong>How to build an EDF schedule:</strong></p>
+<ol type="1">
+<li>Mark the release times and the absolute deadlines of every instance
+on the time line.</li>
+<li>At every release and every finish, look at all instances that are
+released and not finished.</li>
+<li>Run the one with the earliest absolute deadline. If a newly released
+instance has an earlier deadline than the running one, it preempts
+it.</li>
+<li>Check that every instance finishes by its deadline.</li>
+</ol>
+<p>EDF is more powerful than RM: if any scheduler can meet all deadlines
+of a process set on one CPU, EDF can too.</p>
+<h3 id="rm-and-edf-side-by-side">4.5 RM and EDF side by side</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 32%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>RM</th>
+<th>EDF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Type of priority</td>
+<td>Fixed: one priority for each process</td>
+<td>Dynamic: one priority for each instance</td>
+</tr>
+<tr>
+<td>Priority rule</td>
+<td>Shorter period first</td>
+<td>Earlier absolute deadline first</td>
+</tr>
+<tr>
+<td>Implementation</td>
+<td>Simpler: a separate queue for each recurrent process</td>
+<td>Harder: the OS must sort the queue by deadline while it runs</td>
+</tr>
+<tr>
+<td>Under heavy load</td>
+<td><strong>Predictable</strong> for high-priority processes: they still
+meet their deadlines</td>
+<td>Can be <strong>unpredictable</strong>: any process can miss its
+deadline</td>
+</tr>
+<tr>
+<td>Power</td>
+<td>Can miss deadlines that EDF meets</td>
+<td>More powerful</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="what-you-know-now-lecture-6a">What You Know Now (Lecture
+6a)</h2>
+<ul>
+<li>A real-time system is correct only if its results are right
+<strong>and</strong> on time. Real-time means predictable in the worst
+case, not fast.</li>
+<li>A real-time process is ⟨R, C, D⟩: release, CPU need, relative
+deadline. Its absolute deadline is R + D.</li>
+<li>A periodic process is ⟨T, C, D⟩. Instances are released at 0, T, 2T,
+….</li>
+<li>FCFS, SJF and RR ignore deadlines, so they miss them.</li>
+<li>RM gives fixed priorities by period: shorter period first. It is
+simple and predictable, but can miss deadlines.</li>
+<li>EDF gives dynamic priorities by absolute deadline: earliest first.
+It is more powerful, harder to implement, and unpredictable under
+overload.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../5-deadlocks/5.html">← 5.
+Deadlocks</a>
+  <a class="next-page" href="../6b-virtualization/6b.html">6b.
+Virtualization →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

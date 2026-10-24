@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>11. Model-View-Controller (MVC) · SC2006 Software
+Engineering</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=6EF8D236">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">11.
+Model-View-Controller (MVC)</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2006</p>
+  <p class="site-title">Software Engineering</p>
+  <h1 class="page-title">11. Model-View-Controller (MVC)</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Notes</h2>
+          <ul>
+            <li><a href="../0-overview/0.html"
+                   data-nav="0-overview/0.html">Overview and Exam
+Structure</a></li>
+            <li><a href="../1-introduction/1.html"
+                   data-nav="1-introduction/1.html">1. Software
+Engineering and the Life Cycle</a></li>
+            <li><a href="../2-requirements-elicitation/2.html"
+                   data-nav="2-requirements-elicitation/2.html">2.
+Requirements Elicitation</a></li>
+            <li><a href="../3-use-case-model/3.html"
+                   data-nav="3-use-case-model/3.html">3. Use Case
+Model</a></li>
+            <li><a href="../4-srs/4.html"
+                   data-nav="4-srs/4.html">4. Software Requirements
+Specification (SRS)</a></li>
+            <li><a href="../5-conceptual-model/5.html"
+                   data-nav="5-conceptual-model/5.html">5. Conceptual
+Model</a></li>
+            <li><a href="../6-dynamic-models/6.html"
+                   data-nav="6-dynamic-models/6.html">6. Dynamic Models:
+State Machine and Activity Diagrams</a></li>
+            <li><a href="../7-software-processes/7.html"
+                   data-nav="7-software-processes/7.html">7. Software
+Process Models</a></li>
+            <li><a href="../8-agile-scrum/8.html"
+                   data-nav="8-agile-scrum/8.html">8. Agile, Extreme
+Programming and Scrum</a></li>
+            <li><a href="../9-system-design/9.html"
+                   data-nav="9-system-design/9.html">9. System Design
+and Software Architecture</a></li>
+            <li><a href="../10-design-patterns/10.html"
+                   data-nav="10-design-patterns/10.html">10. Object
+Design and Design Patterns</a></li>
+            <li><a href="../11-mvc/11.html"
+                   data-nav="11-mvc/11.html">11. Model-View-Controller
+(MVC)</a></li>
+            <li><a href="../12-exam-method/12.html"
+                   data-nav="12-exam-method/12.html">12. Exam Method,
+Question by Question</a></li>
+            <li><a href="../13-testing/13.html"
+                   data-nav="13-testing/13.html">13. Software
+Testing</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#the-problem-with-interactive-systems"
+id="toc-the-problem-with-interactive-systems">The problem with
+interactive systems</a></li>
+<li><a href="#step-1-a-layered-design-is-not-enough"
+id="toc-step-1-a-layered-design-is-not-enough">Step 1: a layered design
+is not enough</a></li>
+<li><a href="#step-2-add-the-observer-pattern"
+id="toc-step-2-add-the-observer-pattern">Step 2: add the Observer
+pattern</a></li>
+<li><a href="#mvc" id="toc-mvc">MVC</a>
+<ul>
+<li><a href="#goal-and-key-idea" id="toc-goal-and-key-idea">Goal and key
+idea</a></li>
+<li><a href="#the-three-components" id="toc-the-three-components">The
+three components</a></li>
+<li><a href="#how-mvc-works" id="toc-how-mvc-works">How MVC
+works</a></li>
+<li><a href="#the-patterns-inside-mvc"
+id="toc-the-patterns-inside-mvc">The patterns inside MVC</a></li>
+<li><a href="#pros-and-cons-of-mvc" id="toc-pros-and-cons-of-mvc">Pros
+and cons of MVC</a></li>
+</ul></li>
+<li><a href="#mvc-versus-the-layered-architecture"
+id="toc-mvc-versus-the-layered-architecture">MVC versus the layered
+architecture</a></li>
+<li><a href="#getting-ready-for-exam-questions"
+id="toc-getting-ready-for-exam-questions">Getting ready for exam
+questions</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>This was written entirely with AI.</p>
+<h1 id="the-problem-with-interactive-systems">The problem with
+interactive systems</h1>
+<p>Interactive, event-driven systems have special design problems:</p>
+<ul>
+<li>User interfaces change often.</li>
+<li>The same data must be shown in different ways (a table, a line
+chart, a bar chart).</li>
+<li>Changes to the UI must be easy, sometimes even while the program
+runs.</li>
+<li>The display must show each data change at once.</li>
+<li>The same display can need a different look and feel.</li>
+<li>The application must be able to react to user input in different
+ways.</li>
+</ul>
+<p>All of these need the UI to be <strong>loosely coupled</strong> to
+the core functions and data.</p>
+<h1 id="step-1-a-layered-design-is-not-enough">Step 1: a layered design
+is not enough</h1>
+<p>Take a spreadsheet program. The user edits a cell in the worksheet
+view. A line chart and a bar chart must show the new value.</p>
+<figure>
+<img width="1400" height="1050" src="media/11-artifacts/excel-layered.webp" loading="lazy"
+decoding="async"
+alt="A layered design of the spreadsheet: presentation, application logic and persistent data." />
+<figcaption aria-hidden="true">A layered design of the spreadsheet:
+presentation, application logic and persistent data.</figcaption>
+</figure>
+<p>Follow the arrows in the figure:</p>
+<ol type="1">
+<li><strong>Edit Worksheet</strong> sends <code>editData</code> down to
+<strong>SheetManager</strong>.</li>
+<li>SheetManager sends <code>updateCell</code> down to the
+<strong>Worksheet</strong> data.</li>
+<li>SheetManager sends <code>update</code> <strong>up</strong> to Line
+Chart and to Bar Chart.</li>
+<li>Each chart sends <code>getData</code> back down to read the new
+values.</li>
+</ol>
+<p>Steps 1, 2 and 4 go downwards, as the layer rule wants. Step 3 is the
+odd one: two arrows point <strong>up</strong>, from the logic layer to
+the presentation layer.</p>
+<p>The problem: after the data changes, the lower layer (SheetManager)
+must tell the charts in the higher layer to redraw. That is an
+<strong>up-call</strong> from a lower layer to a higher layer. If
+SheetManager calls LineChart and BarChart directly, it depends on them.
+Then each new kind of chart forces a change in SheetManager. The layers
+become tightly coupled.</p>
+<p>The design problem is the Observer problem:</p>
+<ul>
+<li>The worksheet (subject) must notify its views (observers) of each
+data change. Views can be created and deleted at any time.</li>
+<li>The views must show each change at once, but they do not know when a
+change will happen.</li>
+</ul>
+<h1 id="step-2-add-the-observer-pattern">Step 2: add the Observer
+pattern</h1>
+<figure>
+<img width="1400" height="944" src="media/11-artifacts/excel-observer.webp" loading="lazy"
+decoding="async"
+alt="The spreadsheet with the Observer pattern. SheetMgr is the concrete subject. The charts and the edit view are concrete observers." />
+<figcaption aria-hidden="true">The spreadsheet with the Observer
+pattern. SheetMgr is the concrete subject. The charts and the edit view
+are concrete observers.</figcaption>
+</figure>
+<p>How to read the figure. It is the Observer template from Part 10 with
+spreadsheet names:</p>
+<ul>
+<li><strong>WSSubject</strong> (green, italic) is the abstract subject,
+with <code>attach</code>, <code>detach</code> and <code>notify</code>.
+Here “attach” means register.</li>
+<li><strong>SheetMgr</strong> is the concrete subject. It inherits from
+WSSubject (solid line, hollow triangle). It changes cells with
+<code>updateCell()</code> and gives the data out with
+<code>getData()</code>. The plain arrow down to
+<strong>WorkSheet</strong> means it holds the worksheet data.</li>
+<li><strong>WSObserver</strong> (yellow, italic) is the observer
+interface with <code>update()</code>.</li>
+<li><strong>EditWS</strong>, <strong>LineChart</strong> and
+<strong>BarChart</strong> each realize WSObserver (dashed lines, hollow
+triangles).</li>
+<li>The line <strong>WSSubject 1 — * WSObserver</strong>, with role
+names <code>mgr</code> and <code>views</code>, is the subscription
+list.</li>
+<li>The two notes give the code. <code>notify()</code> runs
+<code>for each o in observers: o.update()</code>. EditWS’s
+<code>update()</code> runs <code>sheetMgr.getData(); showWS();</code>:
+it pulls the data and redraws. This is the <strong>pull</strong>
+update.</li>
+</ul>
+<p>Now SheetManager knows only the <code>WSObserver</code> interface. It
+calls <code>update()</code> on each registered view. Each view calls
+<code>getData()</code> and redraws itself. A new chart type only needs
+to implement <code>WSObserver</code> and register. SheetManager does not
+change.</p>
+<p>The Observer pattern allows up-calls without making the lower layer
+depend on the higher layer.</p>
+<p>But the Observer pattern does not solve all the problems in the list.
+“The same presentation can have a different look and feel” and “the
+application reacts to user input in different ways” are
+<strong>interchangeability</strong> problems. They need the
+<strong>Strategy</strong> pattern. One problem often needs more than one
+pattern.</p>
+<h1 id="mvc">MVC</h1>
+<h2 id="goal-and-key-idea">Goal and key idea</h2>
+<p><strong>Goal:</strong> make it easy to build interactive systems,
+especially systems that show the same shared data in many synchronised
+views.</p>
+<p><strong>Key idea:</strong> separate the <strong>Model</strong> from
+the <strong>View</strong> and the <strong>Controller</strong>. This
+separates the presentation and the interaction from the data. If the
+user changes the model through the controller of one view, all other
+views that show the same data show the change.</p>
+<p>MVC supports these needs:</p>
+<ul>
+<li>Many different UIs (desktop, web browser, mobile phone) reuse the
+same core functions.</li>
+<li>UI details change often. These changes must not affect the core
+functions.</li>
+<li>Adding a new UI must be easy.</li>
+</ul>
+<h2 id="the-three-components">The three components</h2>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 49%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th>Component</th>
+<th>Responsibility</th>
+<th>Stereotype</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Model</strong></td>
+<td>Holds the core data and the processing (application logic).</td>
+<td>Entity (+ control logic)</td>
+</tr>
+<tr>
+<td><strong>View</strong></td>
+<td>Presents the data to the user. Each view gives one presentation of
+the same model. Each view <strong>observes</strong> the model. When the
+model changes, all views are notified at once and redraw.</td>
+<td>Boundary</td>
+</tr>
+<tr>
+<td><strong>Controller</strong></td>
+<td>Handles user interaction. Captures user input (mouse clicks, key
+presses) and passes it to the model and the view. Each view has a
+controller. The user interacts with the system only through
+controllers.</td>
+<td>Boundary / control</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="how-mvc-works">How MVC works</h2>
+<ol type="1">
+<li>The <strong>view</strong> subscribes to the <strong>model</strong>
+(Observer subscription).</li>
+<li>The user acts. The <strong>controller</strong> gets the input and
+updates the <strong>model</strong>.</li>
+<li>The <strong>model</strong> changes its data and notifies all
+subscribed views (Observer notification).</li>
+<li>Each <strong>view</strong> gets the new data from the model and
+updates the display. The user sees the change.</li>
+</ol>
+<p>MVC is <strong>not hierarchical</strong>. The three components form a
+triangle, unlike the strict top-to-bottom layers.</p>
+<figure>
+<img width="1400" height="965" src="media/11-artifacts/mvc-architecture.webp" loading="lazy"
+decoding="async"
+alt="The MVC class structure. Model is the subject. View and Controller are observers. The view creates its controller." />
+<figcaption aria-hidden="true">The MVC class structure. Model is the
+subject. View and Controller are observers. The view creates its
+controller.</figcaption>
+</figure>
+<p>How to read the figure. The red dashed line splits it into two
+halves. Left: <strong>Model</strong> (application logic and data).
+Right: <strong>View</strong> and <strong>Controller</strong>
+(presentation).</p>
+<ul>
+<li><strong>Model</strong> holds the <code>data</code>.
+<code>service()</code> runs the application logic and updates the data.
+<code>register</code>, <code>unregister</code> and <code>notify</code>
+make the Model a subject. Its note shows <code>notify()</code>:
+<code>for each o in observers: o.update()</code>.</li>
+<li><strong>Observer</strong> is the interface with
+<code>update()</code>. Both <strong>View</strong> and
+<strong>Controller</strong> realize it (dashed lines, hollow triangles).
+So both are told when the model changes. The view redraws. The
+controller can, for example, enable or disable a menu item.</li>
+<li><strong>Controller → Model</strong>, with role name
+<code>model</code>: the controller holds a reference to the model. Its
+note shows <code>handleEvent()</code> calling
+<code>model.service()</code>. User input reaches the model only through
+the controller.</li>
+<li><strong>View → Controller</strong>, dashed,
+<code>&lt;&lt;create&gt;&gt;</code>: the view creates its own
+controller.</li>
+<li><strong>Controller → View</strong>, with role name
+<code>view</code>: the controller can also tell its view to change
+directly, for example to <code>scroll()</code>. This change does not
+touch the data, so it does not go through the model.</li>
+<li>The View’s note shows <code>update()</code>:
+<code>model.getData(); redraw view;</code>. This is a pull update.</li>
+</ul>
+<p>Put the cycle together: the user acts →
+<code>Controller.handleEvent()</code> → <code>Model.service()</code>
+changes the data → <code>Model.notify()</code> → every
+<code>View.update()</code> → each view pulls the data and redraws.</p>
+<h2 id="the-patterns-inside-mvc">The patterns inside MVC</h2>
+<p><strong>Observer pattern (View–Model):</strong> the model is the
+subject and the views are observers. When the model data changes, the
+model notifies all views. This allows many views of the same model.</p>
+<p><strong>Strategy pattern (View–Controller):</strong> the view is
+concerned only with the visual display. It delegates the response to
+user input to its controller. The view is the <strong>context</strong>
+and the controller is the <strong>strategy</strong>. You can replace the
+controller so that the same view reacts differently to user input.</p>
+<figure>
+<img width="1400" height="930" src="media/11-artifacts/excel-mvc.webp" loading="lazy"
+decoding="async"
+alt="The spreadsheet as MVC. EditWSCtrler is the controller of EditWSView. handleEnter() calls sheetMgr.updateCell()." />
+<figcaption aria-hidden="true">The spreadsheet as MVC. EditWSCtrler is
+the controller of EditWSView. handleEnter() calls
+sheetMgr.updateCell().</figcaption>
+</figure>
+<p>This is the Observer figure from Step 2 with one class added: the
+circled <strong>EditWSCtrler</strong>.</p>
+<ul>
+<li><strong>EditWSView</strong> creates EditWSCtrler
+(<code>&lt;&lt;create&gt;&gt;</code>). The view now only displays the
+sheet (<code>showWS()</code>). It no longer handles key presses.</li>
+<li>When the user presses Enter, <code>handleEnter()</code> in
+<strong>EditWSCtrler</strong> calls <code>sheetMgr.updateCell()</code>
+(the red note). The controller holds the <code>sheetMgr</code> reference
+(<code>* — 1</code>: many controllers can share one manager).</li>
+<li>SheetManager changes the cell and calls <code>notify()</code>. Every
+observer — EditWSView, LineChart, BarChart and the controller itself —
+gets <code>update()</code>.</li>
+<li>EditWSView’s <code>update()</code> runs
+<code>sheetMgr.getData()</code> and redraws.</li>
+</ul>
+<p>Map it onto MVC: SheetManager + WorkSheet = <strong>Model</strong>.
+EditWSView, LineChart, BarChart = <strong>Views</strong>. EditWSCtrler =
+<strong>Controller</strong>. To make the same view react to keys
+differently (for example, a read-only mode), replace EditWSCtrler with
+another controller. The view does not change. That is the Strategy
+relationship between view and controller.</p>
+<p>Other patterns also help in MVC:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Use in MVC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Observer</strong></td>
+<td>View–Model, Controller–Model</td>
+</tr>
+<tr>
+<td><strong>Strategy</strong></td>
+<td>View–Controller, View–Look and feel</td>
+</tr>
+<tr>
+<td><strong>Abstract Factory</strong></td>
+<td>Create the controller or the look and feel for a view</td>
+</tr>
+<tr>
+<td>Composite</td>
+<td>Nested views (a panel contains buttons and other panels)</td>
+</tr>
+<tr>
+<td>Decorator</td>
+<td>Add UI functions such as scrolling to a view</td>
+</tr>
+<tr>
+<td>Command</td>
+<td>Support undo and redo of user actions</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Observer, Strategy and Abstract Factory are the key patterns
+in MVC.</strong> Web frameworks such as Django, Rails and ASP.NET MVC
+use this composition.</p>
+<h2 id="pros-and-cons-of-mvc">Pros and cons of MVC</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 47%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Simultaneous development.</strong> Different developers can
+work on the model, the views and the controllers at the same time.</td>
+<td><strong>Harder to navigate and to learn.</strong> MVC adds layers of
+abstraction. Developers must learn its way of splitting the code.</td>
+</tr>
+<tr>
+<td><strong>Many views for one model.</strong></td>
+<td><strong>Consistency across many artifacts.</strong> One feature is
+split into three parts (model, view, controller). Developers must keep
+all three consistent.</td>
+</tr>
+<tr>
+<td><strong>High cohesion.</strong> Related actions are grouped in one
+controller. The views of one model are grouped together.</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Low coupling</strong> between models, views and
+controllers.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="mvc-versus-the-layered-architecture">MVC versus the layered
+architecture</h1>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 33%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Layered</th>
+<th>MVC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shape</td>
+<td>Strict stack. Each layer calls only the layer below.</td>
+<td>Triangle. Model notifies views through Observer.</td>
+</tr>
+<tr>
+<td>Up-calls</td>
+<td>Not allowed directly</td>
+<td>Built in, through Observer</td>
+</tr>
+<tr>
+<td>Best for</td>
+<td>Systems with a clear split of UI, logic and data</td>
+<td>Interactive systems with many synchronised views of the same
+data</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="getting-ready-for-exam-questions">Getting ready for exam
+questions</h1>
+<ul>
+<li>If the system has several UIs (web, mobile, voice) or several views
+of the same data, propose <strong>MVC</strong>. Say: “Many views share
+one model. The model notifies all views when data changes (Observer).
+Each view delegates user input to its controller (Strategy).”</li>
+<li>When asked for the roles in MVC, describe model, view and
+controller, and name the Observer relationship (view–model) and the
+Strategy relationship (view–controller).</li>
+<li>Give the four pros (simultaneous development, many views, high
+cohesion, low coupling) and the two cons (learning curve, consistency
+across artifacts).</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../10-design-patterns/10.html">← 10.
+Object Design and Design Patterns</a>
+  <a class="next-page" href="../12-exam-method/12.html">12. Exam Method,
+Question by Question →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

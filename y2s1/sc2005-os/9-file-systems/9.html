@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>9. File Systems · SC2005 Operating Systems</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">9. File
+Systems</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">9. File Systems</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-overview/1.html"
+                   data-nav="1-overview/1.html">1. Overview of Operating
+Systems</a></li>
+            <li><a href="../2-processes-threads/2.html"
+                   data-nav="2-processes-threads/2.html">2. Processes
+and Threads</a></li>
+            <li><a href="../3-cpu-scheduling/3.html"
+                   data-nav="3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../4-synchronization/4.html"
+                   data-nav="4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../5-deadlocks/5.html"
+                   data-nav="5-deadlocks/5.html">5. Deadlocks</a></li>
+            <li><a href="../6a-rtos/6a.html"
+                   data-nav="6a-rtos/6a.html">6a. Real-Time Operating
+Systems</a></li>
+            <li><a href="../6b-virtualization/6b.html"
+                   data-nav="6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../7-memory-organization/7.html"
+                   data-nav="7-memory-organization/7.html">7. Memory
+Organization</a></li>
+            <li><a href="../8-virtual-memory/8.html"
+                   data-nav="8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../9-file-systems/9.html"
+                   data-nav="9-file-systems/9.html">9. File
+Systems</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../labs/lab-1.html"
+                   data-nav="labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../labs/lab-2.html"
+                   data-nav="labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../labs/lab-3/lab-3.html"
+                   data-nav="labs/lab-3/lab-3.html">Lab 3 Guide</a></li>
+            <li><a href="../labs/lab-4/lab-4.html"
+                   data-nav="labs/lab-4/lab-4.html">Lab 4 Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#what-a-file-system-does"
+id="toc-what-a-file-system-does">1. What a File System Does</a>
+<ul>
+<li><a href="#the-problem" id="toc-the-problem">1.1 The problem</a></li>
+<li><a href="#the-file-system-in-layers"
+id="toc-the-file-system-in-layers">1.2 The file system in
+layers</a></li>
+</ul></li>
+<li><a href="#files" id="toc-files">2. Files</a>
+<ul>
+<li><a href="#what-the-os-records-about-a-file"
+id="toc-what-the-os-records-about-a-file">2.1 What the OS records about
+a file</a></li>
+<li><a href="#file-types" id="toc-file-types">2.2 File types</a></li>
+<li><a href="#file-structure-a-sequence-of-bytes"
+id="toc-file-structure-a-sequence-of-bytes">2.3 File structure: a
+sequence of bytes</a></li>
+<li><a href="#access-methods" id="toc-access-methods">2.4 Access
+methods</a></li>
+<li><a href="#file-operations" id="toc-file-operations">2.5 File
+operations</a></li>
+</ul></li>
+<li><a href="#directories" id="toc-directories">3. Directories</a>
+<ul>
+<li><a href="#what-a-directory-entry-holds"
+id="toc-what-a-directory-entry-holds">3.1 What a directory entry
+holds</a></li>
+<li><a href="#how-to-find-an-entry-quickly"
+id="toc-how-to-find-an-entry-quickly">3.2 How to find an entry
+quickly</a></li>
+<li><a href="#tree-structured-directories-and-path-names"
+id="toc-tree-structured-directories-and-path-names">3.3 Tree-structured
+directories and path names</a></li>
+<li><a href="#acyclic-graph-directories-one-file-in-two-places"
+id="toc-acyclic-graph-directories-one-file-in-two-places">3.4
+Acyclic-graph directories: one file in two places</a></li>
+<li><a href="#two-ways-to-share-symbolic-links-and-hard-links"
+id="toc-two-ways-to-share-symbolic-links-and-hard-links">3.5 Two ways to
+share: symbolic links and hard links</a></li>
+<li><a href="#problems-with-sharing" id="toc-problems-with-sharing">3.6
+Problems with sharing</a></li>
+<li><a href="#directory-operations" id="toc-directory-operations">3.7
+Directory operations</a></li>
+</ul></li>
+<li><a href="#file-protection-in-unix"
+id="toc-file-protection-in-unix">4. File Protection in UNIX</a>
+<ul>
+<li><a href="#three-rights-three-classes-of-user"
+id="toc-three-rights-three-classes-of-user">4.1 Three rights, three
+classes of user</a></li>
+<li><a href="#reading-a-listing" id="toc-reading-a-listing">4.2 Reading
+a listing</a></li>
+<li><a href="#what-r-w-and-x-mean-for-a-directory"
+id="toc-what-r-w-and-x-mean-for-a-directory">4.3 What r, w and x mean
+for a directory</a></li>
+</ul></li>
+<li><a href="#what-happens-in-memory-on-open-and-read"
+id="toc-what-happens-in-memory-on-open-and-read">5. What Happens in
+Memory on open() and read()</a>
+<ul>
+<li><a href="#the-problem-1" id="toc-the-problem-1">5.1 The
+problem</a></li>
+<li><a href="#the-steps-of-open" id="toc-the-steps-of-open">5.2 The
+steps of open()</a></li>
+<li><a href="#the-steps-of-read" id="toc-the-steps-of-read">5.3 The
+steps of read()</a></li>
+</ul></li>
+<li><a href="#allocation-methods-which-blocks-hold-a-file"
+id="toc-allocation-methods-which-blocks-hold-a-file">6. Allocation
+Methods: Which Blocks Hold a File?</a>
+<ul>
+<li><a href="#the-question-and-one-tool-for-all-methods"
+id="toc-the-question-and-one-tool-for-all-methods">6.1 The question, and
+one tool for all methods</a></li>
+<li><a href="#contiguous-allocation" id="toc-contiguous-allocation">6.2
+Contiguous allocation</a></li>
+<li><a href="#linked-allocation" id="toc-linked-allocation">6.3 Linked
+allocation</a></li>
+<li><a href="#indexed-allocation" id="toc-indexed-allocation">6.4
+Indexed allocation</a></li>
+<li><a href="#comparing-the-three-how-many-disk-reads-to-reach-one-byte"
+id="toc-comparing-the-three-how-many-disk-reads-to-reach-one-byte">6.5
+Comparing the three: how many disk reads to reach one byte?</a></li>
+</ul></li>
+<li><a href="#the-unix-inode" id="toc-the-unix-inode">7. The UNIX
+inode</a>
+<ul>
+<li><a href="#the-problem-with-one-index-block"
+id="toc-the-problem-with-one-index-block">7.1 The problem with one index
+block</a></li>
+<li><a href="#what-an-inode-holds" id="toc-what-an-inode-holds">7.2 What
+an inode holds</a></li>
+<li><a href="#the-largest-possible-file"
+id="toc-the-largest-possible-file">7.3 The largest possible
+file</a></li>
+<li><a href="#which-pointer-reaches-logical-block-q"
+id="toc-which-pointer-reaches-logical-block-q">7.4 Which pointer reaches
+logical block Q?</a></li>
+<li><a href="#finding-a-file-from-its-path-name"
+id="toc-finding-a-file-from-its-path-name">7.5 Finding a file from its
+path name</a></li>
+</ul></li>
+<li><a href="#disk-space-management" id="toc-disk-space-management">8.
+Disk-Space Management</a>
+<ul>
+<li><a href="#choosing-the-block-size"
+id="toc-choosing-the-block-size">8.1 Choosing the block size</a></li>
+<li><a href="#keeping-track-of-free-blocks"
+id="toc-keeping-track-of-free-blocks">8.2 Keeping track of free
+blocks</a></li>
+</ul></li>
+<li><a href="#what-you-know-now-lecture-9"
+id="toc-what-you-know-now-lecture-9">What You Know Now (Lecture
+9)</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>This was written entirely with AI.</p>
+<p>These notes cover Lecture 9. Lectures 7 and 8 managed <strong>main
+memory</strong>, which loses its content when the power goes off. This
+lecture manages the <strong>disk</strong>, which keeps data. A disk only
+stores numbered blocks. The file system turns those blocks into named
+files in folders, controls who can use them, and decides which blocks
+each file uses.</p>
+<h2 id="what-a-file-system-does">1. What a File System Does</h2>
+<h3 id="the-problem">1.1 The problem</h3>
+<p>A disk is divided into <strong>blocks</strong>: fixed-size pieces of
+storage, numbered 0, 1, 2, and so on. The disk can only read or write a
+whole block, by its number.</p>
+<p>Users do not want to remember block numbers. They want to say “open
+<code>report.txt</code> in my <code>work</code> folder”. So the OS
+must:</p>
+<ul>
+<li>give each file a <strong>name</strong>, and keep information about
+it,</li>
+<li>group files into <strong>directories</strong> (folders),</li>
+<li>stop users from using files that are not theirs,</li>
+<li>decide <strong>which disk blocks</strong> hold each file, and find
+them again,</li>
+<li>keep track of which blocks are <strong>free</strong>.</li>
+</ul>
+<p>The part of the OS that does this is the <strong>file
+system</strong>.</p>
+<h3 id="the-file-system-in-layers">1.2 The file system in layers</h3>
+<p>The lecture divides the file system into four levels, from the user
+down to the hardware:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 42%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr>
+<th>Level</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Logical file system</strong></td>
+<td>Manages the directory structure. Creates, opens and deletes files.
+Handles protection and security.</td>
+</tr>
+<tr>
+<td><strong>File-organisation module</strong></td>
+<td>Allocates disk space to files. Translates <strong>logical</strong>
+block numbers (block 0, 1, 2 of the file) into <strong>physical</strong>
+block numbers (blocks on the disk). Manages free space.</td>
+</tr>
+<tr>
+<td><strong>Basic file system</strong></td>
+<td>Manages buffers and caches. Sends general commands to the device
+driver, to read or write a physical block.</td>
+</tr>
+<tr>
+<td><strong>I/O control</strong></td>
+<td>The device drivers and interrupt handlers. They move data between
+memory and the disk.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Sections 2 to 5 are about the logical file system. Sections 6 to 8
+are about the file-organisation module.</p>
+<hr />
+<h2 id="files">2. Files</h2>
+<h3 id="what-the-os-records-about-a-file">2.1 What the OS records about
+a file</h3>
+<p>A file has <strong>attributes</strong>: information about the file,
+separate from its content.</p>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 36%" />
+<col style="width: 63%" />
+</colgroup>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name</td>
+<td>The only attribute in human-readable form</td>
+</tr>
+<tr>
+<td>Type</td>
+<td>Needed by systems that treat file types differently</td>
+</tr>
+<tr>
+<td>Location</td>
+<td>A pointer to where the file is on the device</td>
+</tr>
+<tr>
+<td>Size</td>
+<td>The current size of the file</td>
+</tr>
+<tr>
+<td>Protection</td>
+<td>Who can read, write or execute the file</td>
+</tr>
+<tr>
+<td>Time, date, user ID</td>
+<td>For protection, security and usage monitoring</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The OS keeps these attributes in the <strong>directory
+structure</strong>, on the disk (section 3).</p>
+<h3 id="file-types">2.2 File types</h3>
+<p>The <strong>type</strong> of a file says what kind of data it holds.
+Many systems show the type with an <strong>extension</strong>, the part
+of the name after the dot:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 27%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr>
+<th>Type</th>
+<th>Usual extensions</th>
+<th>Holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Executable</td>
+<td>exe, com, bin, or none</td>
+<td>A machine-language program, ready to run</td>
+</tr>
+<tr>
+<td>Object</td>
+<td>obj, o</td>
+<td>Compiled machine code, not linked yet</td>
+</tr>
+<tr>
+<td>Source code</td>
+<td>c, p, pas, asm, a</td>
+<td>Source code in a programming language</td>
+</tr>
+<tr>
+<td>Batch</td>
+<td>bat, sh</td>
+<td>Commands for the command interpreter</td>
+</tr>
+<tr>
+<td>Text</td>
+<td>txt, doc</td>
+<td>Text documents</td>
+</tr>
+<tr>
+<td>Word processor</td>
+<td>wp, tex, rrf</td>
+<td>Word-processor formats</td>
+</tr>
+<tr>
+<td>Library</td>
+<td>lib, a</td>
+<td>Libraries of routines</td>
+</tr>
+<tr>
+<td>Print or view</td>
+<td>ps, dvi, gif</td>
+<td>ASCII or binary data for printing or viewing</td>
+</tr>
+<tr>
+<td>Archive</td>
+<td>arc, zip, tar</td>
+<td>Related files grouped into one file, sometimes compressed</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="file-structure-a-sequence-of-bytes">2.3 File structure: a
+sequence of bytes</h3>
+<p>A file could be a set of <strong>records</strong> with a fixed
+layout. But if the OS supported many record layouts, it would need code
+for each one. So most systems leave the structure to the application
+programs.</p>
+<p>UNIX and MS-DOS treat a file as <strong>unstructured</strong>: a
+sequence of bytes. Each byte has an address, counted from the start of
+the file (byte 0, byte 1, …). <strong>The rest of this lecture assumes
+this model.</strong></p>
+<h3 id="access-methods">2.4 Access methods</h3>
+<ul>
+<li><strong>Sequential access:</strong> the program processes the file
+in order, from the start, one byte after the other.</li>
+<li><strong>Direct access:</strong> the program reads bytes in any
+order, by giving the byte number.</li>
+</ul>
+<h3 id="file-operations">2.5 File operations</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 71%" />
+</colgroup>
+<thead>
+<tr>
+<th>Operation</th>
+<th>What the OS does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create</td>
+<td>Allocates disk space. Creates a directory entry with the file’s
+attributes.</td>
+</tr>
+<tr>
+<td>Delete</td>
+<td>Removes the directory entry. Frees the disk space.</td>
+</tr>
+<tr>
+<td>Open</td>
+<td>Searches the directory structure for the file’s entry. Copies it
+into memory, into the <strong>open-file table</strong> (section 5).</td>
+</tr>
+<tr>
+<td>Close</td>
+<td>Writes the in-memory copy of the directory entry back to the
+directory structure on disk.</td>
+</tr>
+<tr>
+<td>Read</td>
+<td>Finds the file in the open-file table. Reads data from the position
+given by the <strong>current position pointer</strong>.</td>
+</tr>
+<tr>
+<td>Write</td>
+<td>Finds the file in the open-file table. Writes data at the position
+given by the current position pointer.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The <strong>current position pointer</strong> is the byte number
+where the next read or write starts. Each read or write moves it
+forward.</p>
+<p><strong>Why “open” exists.</strong> Searching the directory on the
+disk is slow. If every read had to search it, every read would be slow.
+So the OS searches once, at open, and keeps what it found in memory.
+Later reads and writes use that copy. For an open file, the OS
+keeps:</p>
+<ul>
+<li>the current position pointer,</li>
+<li>the <strong>file open count</strong>: how many processes have the
+file open,</li>
+<li>the disk location of the file.</li>
+</ul>
+<hr />
+<h2 id="directories">3. Directories</h2>
+<h3 id="what-a-directory-entry-holds">3.1 What a directory entry
+holds</h3>
+<p>A <strong>directory</strong> is a list of entries, usually one entry
+for each file. The directory and the files are both on the disk. An
+entry can have one of two forms:</p>
+<ul>
+<li><strong>(a)</strong> the file name and all the other attributes, in
+the entry itself; or</li>
+<li><strong>(b)</strong> the file name and a <strong>pointer</strong> to
+another data structure that holds the attributes.</li>
+</ul>
+<figure>
+<img width="1400" height="803" src="media/9-artifacts/directory-entry-fcb.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="(a) Entries hold the attributes; (b) entries point to a file control block (Lecture 9, slide 9.10)" />
+<figcaption aria-hidden="true">(a) Entries hold the attributes; (b)
+entries point to a file control block (Lecture 9, slide
+9.10)</figcaption>
+</figure>
+<p>The data structure in form (b) is the <strong>file control block
+(FCB)</strong>. It holds the file’s permissions, dates (create, access,
+write), owner and group, size, and the data blocks (or pointers to
+them). In UNIX, the FCB is the <strong>inode</strong> (section 7).</p>
+<h3 id="how-to-find-an-entry-quickly">3.2 How to find an entry
+quickly</h3>
+<p>A directory can be stored as:</p>
+<ul>
+<li><strong>A linear list</strong> of entries. It is simple. But to find
+one file, the OS must search the list from the start. That is slow for a
+large directory.</li>
+<li><strong>A linear list with a hash table.</strong> A <strong>hash
+function</strong> turns the file name into a position in the table, and
+that position points to the entry. Search is fast. A
+<strong>collision</strong> occurs when two names hash to the same
+position. The fix: each position in the table holds a list of
+entries.</li>
+</ul>
+<h3 id="tree-structured-directories-and-path-names">3.3 Tree-structured
+directories and path names</h3>
+<p>A directory can contain other directories. This gives a
+<strong>tree</strong>, with one <strong>root</strong> directory at the
+top.</p>
+<figure>
+<img width="1400" height="826" src="media/9-artifacts/tree-directory.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="A tree of directories; the circled file is /spell/mail/prt/first (Lecture 9, slide 9.12)" />
+<figcaption aria-hidden="true">A tree of directories; the circled file
+is /spell/mail/prt/first (Lecture 9, slide 9.12)</figcaption>
+</figure>
+<p>A <strong>path name</strong> gives the way to a file:</p>
+<ul>
+<li>An <strong>absolute path name</strong> starts at the root, and
+follows the directories down to the file. Example:
+<code>/spell/mail/prt/first</code>.</li>
+<li>A <strong>relative path name</strong> starts at the <strong>current
+directory</strong>: the directory the user is working in now. If the
+current directory is <code>/spell/mail</code>, the same file is
+<code>prt/first</code>.</li>
+</ul>
+<p>A tree gives three benefits:</p>
+<ul>
+<li><strong>Efficient searching:</strong> the path name says exactly
+where the file is.</li>
+<li><strong>Naming:</strong> files in different directories can have the
+same name. (The slide’s tree has two files named <code>list</code> and
+two named <code>reorder</code>.)</li>
+<li><strong>Grouping:</strong> related files can go in one
+directory.</li>
+</ul>
+<h3 id="acyclic-graph-directories-one-file-in-two-places">3.4
+Acyclic-graph directories: one file in two places</h3>
+<p>In a strict tree, each file has exactly one parent directory. But two
+users may want to share one file, each from their own directory.</p>
+<p>An <strong>acyclic-graph directory</strong> allows that. A file (or
+directory) can appear in more than one directory. “Acyclic” means there
+are no loops: following the entries never leads back to where you
+started.</p>
+<figure>
+<img width="1350" height="1035" src="media/9-artifacts/acyclic-graph-directory.webp"
+style="width:55.0%" loading="lazy" decoding="async"
+alt="One file reached by two paths, /A/B/C/D and /X/Y (Lecture 9, slide 9.14)" />
+<figcaption aria-hidden="true">One file reached by two paths, /A/B/C/D
+and /X/Y (Lecture 9, slide 9.14)</figcaption>
+</figure>
+<p>In the slide, one file has two names: <code>/A/B/C/D</code> and
+<code>/X/Y</code>. So in an acyclic graph, <strong>one file can have
+several path names</strong>.</p>
+<h3 id="two-ways-to-share-symbolic-links-and-hard-links">3.5 Two ways to
+share: symbolic links and hard links</h3>
+<p><strong>Symbolic link.</strong> The OS creates a special directory
+entry, a <strong>link</strong>. The link holds the <strong>path
+name</strong> (absolute or relative) of the real file. To use the link,
+the OS reads the path name and looks it up, to find the real file.</p>
+<ul>
+<li>Access is <strong>slower</strong> than with a hard link, because the
+OS must resolve the path name every time.</li>
+</ul>
+<p><strong>Hard link.</strong> The OS <strong>copies all the
+information</strong> about the file into the second directory. Both
+entries lead straight to the same file.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 28%" />
+<col style="width: 47%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Symbolic link</th>
+<th>Hard link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The second entry holds</td>
+<td>The path name of the file</td>
+<td>All the information about the file (the same as the first
+entry)</td>
+</tr>
+<tr>
+<td>To reach the file</td>
+<td>Look up the path name again</td>
+<td>Go directly</td>
+</tr>
+<tr>
+<td>Speed</td>
+<td>Slower</td>
+<td>Faster</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>(Standard, not on the slides: in UNIX, a hard link is a second
+directory entry with the <strong>same inode number</strong>. The inode
+counts how many entries point to it. This is the “Links” column in
+<code>ls -l</code>.)</p>
+<h3 id="problems-with-sharing">3.6 Problems with sharing</h3>
+<p><strong>Problem 1: the same file is visited twice.</strong> A program
+that visits every file (for example, a backup program) can reach a
+shared file through both paths.</p>
+<ul>
+<li><strong>Solution:</strong> ignore link entries during the
+traversal.</li>
+</ul>
+<p><strong>Problem 2: dangling pointers.</strong> Suppose the owner
+deletes a shared file, but a link to it still exists. The link now
+points to a file that does not exist: a <strong>dangling
+pointer</strong>. Worse, the OS may later reuse the freed disk space, or
+the same path name, for a <strong>new</strong> file. Then the old link
+leads to the new file, which is the wrong file.</p>
+<ul>
+<li><strong>Solutions</strong> (any one of them):
+<ul>
+<li>Search for dangling links and remove them when the file is
+deleted.</li>
+<li>Leave the dangling links, and remove each one only when someone
+tries to use it.</li>
+<li>Keep the file until <strong>all</strong> references to it are
+deleted. (A count of the references tells the OS when the last one is
+gone.)</li>
+</ul></li>
+</ul>
+<p><strong>One shared copy or one copy per user?</strong> (Not on the
+slides.) Links keep <strong>one</strong> copy, which all users see. A
+change by one user is seen by all, and the disk holds the data once. The
+cost is the sharing problems above. Giving each user their <strong>own
+copy</strong> avoids those problems, but it uses more disk space, and
+the copies can become different from each other.</p>
+<h3 id="directory-operations">3.7 Directory operations</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 71%" />
+</colgroup>
+<thead>
+<tr>
+<th>Operation</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Create</td>
+<td>Creates a directory. In UNIX, two entries are added automatically:
+<code>.</code> (this directory) and <code>..</code> (its parent).</td>
+</tr>
+<tr>
+<td>Delete</td>
+<td>Deletes a directory. <strong>Only an empty directory can be
+deleted.</strong> A directory that holds only <code>.</code> and
+<code>..</code> counts as empty.</td>
+</tr>
+<tr>
+<td>List</td>
+<td>Lists all the files (and directories) in a directory, and the
+content of their entries.</td>
+</tr>
+<tr>
+<td>Search</td>
+<td>Searches the directory structure for the entry of one file.</td>
+</tr>
+<tr>
+<td>Traverse</td>
+<td>Visits every directory and every file in a directory structure.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="file-protection-in-unix">4. File Protection in UNIX</h2>
+<h3 id="three-rights-three-classes-of-user">4.1 Three rights, three
+classes of user</h3>
+<p>UNIX controls three kinds of access:</p>
+<ul>
+<li><strong>r (read):</strong> read the file.</li>
+<li><strong>w (write):</strong> change the file.</li>
+<li><strong>x (execute):</strong> run the file as a program.</li>
+</ul>
+<p>It gives these rights separately to three classes of user:</p>
+<ul>
+<li><strong>owner</strong> (the user who owns the file),</li>
+<li><strong>group</strong> (the users in the file’s group),</li>
+<li><strong>public</strong> (all other users).</li>
+</ul>
+<p>That is 3 × 3 = 9 bits. Each class has 3 bits, in the order r w x. A
+1 means the right is given, a 0 (shown as <code>-</code>) means it is
+not. Each group of 3 bits is also written as one octal digit (r = 4, w =
+2, x = 1).</p>
+<h3 id="reading-a-listing">4.2 Reading a listing</h3>
+<p>The lecture’s example:</p>
+<pre class="text"><code>-rwxr-x--x  1  smith  58  Mar 3  3:04  game1</code></pre>
+<p>The first character is the <strong>file type</strong>: <code>-</code>
+for an ordinary file, <code>d</code> for a directory. The next nine
+characters split into three groups:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 14%" />
+<col style="width: 19%" />
+<col style="width: 16%" />
+<col style="width: 29%" />
+</colgroup>
+<thead>
+<tr>
+<th>Class</th>
+<th>Bits</th>
+<th>Binary</th>
+<th>Octal</th>
+<th>Rights</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Owner</td>
+<td><code>rwx</code></td>
+<td>111</td>
+<td>7</td>
+<td>read, write, execute</td>
+</tr>
+<tr>
+<td>Group</td>
+<td><code>r-x</code></td>
+<td>101</td>
+<td>5</td>
+<td>read, execute</td>
+</tr>
+<tr>
+<td>Public</td>
+<td><code>--x</code></td>
+<td>001</td>
+<td>1</td>
+<td>execute only</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>So the protection is <strong>751</strong>. The owner and the group
+can read <code>game1</code>. Other users can only run it.</p>
+<p><strong>To answer “who can do X?”</strong>, look at the bit for X in
+<strong>each</strong> of the three groups. Do not stop at the owner.</p>
+<h3 id="what-r-w-and-x-mean-for-a-directory">4.3 What r, w and x mean
+for a directory</h3>
+<p>For a directory, the three rights have a different meaning:</p>
+<ul>
+<li><strong>x (execute)</strong> is <strong>essential</strong> to use
+the directory at all. Without it, a user cannot run any command on the
+directory, and cannot reach <strong>any</strong> file in the tree below
+it, even a file whose own bits allow access.</li>
+<li><strong>r (read):</strong> list the names in the directory. Without
+it, the user cannot list it.</li>
+<li><strong>w (write):</strong> create or delete files in the directory.
+Without it, the user cannot.</li>
+</ul>
+<p>The lecture’s example:</p>
+<pre class="text"><code>drwxr-x---  0  smith  5  Feb 2  12:01  games</code></pre>
+<ul>
+<li><code>d</code>: it is a directory.</li>
+<li>Owner <code>rwx</code>: list it, add and delete files, and use the
+files in it.</li>
+<li>Group <code>r-x</code>: list it and use the files in it, but not add
+or delete files.</li>
+<li>Public <code>---</code>: no access at all, so no access to any file
+below <code>games</code>.</li>
+</ul>
+<p>Note that <strong>deleting</strong> a file needs <strong>w on the
+directory</strong>, because deleting changes the directory’s list. It
+does not depend on the bits of the file itself.</p>
+<hr />
+<h2 id="what-happens-in-memory-on-open-and-read">5. What Happens in
+Memory on open() and read()</h2>
+<h3 id="the-problem-1">5.1 The problem</h3>
+<p>Two processes can open the same file at the same time, and read it at
+<strong>different</strong> positions. But the file’s FCB (its attributes
+and block pointers) is the same for both. So the OS keeps two kinds of
+table in kernel memory:</p>
+<ul>
+<li>A <strong>per-process open-file table</strong>, one for each
+process. Each entry holds <strong>this process’s</strong> current
+position pointer and access rights (for example <code>r w -</code>), and
+points to an entry in the system-wide table.</li>
+<li>A <strong>system-wide open-file table</strong>, one for the whole
+system. Each entry holds <strong>one copy of the FCB</strong> of an open
+file, and the <strong>file open count</strong>.</li>
+</ul>
+<p>The index of the entry in the per-process table is returned to the
+process. This index is the <strong>file descriptor</strong>. The process
+passes it to every later <code>read</code>, <code>write</code> and
+<code>close</code>.</p>
+<h3 id="the-steps-of-open">5.2 The steps of open()</h3>
+<figure>
+<img width="1400" height="885" src="media/9-artifacts/open-file-tables.webp" loading="lazy"
+decoding="async"
+alt="The steps of open(file_name) (Lecture 9, slide 9.19)" />
+<figcaption aria-hidden="true">The steps of open(file_name) (Lecture 9,
+slide 9.19)</figcaption>
+</figure>
+<ol type="1">
+<li>The process calls <code>open(file_name)</code>. The OS searches the
+directory structure. It uses the part cached in kernel memory, and reads
+more from the disk if needed.</li>
+<li>The OS finds the file’s entry, and from it the file’s FCB on the
+disk.</li>
+<li>The OS copies the FCB into the <strong>system-wide</strong>
+open-file table. If another process already has the file open, the copy
+is already there, and the OS only adds 1 to the file open count.</li>
+<li>The OS checks the access rights, and creates an entry in the
+<strong>per-process</strong> open-file table. The entry points to the
+system-wide entry.</li>
+<li>The OS returns the index of that entry, the <strong>file
+descriptor</strong>, to the process.</li>
+</ol>
+<h3 id="the-steps-of-read">5.3 The steps of read()</h3>
+<figure>
+<img width="1400" height="491" src="media/9-artifacts/read-file-tables.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="The steps of read(index, amount): from the file descriptor to the data block (Lecture 9, slide 9.20)" />
+<figcaption aria-hidden="true">The steps of read(index, amount): from
+the file descriptor to the data block (Lecture 9, slide
+9.20)</figcaption>
+</figure>
+<ol type="1">
+<li>The process calls <code>read(index, amount)</code>. The index
+selects the entry in its per-process table.</li>
+<li>That entry gives the <strong>current position pointer</strong>, and
+points to the system-wide entry.</li>
+<li>The system-wide entry holds the <strong>FCB</strong>. The OS reads
+the data blocks from the disk.</li>
+</ol>
+<p>Two facts decide which block is read:</p>
+<ul>
+<li><strong>The current position pointer and the amount</strong> tell
+the OS which <strong>logical</strong> blocks of the file it needs.</li>
+<li><strong>The FCB and the allocation method</strong> tell it where
+those blocks are on the <strong>disk</strong> (sections 6 and 7).</li>
+</ul>
+<p><strong>What the open-file tables do not hold:</strong> file data.
+They hold information <strong>about</strong> the file (FCB copy,
+position, rights, count). Caching of data blocks is a job of the basic
+file system, not of the open-file table.</p>
+<hr />
+<h2 id="allocation-methods-which-blocks-hold-a-file">6. Allocation
+Methods: Which Blocks Hold a File?</h2>
+<h3 id="the-question-and-one-tool-for-all-methods">6.1 The question, and
+one tool for all methods</h3>
+<p>A file is a sequence of bytes. The disk is a set of blocks. The
+<strong>allocation method</strong> decides which disk blocks hold the
+file, and how the OS finds the block that holds a given byte.</p>
+<p>All three methods start with the same step. Divide the
+<strong>logical address</strong> (the byte number in the file) by the
+amount of file data in one block:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">logical address</mtext><mo>=</mo><mi>Q</mi><mo>×</mo><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">data bytes per block</mtext><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">\text{logical address} = Q \times (\text{data bytes per block}) + R</annotation></semantics></math></p>
+<ul>
+<li>Q (the quotient) is the <strong>logical block number</strong>: block
+0, 1, 2, … of the file.</li>
+<li>R (the remainder) is the <strong>offset</strong>: the byte inside
+that block.</li>
+</ul>
+<p>Then each method maps logical block Q to a physical block on the disk
+in its own way. The lecture uses logical address <strong>2333</strong>
+and 512-byte blocks in every example.</p>
+<h3 id="contiguous-allocation">6.2 Contiguous allocation</h3>
+<p>Each file uses a set of <strong>consecutive</strong> blocks on the
+disk. The directory entry holds only the <strong>start block</strong>
+and the <strong>length</strong> (number of blocks).</p>
+<p><strong>Mapping:</strong> with 512-byte blocks, logical address = Q ×
+512 + R.</p>
+<ul>
+<li>Block to access = start block + Q.</li>
+<li>Offset in the block = R.</li>
+</ul>
+<figure>
+<img width="1400" height="894" src="media/9-artifacts/contiguous-allocation.webp"
+style="width:85.0%" loading="lazy" decoding="async"
+alt="Contiguous allocation: each file is a run of blocks (Lecture 9, slide 9.27)" />
+<figcaption aria-hidden="true">Contiguous allocation: each file is a run
+of blocks (Lecture 9, slide 9.27)</figcaption>
+</figure>
+<p><strong>The slide’s example.</strong> The file <code>mail</code>
+starts at block 19, with length 6, so it uses blocks 19 to 24.</p>
+<ol type="1">
+<li>2333 = 4 × 512 + 285, so Q = 4 and R = 285.</li>
+<li>Block = 19 + 4 = 23.</li>
+<li>The byte is byte 285 of block 23.</li>
+</ol>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li>Simple: two numbers per file.</li>
+<li><strong>Random access</strong> is easy. Any block is found by one
+addition, with no extra disk reads.</li>
+</ul>
+<p><strong>Problems:</strong></p>
+<ul>
+<li>The same problems as dynamic partitioning of main memory (Lecture
+7). The OS must find a <strong>hole</strong> (a run of free blocks)
+large enough, with first-fit or best-fit. Over time this gives
+<strong>external fragmentation</strong>: enough free blocks in total,
+but no run long enough.</li>
+<li>A file cannot easily <strong>grow</strong>. The blocks after it may
+be in use, so the whole file may have to move to a bigger hole.</li>
+<li>If the OS reserves extra space in advance, and the file never uses
+it, the space is wasted: <strong>internal fragmentation</strong>.</li>
+</ul>
+<h3 id="linked-allocation">6.3 Linked allocation</h3>
+<p>Each file is a <strong>linked list</strong> of blocks. The blocks can
+be anywhere on the disk. Each block holds a <strong>pointer</strong> to
+the next block of the file. The directory entry holds the
+<strong>first</strong> block (and, in the slide, the last block
+too).</p>
+<p><strong>Course convention:</strong> the first 4 bytes of each block
+hold the pointer. So each 512-byte block holds only <strong>508
+bytes</strong> of file data.</p>
+<p><strong>Mapping:</strong> logical address = Q × 508 + R.</p>
+<ul>
+<li>The block to access is the <strong>(Q + 1)th block in the
+chain</strong>. The OS must follow the chain from the first block to
+reach it.</li>
+<li>Offset in the block = R + 4 (skip the 4-byte pointer).</li>
+</ul>
+<figure>
+<img width="1400" height="780" src="media/9-artifacts/linked-allocation.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Linked allocation: the file jeep is the chain 9, 16, 1, 10, 25 (Lecture 9, slide 9.30)" />
+<figcaption aria-hidden="true">Linked allocation: the file jeep is the
+chain 9, 16, 1, 10, 25 (Lecture 9, slide 9.30)</figcaption>
+</figure>
+<p><strong>The slide’s example.</strong> The file <code>jeep</code>
+starts at block 9 and ends at block 25. The chain is 9 → 16 → 1 → 10 →
+25. Block 25 holds −1, which marks the end.</p>
+<ol type="1">
+<li>2333 = 4 × 508 + 301, so Q = 4 and R = 301.</li>
+<li>Block Q + 1 = 5th in the chain. Follow it: 9 (1st), 16 (2nd), 1
+(3rd), 10 (4th), <strong>25</strong> (5th).</li>
+<li>Offset = 301 + 4 = 305. The byte is byte 305 of block 25.</li>
+</ol>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li>Simple: the directory needs only the start block.</li>
+<li><strong>No external fragmentation.</strong> Any free block can be
+used, so no space is wasted between files.</li>
+<li>The file can <strong>grow</strong> freely: add a block at the end
+when needed.</li>
+</ul>
+<p><strong>Problem: no random access.</strong> Only block 9 knows where
+block 16 is, only block 16 knows where block 1 is, and so on. To reach
+the (Q + 1)th block, the OS must <strong>read all Q + 1 blocks</strong>
+of the chain from the disk. Reaching the end of a large file is
+slow.</p>
+<p><strong>FAT.</strong> (The lecture’s outline names it, but the slides
+do not explain it. This is the standard idea.) A <strong>file allocation
+table (FAT)</strong> moves all the next-block pointers out of the
+blocks, into one table at the start of the disk, with one entry for each
+disk block. The OS keeps the table in memory. Then it can follow a chain
+in memory, without reading every block from the disk.</p>
+<h3 id="indexed-allocation">6.4 Indexed allocation</h3>
+<p>Each file has an <strong>index block</strong>. The index block holds
+a list of pointers: entry 0 points to logical block 0, entry 1 to
+logical block 1, and so on. The directory entry holds the number of the
+index block.</p>
+<p>This is like a page table (Lecture 7): the index block maps the
+file’s logical blocks to disk blocks.</p>
+<p><strong>Mapping:</strong> logical address = Q × 512 + R.</p>
+<ul>
+<li>Entry Q of the index table gives the block to access.</li>
+<li>Offset in the block = R.</li>
+</ul>
+<figure>
+<img width="1400" height="833" src="media/9-artifacts/indexed-allocation.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Indexed allocation: index block 19 lists the blocks of jeep (Lecture 9, slide 9.33)" />
+<figcaption aria-hidden="true">Indexed allocation: index block 19 lists
+the blocks of jeep (Lecture 9, slide 9.33)</figcaption>
+</figure>
+<p><strong>The slide’s example.</strong> The file <code>jeep</code> has
+index block 19. Block 19 holds 9, 16, 1, 10, 25, −1, −1, −1 (−1 means
+unused).</p>
+<ol type="1">
+<li>2333 = 4 × 512 + 285, so Q = 4 and R = 285.</li>
+<li>Entry 4 of the index (counting from 0) is 25.</li>
+<li>The byte is byte 285 of block 25.</li>
+</ol>
+<p><strong>How large is the index?</strong> The lecture’s case: the
+largest file is 128 KB, a block is 512 bytes, and a pointer is 4
+bytes.</p>
+<ol type="1">
+<li>The largest file needs 128 KB / 512 B = 131,072 / 512 = <strong>256
+blocks</strong>.</li>
+<li>So the index needs 256 pointers × 4 bytes = <strong>1024
+bytes</strong>.</li>
+<li>One block holds only 512 bytes. So the index needs 1024 / 512 =
+<strong>2 blocks</strong>.</li>
+</ol>
+<p><strong>Advantages:</strong></p>
+<ul>
+<li><strong>Random access:</strong> entry Q gives block Q directly.</li>
+<li><strong>No external fragmentation:</strong> any free block can be
+used, as with paging.</li>
+</ul>
+<p><strong>Problem:</strong> the index blocks use disk space, and the
+mapping costs time (an extra read if the index block is not in
+memory).</p>
+<h3 id="comparing-the-three-how-many-disk-reads-to-reach-one-byte">6.5
+Comparing the three: how many disk reads to reach one byte?</h3>
+<p>To read the block that holds logical address A, first find Q. Then
+count the disk reads. Assume that <strong>only the directory entry is in
+memory</strong> (the usual exam assumption; check what the question
+says).</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 33%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr>
+<th>Method</th>
+<th>Disk reads to reach logical block Q</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Contiguous</td>
+<td><strong>1</strong></td>
+<td>The block number is start + Q, computed in memory</td>
+</tr>
+<tr>
+<td>Linked</td>
+<td><strong>Q + 1</strong></td>
+<td>Read every block of the chain, from block 0 to block Q</td>
+</tr>
+<tr>
+<td>Indexed</td>
+<td><strong>2</strong> (1 if the index block is already in memory)</td>
+<td>Read the index block, then the data block</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>With the lecture’s address 2333 (Q = 4): contiguous 1 read, linked 5
+reads, indexed 2 reads.</p>
+<p><strong>If the data runs over two blocks.</strong> A read of n bytes
+from address A touches the blocks from Q = ⌊A / size⌋ to ⌊(A + n − 1) /
+size⌋. Count each block that is touched. With linked allocation, the
+next block in the chain comes “for free” in the count, because the OS
+has to read the earlier blocks anyway.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 25%" />
+<col style="width: 20%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Contiguous</th>
+<th>Linked</th>
+<th>Indexed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Directory entry holds</td>
+<td>Start block, length</td>
+<td>First block (and last)</td>
+<td>Index block number</td>
+</tr>
+<tr>
+<td>Random access</td>
+<td>Yes, fast</td>
+<td><strong>No</strong>, must follow the chain</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>External fragmentation</td>
+<td><strong>Yes</strong></td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td>File can grow easily</td>
+<td><strong>No</strong></td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Space overhead</td>
+<td>None</td>
+<td>One pointer in every block</td>
+<td>The index block(s)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="the-unix-inode">7. The UNIX inode</h2>
+<h3 id="the-problem-with-one-index-block">7.1 The problem with one index
+block</h3>
+<p>With indexed allocation, a small file wastes most of its index block,
+and a very large file needs many index blocks. UNIX solves both with a
+<strong>multi-level</strong> index, the <strong>inode</strong>.</p>
+<h3 id="what-an-inode-holds">7.2 What an inode holds</h3>
+<p>Every file and every directory has one <strong>inode</strong> (index
+node). It holds:</p>
+<ul>
+<li>the file attributes (mode, owners, timestamps, size, block
+count),</li>
+<li><strong>12 direct pointers</strong>: each points to one data
+block,</li>
+<li><strong>3 indirect pointers</strong>:
+<ul>
+<li><strong>single indirect:</strong> points to an index block, full of
+pointers to data blocks,</li>
+<li><strong>double indirect:</strong> points to an index block of
+pointers to index blocks, which point to data blocks,</li>
+<li><strong>triple indirect:</strong> one more level.</li>
+</ul></li>
+</ul>
+<figure>
+<img width="1400" height="1047" src="media/9-artifacts/inode-structure.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="The inode: direct pointers, then single, double and triple indirect blocks (Lecture 9, slide 9.35)" />
+<figcaption aria-hidden="true">The inode: direct pointers, then single,
+double and triple indirect blocks (Lecture 9, slide 9.35)</figcaption>
+</figure>
+<p>A small file uses only the direct pointers, so it needs no extra
+index blocks. A large file uses the indirect pointers as it grows.</p>
+<p>Each UNIX directory entry holds only a <strong>file name</strong> and
+an <strong>inode number</strong>. Each inode is at a <strong>fixed
+place</strong> on the disk, so the inode number tells the OS where to
+read it.</p>
+<h3 id="the-largest-possible-file">7.3 The largest possible file</h3>
+<p>Let the block size be B and the pointer size be p. One index block
+holds <strong>P = B / p</strong> pointers.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 37%" />
+<col style="width: 38%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr>
+<th>Part</th>
+<th>Data blocks it reaches</th>
+<th>Bytes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12 direct pointers</td>
+<td>12</td>
+<td>12 × B</td>
+</tr>
+<tr>
+<td>Single indirect</td>
+<td>P</td>
+<td>P × B</td>
+</tr>
+<tr>
+<td>Double indirect</td>
+<td>P × P</td>
+<td>P² × B</td>
+</tr>
+<tr>
+<td>Triple indirect</td>
+<td>P × P × P</td>
+<td>P³ × B</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The largest file is the sum of the rows.</p>
+<p><strong>The lecture’s example:</strong> 4 KB blocks and 4-byte
+pointers. P = 4096 / 4 = 1024 =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>10</mn></msup><annotation encoding="application/x-tex">2^{10}</annotation></semantics></math>.</p>
+<ul>
+<li>Direct: 12 × 4 KB = <strong>48 KB</strong>.</li>
+<li>Single indirect:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>10</mn></msup><annotation encoding="application/x-tex">2^{10}</annotation></semantics></math>
+× 4 KB =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>10</mn></msup><annotation encoding="application/x-tex">2^{10}</annotation></semantics></math>
+×
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>12</mn></msup><annotation encoding="application/x-tex">2^{12}</annotation></semantics></math>
+=
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>22</mn></msup><annotation encoding="application/x-tex">2^{22}</annotation></semantics></math>
+bytes = <strong>4 MB</strong>. With the direct blocks: 48 KB +
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>22</mn></msup><annotation encoding="application/x-tex">2^{22}</annotation></semantics></math>
+bytes.</li>
+<li>Double indirect:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>10</mn></msup><annotation encoding="application/x-tex">2^{10}</annotation></semantics></math>
+×
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>10</mn></msup><annotation encoding="application/x-tex">2^{10}</annotation></semantics></math>
+× 4 KB =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>32</mn></msup><annotation encoding="application/x-tex">2^{32}</annotation></semantics></math>
+bytes = <strong>4 GB</strong>. With the others: 48 KB +
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>22</mn></msup><annotation encoding="application/x-tex">2^{22}</annotation></semantics></math>
++
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>32</mn></msup><annotation encoding="application/x-tex">2^{32}</annotation></semantics></math>
+bytes, which is more than 4 GB.</li>
+<li>(Triple indirect, by the same method:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>30</mn></msup><annotation encoding="application/x-tex">2^{30}</annotation></semantics></math>
+× 4 KB =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>42</mn></msup><annotation encoding="application/x-tex">2^{42}</annotation></semantics></math>
+bytes = 4 TB.)</li>
+</ul>
+<p><strong>Apply the formula to the inode you are given.</strong> Some
+inodes have fewer direct pointers, or no double or triple indirect
+pointer. Use only the parts that exist. A smaller pointer means more
+pointers per block, so P changes too.</p>
+<h3 id="which-pointer-reaches-logical-block-q">7.4 Which pointer reaches
+logical block Q?</h3>
+<p>Number the file’s blocks from 0. With D direct pointers and P
+pointers per index block:</p>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 34%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Logical blocks</th>
+<th>Reached through</th>
+<th>Reads to reach the data, with the inode in memory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 to D − 1</td>
+<td>Direct pointer Q</td>
+<td>1 (the data block)</td>
+</tr>
+<tr>
+<td>D to D + P − 1</td>
+<td>Single indirect, entry Q − D</td>
+<td>2 (index block, data block)</td>
+</tr>
+<tr>
+<td>D + P to D + P + P² − 1</td>
+<td>Double indirect</td>
+<td>3 (two index blocks, data block)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>An index block that was already read for an earlier block, in the
+same operation, does not need to be read again (unless the question says
+nothing is cached).</p>
+<p><strong>The method, step by step,</strong> to count the disk reads
+for <code>read(fd, buf, n)</code> with the current position at byte
+A:</p>
+<ol type="1">
+<li>Find the first and last logical block: ⌊A / B⌋ and ⌊(A + n − 1) /
+B⌋.</li>
+<li>For each block in that range, find which pointer reaches it (table
+above).</li>
+<li>Add up the reads. Count each index block once.</li>
+</ol>
+<p><strong>The lecture’s figure</strong> (slides 9.39 and 9.40) uses an
+inode with <strong>6</strong> direct pointers (Blk 0 to Blk 5) and one
+single-indirect pointer, and blocks of 1000 bytes.</p>
+<figure>
+<img width="1282" height="1134" src="media/9-artifacts/inode-blocks.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="An inode with 6 direct blocks; block 6 onwards is reached through the indirect block (Lecture 9, slide 9.39)" />
+<figcaption aria-hidden="true">An inode with 6 direct blocks; block 6
+onwards is reached through the indirect block (Lecture 9, slide
+9.39)</figcaption>
+</figure>
+<p>At <code>open</code>, a copy of the inode went into the system-wide
+open-file table, so the inode is in memory.</p>
+<ul>
+<li><strong>The lecture’s case:</strong> the current position is 5100,
+and the process reads 200 bytes. The bytes are 5100 to 5299. ⌊5100 /
+1000⌋ = 5 and ⌊5299 / 1000⌋ = 5. So only logical block 5 is needed, from
+offset 100. Block 5 is direct (5 &lt; 6). <strong>1 disk
+read.</strong></li>
+<li><strong>Another case (own numbers):</strong> position 2950, read 100
+bytes. The bytes are 2950 to 3049. That is block 2 (bytes 2950 to 2999)
+and block 3 (bytes 3000 to 3049). Both are direct. <strong>2 disk
+reads.</strong></li>
+<li><strong>Another case (own numbers):</strong> position 6400, read 100
+bytes. Only block 6 is needed. 6 ≥ 6, so it is entry 0 of the
+single-indirect block. Read the indirect block, then the data block.
+<strong>2 disk reads.</strong></li>
+</ul>
+<h3 id="finding-a-file-from-its-path-name">7.5 Finding a file from its
+path name</h3>
+<p>To open <code>/usr/ast/mbox</code>, the OS must find the inode of
+<code>mbox</code>. Each directory in the path is itself a file, with an
+inode and data blocks. So the OS repeats one step for each directory in
+the path: <strong>read the directory’s inode, to find its data block;
+read the data block, to find the next name.</strong></p>
+<figure>
+<img width="1400" height="672" src="media/9-artifacts/inode-path-lookup.webp" loading="lazy"
+decoding="async"
+alt="Looking up /usr/ast/mbox, one directory at a time (Lecture 9, slide 9.38)" />
+<figcaption aria-hidden="true">Looking up /usr/ast/mbox, one directory
+at a time (Lecture 9, slide 9.38)</figcaption>
+</figure>
+<p>The lecture’s example. The root directory is already in memory.</p>
+<ol type="1">
+<li>Search the root directory for <code>usr</code>. It gives
+<strong>inode 6</strong>. (No disk read: the root is in memory.)</li>
+<li>Read <strong>inode 6</strong>. It says that the <code>/usr</code>
+directory is in <strong>block 132</strong>. (1 disk read.)</li>
+<li>Read <strong>block 132</strong>. Search it for <code>ast</code>. It
+gives <strong>inode 26</strong>. (1 disk read.)</li>
+<li>Read <strong>inode 26</strong>. It says that the
+<code>/usr/ast</code> directory is in <strong>block 406</strong>. (1
+disk read.)</li>
+<li>Read <strong>block 406</strong>. Search it for <code>mbox</code>. It
+gives <strong>inode 60</strong>. (1 disk read.)</li>
+<li>Read <strong>inode 60</strong>, the inode of the file itself. (1
+disk read.)</li>
+</ol>
+<p>In total, 5 disk reads, if each directory fits in one block and
+nothing else is cached. <strong>The general rule:</strong> with the root
+in memory, each directory after the root costs 2 reads (its inode and
+its block), and the file costs 1 read (its inode). For a path with k
+names after the root, that is 2(k − 1) + 1 reads.</p>
+<hr />
+<h2 id="disk-space-management">8. Disk-Space Management</h2>
+<h3 id="choosing-the-block-size">8.1 Choosing the block size</h3>
+<p>The block size changes both speed and space:</p>
+<ul>
+<li><strong>Large blocks:</strong> a file fits in few blocks, so the OS
+finds and transfers it quickly. But the last block of a file is usually
+not full, and the unused part is wasted (<strong>internal
+fragmentation</strong>). With large blocks, that waste is large.</li>
+<li><strong>Small blocks:</strong> less waste in the last block. But a
+file needs many blocks, so reading it needs many separate transfers, and
+the <strong>data rate</strong> is low.</li>
+</ul>
+<figure>
+<img width="1400" height="501" src="media/9-artifacts/block-size-tradeoff.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="As the block size grows, the data rate rises but the disk space utilization falls (Lecture 9, slide 9.42)" />
+<figcaption aria-hidden="true">As the block size grows, the data rate
+rises but the disk space utilization falls (Lecture 9, slide
+9.42)</figcaption>
+</figure>
+<p>In the slide’s graph, the solid line (data rate) rises with the block
+size, and the dashed line (disk space utilization) falls. No size is
+best for both, so the designer must choose a compromise between time and
+space.</p>
+<h3 id="keeping-track-of-free-blocks">8.2 Keeping track of free
+blocks</h3>
+<p>The OS must know which blocks are free, to give them to files. This
+is the same problem as keeping track of free memory with dynamic
+partitions (Lecture 7). The lecture gives two methods.</p>
+<p><strong>Bit map (bit vector).</strong> One bit for each block:
+<strong>0 = free, 1 = allocated.</strong></p>
+<ul>
+<li>It uses extra space. <strong>The lecture’s example:</strong> block
+size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>9</mn></msup><annotation encoding="application/x-tex">2^9</annotation></semantics></math>
+= 512 bytes, disk size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>34</mn></msup><annotation encoding="application/x-tex">2^{34}</annotation></semantics></math>
+bytes = 16 GB.
+<ol type="1">
+<li>Number of blocks =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>34</mn></msup><mi>/</mi><msup><mn>2</mn><mn>9</mn></msup><mo>=</mo><msup><mn>2</mn><mn>25</mn></msup></mrow><annotation encoding="application/x-tex">2^{34} / 2^{9} = 2^{25}</annotation></semantics></math>.</li>
+<li>One bit for each block =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>25</mn></msup><annotation encoding="application/x-tex">2^{25}</annotation></semantics></math>
+bits.</li>
+<li>In bytes:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>25</mn></msup><mi>/</mi><mn>8</mn><mo>=</mo><msup><mn>2</mn><mn>22</mn></msup></mrow><annotation encoding="application/x-tex">2^{25} / 8 = 2^{22}</annotation></semantics></math>
+bytes = <strong>4 MB</strong>.</li>
+</ol></li>
+<li>The bit map is kept at a fixed place on the disk. The OS may copy it
+into memory to make it faster, but must write it back to the disk from
+time to time, for consistency and safety.</li>
+<li>Finding a free block is easy, but only fast if the
+<strong>whole</strong> map is in memory.</li>
+</ul>
+<p><strong>Linked list.</strong> Link all the free blocks together. Each
+free block holds a pointer to the next free block. The OS keeps a
+pointer to the first free block at a special place on the disk, and a
+copy in memory.</p>
+<figure>
+<img width="1060" height="990" src="media/9-artifacts/free-space-list.webp" style="width:45.0%"
+loading="lazy" decoding="async"
+alt="The free blocks form one linked list (Lecture 9, slide 9.46)" />
+<figcaption aria-hidden="true">The free blocks form one linked list
+(Lecture 9, slide 9.46)</figcaption>
+</figure>
+<ul>
+<li><strong>No extra space:</strong> the pointers are stored inside the
+free blocks themselves.</li>
+<li><strong>Not efficient:</strong> to find many free blocks, the OS
+must read each block from the disk to get the next pointer.</li>
+</ul>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 31%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Bit map</th>
+<th>Linked list</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Extra space</td>
+<td>One bit per block</td>
+<td>None (pointers live in the free blocks)</td>
+</tr>
+<tr>
+<td>Finding free blocks</td>
+<td>Easy, if the map is in memory</td>
+<td>Slow: follow the list on the disk</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="what-you-know-now-lecture-9">What You Know Now (Lecture 9)</h2>
+<ul>
+<li>The file system turns disk blocks into named files. Its levels are
+the logical file system, the file-organisation module, the basic file
+system and I/O control.</li>
+<li>A directory entry holds the attributes, or a pointer to the file
+control block (FCB). In UNIX, an entry is a name and an inode
+number.</li>
+<li>Absolute path names start at the root; relative ones start at the
+current directory. In an acyclic graph, one file can have several path
+names.</li>
+<li>A symbolic link holds a path name and is resolved each time
+(slower). A hard link duplicates the file’s information (faster).
+Deleting a shared file can leave dangling pointers.</li>
+<li>UNIX protection: r, w, x for owner, group and public, 9 bits, often
+written in octal (rwxr-x–x = 751). On a directory, x is needed to reach
+anything inside, r lists it, and w creates or deletes files in it.</li>
+<li><code>open</code> copies the FCB into the system-wide open-file
+table (with an open count) and makes a per-process entry (with the
+current position pointer). It returns the index as the file
+descriptor.</li>
+<li>Every allocation method starts with logical address = Q × (data per
+block) + R. Contiguous: start + Q, 1 read, external fragmentation.
+Linked: the (Q + 1)th block of the chain, Q + 1 reads, offset R + 4.
+Indexed: entry Q of the index block, 2 reads.</li>
+<li>An inode has 12 direct pointers and single, double and triple
+indirect pointers. With P = block size / pointer size, the largest file
+is (12 + P + P² + P³) × block size.</li>
+<li>Large blocks transfer fast but waste space; small blocks save space
+but are slow. Free space is tracked with a bit map (1 bit per block) or
+a linked list (no extra space, slow).</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../8-virtual-memory/8.html">← 8.
+Virtual Memory</a>
+  <a class="next-page" href="../tutorial-questions/tutorial-revision.html">Tutorial
+Revision →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

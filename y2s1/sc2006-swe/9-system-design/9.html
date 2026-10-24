@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>9. System Design and Software Architecture · SC2006 Software
+Engineering</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=6EF8D236">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">9. System Design
+and Software Architecture</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2006</p>
+  <p class="site-title">Software Engineering</p>
+  <h1 class="page-title">9. System Design and Software Architecture</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Notes</h2>
+          <ul>
+            <li><a href="../0-overview/0.html"
+                   data-nav="0-overview/0.html">Overview and Exam
+Structure</a></li>
+            <li><a href="../1-introduction/1.html"
+                   data-nav="1-introduction/1.html">1. Software
+Engineering and the Life Cycle</a></li>
+            <li><a href="../2-requirements-elicitation/2.html"
+                   data-nav="2-requirements-elicitation/2.html">2.
+Requirements Elicitation</a></li>
+            <li><a href="../3-use-case-model/3.html"
+                   data-nav="3-use-case-model/3.html">3. Use Case
+Model</a></li>
+            <li><a href="../4-srs/4.html"
+                   data-nav="4-srs/4.html">4. Software Requirements
+Specification (SRS)</a></li>
+            <li><a href="../5-conceptual-model/5.html"
+                   data-nav="5-conceptual-model/5.html">5. Conceptual
+Model</a></li>
+            <li><a href="../6-dynamic-models/6.html"
+                   data-nav="6-dynamic-models/6.html">6. Dynamic Models:
+State Machine and Activity Diagrams</a></li>
+            <li><a href="../7-software-processes/7.html"
+                   data-nav="7-software-processes/7.html">7. Software
+Process Models</a></li>
+            <li><a href="../8-agile-scrum/8.html"
+                   data-nav="8-agile-scrum/8.html">8. Agile, Extreme
+Programming and Scrum</a></li>
+            <li><a href="../9-system-design/9.html"
+                   data-nav="9-system-design/9.html">9. System Design
+and Software Architecture</a></li>
+            <li><a href="../10-design-patterns/10.html"
+                   data-nav="10-design-patterns/10.html">10. Object
+Design and Design Patterns</a></li>
+            <li><a href="../11-mvc/11.html"
+                   data-nav="11-mvc/11.html">11. Model-View-Controller
+(MVC)</a></li>
+            <li><a href="../12-exam-method/12.html"
+                   data-nav="12-exam-method/12.html">12. Exam Method,
+Question by Question</a></li>
+            <li><a href="../13-testing/13.html"
+                   data-nav="13-testing/13.html">13. Software
+Testing</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#from-the-problem-to-the-solution"
+id="toc-from-the-problem-to-the-solution">From the problem to the
+solution</a></li>
+<li><a href="#why-architecture-matters"
+id="toc-why-architecture-matters">Why architecture matters</a></li>
+<li><a href="#what-a-software-architecture-is"
+id="toc-what-a-software-architecture-is">What a software architecture
+is</a></li>
+<li><a href="#how-to-develop-an-architecture"
+id="toc-how-to-develop-an-architecture">How to develop an
+architecture</a></li>
+<li><a href="#design-principles" id="toc-design-principles">Design
+principles</a></li>
+<li><a href="#architectural-styles"
+id="toc-architectural-styles">Architectural styles</a>
+<ul>
+<li><a href="#layered-architecture"
+id="toc-layered-architecture">Layered architecture</a></li>
+<li><a href="#clientserver" id="toc-clientserver">Client–server</a></li>
+<li><a href="#data-flow-pipe-and-filter-and-batch-sequential"
+id="toc-data-flow-pipe-and-filter-and-batch-sequential">Data flow:
+pipe-and-filter and batch sequential</a></li>
+<li><a href="#data-centred-repository-and-blackboard"
+id="toc-data-centred-repository-and-blackboard">Data-centred: repository
+and blackboard</a></li>
+<li><a href="#independent-components-event-systems"
+id="toc-independent-components-event-systems">Independent components:
+event systems</a></li>
+<li><a href="#virtual-machine-interpreter-and-rule-based-system"
+id="toc-virtual-machine-interpreter-and-rule-based-system">Virtual
+machine: interpreter and rule-based system</a></li>
+<li><a
+href="#call-and-return-main-program-and-subroutine-object-oriented"
+id="toc-call-and-return-main-program-and-subroutine-object-oriented">Call
+and return: main program and subroutine, object-oriented</a></li>
+<li><a href="#modelviewcontroller"
+id="toc-modelviewcontroller">Model–View–Controller</a></li>
+</ul></li>
+<li><a href="#how-designers-work" id="toc-how-designers-work">How
+designers work</a></li>
+<li><a href="#from-architecture-to-a-detailed-class-diagram"
+id="toc-from-architecture-to-a-detailed-class-diagram">From architecture
+to a detailed class diagram</a></li>
+<li><a
+href="#proposing-an-alternative-architecture-for-a-non-functional-requirement"
+id="toc-proposing-an-alternative-architecture-for-a-non-functional-requirement">Proposing
+an alternative architecture for a non-functional requirement</a></li>
+<li><a href="#getting-ready-for-exam-questions"
+id="toc-getting-ready-for-exam-questions">Getting ready for exam
+questions</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>This was written entirely with AI.</p>
+<h1 id="from-the-problem-to-the-solution">From the problem to the
+solution</h1>
+<p>Requirements elicitation and analysis describe the
+<strong>problem</strong>. Design describes the
+<strong>solution</strong>. Design has two levels:</p>
+<ol type="1">
+<li><strong>System design</strong> decides the <strong>software
+architecture</strong>: the large parts of the system and how they
+connect.</li>
+<li><strong>Object design</strong> (Parts 10–11) decides the detailed
+classes, interfaces and design patterns inside each part.</li>
+</ol>
+<p>The analysis model (boundary, control and entity classes) is the
+input to system design.</p>
+<p>Each SDLC activity produces a model. Each model builds on the model
+before it:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 41%" />
+<col style="width: 58%" />
+</colgroup>
+<thead>
+<tr>
+<th>Activity</th>
+<th>Model it produces</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Requirements elicitation</td>
+<td>Use case model</td>
+</tr>
+<tr>
+<td>Requirements analysis</td>
+<td>Analysis model: problem-domain objects (boundary, control,
+entity)</td>
+</tr>
+<tr>
+<td>System design</td>
+<td>Software architecture: subsystems</td>
+</tr>
+<tr>
+<td>Object design</td>
+<td>Design model: solution-domain objects (detailed classes)</td>
+</tr>
+<tr>
+<td>Implementation</td>
+<td>Source code</td>
+</tr>
+<tr>
+<td>Testing</td>
+<td>Test cases that verify the code against the requirements</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="why-architecture-matters">Why architecture matters</h1>
+<p>Software systems become larger in every way: more code, more users,
+more developers, a longer life (often decades) and more versions. The
+technology and the hardware also change. At the same time, the budget is
+limited, the schedule is tight, and the system must be easy to
+maintain.</p>
+<p>The architecture decides most of the <strong>non-functional</strong>
+qualities of a system:</p>
+<ul>
+<li>performance;</li>
+<li>availability;</li>
+<li>security;</li>
+<li>scalability;</li>
+<li>extensibility and maintainability.</li>
+</ul>
+<p>A wrong architecture is very costly to change later, because every
+part of the system depends on it.</p>
+<h1 id="what-a-software-architecture-is">What a software architecture
+is</h1>
+<blockquote>
+<p>Software architecture describes the elements from which systems are
+built, the interactions among those elements, the patterns that guide
+their composition, and the constraints on these patterns. (Shaw and
+Garlan, 1996)</p>
+</blockquote>
+<p>In short: <strong>Software architecture = {Components,
+Connectors}.</strong></p>
+<ul>
+<li>A <strong>component</strong> is a unit of software that does a
+function at run time. Examples: programs, objects, processes, clients,
+servers, databases.</li>
+<li>A <strong>connector</strong> is an interaction between components:
+communication, coordination or cooperation. Examples: shared variables,
+procedure calls, remote procedure calls, communication protocols, data
+streams.</li>
+</ul>
+<p>An architecture is:</p>
+<ul>
+<li><strong>abstract</strong> — it hides the details of the components
+and connectors;</li>
+<li><strong>about structure and interactions</strong> — it shows the
+topology, the components, and the data and control flow between
+them;</li>
+<li><strong>purposeful</strong> — it lets the team show and analyse
+important properties, and it documents design knowledge for other
+people.</li>
+</ul>
+<h1 id="how-to-develop-an-architecture">How to develop an
+architecture</h1>
+<figure>
+<img width="1400" height="769" src="media/9-artifacts/how-to-develop-architecture.webp"
+loading="lazy" decoding="async"
+alt="The inputs to architecture design: functional requirements, non-functional requirements, design principles, design patterns and constraints." />
+<figcaption aria-hidden="true">The inputs to architecture design:
+functional requirements, non-functional requirements, design principles,
+design patterns and constraints.</figcaption>
+</figure>
+<p>The large arrow behind the five boxes means that all five feed into
+one result: the architecture. Read the boxes as five questions that the
+architect answers. The table below gives each question.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 23%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr>
+<th>Input</th>
+<th>Question it answers</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Functional requirements</td>
+<td><strong>What</strong> must the system do?</td>
+<td>Dynamic models, analysis object models</td>
+</tr>
+<tr>
+<td>Non-functional requirements</td>
+<td><strong>Why</strong> choose this design over another?</td>
+<td>Efficiency, reliability, robustness, security, maintainability</td>
+</tr>
+<tr>
+<td>Design principles</td>
+<td><strong>How</strong> do we make a good design?</td>
+<td>Modularity, abstraction, open–closed, reuse</td>
+</tr>
+<tr>
+<td>Design patterns and architectural styles</td>
+<td><strong>How</strong> have others solved this problem?</td>
+<td>Layered, client–server, data-centred</td>
+</tr>
+<tr>
+<td>Constraints</td>
+<td>What limits do we have?</td>
+<td>Programming languages, libraries, communication methods</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="design-principles">Design principles</h1>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 41%" />
+<col style="width: 58%" />
+</colgroup>
+<thead>
+<tr>
+<th>Principle</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Single responsibility</strong></td>
+<td>Each class has one reason to change.</td>
+</tr>
+<tr>
+<td><strong>Separation of concerns</strong></td>
+<td>Put different concerns (display, logic, storage) in different
+parts.</td>
+</tr>
+<tr>
+<td><strong>High cohesion</strong></td>
+<td>All the parts inside one class or module belong to the same
+task.</td>
+</tr>
+<tr>
+<td><strong>Low coupling</strong></td>
+<td>Classes depend on each other as little as possible. A change in one
+class does not force changes in many others.</td>
+</tr>
+<tr>
+<td><strong>Open–closed</strong></td>
+<td>Classes are <strong>open for extension</strong> but <strong>closed
+for modification</strong>. You add new behaviour with new classes, not
+by editing old classes.</td>
+</tr>
+<tr>
+<td><strong>Program to an interface, not an implementation</strong></td>
+<td>Code depends on an interface. Any class that implements the
+interface can then be used.</td>
+</tr>
+<tr>
+<td><strong>Favour composition over inheritance</strong></td>
+<td>Give an object a part that does the varying work, instead of making
+many subclasses.</td>
+</tr>
+<tr>
+<td><strong>Encapsulate what varies</strong></td>
+<td>Find what changes and separate it from what stays the same.</td>
+</tr>
+<tr>
+<td><strong>Least knowledge</strong></td>
+<td>A class talks only to its immediate “friends”, not to the friends of
+its friends.</td>
+</tr>
+<tr>
+<td><strong>Don’t repeat yourself (DRY)</strong></td>
+<td>Each piece of knowledge exists in one place only.</td>
+</tr>
+<tr>
+<td><strong>Modularity</strong></td>
+<td>Split the system into separate modules with clear interfaces.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img width="1000" height="1080" src="media/9-artifacts/road-to-good-design.webp" loading="lazy"
+decoding="async"
+alt="The road to good design: principles at the base, patterns in the middle, good design qualities at the top." />
+<figcaption aria-hidden="true">The road to good design: principles at
+the base, patterns in the middle, good design qualities at the
+top.</figcaption>
+</figure>
+<p>Read the pyramid from the bottom up, in the direction of the arrow.
+Design principles are the base. Design patterns, in the middle, apply
+the principles to common problems. The result at the top is a good
+design: maintainable, extensible, scalable, testable and reusable. You
+cannot get the top without the layers under it: a pattern used without
+understanding the principle behind it rarely gives a good design.</p>
+<h1 id="architectural-styles">Architectural styles</h1>
+<p>An <strong>architectural style</strong> is a pattern for how to
+organise a whole system. It defines:</p>
+<ul>
+<li>a vocabulary of <strong>component types</strong> (for example
+filters, layers, clients and servers);</li>
+<li>a vocabulary of <strong>connector types</strong> (for example
+procedure calls, data streams, sockets);</li>
+<li><strong>constraints</strong> on how they combine (for example
+“filters do not share state”, “a layer may call only the layer below
+it”);</li>
+<li>a way to work out the properties of the whole system from the
+properties of its parts.</li>
+</ul>
+<p>The style does not fix the number of components, the type of each
+connector, or the exact data. A pipe-and-filter system can have 2
+filters or 20 filters.</p>
+<figure>
+<img width="1400" height="805" src="media/9-artifacts/architectural-styles-catalogue.webp"
+loading="lazy" decoding="async"
+alt="The families of architectural styles." />
+<figcaption aria-hidden="true">The families of architectural
+styles.</figcaption>
+</figure>
+<p>The figure is a tree. Each brace splits a family into its styles.
+There are five families: independent components, data flow,
+data-centred, virtual machine, and call and return. The sections below
+take them one at a time. Note where the layered system sits: it is a
+call-and-return style, because each layer calls the layer below and
+waits for the result.</p>
+<h2 id="layered-architecture">Layered architecture</h2>
+<p>The system is a stack of layers. Each layer gives services to the
+layer above it and uses only the services of the layer below it.</p>
+<p>The usual <strong>three-layer architecture</strong> matches the
+boundary, control and entity classes:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 36%" />
+<col style="width: 34%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Contains</th>
+<th>Stereotype</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Presentation</td>
+<td>Screens and interfaces</td>
+<td>Boundary</td>
+</tr>
+<tr>
+<td>Application logic</td>
+<td>Use case logic</td>
+<td>Control</td>
+</tr>
+<tr>
+<td>Persistent data</td>
+<td>Stored data</td>
+<td>Entity</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img width="1400" height="878" src="media/9-artifacts/three-layer-architecture.webp" loading="lazy"
+decoding="async"
+alt="A three-layer architecture. Dependencies go down only." />
+<figcaption aria-hidden="true">A three-layer architecture. Dependencies
+go down only.</figcaption>
+</figure>
+<p>How to read the figure. It is an emergency-response system. Each red
+frame is a layer, and the icon in its top-right corner is the stereotype
+of the classes inside it:</p>
+<ul>
+<li><strong>Presentation</strong> (boundary): FieldOfficerUI and
+DispatcherUI, one screen per human actor.</li>
+<li><strong>App Logic</strong> (control): Resource, Map and Incident
+Management.</li>
+<li><strong>Persistent Data</strong> (entity): one Database.</li>
+</ul>
+<p>Each dashed arrow is a dependency. Every arrow points
+<strong>down</strong>, and every arrow goes only to the
+<strong>next</strong> layer. A UI never reaches the Database directly.
+Several UIs can share one logic class: both UIs use Map Management.</p>
+<p>A <strong>four-layer</strong> version splits the entity layer in two.
+<strong>Business objects</strong> are the entity classes in memory, such
+as an Account or a Booking. <strong>Persistent data</strong> is the
+database that stores them. Dependencies still go only downwards:
+presentation → business application logic → business objects →
+persistent data. Use it when the stored format should be able to change
+(another database, files) without a change to the business objects.</p>
+<p>The rules for dependencies between stereotypes become rules between
+layers:</p>
+<figure>
+<img width="1400" height="223" src="media/9-artifacts/bce-layer-rules.webp" loading="lazy"
+decoding="async"
+alt="Allowed communication. An actor uses a boundary. A boundary calls a control. A control reads and writes entities." />
+<figcaption aria-hidden="true">Allowed communication. An actor uses a
+boundary. A boundary calls a control. A control reads and writes
+entities.</figcaption>
+</figure>
+<p>Read the figure left to right. An actor <strong>uses</strong> a
+boundary. A boundary <strong>calls</strong> a control. A control
+<strong>reads and writes</strong> entities. The loop on Control means
+that a control can call another control. The loop on Entity means that
+entities link to each other through associations. No arrow skips a step:
+there is no actor → control and no boundary → entity.</p>
+<p><strong>Benefits of layers:</strong></p>
+<ul>
+<li><strong>Separation of concerns.</strong> Each layer handles a
+smaller problem.</li>
+<li><strong>Low coupling.</strong> A layer knows only the interface of
+the layer below. It does not know how the lower layer works.</li>
+<li><strong>Changeability.</strong> You can replace a whole layer, if
+its interface stays the same. A web app and a mobile app can share the
+same logic and data layers.</li>
+<li><strong>Easy maintenance.</strong> A change inside a lower layer
+does not force changes in the layers above.</li>
+</ul>
+<p><strong>Drawbacks of layers:</strong></p>
+<ul>
+<li><strong>Performance.</strong> Each request passes through all
+layers. More layers mean more overhead.</li>
+<li><strong>Up-calls.</strong> Sometimes a lower layer must tell a
+higher layer that something changed (for example, data changed and the
+screen must update). A direct call upward breaks the layer rule. The
+Observer pattern solves this (Parts 10 and 11).</li>
+</ul>
+<h2 id="clientserver">Client–server</h2>
+<p>Clients send requests to one or more servers over a network. Servers
+provide shared services, such as data or computation. Many clients can
+use one server.</p>
+<ul>
+<li>Good for: many users, shared data, web and mobile access, central
+security.</li>
+<li>Scalability: add more servers behind a load balancer.</li>
+<li>Risk: the server or the network is a single point of failure, unless
+servers are replicated.</li>
+</ul>
+<h2 id="data-flow-pipe-and-filter-and-batch-sequential">Data flow:
+pipe-and-filter and batch sequential</h2>
+<p>Data passes through a series of processing steps (filters), connected
+by pipes. Filters do not share state. Good for data transformation, such
+as compilers and media processing. Batch sequential runs each step on
+the whole data set before the next step starts.</p>
+<h2 id="data-centred-repository-and-blackboard">Data-centred: repository
+and blackboard</h2>
+<p>All components share one central data store. Components communicate
+through the data store and not directly. Good when many tools work on
+the same data, such as an IDE.</p>
+<h2 id="independent-components-event-systems">Independent components:
+event systems</h2>
+<p>Components do not call each other directly. A component announces an
+event. Other components that registered for that event react to it
+(implicit invocation). This is the architecture-level form of the
+Observer pattern.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 43%" />
+<col style="width: 56%" />
+</colgroup>
+<thead>
+<tr>
+<th>Advantages</th>
+<th>Disadvantages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modifiability: computation is decoupled</td>
+<td>Components are independent, so one component does not know if
+another received the message</td>
+</tr>
+<tr>
+<td>Concurrent execution</td>
+<td>Needs complicated protocols to make sure that messages arrive</td>
+</tr>
+<tr>
+<td>Scalability</td>
+<td>Correctness is hard to achieve and to prove</td>
+</tr>
+<tr>
+<td>Easy integration of new components</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="virtual-machine-interpreter-and-rule-based-system">Virtual
+machine: interpreter and rule-based system</h2>
+<p>The system runs a program or a set of rules that is not native code.
+An <strong>interpreter</strong> runs a script language. A
+<strong>rule-based system</strong> applies “if–then” rules to facts.
+Good when users must change the behaviour without recompiling.</p>
+<h2
+id="call-and-return-main-program-and-subroutine-object-oriented">Call
+and return: main program and subroutine, object-oriented</h2>
+<p>The main program calls subroutines, or objects call methods of other
+objects. This is the normal style inside one program.</p>
+<h2 id="modelviewcontroller">Model–View–Controller</h2>
+<p>MVC is an architecture for interactive systems. Part 11 covers it in
+detail.</p>
+<h1 id="how-designers-work">How designers work</h1>
+<p>Designers do not find the final design in one step. They:</p>
+<ol type="1">
+<li>understand the requirements and build a model of the problem;</li>
+<li>propose one or more design solutions;</li>
+<li>check each solution against the requirements;</li>
+<li>revise the solution, or look for a new solution, where it does not
+match;</li>
+<li>compare the solutions and select one;</li>
+<li>work out the selected solution in detail, as a blueprint.</li>
+</ol>
+<h1 id="from-architecture-to-a-detailed-class-diagram">From architecture
+to a detailed class diagram</h1>
+<p>A frequent exam question: “Propose an architecture and draw a
+detailed class diagram with key attributes and methods that reflects the
+architecture.”</p>
+<p>Method:</p>
+<ol type="1">
+<li><strong>Choose the architecture and say why.</strong> For most
+systems with a UI, logic and stored data, choose a
+<strong>layered</strong> architecture (three layers). For strongly
+interactive systems with many views of the same data, choose
+<strong>MVC</strong>. Give one or two reasons that come from the
+requirements.</li>
+<li><strong>Draw each layer</strong> as a package or a labelled box:
+Presentation, Application Logic, Persistent Data.</li>
+<li><strong>Put the classes into the layers:</strong>
+<ul>
+<li>boundaries in Presentation (one UI per human actor, one interface
+per external system or device);</li>
+<li>controls in Application Logic (one manager or controller per use
+case group);</li>
+<li>entities in Persistent Data.</li>
+</ul></li>
+<li><strong>Give each class key attributes and methods.</strong>
+Attributes: the data from the data dictionary, with types. Methods: the
+steps from the use case descriptions.</li>
+<li><strong>Draw the dependencies.</strong> UI → controller → entity. A
+controller can also call a device or external-system interface (control
+→ boundary is allowed). A UI never calls an entity directly. Add
+multiplicities to the entity associations.</li>
+<li><strong>Add interfaces where the design must be flexible</strong>
+(for example <code>PaymentMethod</code>,
+<code>NotificationChannel</code>). This shows “program to an
+interface”.</li>
+<li>Check that <strong>no boundary calls an entity
+directly</strong>.</li>
+</ol>
+<figure>
+<img width="1400" height="736" src="media/9-artifacts/layered-detailed-class-diagram.webp"
+loading="lazy" decoding="async"
+alt="A detailed class diagram for guest access in a three-layer architecture. Each class has key attributes and methods. Each controller is used by one UI and reads or writes the entities." />
+<figcaption aria-hidden="true">A detailed class diagram for guest access
+in a three-layer architecture. Each class has key attributes and
+methods. Each controller is used by one UI and reads or writes the
+entities.</figcaption>
+</figure>
+<p>How to read the diagram:</p>
+<ul>
+<li><strong>Three frames, one per layer.</strong> Presentation holds the
+boundaries, Application Logic the controls, Persistent Data the
+entities.</li>
+<li><strong>Visibility icons.</strong> This tool draws visibility as
+icons, not signs. A hollow circle means public (<code>+</code>). A
+hollow square means private (<code>-</code>). So the UI methods and
+controller methods are public, <code>isInsideWindow()</code> is a
+private helper, and every entity attribute is private.</li>
+<li><strong>UnlockDoorUI → UnlockController.</strong> The UI method
+<code>requestUnlock(doorId)</code> calls
+<code>unlock(guestId, doorId)</code>. The controller reads
+<strong>AccessGrant</strong>, checks the window with
+<code>isInsideWindow()</code>, calls <code>sendUnlock()</code> on
+<strong>DoorLockInterface</strong> and writes
+<strong>ActivityLog</strong>. The arrow to DoorLockInterface points
+<strong>up</strong>, from control to boundary. That is allowed: a
+control may call the interface of a device.</li>
+<li><strong>GuestAccessUI → AccessController.</strong>
+<code>submitGrant(...)</code> calls <code>grantAccess(...)</code>, which
+creates an AccessGrant. <code>revokeAccess(grantId)</code> changes its
+status.</li>
+<li><strong>Associations among the entities.</strong> Guest
+<code>1 — *</code> AccessGrant: one guest can hold many grants.
+AccessGrant <code>* — 1</code> Door: each grant is for one door.</li>
+<li><strong>Typed attributes.</strong> Every attribute has a type
+(<code>startTime: DateTime</code>, <code>isLocked: boolean</code>). The
+attributes come from the data dictionary. The methods come from the
+steps of the use case descriptions.</li>
+</ul>
+<h1
+id="proposing-an-alternative-architecture-for-a-non-functional-requirement">Proposing
+an alternative architecture for a non-functional requirement</h1>
+<p>Another frequent question: “Identify one relevant non-functional
+requirement and propose an alternative architecture that addresses
+it.”</p>
+<ol type="1">
+<li>Pick the NFR that the description stresses most. Look for words such
+as “real time”, “many users”, “secure”, “must always be available”,
+“notify”.</li>
+<li>Explain why the first architecture is weak for that NFR.</li>
+<li>Propose a style that fixes it, and explain how.</li>
+</ol>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 19%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr>
+<th>NFR in the description</th>
+<th>Weakness of a simple layered design</th>
+<th>Alternative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scalability (many users, peak load)</td>
+<td>One server handles all requests</td>
+<td>Client–server with several replicated servers and a load
+balancer</td>
+</tr>
+<tr>
+<td>Availability (must always work)</td>
+<td>One server is a single point of failure</td>
+<td>Client–server with redundant servers and a replicated database</td>
+</tr>
+<tr>
+<td>Real-time updates and notifications</td>
+<td>Lower layers must call up to the UI</td>
+<td>Event-based (publish–subscribe) architecture, or MVC with
+Observer</td>
+</tr>
+<tr>
+<td>Security (authentication, roles)</td>
+<td>Each UI checks access in its own way</td>
+<td>Add a security layer or an authentication server that all requests
+pass through</td>
+</tr>
+<tr>
+<td>Extensibility (new devices, new channels)</td>
+<td>New types force changes in the logic</td>
+<td>Layered design with interfaces plus Strategy and Factory
+patterns</td>
+</tr>
+<tr>
+<td>Many different UIs (web, mobile, voice)</td>
+<td>UI and logic are mixed</td>
+<td>MVC, so that many views share one model</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="getting-ready-for-exam-questions">Getting ready for exam
+questions</h1>
+<ul>
+<li>Always <strong>justify</strong> the architecture with the
+requirements. Example: “The system has a web app and a voice assistant.
+Both use the same data. A layered architecture lets both UIs share the
+logic and data layers.”</li>
+<li>Name the layers and the stereotype in each layer.</li>
+<li>In the class diagram, keep the layer rule: a UI calls a controller,
+and a controller calls entities. A UI never calls an entity.</li>
+<li>Know two benefits and one drawback of layered architecture.</li>
+<li>Know the advantages and disadvantages of event-based systems.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../8-agile-scrum/8.html">← 8. Agile,
+Extreme Programming and Scrum</a>
+  <a class="next-page" href="../10-design-patterns/10.html">10. Object
+Design and Design Patterns →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () {
+        var reduce = window.matchMedia &&
+          window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

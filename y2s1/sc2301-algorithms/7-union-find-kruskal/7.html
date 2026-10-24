@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>7. Union-Find and Kruskal's Algorithm · SC2301 Algorithm Design
+&amp; Analysis</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">7. Union-Find and
+Kruskal's Algorithm</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">7. Union-Find and Kruskal's Algorithm</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-foundations/1.html"
+                   data-nav="1-foundations/1.html">1. Foundations:
+Asymptotic Notation and Insertion Sort</a></li>
+            <li><a href="../2-mergesort/2.html"
+                   data-nav="2-mergesort/2.html">2. Divide and Conquer:
+Mergesort</a></li>
+            <li><a href="../3-heapsort/3.html"
+                   data-nav="3-heapsort/3.html">3. Heaps and
+Heapsort</a></li>
+            <li><a href="../4-quicksort-linear-sorts/4.html"
+                   data-nav="4-quicksort-linear-sorts/4.html">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a></li>
+            <li><a href="../5-graph-traversal/5.html"
+                   data-nav="5-graph-traversal/5.html">5. Graphs:
+Representations, BFS, DFS and Topological Sort</a></li>
+            <li><a href="../6-dijkstra-prim/6.html"
+                   data-nav="6-dijkstra-prim/6.html">6. Greedy
+Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</a></li>
+            <li><a href="../7-union-find-kruskal/7.html"
+                   data-nav="7-union-find-kruskal/7.html">7. Union-Find
+and Kruskal’s Algorithm</a></li>
+            <li><a href="../8-recurrences/8.html"
+                   data-nav="8-recurrences/8.html">8. Analysis
+Techniques: Solving Recurrences</a></li>
+            <li><a href="../9-amortized-analysis/9.html"
+                   data-nav="9-amortized-analysis/9.html">9. Amortized
+Analysis</a></li>
+            <li><a href="../10-dynamic-programming/10.html"
+                   data-nav="10-dynamic-programming/10.html">10. Dynamic
+Programming</a></li>
+            <li><a href="../11-string-matching/11.html"
+                   data-nav="11-string-matching/11.html">11. String
+Matching</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#union-find-and-kruskals-algorithm"
+id="toc-union-find-and-kruskals-algorithm">7. Union-Find and Kruskal’s
+Algorithm</a>
+<ul>
+<li><a href="#the-problem-dynamic-connectivity"
+id="toc-the-problem-dynamic-connectivity">1. The Problem: Dynamic
+Connectivity</a>
+<ul>
+<li><a href="#equivalence-relations" id="toc-equivalence-relations">1.1
+Equivalence relations</a></li>
+<li><a href="#the-task" id="toc-the-task">1.2 The task</a></li>
+<li><a href="#the-operations" id="toc-the-operations">1.3 The
+operations</a></li>
+</ul></li>
+<li><a href="#quickfind-fast-find-slow-union"
+id="toc-quickfind-fast-find-slow-union">2. QuickFind: Fast find, Slow
+union</a>
+<ul>
+<li><a href="#the-idea" id="toc-the-idea">2.1 The idea</a></li>
+<li><a href="#the-code" id="toc-the-code">2.2 The code</a></li>
+<li><a href="#cost" id="toc-cost">2.3 Cost</a></li>
+</ul></li>
+<li><a href="#quickunion-trees-slow-find"
+id="toc-quickunion-trees-slow-find">3. QuickUnion: Trees, Slow find</a>
+<ul>
+<li><a href="#the-idea-1" id="toc-the-idea-1">3.1 The idea</a></li>
+<li><a href="#the-code-1" id="toc-the-code-1">3.2 The code</a></li>
+<li><a href="#cost-1" id="toc-cost-1">3.3 Cost</a></li>
+</ul></li>
+<li><a href="#weighted-quickunion-keep-the-trees-short"
+id="toc-weighted-quickunion-keep-the-trees-short">4. Weighted
+QuickUnion: Keep the Trees Short</a>
+<ul>
+<li><a href="#the-idea-2" id="toc-the-idea-2">4.1 The idea</a></li>
+<li><a href="#tracing-by-hand" id="toc-tracing-by-hand">4.2 Tracing by
+hand</a></li>
+<li><a href="#why-the-depth-is-at-most-log_2-n"
+id="toc-why-the-depth-is-at-most-log_2-n">4.3 Why the depth is at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><mi>N</mi></mrow><annotation encoding="application/x-tex">\log_2 N</annotation></semantics></math></a></li>
+</ul></li>
+<li><a href="#path-compression-flatten-as-you-go"
+id="toc-path-compression-flatten-as-you-go">5. Path Compression: Flatten
+as You Go</a>
+<ul>
+<li><a href="#the-idea-3" id="toc-the-idea-3">5.1 The idea</a></li>
+<li><a href="#cost-2" id="toc-cost-2">5.2 Cost</a></li>
+<li><a href="#summary-of-the-versions"
+id="toc-summary-of-the-versions">5.3 Summary of the versions</a></li>
+</ul></li>
+<li><a href="#kruskals-algorithm" id="toc-kruskals-algorithm">6.
+Kruskal’s Algorithm</a>
+<ul>
+<li><a href="#the-idea-4" id="toc-the-idea-4">6.1 The idea</a></li>
+<li><a href="#why-it-is-correct" id="toc-why-it-is-correct">6.2 Why it
+is correct</a></li>
+<li><a href="#checking-for-a-cycle-with-union-find"
+id="toc-checking-for-a-cycle-with-union-find">6.3 Checking for a cycle
+with union-find</a></li>
+<li><a href="#running-time" id="toc-running-time">6.4 Running
+time</a></li>
+<li><a href="#counting-components-as-kruskal-runs"
+id="toc-counting-components-as-kruskal-runs">6.5 Counting components as
+Kruskal runs</a></li>
+<li><a href="#other-uses-of-the-same-method"
+id="toc-other-uses-of-the-same-method">6.6 Other uses of the same
+method</a></li>
+</ul></li>
+<li><a href="#prim-against-kruskal" id="toc-prim-against-kruskal">7.
+Prim against Kruskal</a></li>
+<li><a href="#common-traps" id="toc-common-traps">8. Common
+Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="union-find-and-kruskals-algorithm">7. Union-Find and Kruskal’s
+Algorithm</h1>
+<p>This chapter covers Lecture 6. <strong>Union-find</strong> is a data
+structure that keeps track of which objects are connected to which,
+while new connections keep arriving. <strong>Kruskal’s
+algorithm</strong> is a second greedy algorithm for minimum spanning
+trees. It needs union-find to check quickly whether a new edge would
+create a cycle.</p>
+<p>The chapter improves union-find in steps, from a slow version to an
+almost constant-time one. Each step fixes the main weakness of the one
+before.</p>
+<hr />
+<h2 id="the-problem-dynamic-connectivity">1. The Problem: Dynamic
+Connectivity</h2>
+<h3 id="equivalence-relations">1.1 Equivalence relations</h3>
+<p>A relation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+on a set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+is an <strong>equivalence relation</strong> if, for all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>,</mo><mi>b</mi><mo>,</mo><mi>c</mi><mo>∈</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">a, b, c \in S</annotation></semantics></math>:</p>
+<ul>
+<li><strong>Reflexive:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+is related to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>.</li>
+<li><strong>Symmetric:</strong> if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+is related to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>,
+then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+is related to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>.</li>
+<li><strong>Transitive:</strong> if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+is related to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>,
+then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+is related to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>.</li>
+</ul>
+<p>“Is connected to” in an undirected graph is an equivalence relation.
+Its groups (its <strong>equivalence classes</strong>) are the
+<strong>connected components</strong>: sets of objects where every pair
+is joined by some path.</p>
+<h3 id="the-task">1.2 The task</h3>
+<p>We have
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+objects, numbered
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">N-1</annotation></semantics></math>.
+Connections arrive one at a time, mixed with questions:</p>
+<ul>
+<li>“Connect 4 and 5.”</li>
+<li>“Connect 1 and 2.”</li>
+<li>“Are 0 and 5 connected?”</li>
+</ul>
+<p>The relation changes as we go, so it is a <strong>dynamic</strong>
+equivalence relation. Both
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+and the number of operations
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>
+can be huge (billions in a computer network or a social network). So
+each operation must be fast.</p>
+<h3 id="the-operations">1.3 The operations</h3>
+<ul>
+<li><code>find(p)</code>: which component does
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+belong to? It returns a name (an ID) for the component.</li>
+<li><code>connected(p, q)</code>: are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+in the same component? This is <code>find(p) == find(q)</code>.</li>
+<li><code>union(p, q)</code>: connect
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>.
+This merges their two components into one.</li>
+</ul>
+<p>All versions below store an integer array <code>id[]</code> of length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>.
+They differ in what <code>id[p]</code> means.</p>
+<hr />
+<h2 id="quickfind-fast-find-slow-union">2. QuickFind: Fast find, Slow
+union</h2>
+<h3 id="the-idea">2.1 The idea</h3>
+<p><code>id[p]</code> is the <strong>component ID</strong> of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>.
+Two objects are connected exactly when they have the same ID. This is
+the “eager” approach: it keeps the answer ready at all times.</p>
+<ul>
+<li><code>find(p)</code>: return <code>id[p]</code>. One array
+access.</li>
+<li><code>union(p, q)</code>: change every entry whose ID equals
+<code>id[p]</code> to <code>id[q]</code>. The whole component of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+joins the component of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>.</li>
+</ul>
+<figure>
+<img width="1400" height="742" src="media/7-artifacts/quickfind-demo.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="QuickFind after union(5, 0). Every object that had the ID of 5 (that is, 5 and 6) now has the ID of 0." />
+<figcaption aria-hidden="true">QuickFind after union(5, 0). Every object
+that had the ID of 5 (that is, 5 and 6) now has the ID of
+0.</figcaption>
+</figure>
+<h3 id="the-code">2.2 The code</h3>
+<pre><code>public int find(int p) { return id[p]; }
+
+public void union(int p, int q) {
+    int pid = id[p];                 // save both IDs first
+    int qid = id[q];
+    for (int i = 0; i &lt; id.length; i++)
+        if (id[i] == pid) id[i] = qid;
+}</code></pre>
+<p><strong>Save <code>id[p]</code> before the loop.</strong> A version
+that tests <code>if (id[i] == id[p])</code> inside the loop is
+<strong>wrong</strong>. When the loop reaches
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">i = p</annotation></semantics></math>,
+it changes <code>id[p]</code> itself. After that point, the test
+compares with the <strong>new</strong> ID, so the later members of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>’s
+old component are not updated.</p>
+<h3 id="cost">2.3 Cost</h3>
+<ul>
+<li><code>find</code> and <code>connected</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math>.</li>
+<li><code>union</code>: scans the whole array,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(N)</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+unions on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+objects:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>N</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(N^2)</annotation></semantics></math>.
+For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>11</mn></msup><annotation encoding="application/x-tex">10^{11}</annotation></semantics></math>
+objects this would take thousands of years. Quadratic algorithms do not
+scale.</li>
+</ul>
+<hr />
+<h2 id="quickunion-trees-slow-find">3. QuickUnion: Trees, Slow find</h2>
+<h3 id="the-idea-1">3.1 The idea</h3>
+<p><code>id[p]</code> is the <strong>parent</strong> of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>.
+The objects form a forest of trees. Each tree is one component, and its
+<strong>root</strong> names the component. A root is its own parent:
+<code>id[r] == r</code>.</p>
+<ul>
+<li><code>find(p)</code>: follow parent links from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+until you reach the root.</li>
+<li><code>union(p, q)</code>: find the root of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+and the root of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>.
+Make
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>’s
+root a child of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>’s
+root. Only <strong>one</strong> entry changes.</li>
+</ul>
+<p>This is the “lazy” approach: union does almost nothing, and find does
+the work.</p>
+<figure>
+<img width="1400" height="742" src="media/7-artifacts/quickunion-demo.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="QuickUnion after union(5, 0): the root of 5 now points to the root of 0." />
+<figcaption aria-hidden="true">QuickUnion after union(5, 0): the root of
+5 now points to the root of 0.</figcaption>
+</figure>
+<h3 id="the-code-1">3.2 The code</h3>
+<pre><code>public int find(int i) {
+    while (i != id[i]) i = id[i];    // climb to the root
+    return i;
+}
+
+public void union(int p, int q) {
+    int i = find(p);
+    int j = find(q);
+    id[i] = j;                       // p&#39;s root goes under q&#39;s root
+}</code></pre>
+<h3 id="cost-1">3.3 Cost</h3>
+<p>The cost of <code>find</code> is the <strong>depth</strong> of the
+object in its tree. The trees can become tall: in the worst case, one
+long chain of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+objects. Then <code>find</code>, <code>connected</code> and
+<code>union</code> (which calls <code>find</code>) all cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math>.</p>
+<p>QuickFind keeps trees flat but pays for it in every union. QuickUnion
+makes union cheap but lets trees grow tall.</p>
+<hr />
+<h2 id="weighted-quickunion-keep-the-trees-short">4. Weighted
+QuickUnion: Keep the Trees Short</h2>
+<h3 id="the-idea-2">4.1 The idea</h3>
+<p>Tall trees come from hanging a big tree under a small one. So keep
+track of the <strong>size</strong> of each tree (the number of objects
+in it), and always hang the <strong>smaller</strong> tree under the root
+of the <strong>larger</strong> one.</p>
+<p>An extra array <code>sz[r]</code> holds the size of the tree with
+root
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>r</mi><annotation encoding="application/x-tex">r</annotation></semantics></math>.</p>
+<pre><code>public void union(int p, int q) {
+    int i = find(p);
+    int j = find(q);
+    if (i == j) return;                      // already connected
+    if (sz[i] &lt; sz[j]) { id[i] = j; sz[j] += sz[i]; }
+    else               { id[j] = i; sz[i] += sz[j]; }
+}</code></pre>
+<p><code>find</code> and <code>connected</code> are the same as in
+QuickUnion.</p>
+<p><strong>On a tie</strong> (<code>sz[i] == sz[j]</code>), the
+<code>else</code> branch runs:
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>’s
+root goes under
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>’s
+root.</strong> Follow this rule exactly when you trace by hand.</p>
+<figure>
+<img width="1400" height="839" src="media/7-artifacts/quickunion-vs-weighted.webp"
+style="width:85.0%" loading="lazy" decoding="async"
+alt="The same 88 unions on 100 objects. Plain QuickUnion gives tall trees (average distance to the root 5.11). Weighted QuickUnion gives short, bushy trees (average distance 1.52)." />
+<figcaption aria-hidden="true">The same 88 unions on 100 objects. Plain
+QuickUnion gives tall trees (average distance to the root 5.11).
+Weighted QuickUnion gives short, bushy trees (average distance
+1.52).</figcaption>
+</figure>
+<h3 id="tracing-by-hand">4.2 Tracing by hand</h3>
+<p>For each <code>union(p, q)</code>:</p>
+<ol type="1">
+<li>Find the root
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+and the root
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>,
+by following <code>id[]</code>.</li>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">i = j</annotation></semantics></math>,
+do nothing.</li>
+<li>If <code>sz[i] &lt; sz[j]</code>: set <code>id[i] = j</code>, then
+<code>sz[j] += sz[i]</code>.</li>
+<li>Otherwise (including a tie): set <code>id[j] = i</code>, then
+<code>sz[i] += sz[j]</code>.</li>
+</ol>
+<p>Only roots change. Only the size of the new root changes.</p>
+<p><strong>Example</strong> with objects 0 to 5, all starting as their
+own roots with size 1:</p>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 22%" />
+<col style="width: 29%" />
+<col style="width: 19%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Operation</th>
+<th style="text-align: left;">Roots and sizes</th>
+<th style="text-align: left;">Action</th>
+<th style="text-align: left;"><code>id[]</code> after</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">union(0, 1)</td>
+<td style="text-align: left;">0 (1), 1 (1): tie</td>
+<td style="text-align: left;">1 goes under 0</td>
+<td style="text-align: left;">0 0 2 3 4 5</td>
+</tr>
+<tr>
+<td style="text-align: left;">union(2, 3)</td>
+<td style="text-align: left;">2 (1), 3 (1): tie</td>
+<td style="text-align: left;">3 goes under 2</td>
+<td style="text-align: left;">0 0 2 2 4 5</td>
+</tr>
+<tr>
+<td style="text-align: left;">union(1, 3)</td>
+<td style="text-align: left;">0 (2), 2 (2): tie</td>
+<td style="text-align: left;">2 goes under 0</td>
+<td style="text-align: left;">0 0 0 2 4 5</td>
+</tr>
+<tr>
+<td style="text-align: left;">union(4, 5)</td>
+<td style="text-align: left;">4 (1), 5 (1): tie</td>
+<td style="text-align: left;">5 goes under 4</td>
+<td style="text-align: left;">0 0 0 2 4 4</td>
+</tr>
+<tr>
+<td style="text-align: left;">union(5, 1)</td>
+<td style="text-align: left;">4 (2), 0 (4)</td>
+<td style="text-align: left;">smaller 4 goes under 0</td>
+<td style="text-align: left;">0 0 0 2 0 4</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The final tree has root 0 and height 2, for 6 objects.</p>
+<h3 id="why-the-depth-is-at-most-log_2-n">4.3 Why the depth is at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><mi>N</mi></mrow><annotation encoding="application/x-tex">\log_2 N</annotation></semantics></math></h3>
+<p><strong>Claim:</strong> in weighted QuickUnion, every object has
+depth at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><mi>N</mi></mrow><annotation encoding="application/x-tex">\log_2 N</annotation></semantics></math>.</p>
+<ul>
+<li>An object’s depth increases by 1 only when its tree
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>1</mn></msub><annotation encoding="application/x-tex">T_1</annotation></semantics></math>
+is hung under another tree
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>2</mn></msub><annotation encoding="application/x-tex">T_2</annotation></semantics></math>.</li>
+<li>That only happens when
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><msub><mi>T</mi><mn>2</mn></msub><mo stretchy="false" form="prefix">|</mo><mo>≥</mo><mo stretchy="false" form="prefix">|</mo><msub><mi>T</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|T_2| \ge |T_1|</annotation></semantics></math>.
+So the merged tree has at least
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo stretchy="false" form="prefix">|</mo><msub><mi>T</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">2|T_1|</annotation></semantics></math>
+objects: the size of the object’s tree <strong>at least
+doubles</strong>.</li>
+<li>A tree starts with 1 object and can never hold more than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>.
+Starting from 1, you can double at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><mi>N</mi></mrow><annotation encoding="application/x-tex">\log_2 N</annotation></semantics></math>
+times before you pass
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>.</li>
+<li>So the depth increases at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><mi>N</mi></mrow><annotation encoding="application/x-tex">\log_2 N</annotation></semantics></math>
+times.</li>
+</ul>
+<p>So <code>find</code>, <code>connected</code> and <code>union</code>
+all cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log N)</annotation></semantics></math>.</p>
+<hr />
+<h2 id="path-compression-flatten-as-you-go">5. Path Compression: Flatten
+as You Go</h2>
+<h3 id="the-idea-3">5.1 The idea</h3>
+<p>When <code>find(p)</code> climbs from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+to the root, it has just visited every node on that path. Make each of
+them point <strong>directly at the root</strong>. The next
+<code>find</code> on any of them takes one step.</p>
+<figure>
+<img width="1044" height="500" src="media/7-artifacts/path-compression.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Path compression. After find on node 9, every node on the path from 9 to the root points straight at the root." />
+<figcaption aria-hidden="true">Path compression. After find on node 9,
+every node on the path from 9 to the root points straight at the
+root.</figcaption>
+</figure>
+<p>Two ways to code it:</p>
+<ul>
+<li><strong>Two-pass:</strong> first climb to find the root. Then climb
+again and set <code>id[]</code> of each node on the path to the
+root.</li>
+<li><strong>One-pass (path halving):</strong> while climbing, make every
+node point to its <strong>grandparent</strong>. This needs one extra
+line:</li>
+</ul>
+<pre><code>public int find(int i) {
+    while (i != id[i]) {
+        id[i] = id[id[i]];           // skip one level
+        i = id[i];
+    }
+    return i;
+}</code></pre>
+<p>In practice, either way keeps the trees almost completely flat.</p>
+<h3 id="cost-2">5.2 Cost</h3>
+<p>Weighted QuickUnion with Path Compression (<strong>WQUPC</strong>) is
+not quite linear in theory, but it is linear in practice.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>
+operations on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+objects cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo>+</mo><mi>M</mi><msup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo>*</mo></msup><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(N + M \log^* N)</annotation></semantics></math>.
+Here
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo>*</mo></msup><mi>N</mi></mrow><annotation encoding="application/x-tex">\log^* N</annotation></semantics></math>
+is the number of times you must take
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><annotation encoding="application/x-tex">\log_2</annotation></semantics></math>
+before the result falls to 1 or below. It is at most 5 for any
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+that fits in this universe. (Fredman and Saks proved that no union-find
+structure can be truly linear.)</p>
+<h3 id="summary-of-the-versions">5.3 Summary of the versions</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 18%" />
+<col style="width: 18%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Version</th>
+<th style="text-align: left;">Initialize</th>
+<th style="text-align: left;">union</th>
+<th style="text-align: left;">find / connected</th>
+<th
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>
+operations on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+objects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">QuickFind</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(N)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(N)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>M</mi><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(MN)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">QuickUnion</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(N)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>M</mi><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(MN)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Weighted QuickUnion</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(N)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log N)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log N)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo>+</mo><mi>M</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(N + M \log N)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">WQUPC</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(N)</annotation></semantics></math></td>
+<td style="text-align: left;">almost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+<td style="text-align: left;">almost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo>+</mo><mi>M</mi><msup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo>*</mo></msup><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(N + M \log^* N)</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>11</mn></msup><annotation encoding="application/x-tex">10^{11}</annotation></semantics></math>
+unions on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>11</mn></msup><annotation encoding="application/x-tex">10^{11}</annotation></semantics></math>
+objects, WQUPC takes seconds where QuickFind takes thousands of years. A
+faster computer cannot close a gap like that. A better algorithm
+can.</p>
+<hr />
+<h2 id="kruskals-algorithm">6. Kruskal’s Algorithm</h2>
+<h3 id="the-idea-4">6.1 The idea</h3>
+<p>Kruskal’s algorithm builds a minimum spanning tree (Chapter 6) in a
+different way from Prim’s:</p>
+<ol type="1">
+<li>Sort all edges by weight, lightest first.</li>
+<li>Go through the edges in that order. <strong>Add an edge to the tree
+unless it would create a cycle.</strong></li>
+<li>Stop when the tree has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">|V| - 1</annotation></semantics></math>
+edges.</li>
+</ol>
+<p>Prim grows <strong>one</strong> tree outward from a start vertex.
+Kruskal grows a <strong>forest</strong> of many small trees, which merge
+until one tree is left. At any moment, Kruskal’s chosen edges may form
+several separate pieces.</p>
+<figure>
+<img width="1400" height="839" src="media/7-artifacts/kruskal-result.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Kruskal’s result. The edges were tried in increasing weight. Edges that would close a cycle were skipped. The algorithm stopped after N - 1 = 7 edges." />
+<figcaption aria-hidden="true">Kruskal’s result. The edges were tried in
+increasing weight. Edges that would close a cycle were skipped. The
+algorithm stopped after N - 1 = 7 edges.</figcaption>
+</figure>
+<h3 id="why-it-is-correct">6.2 Why it is correct</h3>
+<p><strong>Proof by contradiction.</strong> Suppose Kruskal’s tree
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+is not an MST. Then, by Theorem 1 of Chapter 6,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+does not have the MST property. So some edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+not in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+creates a cycle in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+that contains a heavier edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mtext mathvariant="normal">-</mtext><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mtext mathvariant="normal">-</mtext><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w(x\text{-}y) &gt; w(u\text{-}v)</annotation></semantics></math>.</p>
+<ul>
+<li>Because
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+is lighter, Kruskal examined
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+<strong>before</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+is a tree, so it has only <strong>one</strong> path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>,
+and that path uses
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>.
+When Kruskal examined
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>,
+it had not yet added
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>.
+So the edges chosen at that time had no path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>,
+and adding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+would not have made a cycle.</li>
+<li>So Kruskal would have added
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>.
+That contradicts
+“<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+is not in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>”.</li>
+</ul>
+<h3 id="checking-for-a-cycle-with-union-find">6.3 Checking for a cycle
+with union-find</h3>
+<p>The key question for each edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>:
+“are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>
+already connected by the edges chosen so far?” If yes, adding the edge
+closes a cycle.</p>
+<ul>
+<li>One option: run DFS from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+in the current tree and see whether it reaches
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>.
+That costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|)</annotation></semantics></math>
+per edge.</li>
+<li>Better: keep the chosen edges’ components in a union-find structure.
+The test is <code>connected(v, w)</code>, almost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+with WQUPC.</li>
+</ul>
+<pre><code>kruskal(G):
+    sort the edges of G by weight, lightest first       // O(|E| log |E|)
+    create a union-find structure on the |V| vertices    // O(|V|)
+    T = empty
+    for each edge (v, w) in sorted order:
+        if not connected(v, w):                          // no cycle
+            union(v, w)
+            add (v, w) to T
+            if T has |V| - 1 edges: stop
+    return T</code></pre>
+<h3 id="running-time">6.4 Running time</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 49%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Step</th>
+<th style="text-align: left;">Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Sort the edges</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\lvert E \rvert \log \lvert E \rvert)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Initialize union-find</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\lvert V \rvert)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">At most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="postfix">|</mo></mrow><annotation encoding="application/x-tex">\lvert E \rvert</annotation></semantics></math>
+connected tests</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo>*</mo></msup><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\lvert E \rvert \log^* \lvert V \rvert)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">At most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\lvert V \rvert - 1</annotation></semantics></math>
+unions</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><msup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo>*</mo></msup><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\lvert V \rvert \log^* \lvert V \rvert)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Total</strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\lvert E \rvert \log \lvert E \rvert)</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Sorting dominates. Also
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|E| \log |E|) = O(|E| \log |V|)</annotation></semantics></math>:
+a simple graph has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo>≤</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">|E| \le |V|^2</annotation></semantics></math>,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo>≤</mo><mn>2</mn><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">\log |E| \le 2 \log |V|</annotation></semantics></math>.</p>
+<p><strong>Faster with small integer weights.</strong> If all weights
+are integers between 1 and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|V|</annotation></semantics></math>,
+sort the edges with <strong>counting sort</strong> (Chapter 4) in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|E| + |V|)</annotation></semantics></math>
+instead. Then the union-find work dominates, and the total is about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><msup><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo>*</mo></msup><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|E| \log^* |V|)</annotation></semantics></math>,
+almost linear.</p>
+<h3 id="counting-components-as-kruskal-runs">6.5 Counting components as
+Kruskal runs</h3>
+<p>Before any edge is added, every vertex is its own component:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|V|</annotation></semantics></math>
+components. Each <strong>accepted</strong> edge joins two different
+components into one, so the count drops by exactly 1. A
+<strong>rejected</strong> edge (one that would close a cycle) changes
+nothing. After
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+accepted edges there are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mi>k</mi></mrow><annotation encoding="application/x-tex">|V| - k</annotation></semantics></math>
+components. At the end there is 1.</p>
+<h3 id="other-uses-of-the-same-method">6.6 Other uses of the same
+method</h3>
+<ul>
+<li><strong>Does an undirected graph have a cycle?</strong> Start with
+every vertex alone in union-find. For each edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>:
+if <code>connected(u, v)</code> is already true, the graph has a cycle.
+Otherwise <code>union(u, v)</code>. This is Kruskal’s test without the
+sorting.</li>
+<li><strong>Maximum spanning tree:</strong> sort the edges
+<strong>heaviest first</strong> (or negate every weight) and run the
+same algorithm.</li>
+<li><strong>A graph that is not connected:</strong> Kruskal does not
+need a start vertex. On a disconnected graph it returns a minimum
+spanning <strong>forest</strong>, one tree per component.</li>
+</ul>
+<hr />
+<h2 id="prim-against-kruskal">7. Prim against Kruskal</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 40%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Prim</th>
+<th style="text-align: left;">Kruskal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Grows</td>
+<td style="text-align: left;">one tree from a start vertex</td>
+<td style="text-align: left;">a forest that merges into one tree</td>
+</tr>
+<tr>
+<td style="text-align: left;">Picks next</td>
+<td style="text-align: left;">cheapest edge from the tree to a fringe
+vertex</td>
+<td style="text-align: left;">cheapest edge overall that makes no
+cycle</td>
+</tr>
+<tr>
+<td style="text-align: left;">Data structure</td>
+<td style="text-align: left;">priority queue</td>
+<td style="text-align: left;">sorted edge list + union-find</td>
+</tr>
+<tr>
+<td style="text-align: left;">Time</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="postfix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\lvert V \rvert^2)</annotation></semantics></math>
+array, or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\lvert E \rvert \log \lvert V \rvert)</annotation></semantics></math>
+heap</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\lvert E \rvert \log \lvert E \rvert)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Suits</td>
+<td style="text-align: left;">dense graphs (array version)</td>
+<td style="text-align: left;">sparse graphs</td>
+</tr>
+<tr>
+<td style="text-align: left;">Negative weights</td>
+<td style="text-align: left;">fine</td>
+<td style="text-align: left;">fine</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>If some weights are equal, Prim and Kruskal can return
+<strong>different</strong> MSTs. Both are correct, and both have the
+same total weight. If all weights are distinct, the MST is unique, so
+they return the same tree.</p>
+<hr />
+<h2 id="common-traps">8. Common Traps</h2>
+<ul>
+<li>QuickFind: <code>find</code> is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>,
+<code>union</code> is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math>.
+Save <code>id[p]</code> before the loop.</li>
+<li>QuickUnion: <code>union</code> changes only the root of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>,
+but its cost includes the two <code>find</code> calls, which can be
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>N</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(N)</annotation></semantics></math>.</li>
+<li>Weighted QuickUnion: the smaller tree goes under the larger. On a
+tie,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>’s
+root goes under
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>’s
+root (lecture code).</li>
+<li>Weighted QuickUnion keeps every depth at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><mi>N</mi></mrow><annotation encoding="application/x-tex">\log_2 N</annotation></semantics></math>.</li>
+<li>The ID array holds <strong>parents</strong>, not roots, in
+QuickUnion. To find a component, climb to the root.</li>
+<li>Kruskal sorts <strong>edges</strong>. Prim keeps a priority queue of
+<strong>vertices</strong>.</li>
+<li>Kruskal is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|E| \log |E|)</annotation></semantics></math>,
+which equals
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|E| \log |V|)</annotation></semantics></math>.</li>
+<li>Each accepted edge reduces the number of components by exactly
+one.</li>
+<li>Kruskal stops after
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">|V| - 1</annotation></semantics></math>
+accepted edges. It does not need to look at the remaining edges.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../6-dijkstra-prim/6.html">← 6. Greedy
+Algorithms: Dijkstra's Shortest Paths and Prim's MST</a>
+  <a class="next-page" href="../8-recurrences/8.html">8. Analysis
+Techniques: Solving Recurrences →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

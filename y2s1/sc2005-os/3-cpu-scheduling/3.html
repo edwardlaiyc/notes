@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>3. CPU Scheduling · SC2005 Operating Systems</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">3. CPU
+Scheduling</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">3. CPU Scheduling</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-overview/1.html"
+                   data-nav="1-overview/1.html">1. Overview of Operating
+Systems</a></li>
+            <li><a href="../2-processes-threads/2.html"
+                   data-nav="2-processes-threads/2.html">2. Processes
+and Threads</a></li>
+            <li><a href="../3-cpu-scheduling/3.html"
+                   data-nav="3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../4-synchronization/4.html"
+                   data-nav="4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../5-deadlocks/5.html"
+                   data-nav="5-deadlocks/5.html">5. Deadlocks</a></li>
+            <li><a href="../6a-rtos/6a.html"
+                   data-nav="6a-rtos/6a.html">6a. Real-Time Operating
+Systems</a></li>
+            <li><a href="../6b-virtualization/6b.html"
+                   data-nav="6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../7-memory-organization/7.html"
+                   data-nav="7-memory-organization/7.html">7. Memory
+Organization</a></li>
+            <li><a href="../8-virtual-memory/8.html"
+                   data-nav="8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../9-file-systems/9.html"
+                   data-nav="9-file-systems/9.html">9. File
+Systems</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../labs/lab-1.html"
+                   data-nav="labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../labs/lab-2.html"
+                   data-nav="labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../labs/lab-3/lab-3.html"
+                   data-nav="labs/lab-3/lab-3.html">Lab 3 Guide</a></li>
+            <li><a href="../labs/lab-4/lab-4.html"
+                   data-nav="labs/lab-4/lab-4.html">Lab 4 Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#why-the-os-needs-a-scheduler"
+id="toc-why-the-os-needs-a-scheduler">1. Why the OS Needs a
+Scheduler</a>
+<ul>
+<li><a href="#cpu-bursts-and-io-bursts"
+id="toc-cpu-bursts-and-io-bursts">1.1 CPU bursts and I/O bursts</a></li>
+<li><a href="#when-the-scheduler-must-run"
+id="toc-when-the-scheduler-must-run">1.2 When the scheduler must
+run</a></li>
+<li><a href="#preemptive-and-nonpreemptive-scheduling"
+id="toc-preemptive-and-nonpreemptive-scheduling">1.3 Preemptive and
+nonpreemptive scheduling</a></li>
+</ul></li>
+<li><a href="#how-to-measure-a-scheduler"
+id="toc-how-to-measure-a-scheduler">2. How to Measure a Scheduler</a>
+<ul>
+<li><a href="#system-wide-measures-make-these-large"
+id="toc-system-wide-measures-make-these-large">2.1 System-wide measures
+(make these large)</a></li>
+<li><a href="#measures-for-each-process-make-these-small"
+id="toc-measures-for-each-process-make-these-small">2.2 Measures for
+each process (make these small)</a></li>
+<li><a href="#how-to-read-a-gantt-chart"
+id="toc-how-to-read-a-gantt-chart">2.3 How to read a Gantt
+chart</a></li>
+</ul></li>
+<li><a href="#scheduling-algorithms-for-one-core"
+id="toc-scheduling-algorithms-for-one-core">3. Scheduling Algorithms for
+One Core</a>
+<ul>
+<li><a href="#first-come-first-served-fcfs"
+id="toc-first-come-first-served-fcfs">3.1 First-come, first-served
+(FCFS)</a></li>
+<li><a
+href="#shortest-job-first-sjf-and-shortest-remaining-time-first-srtf"
+id="toc-shortest-job-first-sjf-and-shortest-remaining-time-first-srtf">3.2
+Shortest job first (SJF) and shortest remaining time first
+(SRTF)</a></li>
+<li><a href="#priority-scheduling" id="toc-priority-scheduling">3.3
+Priority scheduling</a></li>
+<li><a href="#round-robin-rr" id="toc-round-robin-rr">3.4 Round robin
+(RR)</a></li>
+<li><a href="#multilevel-queue-scheduling"
+id="toc-multilevel-queue-scheduling">3.5 Multilevel queue
+scheduling</a></li>
+<li><a href="#the-one-core-algorithms-side-by-side"
+id="toc-the-one-core-algorithms-side-by-side">3.6 The one-core
+algorithms side by side</a></li>
+</ul></li>
+<li><a href="#scheduling-on-many-cores"
+id="toc-scheduling-on-many-cores">4. Scheduling on Many Cores</a>
+<ul>
+<li><a href="#partitioned-scheduling-asymmetric-multiprocessing-amp"
+id="toc-partitioned-scheduling-asymmetric-multiprocessing-amp">4.1
+Partitioned scheduling (asymmetric multiprocessing, AMP)</a></li>
+<li><a href="#global-scheduling-symmetric-multiprocessing-smp"
+id="toc-global-scheduling-symmetric-multiprocessing-smp">4.2 Global
+scheduling (symmetric multiprocessing, SMP)</a></li>
+<li><a href="#how-to-draw-a-global-schedule"
+id="toc-how-to-draw-a-global-schedule">4.3 How to draw a global
+schedule</a></li>
+</ul></li>
+<li><a href="#what-you-know-now-lecture-3"
+id="toc-what-you-know-now-lecture-3">What You Know Now (Lecture
+3)</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>This was written entirely with AI.</p>
+<h2 id="why-the-os-needs-a-scheduler">1. Why the OS Needs a
+Scheduler</h2>
+<h3 id="cpu-bursts-and-io-bursts">1.1 CPU bursts and I/O bursts</h3>
+<p>A process does not use the CPU all the time. It does some computing,
+then it waits for I/O, then it computes again:</p>
+<ul>
+<li>A <strong>CPU burst</strong> is one period of computing.</li>
+<li>An <strong>I/O burst</strong> is one period of waiting for I/O.</li>
+</ul>
+<figure>
+<img width="875" height="1093" src="media/3-artifacts/cpu-io-bursts.webp" loading="lazy"
+decoding="async"
+alt="A process alternates between CPU bursts and I/O bursts (Lecture 3, slide 3.4)" />
+<figcaption aria-hidden="true">A process alternates between CPU bursts
+and I/O bursts (Lecture 3, slide 3.4)</figcaption>
+</figure>
+<p>While one process is in an I/O burst, the CPU has nothing to do for
+it. With multiprogramming (Lecture 1), the OS gives the CPU to another
+process in that time. The goal of CPU scheduling is to <strong>keep the
+CPU as busy as possible</strong>.</p>
+<p>This lecture studies the <strong>short-term scheduler</strong>. It
+selects a process from the <strong>ready queue</strong> and gives it a
+CPU core. One core runs one process at a time.</p>
+<h3 id="when-the-scheduler-must-run">1.2 When the scheduler must
+run</h3>
+<p>The scheduler can run whenever a process changes state. The lecture
+numbers five transitions:</p>
+<figure>
+<img width="1400" height="695" src="media/3-artifacts/scheduler-transitions.webp" loading="lazy"
+decoding="async"
+alt="The five transitions where the scheduler can run (Lecture 3, slide 3.5)" />
+<figcaption aria-hidden="true">The five transitions where the scheduler
+can run (Lecture 3, slide 3.5)</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 35%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr>
+<th>Number</th>
+<th>Transition</th>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Running → Waiting</td>
+<td>The process asks for I/O or waits for an event</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Running → Ready</td>
+<td>An interrupt</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Waiting → Ready</td>
+<td>The I/O or the event finishes</td>
+</tr>
+<tr>
+<td>4</td>
+<td>New → Ready</td>
+<td>A new process arrives (is admitted)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Running → Terminated</td>
+<td>The process exits</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Which transitions force the scheduler to run?</strong> Only
+<strong>1 and 5</strong>. In both cases, the running process leaves the
+CPU, so the core becomes idle. The scheduler must pick a new process, or
+the core stays idle.</p>
+<p>In transitions 2, 3 and 4, a process can continue to run. The
+scheduler <strong>may</strong> run, but it does not have to. (Exception:
+transition 4 on an idle core. If no process runs and a new one arrives,
+the scheduler should run to use the idle core.)</p>
+<h3 id="preemptive-and-nonpreemptive-scheduling">1.3 Preemptive and
+nonpreemptive scheduling</h3>
+<p>This difference comes directly from the transitions:</p>
+<ul>
+<li><strong>Nonpreemptive.</strong> Once a process has the CPU, it keeps
+it until it <strong>gives it up itself</strong>: it finishes, or it
+waits for I/O or an event. The scheduler runs only at transitions 1 and
+5 (and 4 on an idle core).</li>
+<li><strong>Preemptive.</strong> The scheduler can <strong>take the CPU
+away</strong> from a running process at any time. The scheduler also
+runs at transitions 2, 3 and 4, or at any other moment.</li>
+</ul>
+<p>The word <strong>preempt</strong> means “take the CPU away from a
+process that still wants to run”.</p>
+<h2 id="how-to-measure-a-scheduler">2. How to Measure a Scheduler</h2>
+<h3 id="system-wide-measures-make-these-large">2.1 System-wide measures
+(make these large)</h3>
+<ul>
+<li><strong>CPU utilization:</strong> the percentage of time that the
+cores run processes.
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">CPU utilization</mtext><mo>=</mo><mfrac><mtext mathvariant="normal">sum of the busy time of all cores</mtext><mrow><mtext mathvariant="normal">total time</mtext><mo>×</mo><mtext mathvariant="normal">number of cores</mtext></mrow></mfrac></mrow><annotation encoding="application/x-tex">\text{CPU utilization} = \frac{\text{sum of the busy time of all cores}}{\text{total time} \times \text{number of cores}}</annotation></semantics></math></li>
+<li><strong>Throughput:</strong> the number of processes that finish in
+each unit of time. In other words, the number of “exit” transitions in
+each unit of time.</li>
+</ul>
+<h3 id="measures-for-each-process-make-these-small">2.2 Measures for
+each process (make these small)</h3>
+<p>Three times describe what one process experiences:</p>
+<figure>
+<img width="1400" height="585" src="media/3-artifacts/time-terms.webp" loading="lazy"
+decoding="async"
+alt="Turnaround time, waiting time and response time (Lecture 3, slide 3.8)" />
+<figcaption aria-hidden="true">Turnaround time, waiting time and
+response time (Lecture 3, slide 3.8)</figcaption>
+</figure>
+<ul>
+<li><strong>Turnaround time:</strong> from the moment the process
+arrives (is admitted) to the moment it finishes.
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">turnaround</mtext><mo>=</mo><mtext mathvariant="normal">finish time</mtext><mo>−</mo><mtext mathvariant="normal">arrival time</mtext></mrow><annotation encoding="application/x-tex">\text{turnaround} = \text{finish time} - \text{arrival time}</annotation></semantics></math>
+It includes everything: running, waiting for I/O, and waiting in the
+ready queue.</li>
+<li><strong>Waiting time:</strong> the total time that the process
+spends in the <strong>ready queue</strong>.
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">waiting</mtext><mo>=</mo><mtext mathvariant="normal">turnaround</mtext><mo>−</mo><mtext mathvariant="normal">CPU bursts</mtext><mo>−</mo><mtext mathvariant="normal">I/O bursts</mtext><mo>−</mo><mtext mathvariant="normal">event waits</mtext></mrow><annotation encoding="application/x-tex">\text{waiting} = \text{turnaround} - \text{CPU bursts} - \text{I/O bursts} - \text{event waits}</annotation></semantics></math>
+Time in an I/O burst does <strong>not</strong> count as waiting time.
+The scheduler cannot shorten it.</li>
+<li><strong>Response time:</strong> from arrival to the
+<strong>first</strong> time the process runs.</li>
+</ul>
+<p>For the whole system, take the <strong>average</strong> of each time
+over all processes.</p>
+<p>In this lecture, the examples assume each process has
+<strong>one</strong> CPU burst and no I/O, unless the question says
+otherwise. Then:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">waiting</mtext><mo>=</mo><mtext mathvariant="normal">turnaround</mtext><mo>−</mo><mtext mathvariant="normal">burst</mtext></mrow><annotation encoding="application/x-tex">\text{waiting} = \text{turnaround} - \text{burst}</annotation></semantics></math></p>
+<h3 id="how-to-read-a-gantt-chart">2.3 How to read a Gantt chart</h3>
+<p>A <strong>Gantt chart</strong> is a time line. Each box shows which
+process runs on the core, from the start time to the end time below the
+box.</p>
+<figure>
+<img width="1400" height="307" src="media/3-artifacts/gantt-fcfs-p1-first.webp" loading="lazy"
+decoding="async"
+alt="A Gantt chart: P1 (burst 24), P2 (3) and P3 (3) all arrive at time 0 and run in that order (Lecture 3, slide 3.11)" />
+<figcaption aria-hidden="true">A Gantt chart: P1 (burst 24), P2 (3) and
+P3 (3) all arrive at time 0 and run in that order (Lecture 3, slide
+3.11)</figcaption>
+</figure>
+<p>To find the measures from a Gantt chart:</p>
+<ol type="1">
+<li>Read the <strong>finish time</strong> of each process: the end of
+its last box.</li>
+<li>Turnaround = finish time − arrival time.</li>
+<li>Waiting = turnaround − burst time (with one CPU burst and no
+I/O).</li>
+<li>Response = start of its first box − arrival time.</li>
+</ol>
+<p>In the chart above, P2 arrives at 0, and its box goes from 24 to 27.
+So P2 finishes at 27, its turnaround is 27 − 0 = 27, its waiting time is
+27 − 3 = 24, and its response time is 24 − 0 = 24.</p>
+<h2 id="scheduling-algorithms-for-one-core">3. Scheduling Algorithms for
+One Core</h2>
+<h3 id="first-come-first-served-fcfs">3.1 First-come, first-served
+(FCFS)</h3>
+<p><strong>Rule:</strong> run the processes in the order they arrive.
+Each process runs until its burst ends.</p>
+<p>FCFS is <strong>nonpreemptive</strong>: a process gives up the CPU
+only when it finishes or waits.</p>
+<p><strong>Example (slides 3.11–3.12).</strong> Three processes arrive
+at time 0 with bursts P1 = 24, P2 = 3, P3 = 3.</p>
+<ul>
+<li>Order P1, P2, P3: the chart is P1 (0–24), P2 (24–27), P3 (27–30).
+Waiting times 0, 24 and 27. Average = 17.</li>
+<li>Order P2, P3, P1: the chart is P2 (0–3), P3 (3–6), P1 (6–30).
+Waiting times 6, 0 and 3. Average = 3.</li>
+</ul>
+<figure>
+<img width="1400" height="307" src="media/3-artifacts/gantt-fcfs-p1-first.webp" loading="lazy"
+decoding="async"
+alt="FCFS in the order P1, P2, P3 (Lecture 3, slide 3.11)" />
+<figcaption aria-hidden="true">FCFS in the order P1, P2, P3 (Lecture 3,
+slide 3.11)</figcaption>
+</figure>
+<figure>
+<img width="1400" height="302" src="media/3-artifacts/gantt-fcfs-p2-first.webp" loading="lazy"
+decoding="async"
+alt="FCFS in the order P2, P3, P1 (Lecture 3, slide 3.12)" />
+<figcaption aria-hidden="true">FCFS in the order P2, P3, P1 (Lecture 3,
+slide 3.12)</figcaption>
+</figure>
+<p>The same processes give very different averages. The cause is the
+<strong>convoy effect</strong>: short processes wait behind one long
+process that arrived first, like cars behind a slow truck.</p>
+<h3
+id="shortest-job-first-sjf-and-shortest-remaining-time-first-srtf">3.2
+Shortest job first (SJF) and shortest remaining time first (SRTF)</h3>
+<p><strong>Idea:</strong> run the process with the <strong>shortest CPU
+burst</strong> first. This fixes the convoy effect.</p>
+<p>There are two versions:</p>
+<ul>
+<li><strong>SJF (nonpreemptive).</strong> When the core becomes free,
+pick the ready process with the shortest burst. It runs to the end of
+its burst.</li>
+<li><strong>SRTF (preemptive SJF).</strong> When a new process arrives,
+compare its burst with the <strong>remaining</strong> burst of the
+running process. If the new burst is shorter, preempt the running
+process.</li>
+</ul>
+<p><strong>SJF/SRTF gives the lowest possible average waiting
+time.</strong> Every time a short job goes before a long job, the short
+job saves more waiting than the long job loses.</p>
+<p><strong>Example (slides 3.15–3.16).</strong> Arrival time and burst:
+P1 (0, 7), P2 (2, 4), P3 (4, 1), P4 (5, 4).</p>
+<p>Nonpreemptive SJF:</p>
+<ul>
+<li>At 0, only P1 is ready. P1 runs 0–7.</li>
+<li>At 7, P2, P3 and P4 are ready. The shortest is P3: 7–8. Then P2 and
+P4 both have 4. P2 arrived first: 8–12. Then P4: 12–16.</li>
+<li>Waiting: P1 = 0, P2 = 8 − 2 = 6, P3 = 7 − 4 = 3, P4 = 12 − 5 = 7.
+Average = 4.</li>
+</ul>
+<figure>
+<img width="1400" height="293" src="media/3-artifacts/gantt-sjf.webp" loading="lazy"
+decoding="async" alt="Nonpreemptive SJF (Lecture 3, slide 3.15)" />
+<figcaption aria-hidden="true">Nonpreemptive SJF (Lecture 3, slide
+3.15)</figcaption>
+</figure>
+<p>SRTF:</p>
+<ul>
+<li>At 0, P1 runs. At 2, P2 arrives with 4. P1 has 5 left. 4 &lt; 5, so
+P2 preempts P1.</li>
+<li>At 4, P3 arrives with 1. P2 has 2 left. 1 &lt; 2, so P3 preempts P2.
+P3 runs 4–5.</li>
+<li>At 5, P4 arrives with 4. P2 has 2 left, P1 has 5 left. P2 runs 5–7.
+Then P4 runs 7–11, and P1 runs 11–16.</li>
+<li>Waiting: P1 = 16 − 0 − 7 = 9, P2 = 7 − 2 − 4 = 1, P3 = 0, P4 = 11 −
+5 − 4 = 2. Average = 3.</li>
+</ul>
+<figure>
+<img width="1400" height="363" src="media/3-artifacts/gantt-srtf.webp" loading="lazy"
+decoding="async"
+alt="SRTF. The red labels under the time line show when each process arrives (Lecture 3, slide 3.16)" />
+<figcaption aria-hidden="true">SRTF. The red labels under the time line
+show when each process arrives (Lecture 3, slide 3.16)</figcaption>
+</figure>
+<p>SRTF has the lower average here, because it can react to short jobs
+that arrive later.</p>
+<p><strong>The weakness of SJF:</strong> the OS must know the length of
+the next CPU burst in advance. In a real system it can only estimate
+it.</p>
+<h3 id="priority-scheduling">3.3 Priority scheduling</h3>
+<p><strong>Rule:</strong> each process has a priority number. The CPU
+goes to the process with the highest priority. Usually, a
+<strong>smaller number means a higher priority</strong>. Priority
+scheduling can be preemptive or nonpreemptive.</p>
+<p>FCFS and SJF are special cases of priority scheduling:</p>
+<ul>
+<li>FCFS: the priority is the arrival order.</li>
+<li>SJF: the priority is the burst length.</li>
+</ul>
+<p><strong>Problem: starvation.</strong> In a busy system, high-priority
+processes keep arriving. A low-priority process may
+<strong>never</strong> run.</p>
+<p><strong>Solution: aging.</strong> The OS slowly raises the priority
+of a process the longer it waits. Finally, it becomes the highest
+priority and runs.</p>
+<h3 id="round-robin-rr">3.4 Round robin (RR)</h3>
+<p><strong>Rule:</strong> each process runs for at most a fixed
+<strong>time quantum</strong> <code>q</code>. If it has not finished,
+the OS preempts it and puts it at the <strong>end</strong> of the ready
+queue. The processes take turns in a cycle. RR is preemptive. Usually
+<code>q</code> is 10–100 ms.</p>
+<p><strong>Property:</strong> with <code>n</code> processes in the ready
+queue, no process waits more than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>q</mi></mrow><annotation encoding="application/x-tex">(n-1)q</annotation></semantics></math>
+before its next turn. So RR gives good <strong>response
+time</strong>.</p>
+<p><strong>The choice of <code>q</code> matters:</strong></p>
+<ul>
+<li><strong>Large <code>q</code>:</strong> each process finishes its
+burst before the quantum ends. RR becomes FCFS.</li>
+<li><strong>Small <code>q</code>:</strong> many context switches. Each
+switch is overhead, so the CPU spends more time switching and less time
+on work.</li>
+</ul>
+<figure>
+<img width="1400" height="798" src="media/3-artifacts/quantum-context-switches.webp" loading="lazy"
+decoding="async"
+alt="A smaller quantum means more context switches (Lecture 3, slide 3.20)" />
+<figcaption aria-hidden="true">A smaller quantum means more context
+switches (Lecture 3, slide 3.20)</figcaption>
+</figure>
+<p><strong>Average turnaround time and <code>q</code> have no simple
+relation.</strong> The graph goes up and down as <code>q</code> changes.
+But once <code>q</code> is larger than the longest CPU burst, the
+average turnaround time stays the same, because RR is then FCFS.</p>
+<figure>
+<img width="1400" height="799" src="media/3-artifacts/turnaround-vs-quantum.webp" loading="lazy"
+decoding="async"
+alt="Turnaround time varies with the time quantum (Lecture 3, slide 3.21)" />
+<figcaption aria-hidden="true">Turnaround time varies with the time
+quantum (Lecture 3, slide 3.21)</figcaption>
+</figure>
+<p><strong>Example (slide 3.19).</strong> Four processes arrive at time
+0 in the order P1, P2, P3, P4 with bursts 53, 17, 68 and 24. With q =
+20, the chart is:</p>
+<figure>
+<img width="1400" height="232" src="media/3-artifacts/gantt-rr.webp" loading="lazy"
+decoding="async" alt="RR with q = 20 (Lecture 3, slide 3.19)" />
+<figcaption aria-hidden="true">RR with q = 20 (Lecture 3, slide
+3.19)</figcaption>
+</figure>
+<p>P2 needs only 17, so it finishes before its quantum ends, and the
+next process starts at once at 37.</p>
+<p>Compared with SJF, RR usually has a <strong>higher average waiting
+and turnaround time</strong>, but a <strong>better response
+time</strong>.</p>
+<h3 id="multilevel-queue-scheduling">3.5 Multilevel queue
+scheduling</h3>
+<p>Different processes need different things:</p>
+<ul>
+<li><strong>Foreground</strong> (interactive) processes need fast
+response. RR suits them.</li>
+<li><strong>Background</strong> (batch) processes do not need fast
+response. FCFS suits them, because it has little overhead.</li>
+</ul>
+<p><strong>Multilevel queue scheduling</strong> divides the ready queue
+into several queues. Each queue has its own algorithm. Then the OS must
+also decide <strong>which queue</strong> gets the CPU. There are two
+ways:</p>
+<ul>
+<li><strong>Fixed priority:</strong> serve the queues in priority order,
+for example foreground before background. Problem: the low-priority
+queues can <strong>starve</strong>.</li>
+<li><strong>Time slices:</strong> give each queue a fixed share of CPU
+time, for example 80 ms for foreground, then 20 ms for background, and
+repeat.</li>
+</ul>
+<h3 id="the-one-core-algorithms-side-by-side">3.6 The one-core
+algorithms side by side</h3>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 24%" />
+<col style="width: 31%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Preemptive?</th>
+<th>Strength</th>
+<th>Weakness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>FCFS</td>
+<td>No</td>
+<td>Simple; low overhead</td>
+<td>Convoy effect</td>
+</tr>
+<tr>
+<td>SJF</td>
+<td>No</td>
+<td>Lowest average waiting time (nonpreemptive)</td>
+<td>Must know burst lengths; long jobs can starve</td>
+</tr>
+<tr>
+<td>SRTF</td>
+<td>Yes</td>
+<td>Lowest average waiting time overall</td>
+<td>Must know burst lengths; long jobs can starve</td>
+</tr>
+<tr>
+<td>Priority</td>
+<td>Either</td>
+<td>Important work first</td>
+<td>Starvation (fix: aging)</td>
+</tr>
+<tr>
+<td>RR</td>
+<td>Yes</td>
+<td>Good response time; fair</td>
+<td>Higher average waiting; overhead if <code>q</code> is small</td>
+</tr>
+<tr>
+<td>Multilevel queue</td>
+<td>Depends on each queue</td>
+<td>Different policies for different types of process</td>
+<td>Lower queues can starve with fixed priority</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="scheduling-on-many-cores">4. Scheduling on Many Cores</h2>
+<p>Now the CPU has several cores. Each process can run on <strong>only
+one core at a time</strong>. There are two approaches.</p>
+<h3 id="partitioned-scheduling-asymmetric-multiprocessing-amp">4.1
+Partitioned scheduling (asymmetric multiprocessing, AMP)</h3>
+<ul>
+<li>When a process is created, the OS <strong>assigns</strong> it to one
+core. The process always runs on that core.</li>
+<li>Each core has its own ready queue and its own one-core scheduler.
+Different cores can use different algorithms.</li>
+</ul>
+<p><strong>Advantage:</strong> it is simple. It is the one-core
+scheduling from section 3, applied to each core.</p>
+<p><strong>Problem: how to assign processes to cores.</strong> A poor
+assignment gives <strong>unequal loads</strong>: one core is idle while
+another is overloaded. The best assignment is an NP-hard problem,
+similar to the knapsack problem. If the burst lengths are known, a
+heuristic such as best-fit can help.</p>
+<h3 id="global-scheduling-symmetric-multiprocessing-smp">4.2 Global
+scheduling (symmetric multiprocessing, SMP)</h3>
+<ul>
+<li>There are one or more ready queues for the <strong>whole
+system</strong>. No queue belongs to a core.</li>
+<li>When <strong>any</strong> core becomes idle, the scheduler gives it
+the next process, with one rule for all cores (FCFS, SJF and so
+on).</li>
+<li>A process can run on different cores at different times.</li>
+</ul>
+<p><strong>Advantage:</strong> there is no assignment problem. No core
+stays idle while processes are ready.</p>
+<p><strong>Problems:</strong></p>
+<ul>
+<li><strong>More complex.</strong> The cores must synchronize their
+clocks, and the scheduler must decide for all cores together.</li>
+<li><strong>More overhead.</strong> A process can stop on one core and
+continue on another. This is <strong>migration</strong>. The data in the
+private cache of the first core is then not useful, and must move.</li>
+</ul>
+<p>Migration overhead is a problem of <strong>global</strong> scheduling
+only. In partitioned scheduling, processes never move between cores.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 35%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Partitioned (AMP)</th>
+<th>Global (SMP)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ready queues</td>
+<td>One for each core</td>
+<td>Shared by all cores</td>
+</tr>
+<tr>
+<td>Can a process move between cores?</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Main problem</td>
+<td>Unequal loads (assignment is NP-hard)</td>
+<td>Complexity and migration overhead</td>
+</tr>
+<tr>
+<td>Each core can use its own algorithm?</td>
+<td>Yes</td>
+<td>No: one rule for all cores</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="how-to-draw-a-global-schedule">4.3 How to draw a global
+schedule</h3>
+<p>In a global schedule, at each moment, the scheduler picks the best
+ready processes for <strong>all</strong> free cores together. With two
+cores, the two best ready processes run.</p>
+<p><strong>Example (slide 3.28): SRTF on two cores.</strong> P1 (0, 7),
+P2 (2, 4), P3 (4, 1), P4 (5, 4).</p>
+<ul>
+<li>At 0, P1 runs on core 1. Core 2 is idle.</li>
+<li>At 2, P2 arrives. Core 2 is free, so P2 runs there. No preemption is
+necessary.</li>
+<li>At 4, P3 arrives with 1. Both cores are busy: P1 has 3 left, P2 has
+2 left. P3 preempts the process with the <strong>longest</strong>
+remaining time, P1. P3 runs 4–5 on core 1.</li>
+<li>At 5, P3 finishes and P4 arrives. P1 (3 left) and P4 (4) wait. P1
+goes on core 1. At 6, P2 finishes on core 2, and P4 starts there.</li>
+<li>Waiting: P1 = 1, P2 = 0, P3 = 0, P4 = 1. Average = 0.5.</li>
+</ul>
+<figure>
+<img width="1369" height="591" src="media/3-artifacts/gantt-srtf-dual-core.webp" loading="lazy"
+decoding="async"
+alt="SRTF on two cores. The red labels show when each process arrives (Lecture 3, slide 3.28)" />
+<figcaption aria-hidden="true">SRTF on two cores. The red labels show
+when each process arrives (Lecture 3, slide 3.28)</figcaption>
+</figure>
+<p><strong>Example (slide 3.29): RR with q = 20 on two cores.</strong>
+The processes are the same as in the one-core RR example: P1, P2, P3 and
+P4 arrive at time 0 in that order, with bursts 53, 17, 68 and 24. When a
+quantum ends, the process goes to the end of the shared ready queue. The
+next free core takes the process at the head of the queue. So a process
+can continue on a different core: P1 runs on core 1 (0–20), then on core
+2 (37–57), then on core 1 again (60–73).</p>
+<figure>
+<img width="1400" height="523" src="media/3-artifacts/gantt-rr-dual-core.webp" loading="lazy"
+decoding="async"
+alt="RR with q = 20 on two cores (Lecture 3, slide 3.29)" />
+<figcaption aria-hidden="true">RR with q = 20 on two cores (Lecture 3,
+slide 3.29)</figcaption>
+</figure>
+<h2 id="what-you-know-now-lecture-3">What You Know Now (Lecture 3)</h2>
+<ul>
+<li>The scheduler must run when a process waits (transition 1) or exits
+(transition 5). Preemptive scheduling also runs at other times.</li>
+<li>Turnaround = finish − arrival. Waiting = time in the ready queue.
+Response = first run − arrival.</li>
+<li>FCFS has the convoy effect. SJF/SRTF gives the lowest average
+waiting time but needs burst lengths. Priority can starve processes;
+aging fixes it. RR gives good response time; a large quantum turns it
+into FCFS.</li>
+<li>Multilevel queues use a different algorithm for each queue.</li>
+<li>Partitioned scheduling fixes each process to a core and risks
+unequal loads. Global scheduling shares one queue and pays for
+migration.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../2-processes-threads/2.html">← 2.
+Processes and Threads</a>
+  <a class="next-page" href="../4-synchronization/4.html">4. Process
+Synchronization →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

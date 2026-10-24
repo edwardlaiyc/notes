@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>5. Graphs: Representations, BFS, DFS and Topological
+Sort · SC2301 Algorithm Design &amp; Analysis</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">5. Graphs:
+Representations, BFS, DFS and Topological Sort</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">5. Graphs: Representations, BFS, DFS and
+Topological Sort</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-foundations/1.html"
+                   data-nav="1-foundations/1.html">1. Foundations:
+Asymptotic Notation and Insertion Sort</a></li>
+            <li><a href="../2-mergesort/2.html"
+                   data-nav="2-mergesort/2.html">2. Divide and Conquer:
+Mergesort</a></li>
+            <li><a href="../3-heapsort/3.html"
+                   data-nav="3-heapsort/3.html">3. Heaps and
+Heapsort</a></li>
+            <li><a href="../4-quicksort-linear-sorts/4.html"
+                   data-nav="4-quicksort-linear-sorts/4.html">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a></li>
+            <li><a href="../5-graph-traversal/5.html"
+                   data-nav="5-graph-traversal/5.html">5. Graphs:
+Representations, BFS, DFS and Topological Sort</a></li>
+            <li><a href="../6-dijkstra-prim/6.html"
+                   data-nav="6-dijkstra-prim/6.html">6. Greedy
+Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</a></li>
+            <li><a href="../7-union-find-kruskal/7.html"
+                   data-nav="7-union-find-kruskal/7.html">7. Union-Find
+and Kruskal’s Algorithm</a></li>
+            <li><a href="../8-recurrences/8.html"
+                   data-nav="8-recurrences/8.html">8. Analysis
+Techniques: Solving Recurrences</a></li>
+            <li><a href="../9-amortized-analysis/9.html"
+                   data-nav="9-amortized-analysis/9.html">9. Amortized
+Analysis</a></li>
+            <li><a href="../10-dynamic-programming/10.html"
+                   data-nav="10-dynamic-programming/10.html">10. Dynamic
+Programming</a></li>
+            <li><a href="../11-string-matching/11.html"
+                   data-nav="11-string-matching/11.html">11. String
+Matching</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#graphs-representations-bfs-dfs-and-topological-sort"
+id="toc-graphs-representations-bfs-dfs-and-topological-sort">5. Graphs:
+Representations, BFS, DFS and Topological Sort</a>
+<ul>
+<li><a href="#basic-terms" id="toc-basic-terms">1. Basic Terms</a>
+<ul>
+<li><a href="#graphs" id="toc-graphs">1.1 Graphs</a></li>
+<li><a href="#degree-paths-and-connectivity"
+id="toc-degree-paths-and-connectivity">1.2 Degree, paths and
+connectivity</a></li>
+<li><a href="#sparse-and-dense-graphs"
+id="toc-sparse-and-dense-graphs">1.3 Sparse and dense graphs</a></li>
+</ul></li>
+<li><a href="#storing-a-graph" id="toc-storing-a-graph">2. Storing a
+Graph</a>
+<ul>
+<li><a href="#adjacency-matrix" id="toc-adjacency-matrix">2.1 Adjacency
+matrix</a></li>
+<li><a href="#adjacency-list" id="toc-adjacency-list">2.2 Adjacency
+list</a></li>
+<li><a href="#which-one-to-choose" id="toc-which-one-to-choose">2.3
+Which one to choose</a></li>
+</ul></li>
+<li><a href="#breadth-first-search-bfs"
+id="toc-breadth-first-search-bfs">3. Breadth-First Search (BFS)</a>
+<ul>
+<li><a href="#the-idea" id="toc-the-idea">3.1 The idea</a></li>
+<li><a href="#the-code" id="toc-the-code">3.2 The code</a></li>
+<li><a href="#what-bfs-computes" id="toc-what-bfs-computes">3.3 What BFS
+computes</a></li>
+<li><a href="#colours" id="toc-colours">3.4 Colours</a></li>
+<li><a href="#running-time" id="toc-running-time">3.5 Running
+time</a></li>
+<li><a href="#bfs-only-reaches-what-is-reachable"
+id="toc-bfs-only-reaches-what-is-reachable">3.6 BFS only reaches what is
+reachable</a></li>
+</ul></li>
+<li><a href="#depth-first-search-dfs" id="toc-depth-first-search-dfs">4.
+Depth-First Search (DFS)</a>
+<ul>
+<li><a href="#the-idea-1" id="toc-the-idea-1">4.1 The idea</a></li>
+<li><a href="#the-code-recursive" id="toc-the-code-recursive">4.2 The
+code (recursive)</a></li>
+<li><a href="#running-time-1" id="toc-running-time-1">4.3 Running
+time</a></li>
+<li><a href="#dfs-without-recursion" id="toc-dfs-without-recursion">4.4
+DFS without recursion</a></li>
+<li><a href="#colours-and-edge-types"
+id="toc-colours-and-edge-types">4.5 Colours and edge types</a></li>
+<li><a href="#finding-a-cycle" id="toc-finding-a-cycle">4.6 Finding a
+cycle</a></li>
+</ul></li>
+<li><a href="#topological-sort" id="toc-topological-sort">5. Topological
+Sort</a>
+<ul>
+<li><a href="#dags-and-precedence" id="toc-dags-and-precedence">5.1 DAGs
+and precedence</a></li>
+<li><a href="#what-a-topological-sort-is"
+id="toc-what-a-topological-sort-is">5.2 What a topological sort
+is</a></li>
+<li><a href="#method-1-remove-vertices-with-in-degree-0"
+id="toc-method-1-remove-vertices-with-in-degree-0">5.3 Method 1: remove
+vertices with in-degree 0</a></li>
+<li><a href="#method-2-dfs-finishing-order"
+id="toc-method-2-dfs-finishing-order">5.4 Method 2: DFS finishing
+order</a></li>
+</ul></li>
+<li><a href="#common-traps" id="toc-common-traps">6. Common
+Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="graphs-representations-bfs-dfs-and-topological-sort">5. Graphs:
+Representations, BFS, DFS and Topological Sort</h1>
+<p>This chapter covers Lecture 4. It starts Part 2 of the course, on
+graphs. It explains how to store a graph, and the two basic ways to
+visit every vertex: <strong>breadth-first search</strong> (BFS) and
+<strong>depth-first search</strong> (DFS). It ends with
+<strong>topological sort</strong>, an application of DFS.</p>
+<p>Chapters 6 and 7 build on this: Dijkstra’s and Prim’s algorithms grow
+outward from one vertex like BFS, and Kruskal’s algorithm needs to
+detect cycles.</p>
+<hr />
+<h2 id="basic-terms">1. Basic Terms</h2>
+<h3 id="graphs">1.1 Graphs</h3>
+<p>A <strong>graph</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G = (V, E)</annotation></semantics></math>
+has:</p>
+<ul>
+<li>a set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+of <strong>vertices</strong> (also called nodes), and</li>
+<li>a set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>
+of <strong>edges</strong>. Each edge connects two vertices. Formally, an
+edge is a pair
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mo>,</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(v, w)</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>,</mo><mi>w</mi><mo>∈</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">v, w \in V</annotation></semantics></math>.</li>
+</ul>
+<p>In an <strong>undirected</strong> graph, the edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mo>,</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(v, w)</annotation></semantics></math>
+is the same as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(w, v)</annotation></semantics></math>.
+In a <strong>directed</strong> graph,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>v</mi><mo>,</mo><mi>w</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(v, w)</annotation></semantics></math>
+goes <strong>from</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+<strong>to</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>w</mi><annotation encoding="application/x-tex">w</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>w</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(w, v)</annotation></semantics></math>
+is a different edge. A <strong>weighted</strong> graph also gives each
+edge a number, its <strong>weight</strong> (a length, a cost, a
+time).</p>
+<p>We write
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|V|</annotation></semantics></math>
+for the number of vertices and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|E|</annotation></semantics></math>
+for the number of edges.</p>
+<h3 id="degree-paths-and-connectivity">1.2 Degree, paths and
+connectivity</h3>
+<ul>
+<li>The <strong>degree</strong> of a vertex is the number of edges that
+touch it. In a directed graph, the <strong>in-degree</strong> counts
+edges coming in and the <strong>out-degree</strong> counts edges going
+out.</li>
+<li>A <strong>path</strong> from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+is a sequence of edges you can follow from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+to reach
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>.</li>
+<li>A path is <strong>simple</strong> if it repeats no edge. (Later, for
+longest paths, “simple” means it repeats no vertex.)</li>
+<li>The <strong>length</strong> of a path is the number of edges in it.
+In a weighted graph, the <strong>weight</strong> of a path is the sum of
+its edge weights.</li>
+<li>Vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>
+is <strong>reachable</strong> from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+if some path goes from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>.</li>
+<li>An undirected graph is <strong>connected</strong> if every vertex is
+reachable from every other vertex.</li>
+<li>A <strong>cycle</strong> is a path of length at least 1 that starts
+and ends at the same vertex.</li>
+</ul>
+<h3 id="sparse-and-dense-graphs">1.3 Sparse and dense graphs</h3>
+<p>A simple graph has at most about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">|V|^2</annotation></semantics></math>
+edges.</p>
+<ul>
+<li>A graph is <strong>sparse</strong> if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|E|</annotation></semantics></math>
+is much smaller than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">|V|^2</annotation></semantics></math>.
+Example: an airline network, where two random airports rarely have a
+direct flight.</li>
+<li>A graph is <strong>dense</strong> if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|E|</annotation></semantics></math>
+is close to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">|V|^2</annotation></semantics></math>.</li>
+</ul>
+<p>This difference decides which way of storing the graph is better.</p>
+<hr />
+<h2 id="storing-a-graph">2. Storing a Graph</h2>
+<h3 id="adjacency-matrix">2.1 Adjacency matrix</h3>
+<p>Number the vertices
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>v</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">v_1, \dots, v_n</annotation></semantics></math>.
+The <strong>adjacency matrix</strong> is an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">n \times n</annotation></semantics></math>
+table
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+with</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mn>1</mn></mtd><mtd columnalign="left" style="text-align: left"><mrow><mtext mathvariant="normal">if there is an edge from </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>v</mi><mi>i</mi></msub><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> to </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>v</mi><mi>j</mi></msub><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mn>0</mn></mtd><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">otherwise.</mtext></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">a_{ij} = \begin{cases} 1 &amp; \text{if there is an edge from } v_i \text{ to } v_j, \\ 0 &amp; \text{otherwise.} \end{cases}</annotation></semantics></math></p>
+<p>For a weighted graph, store the weight instead of 1, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>∞</mi><annotation encoding="application/x-tex">\infty</annotation></semantics></math>
+where there is no edge (and usually 0 on the diagonal).</p>
+<figure>
+<img width="1400" height="676" src="media/5-artifacts/adjacency-matrix.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Adjacency matrix of an undirected graph with the vertex order a, b, c, d. The matrix is symmetric." />
+<figcaption aria-hidden="true">Adjacency matrix of an undirected graph
+with the vertex order a, b, c, d. The matrix is symmetric.</figcaption>
+</figure>
+<ul>
+<li>For an undirected graph, the matrix is <strong>symmetric</strong>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><msub><mi>a</mi><mrow><mi>j</mi><mi>i</mi></mrow></msub></mrow><annotation encoding="application/x-tex">a_{ij} = a_{ji}</annotation></semantics></math>.</li>
+<li><strong>Memory:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(|V|^2)</annotation></semantics></math>,
+however few edges there are.</li>
+<li><strong>Is there an edge from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>?</strong>
+Look at one cell:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math>.</li>
+<li><strong>List the neighbours of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>:</strong>
+read the whole row:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(|V|)</annotation></semantics></math>.</li>
+</ul>
+<h3 id="adjacency-list">2.2 Adjacency list</h3>
+<p>The <strong>adjacency list</strong> is an array <code>Adj</code> with
+one list per vertex. <code>Adj[u]</code> holds every vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+with an edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>.
+For a weighted graph, each list entry also stores the weight.</p>
+<figure>
+<img width="1400" height="480" src="media/5-artifacts/adjacency-list.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="An undirected graph and its adjacency lists. Each edge appears in two lists, once from each end." />
+<figcaption aria-hidden="true">An undirected graph and its adjacency
+lists. Each edge appears in two lists, once from each end.</figcaption>
+</figure>
+<ul>
+<li>The lists hold
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">2|E|</annotation></semantics></math>
+entries in total for an undirected graph (each edge appears at both
+ends), and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|E|</annotation></semantics></math>
+for a directed graph.</li>
+<li><strong>Memory:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(|V| + |E|)</annotation></semantics></math>.</li>
+<li><strong>Is there an edge from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>?</strong>
+Scan <code>Adj[u]</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">deg</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\deg(u))</annotation></semantics></math>,
+which is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(|V|)</annotation></semantics></math>
+in the worst case.</li>
+<li><strong>List the neighbours of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">deg</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\deg(u))</annotation></semantics></math>,
+only the neighbours that exist.</li>
+</ul>
+<h3 id="which-one-to-choose">2.3 Which one to choose</h3>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 33%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Adjacency matrix</th>
+<th style="text-align: left;">Adjacency list</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Memory</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="postfix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\lvert V \rvert^2)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mo>+</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\lvert V \rvert + \lvert E \rvert)</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Edge test</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">deg</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\deg(u))</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Neighbours of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="postfix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\lvert V \rvert)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">deg</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\deg(u))</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: left;">Better for</td>
+<td style="text-align: left;">dense graphs</td>
+<td style="text-align: left;">sparse graphs</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For a sparse graph, the list saves a lot of memory and time. For a
+dense graph, the matrix costs about the same memory and answers edge
+tests faster.</p>
+<hr />
+<h2 id="breadth-first-search-bfs">3. Breadth-First Search (BFS)</h2>
+<h3 id="the-idea">3.1 The idea</h3>
+<p>BFS explores a graph in <strong>layers</strong> from a start vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>,
+called the <strong>source</strong>:</p>
+<ul>
+<li>first
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+itself (distance 0),</li>
+<li>then every neighbour of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+(distance 1),</li>
+<li>then every new vertex next to those (distance 2), and so on.</li>
+</ul>
+<p>It uses a <strong>queue</strong> (first in, first out). A vertex
+enters the queue when BFS first finds it. When BFS takes a vertex out of
+the queue, it looks at all its neighbours and adds the ones it has not
+seen yet. Because a queue serves vertices in the order they arrived, all
+vertices at distance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+come out before any vertex at distance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">d + 1</annotation></semantics></math>.</p>
+<h3 id="the-code">3.2 The code</h3>
+<pre><code>function bfs(s):
+    mark all vertices as unvisited
+    queue := {s}
+    mark s as visited
+    s.d = 0
+    while queue is not empty:
+        v := queue.removeFirst()
+        for each unvisited neighbour n of v:
+            mark n as visited
+            n.d = v.d + 1          // one more edge than v
+            n.pi = v               // remember how we reached n
+            queue.addLast(n)</code></pre>
+<p>Mark a vertex as visited when it <strong>enters</strong> the queue,
+not when it leaves. Otherwise the same vertex can enter the queue
+several times.</p>
+<h3 id="what-bfs-computes">3.3 What BFS computes</h3>
+<ul>
+<li><strong>Shortest paths in an unweighted graph.</strong>
+<code>n.d</code> is the smallest number of edges from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.
+The intuition: BFS always finishes closer vertices before it reaches
+farther ones. To stop early at a target vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,
+check each vertex when it comes out of the queue.</li>
+<li><strong>The BFS tree.</strong> The pointers <code>n.pi</code> form a
+tree rooted at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>.
+Following <code>pi</code> from any vertex back to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+gives a shortest path, in reverse.</li>
+</ul>
+<p>BFS does <strong>not</strong> find shortest paths when edges have
+different weights. A path with fewer edges can still be heavier. That
+needs Dijkstra’s algorithm (Chapter 6).</p>
+<figure>
+<img width="1368" height="1123" src="media/5-artifacts/bfs-clrs.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="BFS on an undirected graph, from source s. The numbers are the distances d. The queue Q is shown at each step. Grey vertices are in the queue; black vertices are finished." />
+<figcaption aria-hidden="true">BFS on an undirected graph, from source
+s. The numbers are the distances d. The queue Q is shown at each step.
+Grey vertices are in the queue; black vertices are
+finished.</figcaption>
+</figure>
+<h3 id="colours">3.4 Colours</h3>
+<p>The figure uses three colours. They describe the state of each
+vertex:</p>
+<ul>
+<li><strong>White:</strong> not found yet.</li>
+<li><strong>Grey:</strong> found and in the queue, but its neighbours
+are not all examined yet. The grey vertices form the
+<strong>frontier</strong>.</li>
+<li><strong>Black:</strong> taken out of the queue, and all its
+neighbours examined.</li>
+</ul>
+<p>When a vertex turns black, every neighbour of it has been found. So
+<strong>a black vertex never has a white neighbour.</strong> The
+frontier of grey vertices always separates the black (finished) region
+from the white (unseen) region.</p>
+<p>A black vertex <strong>can</strong> have a grey neighbour: a
+neighbour that was found but is still waiting in the queue.</p>
+<h3 id="running-time">3.5 Running time</h3>
+<ul>
+<li>Each vertex enters and leaves the queue at most once. Each queue
+operation is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+(use a linked list with pointers to both ends). Queue work:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|)</annotation></semantics></math>.</li>
+<li>When a vertex leaves the queue, BFS scans its neighbours once. With
+adjacency lists, all these scans together read every list once:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|E|)</annotation></semantics></math>.</li>
+<li><strong>Total:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V| + |E|)</annotation></semantics></math></strong>
+with adjacency lists. This is linear in the size of the graph.</li>
+</ul>
+<p><strong>With an adjacency matrix,</strong> finding the neighbours of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+means scanning the whole row of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(|V|)</annotation></semantics></math>
+per vertex. Total:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(|V|^2)</annotation></semantics></math>.
+The algorithm is the same, except that “for each neighbour
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>”
+becomes “for each column
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+where row
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+has a 1”.</p>
+<h3 id="bfs-only-reaches-what-is-reachable">3.6 BFS only reaches what is
+reachable</h3>
+<p>BFS from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+visits exactly the vertices reachable from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>.
+If the graph is not connected, some vertices stay white. To visit every
+vertex, wrap BFS in a loop: “while some vertex is unvisited, run BFS
+from it”.</p>
+<hr />
+<h2 id="depth-first-search-dfs">4. Depth-First Search (DFS)</h2>
+<h3 id="the-idea-1">4.1 The idea</h3>
+<p>DFS goes <strong>as deep as possible</strong> along one path before
+it backs up. From the current vertex, it moves to an unvisited
+neighbour, then to an unvisited neighbour of that one, and so on. When
+it reaches a vertex with no unvisited neighbour, it
+<strong>backtracks</strong> to the previous vertex and tries its next
+neighbour.</p>
+<p>DFS does not find shortest paths. It is useful for its structure:
+cycle detection, topological sort, and more.</p>
+<h3 id="the-code-recursive">4.2 The code (recursive)</h3>
+<pre><code>function dfs():
+    mark all vertices as unvisited
+    while there exists an unvisited vertex v:
+        dfsVisit(v)
+
+function dfsVisit(v):              // explore everything reachable from v
+    mark v as visited
+    for each unvisited neighbour w of v:
+        dfsVisit(w)</code></pre>
+<p>The outer loop in <code>dfs()</code> restarts the search from any
+vertex still unvisited. So <strong>the lecture’s DFS visits every
+vertex, even in a graph that is not connected.</strong> The lecture’s
+BFS starts from one source only.</p>
+<figure>
+<img width="810" height="774" src="media/5-artifacts/dfs-example.webp" style="width:55.0%"
+loading="lazy" decoding="async"
+alt="A directed graph. DFS from a, taking neighbours in alphabetical order, reaches b, then e, then f, then c; it backtracks to a, then reaches d, g, h." />
+<figcaption aria-hidden="true">A directed graph. DFS from a, taking
+neighbours in alphabetical order, reaches b, then e, then f, then c; it
+backtracks to a, then reaches d, g, h.</figcaption>
+</figure>
+<p>The order in which DFS tries neighbours changes the result. An exam
+question will fix the order (for example, alphabetical). Follow it
+exactly.</p>
+<h3 id="running-time-1">4.3 Running time</h3>
+<p>Each vertex gets one call of <code>dfsVisit</code>, and each call
+scans the vertex’s adjacency list once. Total:
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V| + |E|)</annotation></semantics></math></strong>
+with adjacency lists,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(|V|^2)</annotation></semantics></math>
+with an adjacency matrix. Extra memory:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|)</annotation></semantics></math>
+for the marks and the recursion stack.</p>
+<h3 id="dfs-without-recursion">4.4 DFS without recursion</h3>
+<p>Recursion uses the call stack. You can use your own
+<strong>stack</strong> (last in, first out) instead:</p>
+<pre><code>function dfsVisit(v):
+    S := empty stack
+    S.push(v)
+    while S is not empty:
+        w := S.pop()
+        if w is visited: continue        // w was pushed more than once
+        mark w as visited
+        for each unvisited neighbour x of w:
+            S.push(x)</code></pre>
+<p>A vertex can be pushed several times before it is visited, so check
+it when you pop it. Because the stack returns the <strong>last</strong>
+vertex pushed, this version takes the neighbours in the reverse of the
+recursive order. To match the recursive order exactly, push the
+neighbours in reverse.</p>
+<p>BFS and DFS differ only in this one choice: <strong>BFS uses a queue,
+DFS uses a stack.</strong></p>
+<h3 id="colours-and-edge-types">4.5 Colours and edge types</h3>
+<p>DFS also uses three colours:</p>
+<ul>
+<li><strong>White:</strong> not visited yet.</li>
+<li><strong>Grey:</strong> <code>dfsVisit</code> has started on it but
+not finished. The grey vertices are exactly the vertices on the current
+recursion stack: the path from the start to where DFS is now.</li>
+<li><strong>Black:</strong> <code>dfsVisit</code> has finished on it.
+All vertices reachable from it are visited.</li>
+</ul>
+<p>The edges that DFS follows to reach new vertices form a
+<strong>depth-first tree</strong>. Every edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>
+of the graph is one of four types. The colour of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>,
+at the moment DFS first examines the edge from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>,
+tells you which:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 25%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Colour of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math></th>
+<th style="text-align: left;">Edge type</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">White</td>
+<td style="text-align: left;"><strong>Tree edge</strong></td>
+<td style="text-align: left;">DFS reaches
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+for the first time through this edge.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Grey</td>
+<td style="text-align: left;"><strong>Back edge</strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+is an ancestor of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+on the current path.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Black</td>
+<td style="text-align: left;"><strong>Forward or cross
+edge</strong></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+is a descendant of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+found by another route (forward), or in a different branch (cross).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>When DFS finishes a vertex, all its neighbours have been visited. So,
+as in BFS, <strong>a black vertex never has a white neighbour.</strong>
+It can have a grey neighbour: in an undirected graph, the parent of a
+finished vertex is still grey.</p>
+<h3 id="finding-a-cycle">4.6 Finding a cycle</h3>
+<p><strong>Theorem:</strong> a directed graph has no cycle if and only
+if DFS finds <strong>no back edge</strong>.</p>
+<p>A back edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>
+goes from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+to its ancestor
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>.
+The tree path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+down to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>,
+plus this edge, is a cycle. So DFS detects a cycle when it examines an
+edge into a <strong>grey</strong> vertex:</p>
+<pre><code>function dfsVisit(v):
+    mark v as grey
+    for each vertex w adjacent to v:
+        if w is grey:  report a cycle
+        if w is white: dfsVisit(w)
+    mark v as black</code></pre>
+<p>In an <strong>undirected</strong> graph, the edge back to the parent
+you just came from does not count. Every undirected edge looks like a
+cycle of length 2 otherwise. (Chapter 7 shows another way to find cycles
+in an undirected graph, with union-find.)</p>
+<hr />
+<h2 id="topological-sort">5. Topological Sort</h2>
+<h3 id="dags-and-precedence">5.1 DAGs and precedence</h3>
+<p>A <strong>directed acyclic graph</strong> (DAG) is a directed graph
+with no cycle. DAGs describe <strong>precedence</strong>: an edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>
+means
+“<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+must happen before
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>”.
+Examples: course prerequisites, steps in a build, or the order to put on
+clothes.</p>
+<figure>
+<img width="702" height="474" src="media/5-artifacts/dag-clothes.webp" style="width:50.0%"
+loading="lazy" decoding="async"
+alt="A DAG of precedence: socks before shoes, underwear before shoes and pants, pants and shirt before belt. The watch has no constraints." />
+<figcaption aria-hidden="true">A DAG of precedence: socks before shoes,
+underwear before shoes and pants, pants and shirt before belt. The watch
+has no constraints.</figcaption>
+</figure>
+<h3 id="what-a-topological-sort-is">5.2 What a topological sort is</h3>
+<p>A <strong>topological sort</strong> of a DAG is a list of all its
+vertices such that <strong>for every edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+comes before
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math></strong>
+in the list.</p>
+<ul>
+<li>A DAG usually has <strong>many</strong> topological sorts. For the
+clothes: “watch, underwear, socks, pants, shoes, shirt, belt” works, and
+so does “underwear, socks, pants, shoes, shirt, belt, watch”.</li>
+<li><strong>A directed graph has a topological sort if and only if it
+has no cycle.</strong>
+<ul>
+<li>If there is a cycle
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mn>1</mn></msub><mo>→</mo><msub><mi>v</mi><mn>2</mn></msub><mo>→</mo><mi>…</mi><mo>→</mo><msub><mi>v</mi><mi>k</mi></msub><mo>→</mo><msub><mi>v</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">v_1 \to v_2 \to \dots \to v_k \to v_1</annotation></semantics></math>,
+then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mn>1</mn></msub><annotation encoding="application/x-tex">v_1</annotation></semantics></math>
+must come before
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mn>2</mn></msub><annotation encoding="application/x-tex">v_2</annotation></semantics></math>,
+…, before
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mi>k</mi></msub><annotation encoding="application/x-tex">v_k</annotation></semantics></math>,
+before
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>v</mi><mn>1</mn></msub><annotation encoding="application/x-tex">v_1</annotation></semantics></math>.
+That is impossible.</li>
+<li>If there is no cycle, some vertex has in-degree 0 (otherwise,
+walking backwards along edges forever would repeat a vertex and give a
+cycle). Put it first, remove it and its edges, and repeat on what is
+left.</li>
+</ul></li>
+</ul>
+<h3 id="method-1-remove-vertices-with-in-degree-0">5.3 Method 1: remove
+vertices with in-degree 0</h3>
+<p>The proof above is itself an algorithm:</p>
+<ol type="1">
+<li>Find a vertex with in-degree 0 (no remaining prerequisites). Output
+it.</li>
+<li>Remove it and its outgoing edges. This lowers the in-degree of its
+neighbours.</li>
+<li>Repeat until no vertices remain. If vertices remain but none has
+in-degree 0, the graph has a cycle.</li>
+</ol>
+<h3 id="method-2-dfs-finishing-order">5.4 Method 2: DFS finishing
+order</h3>
+<pre><code>function top_sort():
+    L := []                          // empty list
+    while there exists some unvisited vertex v:
+        dfs(v)
+    return L
+
+function dfs(v):
+    mark v as visited
+    for each unvisited neighbour w of v:
+        dfs(w)
+    add v to the head of L           // v is finished</code></pre>
+<p>Each vertex goes to the <strong>front</strong> of the list at the
+moment it <strong>finishes</strong> (turns black). So the list is in
+<strong>reverse finishing order</strong>.</p>
+<p><strong>Why it works.</strong> It is enough to show that for every
+edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+finishes before
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>.
+Then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+is added to the front earlier, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+ends up ahead of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>.</p>
+<ul>
+<li>If DFS visits
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+first:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+is reachable from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>,
+so DFS visits and finishes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+(through this edge or another path) before it can finish
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>.</li>
+<li>If DFS visits
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+first:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+is not reachable from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>,
+because that path plus the edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>
+would be a cycle. So DFS finishes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+without ever reaching
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>,
+and visits
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+later.</li>
+</ul>
+<p>Add the grey check from 4.6 to report “no topological sort exists”
+when the graph has a cycle.</p>
+<p><strong>Running time:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V| + |E|)</annotation></semantics></math>,
+the same as DFS.</p>
+<hr />
+<h2 id="common-traps">6. Common Traps</h2>
+<ul>
+<li>BFS uses a <strong>queue</strong>. DFS uses a <strong>stack</strong>
+(or recursion).</li>
+<li>BFS finds shortest paths only when every edge counts the same
+(unweighted).</li>
+<li>Mark a vertex in BFS when it <strong>enters</strong> the queue.</li>
+<li>BFS and DFS run in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V| + |E|)</annotation></semantics></math>
+with adjacency lists, but
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(|V|^2)</annotation></semantics></math>
+with an adjacency matrix.</li>
+<li>For a sparse graph, the adjacency <strong>list</strong> is better.
+The matrix suits dense graphs.</li>
+<li>A black vertex never has a white neighbour, in BFS or DFS. It can
+have a grey neighbour.</li>
+<li>The lecture’s DFS has an outer loop, so it visits every vertex. BFS
+from one source reaches only the vertices reachable from it.</li>
+<li>A back edge (an edge into a grey vertex) means a cycle in a directed
+graph.</li>
+<li>A topological sort exists only for a DAG, and it is usually not
+unique.</li>
+<li>In the DFS method, a vertex is added to the <strong>front</strong>
+of the list when it <strong>finishes</strong>, not when it is first
+visited.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../4-quicksort-linear-sorts/4.html">← 4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a>
+  <a class="next-page" href="../6-dijkstra-prim/6.html">6. Greedy
+Algorithms: Dijkstra's Shortest Paths and Prim's MST →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

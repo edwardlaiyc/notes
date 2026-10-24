@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>4. Quicksort, the Limit of Comparison Sorts, and Linear-Time
+Sorts · SC2301 Algorithm Design &amp; Analysis</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">4. Quicksort, the
+Limit of Comparison Sorts, and Linear-Time Sorts</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">4. Quicksort, the Limit of Comparison Sorts,
+and Linear-Time Sorts</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-foundations/1.html"
+                   data-nav="1-foundations/1.html">1. Foundations:
+Asymptotic Notation and Insertion Sort</a></li>
+            <li><a href="../2-mergesort/2.html"
+                   data-nav="2-mergesort/2.html">2. Divide and Conquer:
+Mergesort</a></li>
+            <li><a href="../3-heapsort/3.html"
+                   data-nav="3-heapsort/3.html">3. Heaps and
+Heapsort</a></li>
+            <li><a href="../4-quicksort-linear-sorts/4.html"
+                   data-nav="4-quicksort-linear-sorts/4.html">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a></li>
+            <li><a href="../5-graph-traversal/5.html"
+                   data-nav="5-graph-traversal/5.html">5. Graphs:
+Representations, BFS, DFS and Topological Sort</a></li>
+            <li><a href="../6-dijkstra-prim/6.html"
+                   data-nav="6-dijkstra-prim/6.html">6. Greedy
+Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</a></li>
+            <li><a href="../7-union-find-kruskal/7.html"
+                   data-nav="7-union-find-kruskal/7.html">7. Union-Find
+and Kruskal’s Algorithm</a></li>
+            <li><a href="../8-recurrences/8.html"
+                   data-nav="8-recurrences/8.html">8. Analysis
+Techniques: Solving Recurrences</a></li>
+            <li><a href="../9-amortized-analysis/9.html"
+                   data-nav="9-amortized-analysis/9.html">9. Amortized
+Analysis</a></li>
+            <li><a href="../10-dynamic-programming/10.html"
+                   data-nav="10-dynamic-programming/10.html">10. Dynamic
+Programming</a></li>
+            <li><a href="../11-string-matching/11.html"
+                   data-nav="11-string-matching/11.html">11. String
+Matching</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a
+href="#quicksort-the-limit-of-comparison-sorts-and-linear-time-sorts"
+id="toc-quicksort-the-limit-of-comparison-sorts-and-linear-time-sorts">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a>
+<ul>
+<li><a href="#quicksort" id="toc-quicksort">1. Quicksort</a>
+<ul>
+<li><a href="#the-idea" id="toc-the-idea">1.1 The idea</a></li>
+<li><a href="#the-quicksort-code" id="toc-the-quicksort-code">1.2 The
+quicksort code</a></li>
+<li><a href="#the-partition-code" id="toc-the-partition-code">1.3 The
+partition code</a></li>
+<li><a href="#how-to-trace-partition-by-hand"
+id="toc-how-to-trace-partition-by-hand">1.4 How to trace partition by
+hand</a></li>
+<li><a href="#the-execution-order" id="toc-the-execution-order">1.5 The
+execution order</a></li>
+</ul></li>
+<li><a href="#running-time-of-quicksort"
+id="toc-running-time-of-quicksort">2. Running Time of Quicksort</a>
+<ul>
+<li><a href="#worst-case-thetan2" id="toc-worst-case-thetan2">2.1 Worst
+case:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n^2)</annotation></semantics></math></a></li>
+<li><a href="#best-case-thetan-log-n"
+id="toc-best-case-thetan-log-n">2.2 Best case:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math></a></li>
+<li><a href="#average-case-thetan-log-n"
+id="toc-average-case-thetan-log-n">2.3 Average case:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math></a></li>
+<li><a href="#space-and-stability" id="toc-space-and-stability">2.4
+Space and stability</a></li>
+<li><a href="#strengths-and-weaknesses"
+id="toc-strengths-and-weaknesses">2.5 Strengths and weaknesses</a></li>
+<li><a href="#choosing-the-pivot-more-carefully-median-of-three"
+id="toc-choosing-the-pivot-more-carefully-median-of-three">2.6 Choosing
+the pivot more carefully: median of three</a></li>
+</ul></li>
+<li><a href="#partitioning-into-three-groups"
+id="toc-partitioning-into-three-groups">3. Partitioning into Three
+Groups</a></li>
+<li><a href="#the-limit-of-comparison-sorts"
+id="toc-the-limit-of-comparison-sorts">4. The Limit of Comparison
+Sorts</a>
+<ul>
+<li><a href="#the-decision-tree-model"
+id="toc-the-decision-tree-model">4.1 The decision tree model</a></li>
+<li><a href="#why-omegan-log-n" id="toc-why-omegan-log-n">4.2 Why
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Omega(n \log n)</annotation></semantics></math></a></li>
+<li><a href="#even-the-best-case-needs-n---1-comparisons"
+id="toc-even-the-best-case-needs-n---1-comparisons">4.3 Even the best
+case needs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+comparisons</a></li>
+</ul></li>
+<li><a href="#counting-sort" id="toc-counting-sort">5. Counting Sort</a>
+<ul>
+<li><a href="#using-the-structure-of-the-keys"
+id="toc-using-the-structure-of-the-keys">5.1 Using the structure of the
+keys</a></li>
+<li><a href="#the-idea-1" id="toc-the-idea-1">5.2 The idea</a></li>
+<li><a href="#the-code" id="toc-the-code">5.3 The code</a></li>
+<li><a href="#cost" id="toc-cost">5.4 Cost</a></li>
+<li><a href="#why-step-4-runs-backwards-stability"
+id="toc-why-step-4-runs-backwards-stability">5.5 Why step 4 runs
+backwards: stability</a></li>
+</ul></li>
+<li><a href="#radix-sort" id="toc-radix-sort">6. Radix Sort</a>
+<ul>
+<li><a href="#the-idea-2" id="toc-the-idea-2">6.1 The idea</a></li>
+<li><a href="#why-the-inner-sort-must-be-stable"
+id="toc-why-the-inner-sort-must-be-stable">6.2 Why the inner sort must
+be stable</a></li>
+<li><a href="#cost-1" id="toc-cost-1">6.3 Cost</a></li>
+</ul></li>
+<li><a href="#all-the-sorts-in-one-table"
+id="toc-all-the-sorts-in-one-table">7. All the Sorts in One Table</a>
+<ul>
+<li><a href="#which-sort-to-choose" id="toc-which-sort-to-choose">Which
+sort to choose</a></li>
+</ul></li>
+<li><a href="#common-traps" id="toc-common-traps">8. Common
+Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1
+id="quicksort-the-limit-of-comparison-sorts-and-linear-time-sorts">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</h1>
+<p>This chapter covers Week 3: quicksort (Lecture 3.1), and counting
+sort and radix sort (Lecture 3.2). Between them sits an important
+result: <strong>no sort that only compares keys can beat
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Omega(n \log n)</annotation></semantics></math>
+in the worst case.</strong> Counting sort and radix sort get around this
+limit because they do not compare keys at all.</p>
+<hr />
+<h2 id="quicksort">1. Quicksort</h2>
+<h3 id="the-idea">1.1 The idea</h3>
+<p>Quicksort is another divide-and-conquer sort, but it puts the work in
+a different place from mergesort.</p>
+<ul>
+<li>Mergesort splits the array <strong>without looking at the
+keys</strong>, then does the real work when it
+<strong>merges</strong>.</li>
+<li>Quicksort does the real work when it <strong>splits</strong>, then
+needs <strong>no merge</strong> at all.</li>
+</ul>
+<p>The steps:</p>
+<ol type="1">
+<li>Choose one element as the <strong>pivot</strong>.</li>
+<li><strong>Partition</strong>: rearrange the range so that every
+element smaller than the pivot is on its left, and every element greater
+than or equal to the pivot is on its right. The pivot itself goes
+between the two groups.</li>
+<li>Now the pivot is in its <strong>final position</strong>. Every
+element on its left belongs on its left in the sorted array, and the
+same for the right.</li>
+<li>Sort the left group and the right group recursively. A group of 0 or
+1 element is already sorted.</li>
+</ol>
+<p>Because every pivot ends in its final place, nothing needs to be
+combined at the end.</p>
+<h3 id="the-quicksort-code">1.2 The quicksort code</h3>
+<pre><code>void quicksort(int n, int m) {        // sort slot[n..m]
+    int pivot_pos;
+    if (n &gt;= m)                       // 0 or 1 element
+        return;
+    pivot_pos = partition(n, m);
+    quicksort(n, pivot_pos - 1);      // left group
+    quicksort(pivot_pos + 1, m);      // right group
+}</code></pre>
+<p>Call <code>quicksort(0, size - 1)</code> to sort the whole array.</p>
+<h3 id="the-partition-code">1.3 The partition code</h3>
+<p>The lecture uses the <strong>middle element</strong> as the
+pivot.</p>
+<pre><code>int partition(int low, int high) {
+    int i, last_small, pivot;
+    int mid = (low + high) / 2;
+    swap(low, mid);                   // move the pivot to the front
+    pivot = slot[low];
+    last_small = low;                 // end of the &quot;smaller than pivot&quot; group
+    for (i = low + 1; i &lt;= high; i++)
+        if (slot[i] &lt; pivot)
+            swap(++last_small, i);    // grow the small group by one
+    swap(low, last_small);            // put the pivot between the groups
+    return last_small;
+}</code></pre>
+<p>During the loop, the range is in four parts, from left to right:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 51%" />
+<col style="width: 48%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Part</th>
+<th style="text-align: left;">Holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>slot[low]</code></td>
+<td style="text-align: left;">the pivot</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>slot[low+1 .. last_small]</code></td>
+<td style="text-align: left;">elements <strong>smaller</strong> than the
+pivot</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><code>slot[last_small+1 .. i-1]</code></td>
+<td style="text-align: left;">elements <strong>greater than or
+equal</strong> to the pivot</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>slot[i .. high]</code></td>
+<td style="text-align: left;">elements not yet examined</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Each step examines <code>slot[i]</code>:</p>
+<ul>
+<li>If it is smaller than the pivot, it belongs in the small group.
+Increase <code>last_small</code> by 1, which points at the first “large”
+element, and swap that element with <code>slot[i]</code>. The small
+group grows by one, and the large group shifts one place right.</li>
+<li>Otherwise it already sits at the end of the large group. Do
+nothing.</li>
+</ul>
+<p>At the end, swap the pivot (still at <code>slot[low]</code>) with the
+last small element. The pivot now sits between the two groups, at index
+<code>last_small</code>.</p>
+<figure>
+<img width="1400" height="362" src="media/4-artifacts/partition-result.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Partition of 10 elements. The middle element 42 is the pivot. After partition, the smaller elements (yellow) are on its left and the larger ones (blue) on its right. Partition of 10 elements costs 9 comparisons." />
+<figcaption aria-hidden="true">Partition of 10 elements. The middle
+element 42 is the pivot. After partition, the smaller elements (yellow)
+are on its left and the larger ones (blue) on its right. Partition of 10
+elements costs 9 comparisons.</figcaption>
+</figure>
+<p><strong>Cost of one partition:</strong> the loop compares every
+element except the pivot with the pivot, once. A range of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+elements costs exactly
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k - 1</annotation></semantics></math>
+comparisons</strong>.</p>
+<h3 id="how-to-trace-partition-by-hand">1.4 How to trace partition by
+hand</h3>
+<ol type="1">
+<li>Find <code>mid = (low + high) / 2</code>, rounded down. Swap
+<code>slot[mid]</code> with <code>slot[low]</code>.</li>
+<li>Set <code>last_small = low</code>. Go through
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mi>l</mi><mi>o</mi><mi>w</mi><mo>+</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>h</mi><mi>i</mi><mi>g</mi><mi>h</mi></mrow><annotation encoding="application/x-tex">i = low+1, \dots, high</annotation></semantics></math>.
+Each time <code>slot[i] &lt; pivot</code>, add 1 to
+<code>last_small</code> and swap positions <code>last_small</code> and
+<code>i</code>.</li>
+<li>Swap positions <code>low</code> and <code>last_small</code>.</li>
+</ol>
+<p>Write the whole array after each swap. Most errors come from
+forgetting the first swap (the pivot to the front), or from moving equal
+keys. Keys <strong>equal</strong> to the pivot stay in the right group,
+because the test is strict (<code>&lt;</code>).</p>
+<h3 id="the-execution-order">1.5 The execution order</h3>
+<p>As with mergesort, an exam may ask you to number the calls. Quicksort
+calls <code>partition</code> first, then sorts the left group
+completely, then the right group.</p>
+<figure>
+<img width="1400" height="762" src="media/4-artifacts/quicksort-execution-order.webp"
+style="width:85.0%" loading="lazy" decoding="async"
+alt="Execution order on 6 elements. The purple numbers give the order of the steps. Each quicksort() call on 0 or 1 element returns at once (“Emp” is an empty range)." />
+<figcaption aria-hidden="true">Execution order on 6 elements. The purple
+numbers give the order of the steps. Each quicksort() call on 0 or 1
+element returns at once (“Emp” is an empty range).</figcaption>
+</figure>
+<hr />
+<h2 id="running-time-of-quicksort">2. Running Time of Quicksort</h2>
+<h3 id="worst-case-thetan2">2.1 Worst case:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n^2)</annotation></semantics></math></h3>
+<p>The worst case happens when the pivot is the <strong>smallest or
+largest</strong> element of its range every time. Then one group is
+empty and the other has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k - 1</annotation></semantics></math>
+elements. The recursion goes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+levels deep, and the comparisons are</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>…</mi><mo>+</mo><mn>1</mn><mo>=</mo><mfrac><mrow><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><mn>2</mn></mfrac><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">(n-1) + (n-2) + \dots + 1 = \frac{n(n-1)}{2} = \Theta(n^2).</annotation></semantics></math></p>
+<p>A partition leaves one group empty exactly when the pivot is the
+minimum or the maximum of the range.</p>
+<p>With the <strong>middle element</strong> as pivot, a sorted array is
+<strong>not</strong> a bad case: the middle element of a sorted range is
+its median. The worst case needs an input where the element at the
+middle position is always an extreme value. Such inputs exist, so the
+worst case is still
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n^2)</annotation></semantics></math>.</p>
+<h3 id="best-case-thetan-log-n">2.2 Best case:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math></h3>
+<p>The best case happens when every pivot splits its range into two
+equal halves. The partition costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+comparisons, written
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">cn</annotation></semantics></math>.
+Each side then has about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>
+elements, so the two calls cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">2T(n/2)</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn><mo>,</mo><mspace width="2.0em"></mspace><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>c</mi><mi>n</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">T(1) = 0, \qquad T(n) = 2T(n/2) + cn.</annotation></semantics></math></p>
+<p>This is the same shape as mergesort’s recurrence, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T(n) = \Theta(n \log n)</annotation></semantics></math>.</p>
+<h3 id="average-case-thetan-log-n">2.3 Average case:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math></h3>
+<p>Assume the keys are distinct and every order is equally likely. Then
+the pivot is equally likely to end up in any position
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">i = 0, 1, \dots, n-1</annotation></semantics></math>.
+If it ends at position
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+the two groups have
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn><mo>−</mo><mi>i</mi></mrow><annotation encoding="application/x-tex">n - 1 - i</annotation></semantics></math>
+elements. So the average number of comparisons satisfies</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>A</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn><mo>,</mo><mspace width="2.0em"></mspace><mi>A</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mfrac><mn>1</mn><mi>n</mi></mfrac><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></munderover><mrow><mo stretchy="true" form="prefix">[</mo><mi>A</mi><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>A</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo>−</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="true" form="postfix">]</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">A(0) = A(1) = 0, \qquad A(n) = (n - 1) + \frac{1}{n} \sum_{i=0}^{n-1} \left[ A(i) + A(n-1-i) \right].</annotation></semantics></math></p>
+<p>The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+is the partition. The sum averages over the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+equally likely pivot positions. This solves to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mn>1.39</mn><mspace width="0.167em"></mspace><mi>n</mi><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">A(n) \approx 1.39\, n \lg n = \Theta(n \log n)</annotation></semantics></math>.
+(The lecture does not require the proof.)</p>
+<p>So the average is only about 39% worse than the best case. A bad
+split now and then does not hurt much. In practice quicksort is usually
+the fastest general-purpose sort in memory.</p>
+<h3 id="space-and-stability">2.4 Space and stability</h3>
+<ul>
+<li><strong>Space:</strong> no buffer, but the recursion uses stack
+space.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+when the splits are balanced.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+in the worst case, when the recursion is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+levels deep.</li>
+<li><strong>Not stable.</strong> Partition swaps elements across long
+distances. An element can jump over an equal element.</li>
+</ul>
+<h3 id="strengths-and-weaknesses">2.5 Strengths and weaknesses</h3>
+<ul>
+<li><strong>Strengths:</strong> fast on average. No merge step. Sorts in
+place.</li>
+<li><strong>Weaknesses:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n^2)</annotation></semantics></math>
+when the pivots split badly. Slow on very small lists, where the
+recursion costs more than the sorting. Choosing the pivot more carefully
+reduces the risk.</li>
+</ul>
+<h3 id="choosing-the-pivot-more-carefully-median-of-three">2.6 Choosing
+the pivot more carefully: median of three</h3>
+<p><strong>Median of three</strong> takes the median of the first,
+middle and last elements as the pivot. This makes an extreme pivot less
+likely. It costs a few extra comparisons per partition, to find the
+median.</p>
+<p>It does <strong>not</strong> remove the worst case. An adversary can
+arrange the input so that the median of the three is always the
+<strong>second-smallest</strong> element of the range. Then each
+partition removes only 2 elements (the pivot, and the one smaller
+element), and the ranges have sizes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>,</mo><mi>n</mi><mo>−</mo><mn>2</mn><mo>,</mo><mi>n</mi><mo>−</mo><mn>4</mn><mo>,</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">n, n-2, n-4, \dots</annotation></semantics></math>.
+The total is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">(n-1) + (n-3) + (n-5) + \dots</annotation></semantics></math>:
+about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>
+terms, each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>
+on average. That is about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>n</mi><mn>2</mn></msup><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">n^2/4</annotation></semantics></math>,
+which is still
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n^2)</annotation></semantics></math>.</p>
+<p>Even a perfect median, found by some extra procedure, only gives
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>
+in the worst case if finding that median costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+per partition.</p>
+<hr />
+<h2 id="partitioning-into-three-groups">3. Partitioning into Three
+Groups</h2>
+<p>The partition idea solves other problems. A common one: an array
+holds only three kinds of key, say <strong>red, white and blue</strong>.
+Rearrange it so all reds come first, then all whites, then all blues.
+You may only look at a key and swap two elements.</p>
+<p>Keep four regions, with three indices:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 45%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Region</th>
+<th style="text-align: left;">Holds</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>A[0 .. r-1]</code></td>
+<td style="text-align: left;">red</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>A[r .. u-1]</code></td>
+<td style="text-align: left;">white</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>A[u .. b-1]</code></td>
+<td style="text-align: left;">not yet examined</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>A[b .. n-1]</code></td>
+<td style="text-align: left;">blue</td>
+</tr>
+</tbody>
+</table>
+</div>
+<pre><code>r = 0; u = 0; b = n;
+while (u &lt; b) {
+    if (A[u] == red)   { swap(A[r], A[u]); r++; u++; }
+    else if (A[u] == white) { u++; }
+    else               { b--; swap(A[u], A[b]); }   // blue: do not move u
+}</code></pre>
+<p>When the element is blue, it swaps with the last unexamined element.
+The element that arrives at <code>u</code> has not been examined yet, so
+<code>u</code> stays where it is.</p>
+<p>Each step shrinks the unexamined region by exactly one element, so
+the loop runs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+times. This is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>
+time and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+extra memory.</p>
+<hr />
+<h2 id="the-limit-of-comparison-sorts">4. The Limit of Comparison
+Sorts</h2>
+<h3 id="the-decision-tree-model">4.1 The decision tree model</h3>
+<p>Insertion sort, mergesort, heapsort and quicksort are all
+<strong>comparison sorts</strong>. The only way they learn about the
+keys is to compare two of them: “is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>i</mi></msub><mo>≤</mo><msub><mi>a</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">a_i \le a_j</annotation></semantics></math>?”.</p>
+<p>Any comparison sort on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements can be drawn as a <strong>decision tree</strong>:</p>
+<ul>
+<li>Each <strong>internal node</strong> is one comparison, written
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>:</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">i{:}j</annotation></semantics></math>
+(compare the elements that started at positions
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>).</li>
+<li>Each node has two branches: one for
+“<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≤</mo><annotation encoding="application/x-tex">\le</annotation></semantics></math>”
+and one for
+“<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>&gt;</mo><annotation encoding="application/x-tex">&gt;</annotation></semantics></math>”.</li>
+<li>Each <strong>leaf</strong> is a final order of the elements, a
+permutation.</li>
+<li>Running the algorithm on one input follows <strong>one path</strong>
+from the root to a leaf. The number of comparisons is the length of that
+path.</li>
+</ul>
+<figure>
+<img width="774" height="362" src="media/4-artifacts/decision-tree.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="A decision tree for sorting 3 elements. The highlighted path is one run. The 6 leaves are the 3! = 6 possible orders." />
+<figcaption aria-hidden="true">A decision tree for sorting 3 elements.
+The highlighted path is one run. The 6 leaves are the 3! = 6 possible
+orders.</figcaption>
+</figure>
+<h3 id="why-omegan-log-n">4.2 Why
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Omega(n \log n)</annotation></semantics></math></h3>
+<ol type="1">
+<li>A correct sort must be able to produce <strong>every</strong> order
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+distinct elements. There are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>!</mi></mrow><annotation encoding="application/x-tex">n!</annotation></semantics></math>
+orders. So the tree has at least
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>!</mi></mrow><annotation encoding="application/x-tex">n!</annotation></semantics></math>
+leaves.</li>
+<li>A binary tree of height
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+has at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>h</mi></msup><annotation encoding="application/x-tex">2^h</annotation></semantics></math>
+leaves.</li>
+<li>So
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>h</mi></msup><mo>≥</mo><mi>n</mi><mi>!</mi></mrow><annotation encoding="application/x-tex">2^h \ge n!</annotation></semantics></math>,
+which gives
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo>≥</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>!</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">h \ge \lg(n!)</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>!</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\lg(n!) = \Theta(n \log n)</annotation></semantics></math>.
+A quick way to see the lower bound: the largest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>
+factors of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>!</mi></mrow><annotation encoding="application/x-tex">n!</annotation></semantics></math>
+are each at least
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>!</mi><mo>≥</mo><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><msup><mo stretchy="false" form="postfix">)</mo><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">n! \ge (n/2)^{n/2}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>!</mi><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mfrac><mi>n</mi><mn>2</mn></mfrac><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mfrac><mi>n</mi><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">\lg(n!) \ge \frac{n}{2} \lg \frac{n}{2}</annotation></semantics></math>.</li>
+<li>The height
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+is the worst-case number of comparisons. So <strong>every comparison
+sort makes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Omega(n \log n)</annotation></semantics></math>
+comparisons in the worst case.</strong></li>
+</ol>
+<p>Mergesort and heapsort reach this bound. So, among comparison sorts,
+they are <strong>asymptotically optimal</strong> in the worst case.</p>
+<h3 id="even-the-best-case-needs-n---1-comparisons">4.3 Even the best
+case needs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+comparisons</h3>
+<p>What is the shortest path to a leaf? It is
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math></strong>.
+Insertion sort reaches it on a sorted array.</p>
+<p>Why it cannot be shorter: suppose some leaf is reached after
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>&lt;</mo><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k &lt; n - 1</annotation></semantics></math>
+comparisons. Draw a graph with one vertex per element and an edge for
+each comparison made. A graph with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+vertices and fewer than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+edges is <strong>not connected</strong>. So the elements split into two
+groups, and no element of one group was ever compared with any element
+of the other. The algorithm knows nothing about how the two groups
+relate. Some input would then need a different order from the one at
+that leaf, so the leaf would be wrong for that input.</p>
+<hr />
+<h2 id="counting-sort">5. Counting Sort</h2>
+<h3 id="using-the-structure-of-the-keys">5.1 Using the structure of the
+keys</h3>
+<p>A comparison only answers “smaller or not”. If the keys have more
+structure, we can use it. Counting sort assumes the keys are
+<strong>integers in a small range
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math></strong>.
+It uses each key directly as an <strong>array index</strong>, so it
+makes no comparisons at all. The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Omega(n \log n)</annotation></semantics></math>
+limit does not apply to it.</p>
+<h3 id="the-idea-1">5.2 The idea</h3>
+<p>For each element
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>,
+count how many elements are <strong>less than or equal to</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>.
+If 17 elements are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mi>x</mi></mrow><annotation encoding="application/x-tex">\le x</annotation></semantics></math>,
+then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+belongs in position 17 of the output (position 16 with 0-based indices).
+Equal keys need care so that they do not all go to the same
+position.</p>
+<h3 id="the-code">5.3 The code</h3>
+<pre><code>for i = 0 to k
+    C[i] = 0;                         // 1. clear the counters             Theta(k)
+for j = 0 to length[A] - 1
+    C[A[j]] = C[A[j]] + 1;            // 2. C[v] = how many elements equal v  Theta(n)
+for i = 1 to k
+    C[i] = C[i] + C[i-1];             // 3. C[v] = how many elements are &lt;= v Theta(k)
+for j = length[A] - 1 downto 0 {      // 4. place each element             Theta(n)
+    C[A[j]] = C[A[j]] - 1;            //    one fewer slot left for this key
+    B[C[A[j]]] = A[j];                //    0-based position in the output
+}
+return B;</code></pre>
+<p>After step 3, <code>C[v]</code> is the number of elements
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mi>v</mi></mrow><annotation encoding="application/x-tex">\le v</annotation></semantics></math>.
+That is one past the last position (0-based) where a key
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+can go. Step 4 counts down: it first subtracts 1, then writes. So the
+last element with key
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+goes to the last slot for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>,
+the one before it goes one slot to the left, and so on.</p>
+<h3 id="cost">5.4 Cost</h3>
+<ul>
+<li><strong>Time:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n + k)</annotation></semantics></math>
+in every case. If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">k = O(n)</annotation></semantics></math>,
+that is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>.</li>
+<li><strong>Space:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n + k)</annotation></semantics></math>:
+the counter array
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+and the output array
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>.
+Counting sort is <strong>not in place</strong>.</li>
+<li>It is fast when the range of values,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>,
+is small compared with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.
+If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+is huge (for example 32-bit keys), the counter array is too large.</li>
+</ul>
+<h3 id="why-step-4-runs-backwards-stability">5.5 Why step 4 runs
+backwards: stability</h3>
+<p>Step 4 goes from the <strong>end</strong> of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+to the start, and fills each key’s slots from the
+<strong>right</strong>. So among equal keys, the last one in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+gets the rightmost slot. Equal keys keep their input order.
+<strong>Counting sort is stable.</strong></p>
+<p>If step 4 ran <strong>forwards</strong>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">j = 0</annotation></semantics></math>
+up to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n-1</annotation></semantics></math>),
+the output would still be <strong>sorted</strong>: every element still
+lands inside the block of slots for its key. But the first equal key in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+would now get the <strong>rightmost</strong> slot. The order of equal
+keys would be <strong>reversed</strong>. The sort is still correct, but
+no longer stable.</p>
+<hr />
+<h2 id="radix-sort">6. Radix Sort</h2>
+<h3 id="the-idea-2">6.1 The idea</h3>
+<p>Radix sort sorts keys that have several <strong>digits</strong> (or
+characters, or fields such as day/month/year). It sorts <strong>one
+digit at a time</strong>, starting from the <strong>least significant
+digit</strong>:</p>
+<pre><code>for i = d downto 1                    // d digits; digit d is the least significant
+    use a STABLE sort to sort A on digit i;</code></pre>
+<figure>
+<img width="1224" height="580" src="media/4-artifacts/radix-sort.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Radix sort on 3-digit numbers. Pass 1 sorts on the last digit, pass 2 on the middle digit, pass 3 on the first digit." />
+<figcaption aria-hidden="true">Radix sort on 3-digit numbers. Pass 1
+sorts on the last digit, pass 2 on the middle digit, pass 3 on the first
+digit.</figcaption>
+</figure>
+<h3 id="why-the-inner-sort-must-be-stable">6.2 Why the inner sort must
+be stable</h3>
+<p>After pass
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+the numbers are sorted by their <strong>last
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+digits</strong>. This is the loop invariant. Why it is maintained:</p>
+<ul>
+<li>Two numbers with <strong>different</strong> digits in the new
+position: the new pass puts them in the right order.</li>
+<li>Two numbers with the <strong>same</strong> digit in the new
+position: their order must come from the lower digits, which the earlier
+passes already put right. A <strong>stable</strong> pass keeps that
+order.</li>
+</ul>
+<p>If the pass were not stable, it could undo the work of the earlier
+passes. After the last pass, the numbers are sorted by all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+digits, which means fully sorted.</p>
+<h3 id="cost-1">6.3 Cost</h3>
+<ul>
+<li>Each pass is a stable sort. With counting sort on digits
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>,
+a pass costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n + k)</annotation></semantics></math>.</li>
+<li>Total:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(d(n + k))</annotation></semantics></math>.</li>
+<li>For decimal digits,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>9</mn></mrow><annotation encoding="application/x-tex">k = 9</annotation></semantics></math>
+is a constant, so radix sort runs in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>d</mi><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(dn)</annotation></semantics></math>.
+If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+is also a constant, that is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>.</li>
+</ul>
+<hr />
+<h2 id="all-the-sorts-in-one-table">7. All the Sorts in One Table</h2>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 12%" />
+<col style="width: 14%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Algorithm</th>
+<th style="text-align: left;">Best</th>
+<th style="text-align: left;">Average</th>
+<th style="text-align: left;">Worst</th>
+<th style="text-align: left;">Extra space</th>
+<th style="text-align: left;">In place</th>
+<th style="text-align: left;">Stable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Insertion sort</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mn>2</mn></msup><annotation encoding="application/x-tex">n^2</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mn>2</mn></msup><annotation encoding="application/x-tex">n^2</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">Mergesort</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n \log n</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n \log n</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n \log n</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>,
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+in place</td>
+<td style="text-align: left;">Lecture version yes</td>
+<td style="text-align: left;">Buffer version yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">Heapsort</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n \log n</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n \log n</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n \log n</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Quicksort</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n \log n</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n \log n</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mn>2</mn></msup><annotation encoding="application/x-tex">n^2</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+stack</td>
+<td style="text-align: left;">Yes</td>
+<td style="text-align: left;">No</td>
+</tr>
+<tr>
+<td style="text-align: left;">Counting sort</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">n + k</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">n + k</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">n + k</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n + k)</annotation></semantics></math></td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Yes</td>
+</tr>
+<tr>
+<td style="text-align: left;">Radix sort</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d(n+k)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d(n+k)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d(n+k)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n + k)</annotation></semantics></math></td>
+<td style="text-align: left;">No</td>
+<td style="text-align: left;">Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="which-sort-to-choose">Which sort to choose</h3>
+<ul>
+<li><strong>Almost sorted input</strong> (few inversions): insertion
+sort. Its swaps equal the number of inversions, so it runs in close to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>.</li>
+<li><strong>A guaranteed
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+extra memory:</strong> heapsort.</li>
+<li><strong>A guaranteed
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>
+and a stable result:</strong> mergesort with a buffer.</li>
+<li><strong>Fastest on average, in memory:</strong> quicksort.</li>
+<li><strong>Small integer keys:</strong> counting sort.
+<strong>Fixed-length keys with several digits:</strong> radix sort.</li>
+</ul>
+<hr />
+<h2 id="common-traps">8. Common Traps</h2>
+<ul>
+<li>After one partition, the <strong>pivot</strong> is in its final
+position. The other elements are only on the correct side, not in
+order.</li>
+<li>One partition of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+elements costs exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k - 1</annotation></semantics></math>
+comparisons.</li>
+<li>With the middle element as pivot, a sorted array is a
+<strong>good</strong> case for quicksort.</li>
+<li>Quicksort’s worst case is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n^2)</annotation></semantics></math>,
+whatever the pivot rule, unless the rule finds the true median.</li>
+<li>Quicksort needs no extra array to partition. It is in place, apart
+from the stack.</li>
+<li>The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Omega(n \log n)</annotation></semantics></math>
+bound is for <strong>comparison</strong> sorts in the
+<strong>worst</strong> case. Counting sort and radix sort are not
+comparison sorts.</li>
+<li>The shortest path in a decision tree is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>,
+not
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>!</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\lg(n!)</annotation></semantics></math>.</li>
+<li>Counting sort with a forward final loop is still correct, but not
+stable: equal keys come out reversed.</li>
+<li>Radix sort starts from the <strong>least</strong> significant digit
+and needs a <strong>stable</strong> sort for each pass.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../3-heapsort/3.html">← 3. Heaps and
+Heapsort</a>
+  <a class="next-page" href="../5-graph-traversal/5.html">5. Graphs:
+Representations, BFS, DFS and Topological Sort →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

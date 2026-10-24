@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>7. Memory Organization · SC2005 Operating Systems</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../assets/style.css?v=81ADE997">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">7. Memory
+Organization</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../index.html">&#8593;&#8194;Year 2 ·
+Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">7. Memory Organization</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../1-overview/1.html"
+                   data-nav="1-overview/1.html">1. Overview of Operating
+Systems</a></li>
+            <li><a href="../2-processes-threads/2.html"
+                   data-nav="2-processes-threads/2.html">2. Processes
+and Threads</a></li>
+            <li><a href="../3-cpu-scheduling/3.html"
+                   data-nav="3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../4-synchronization/4.html"
+                   data-nav="4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../5-deadlocks/5.html"
+                   data-nav="5-deadlocks/5.html">5. Deadlocks</a></li>
+            <li><a href="../6a-rtos/6a.html"
+                   data-nav="6a-rtos/6a.html">6a. Real-Time Operating
+Systems</a></li>
+            <li><a href="../6b-virtualization/6b.html"
+                   data-nav="6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../7-memory-organization/7.html"
+                   data-nav="7-memory-organization/7.html">7. Memory
+Organization</a></li>
+            <li><a href="../8-virtual-memory/8.html"
+                   data-nav="8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../9-file-systems/9.html"
+                   data-nav="9-file-systems/9.html">9. File
+Systems</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../tutorial-questions/tutorial-revision.html"
+                   data-nav="tutorial-questions/tutorial-revision.html">Tutorial
+Revision</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../labs/lab-1.html"
+                   data-nav="labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../labs/lab-2.html"
+                   data-nav="labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../labs/lab-3/lab-3.html"
+                   data-nav="labs/lab-3/lab-3.html">Lab 3 Guide</a></li>
+            <li><a href="../labs/lab-4/lab-4.html"
+                   data-nav="labs/lab-4/lab-4.html">Lab 4 Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#from-program-file-to-process-in-memory"
+id="toc-from-program-file-to-process-in-memory">1. From Program File to
+Process in Memory</a>
+<ul>
+<li><a href="#the-process-image" id="toc-the-process-image">1.1 The
+process image</a></li>
+<li><a href="#compile-link-load" id="toc-compile-link-load">1.2 Compile,
+link, load</a></li>
+<li><a href="#the-problem-which-address-does-an-instruction-use"
+id="toc-the-problem-which-address-does-an-instruction-use">1.3 The
+problem: which address does an instruction use?</a></li>
+</ul></li>
+<li><a href="#address-binding-when-does-an-address-become-real"
+id="toc-address-binding-when-does-an-address-become-real">2. Address
+Binding: When Does an Address Become Real?</a>
+<ul>
+<li><a href="#compile-time-binding" id="toc-compile-time-binding">2.1
+Compile-time binding</a></li>
+<li><a href="#load-time-binding" id="toc-load-time-binding">2.2
+Load-time binding</a></li>
+<li><a href="#execution-time-binding"
+id="toc-execution-time-binding">2.3 Execution-time binding</a></li>
+<li><a href="#the-protection-check-depends-on-the-binding"
+id="toc-the-protection-check-depends-on-the-binding">2.4 The protection
+check depends on the binding</a></li>
+<li><a href="#logical-and-physical-addresses"
+id="toc-logical-and-physical-addresses">2.5 Logical and physical
+addresses</a></li>
+</ul></li>
+<li><a href="#contiguous-allocation-one-block-per-process"
+id="toc-contiguous-allocation-one-block-per-process">3. Contiguous
+Allocation: One Block per Process</a>
+<ul>
+<li><a href="#fixed-partitioning" id="toc-fixed-partitioning">3.1 Fixed
+partitioning</a></li>
+<li><a href="#dynamic-partitioning" id="toc-dynamic-partitioning">3.2
+Dynamic partitioning</a></li>
+<li><a href="#which-hole-to-use" id="toc-which-hole-to-use">3.3 Which
+hole to use</a></li>
+<li><a href="#two-kinds-of-fragmentation"
+id="toc-two-kinds-of-fragmentation">3.4 Two kinds of
+fragmentation</a></li>
+<li><a href="#compaction" id="toc-compaction">3.5 Compaction</a></li>
+</ul></li>
+<li><a href="#paging-many-small-blocks-per-process"
+id="toc-paging-many-small-blocks-per-process">4. Paging: Many Small
+Blocks per Process</a>
+<ul>
+<li><a href="#the-idea" id="toc-the-idea">4.1 The idea</a></li>
+<li><a href="#splitting-an-address-into-page-number-and-offset"
+id="toc-splitting-an-address-into-page-number-and-offset">4.2 Splitting
+an address into page number and offset</a></li>
+<li><a href="#translating-an-address"
+id="toc-translating-an-address">4.3 Translating an address</a></li>
+<li><a href="#how-to-work-out-every-size"
+id="toc-how-to-work-out-every-size">4.4 How to work out every
+size</a></li>
+</ul></li>
+<li><a href="#making-paging-fast-the-tlb"
+id="toc-making-paging-fast-the-tlb">5. Making Paging Fast: the TLB</a>
+<ul>
+<li><a href="#the-problem-two-memory-accesses-for-every-access"
+id="toc-the-problem-two-memory-accesses-for-every-access">5.1 The
+problem: two memory accesses for every access</a></li>
+<li><a href="#the-tlb-a-cache-for-page-table-entries"
+id="toc-the-tlb-a-cache-for-page-table-entries">5.2 The TLB: a cache for
+page-table entries</a></li>
+<li><a href="#effective-access-time-with-a-tlb"
+id="toc-effective-access-time-with-a-tlb">5.3 Effective access time with
+a TLB</a></li>
+<li><a href="#when-does-a-tlb-help" id="toc-when-does-a-tlb-help">5.4
+When does a TLB help?</a></li>
+</ul></li>
+<li><a href="#shared-pages" id="toc-shared-pages">6. Shared
+Pages</a></li>
+<li><a href="#two-level-page-tables" id="toc-two-level-page-tables">7.
+Two-Level Page Tables</a>
+<ul>
+<li><a href="#the-problem-a-one-level-page-table-is-large"
+id="toc-the-problem-a-one-level-page-table-is-large">7.1 The problem: a
+one-level page table is large</a></li>
+<li><a href="#why-the-size-hurts-the-page-table-must-be-contiguous"
+id="toc-why-the-size-hurts-the-page-table-must-be-contiguous">7.2 Why
+the size hurts: the page table must be contiguous</a></li>
+<li><a href="#the-idea-page-the-page-table"
+id="toc-the-idea-page-the-page-table">7.3 The idea: page the page
+table</a></li>
+<li><a href="#a-new-problem-and-a-small-new-table"
+id="toc-a-new-problem-and-a-small-new-table">7.4 A new problem, and a
+small new table</a></li>
+<li><a href="#splitting-the-page-number-into-p1-and-p2"
+id="toc-splitting-the-page-number-into-p1-and-p2">7.5 Splitting the page
+number into p1 and p2</a></li>
+<li><a href="#translating-an-address-step-by-step"
+id="toc-translating-an-address-step-by-step">7.6 Translating an address,
+step by step</a></li>
+<li><a href="#the-cost-one-more-memory-access-on-a-tlb-miss"
+id="toc-the-cost-one-more-memory-access-on-a-tlb-miss">7.7 The cost: one
+more memory access on a TLB miss</a></li>
+<li><a href="#what-two-levels-buy" id="toc-what-two-levels-buy">7.8 What
+two levels buy</a></li>
+<li><a href="#a-general-method-how-many-levels"
+id="toc-a-general-method-how-many-levels">7.9 A general method: how many
+levels?</a></li>
+</ul></li>
+<li><a href="#inverted-page-tables" id="toc-inverted-page-tables">8.
+Inverted Page Tables</a>
+<ul>
+<li><a href="#the-problem" id="toc-the-problem">8.1 The problem</a></li>
+<li><a href="#the-idea-one-entry-for-each-frame"
+id="toc-the-idea-one-entry-for-each-frame">8.2 The idea: one entry for
+each frame</a></li>
+<li><a href="#translating-an-address-1"
+id="toc-translating-an-address-1">8.3 Translating an address</a></li>
+<li><a href="#its-size" id="toc-its-size">8.4 Its size</a></li>
+<li><a href="#advantage-and-disadvantage"
+id="toc-advantage-and-disadvantage">8.5 Advantage and
+disadvantage</a></li>
+</ul></li>
+<li><a href="#segmentation" id="toc-segmentation">9. Segmentation</a>
+<ul>
+<li><a href="#the-idea-1" id="toc-the-idea-1">9.1 The idea</a></li>
+<li><a href="#the-address-format" id="toc-the-address-format">9.2 The
+address format</a></li>
+<li><a href="#translating-a-segment-address"
+id="toc-translating-a-segment-address">9.3 Translating a segment
+address</a></li>
+<li><a href="#segmentation-has-external-fragmentation"
+id="toc-segmentation-has-external-fragmentation">9.4 Segmentation has
+external fragmentation</a></li>
+<li><a href="#paging-and-segmentation-side-by-side"
+id="toc-paging-and-segmentation-side-by-side">9.5 Paging and
+segmentation side by side</a></li>
+</ul></li>
+<li><a href="#summary-of-the-allocation-schemes"
+id="toc-summary-of-the-allocation-schemes">10. Summary of the Allocation
+Schemes</a></li>
+<li><a href="#what-you-know-now-lecture-7"
+id="toc-what-you-know-now-lecture-7">What You Know Now (Lecture
+7)</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>This was written entirely with AI.</p>
+<p>These notes cover Lecture 7. Lectures 2 to 6 shared the
+<strong>CPU</strong> among processes. This lecture shares <strong>main
+memory</strong> among them. It answers three questions in order: how an
+address in a program becomes a real memory address, how the OS gives
+memory to many processes at once, and how the hardware makes the
+translation fast and small.</p>
+<h2 id="from-program-file-to-process-in-memory">1. From Program File to
+Process in Memory</h2>
+<h3 id="the-process-image">1.1 The process image</h3>
+<p>To run a program, the OS creates a <strong>process image</strong> and
+loads it into memory. Lecture 2 showed its four parts:</p>
+<figure>
+<img width="1400" height="863" src="media/7-artifacts/process-image.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="The process image: text, data, heap and stack (Lecture 7, slide 7.2)" />
+<figcaption aria-hidden="true">The process image: text, data, heap and
+stack (Lecture 7, slide 7.2)</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 48%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th>Part</th>
+<th>Holds</th>
+<th>Position</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Text</td>
+<td>The program code</td>
+<td>Low addresses</td>
+</tr>
+<tr>
+<td>Data</td>
+<td>Global variables</td>
+<td>Above the text</td>
+</tr>
+<tr>
+<td>Heap</td>
+<td>Memory that the program allocates while it runs, for example
+<code>new int[10]</code></td>
+<td>Grows up</td>
+</tr>
+<tr>
+<td>Stack</td>
+<td>Function parameters and local variables</td>
+<td>High addresses, grows down</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="compile-link-load">1.2 Compile, link, load</h3>
+<p>Three tools turn source code into a process in memory:</p>
+<figure>
+<img width="1400" height="865" src="media/7-artifacts/compile-link-load.webp" loading="lazy"
+decoding="async"
+alt="The compiler, linker and loader turn source code into a process image (Lecture 7, slide 7.3)" />
+<figcaption aria-hidden="true">The compiler, linker and loader turn
+source code into a process image (Lecture 7, slide 7.3)</figcaption>
+</figure>
+<ol type="1">
+<li>The <strong>compiler</strong> translates source code into an
+<strong>object module</strong>.</li>
+<li>The <strong>linker</strong> joins object modules and library code,
+and resolves the references between them. The result is a <strong>load
+module</strong> on the disk.</li>
+<li>The <strong>loader</strong> creates the process image, allocates
+memory, and copies the image into that memory.</li>
+</ol>
+<h3 id="the-problem-which-address-does-an-instruction-use">1.3 The
+problem: which address does an instruction use?</h3>
+<p>An instruction such as <code>LOAD X</code> or <code>JUMP Y</code>
+contains an address. The CPU uses that address to fetch data or the next
+instruction.</p>
+<p>But when the compiler writes the program, it does not know
+<strong>where in memory</strong> the OS will put it. So at some time,
+something must turn the addresses in the code into real memory
+addresses. This step is <strong>address binding</strong>. The next
+section shows the three times when it can occur.</p>
+<hr />
+<h2 id="address-binding-when-does-an-address-become-real">2. Address
+Binding: When Does an Address Become Real?</h2>
+<p>All three cases use the lecture’s example. The program is
+<strong>1000 bytes</strong> long, so its own addresses go from 0 to 999.
+It contains <code>LOAD 800</code> (load the data at byte 800 of the
+program) and <code>JUMP 400</code> (jump to byte 400 of the program).
+The OS loads the program at memory address <strong>1024</strong>. So the
+program occupies addresses 1024 to 2023.</p>
+<h3 id="compile-time-binding">2.1 Compile-time binding</h3>
+<p>The compiler already knows that the program will start at 1024. It
+writes <strong>absolute addresses</strong> (real memory addresses) into
+the code: <code>LOAD 1824</code>, <code>JUMP 1424</code>. Note that 1824
+= 1024 + 800 and 1424 = 1024 + 400.</p>
+<figure>
+<img width="1400" height="969" src="media/7-artifacts/compile-time-binding.webp"
+style="width:70.0%" loading="lazy" decoding="async"
+alt="Compile-time binding: the code already holds absolute addresses (Lecture 7, slide 7.6)" />
+<figcaption aria-hidden="true">Compile-time binding: the code already
+holds absolute addresses (Lecture 7, slide 7.6)</figcaption>
+</figure>
+<ul>
+<li>The loader copies the code as it is.</li>
+<li><strong>Problem:</strong> if the start address changes, you must
+<strong>compile the program again</strong>.</li>
+</ul>
+<h3 id="load-time-binding">2.2 Load-time binding</h3>
+<p>The compiler writes <strong>relocatable addresses</strong>, counted
+from 0: <code>LOAD 800</code>, <code>JUMP 400</code>. When the
+<strong>loader</strong> copies the program into memory, it adds the
+start address to every address. In memory, the code says
+<code>LOAD 1824</code> and <code>JUMP 1424</code>.</p>
+<figure>
+<img width="1400" height="969" src="media/7-artifacts/load-time-binding.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Load-time binding: the loader adds the start address (Lecture 7, slide 7.7)" />
+<figcaption aria-hidden="true">Load-time binding: the loader adds the
+start address (Lecture 7, slide 7.7)</figcaption>
+</figure>
+<ul>
+<li>The OS can put the program anywhere when it loads it.</li>
+<li><strong>Problem:</strong> after loading, the program cannot move.
+Its memory now holds absolute addresses, and they are correct only at
+that location.</li>
+</ul>
+<h3 id="execution-time-binding">2.3 Execution-time binding</h3>
+<p>The code in memory <strong>keeps</strong> its relative addresses:
+<code>LOAD 800</code>, <code>JUMP 400</code>. The hardware adds the
+start address <strong>on every memory access</strong>, while the program
+runs.</p>
+<figure>
+<img width="1400" height="903" src="media/7-artifacts/execution-time-binding.webp"
+style="width:70.0%" loading="lazy" decoding="async"
+alt="Execution-time binding: the code in memory keeps relative addresses (Lecture 7, slide 7.8)" />
+<figcaption aria-hidden="true">Execution-time binding: the code in
+memory keeps relative addresses (Lecture 7, slide 7.8)</figcaption>
+</figure>
+<p>The hardware unit that adds the start address is the
+<strong>memory-management unit (MMU)</strong>. The MMU keeps the start
+address in a <strong>relocation register</strong>, which is the base
+register of Lecture 1.</p>
+<figure>
+<img width="1391" height="969" src="media/7-artifacts/mmu-relocation.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="The MMU adds the relocation register to every address (Lecture 7, slide 7.9)" />
+<figcaption aria-hidden="true">The MMU adds the relocation register to
+every address (Lecture 7, slide 7.9)</figcaption>
+</figure>
+<p>The CPU generates address 800. The MMU adds 1024. Memory receives
+address 1824.</p>
+<ul>
+<li>The OS can <strong>move</strong> the program while it runs. It
+copies the program to the new place and changes the relocation register.
+The code itself does not change.</li>
+</ul>
+<h3 id="the-protection-check-depends-on-the-binding">2.4 The protection
+check depends on the binding</h3>
+<p>Lecture 1 introduced two registers that keep a process inside its own
+memory:</p>
+<ul>
+<li>the <strong>base register</strong> holds the start address (here
+1024),</li>
+<li>the <strong>limit register</strong> holds the size (here 1000).</li>
+</ul>
+<p>The check is different for absolute and relative addresses:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 26%" />
+<col style="width: 23%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th>Binding</th>
+<th>Addresses in the code</th>
+<th>Legal if</th>
+<th>Physical address</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Compile time or load time</td>
+<td>Absolute</td>
+<td>base ≤ address &lt; base + limit</td>
+<td>= the address</td>
+</tr>
+<tr>
+<td>Execution time</td>
+<td>Relative (from 0)</td>
+<td>address &lt; limit</td>
+<td>= address + base</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>If the check fails, the hardware traps to the OS.</p>
+<p><strong>Examples with base 1024 and limit 1000:</strong></p>
+<ul>
+<li>Compile-time or load-time binding. The CPU generates 1824. Check:
+1024 ≤ 1824 &lt; 2024. Legal. Memory receives 1824.</li>
+<li>Execution-time binding. The CPU generates 800. Check: 800 &lt; 1000.
+Legal. Memory receives 800 + 1024 = 1824.</li>
+<li>Execution-time binding. The CPU generates 1200. Check: 1200 &lt;
+1000 is false. The hardware traps to the OS.</li>
+</ul>
+<h3 id="logical-and-physical-addresses">2.5 Logical and physical
+addresses</h3>
+<ul>
+<li>The <strong>logical address</strong> is the address in the code. The
+CPU generates it when it runs an instruction.</li>
+<li>The <strong>physical address</strong> is the address that the memory
+unit receives.</li>
+<li>The <strong>address space</strong> of a process is the set of all
+addresses that the process can use.</li>
+</ul>
+<p>With execution-time binding, the logical address space always
+<strong>starts from 0</strong>. It is one continuous sequence of bytes,
+from 0 to limit − 1. The process sees only this space. It never sees
+physical addresses.</p>
+<hr />
+<h2 id="contiguous-allocation-one-block-per-process">3. Contiguous
+Allocation: One Block per Process</h2>
+<p>Many processes must be in memory at the same time. The first approach
+gives each process <strong>one continuous block</strong> of physical
+memory. This is <strong>contiguous allocation</strong>. (Section 4 shows
+the other approach.)</p>
+<h3 id="fixed-partitioning">3.1 Fixed partitioning</h3>
+<p>The OS divides memory into <strong>regions with fixed
+boundaries</strong>, called <strong>partitions</strong>. Each process
+goes into one partition.</p>
+<ul>
+<li><strong>Problem: internal fragmentation.</strong> If a process is
+smaller than its partition, the rest of the partition is unused. No
+other process can use that space.</li>
+</ul>
+<h3 id="dynamic-partitioning">3.2 Dynamic partitioning</h3>
+<p>The OS gives each process <strong>exactly</strong> the amount of
+memory it asks for. A free block of memory is a <strong>hole</strong>.
+Over time, holes of many sizes appear all through memory. When a process
+arrives, the OS gives it memory from a hole that is large enough. The OS
+keeps a list of the allocated blocks and the holes.</p>
+<figure>
+<img width="1400" height="794" src="media/7-artifacts/dynamic-partitioning.webp" loading="lazy"
+decoding="async"
+alt="Dynamic partitioning over time (Lecture 7, slide 7.18)" />
+<figcaption aria-hidden="true">Dynamic partitioning over time (Lecture
+7, slide 7.18)</figcaption>
+</figure>
+<p>The lecture’s example, step by step. Memory is 2560K. The OS uses the
+lowest 400K, so 2160K is for users. Five processes arrive. “Time” is how
+long each one runs.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 33%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr>
+<th>Process</th>
+<th>Memory</th>
+<th>Time</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td>600K</td>
+<td>10</td>
+</tr>
+<tr>
+<td>P2</td>
+<td>1000K</td>
+<td>5</td>
+</tr>
+<tr>
+<td>P3</td>
+<td>300K</td>
+<td>20</td>
+</tr>
+<tr>
+<td>P4</td>
+<td>700K</td>
+<td>8</td>
+</tr>
+<tr>
+<td>P5</td>
+<td>500K</td>
+<td>15</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ol type="1">
+<li><strong>Time 0.</strong> P1 goes to 400K–1000K, P2 to 1000K–2000K,
+and P3 to 2000K–2300K. One hole is left: 2300K–2560K, which is 260K. P4
+needs 700K, so it waits.</li>
+<li><strong>Time 5.</strong> P2 finishes. Its 1000K becomes a hole. P4
+goes into it, at 1000K–1700K. A 300K hole is left at 1700K–2000K.</li>
+<li>Now P5 needs 500K. The holes are 300K and 260K. Together they are
+560K, which is enough, but <strong>neither hole alone</strong> is large
+enough. So P5 must wait.</li>
+<li><strong>Time 10.</strong> P1 finishes. Its 600K becomes a hole. P5
+goes into it, at 400K–900K. A 100K hole is left.</li>
+</ol>
+<p>At the end, memory holds three small holes: 100K, 300K and 260K.</p>
+<h3 id="which-hole-to-use">3.3 Which hole to use</h3>
+<p>The OS must choose a hole for a request of size n. Three rules:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 29%" />
+<col style="width: 46%" />
+</colgroup>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Which hole</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>First-fit</strong></td>
+<td>The <strong>first</strong> hole that is large enough</td>
+<td>Fast: it stops searching early</td>
+</tr>
+<tr>
+<td><strong>Best-fit</strong></td>
+<td>The <strong>smallest</strong> hole that is large enough</td>
+<td>Must search the whole list (unless the list is sorted by size).
+Leaves the <strong>smallest</strong> leftover hole</td>
+</tr>
+<tr>
+<td><strong>Worst-fit</strong></td>
+<td>The <strong>largest</strong> hole</td>
+<td>Must search the whole list. Leaves the <strong>largest</strong>
+leftover hole</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Example.</strong> The holes, in memory order, are 300K, 600K,
+350K, 200K and 750K. A process asks for 320K.</p>
+<ul>
+<li>First-fit: 300K is too small. 600K is large enough, so it takes
+600K. The leftover hole is 280K.</li>
+<li>Best-fit: the holes that are large enough are 600K, 350K and 750K.
+The smallest is 350K. The leftover hole is 30K.</li>
+<li>Worst-fit: the largest hole is 750K. The leftover hole is 430K.</li>
+</ul>
+<h3 id="two-kinds-of-fragmentation">3.4 Two kinds of fragmentation</h3>
+<ul>
+<li><strong>External fragmentation:</strong> there is enough free memory
+<strong>in total</strong>, but it is not in one continuous block. The
+waste is <strong>outside</strong> the partitions. Dynamic partitioning
+has this problem (step 3 of the example above).</li>
+<li><strong>Internal fragmentation:</strong> a process gets a little
+<strong>more</strong> memory than it asked for. The unused part is
+<strong>inside</strong> its partition. Fixed partitioning has this
+problem.</li>
+</ul>
+<h3 id="compaction">3.5 Compaction</h3>
+<p><strong>Compaction</strong> reduces external fragmentation. The OS
+moves the processes in memory, so that all the free memory forms one
+large block.</p>
+<figure>
+<img width="1400" height="794" src="media/7-artifacts/compaction.webp" loading="lazy"
+decoding="async"
+alt="Compaction joins the holes, so P5 can load at time 5 (Lecture 7, slide 7.22)" />
+<figcaption aria-hidden="true">Compaction joins the holes, so P5 can
+load at time 5 (Lecture 7, slide 7.22)</figcaption>
+</figure>
+<p>The slide repeats the example with compaction. At time 5, P4 is in
+place, and the holes are 300K (1700K–2000K) and 260K (2300K–2560K). The
+OS moves P3 down to 1700K–2000K. Now the two holes join into one 560K
+hole, at 2000K–2560K. P5 (500K) fits there <strong>at once</strong>. It
+does not need to wait until time 10.</p>
+<p><strong>Compaction needs execution-time binding.</strong> To move a
+process, the OS must make all its addresses point to the new place.</p>
+<ul>
+<li>With execution-time binding, the code holds relative addresses. The
+OS only changes the base register.</li>
+<li>With compile-time or load-time binding, the code holds absolute
+addresses. After a move, every address inside the process points to the
+old place. So the OS cannot move it.</li>
+</ul>
+<hr />
+<h2 id="paging-many-small-blocks-per-process">4. Paging: Many Small
+Blocks per Process</h2>
+<h3 id="the-idea">4.1 The idea</h3>
+<p>Contiguous allocation needs one free block that is large enough.
+External fragmentation makes that hard to find. <strong>Paging</strong>
+removes the need for one large block. A process can use any free memory,
+wherever it is:</p>
+<ul>
+<li>Divide <strong>physical memory</strong> into fixed-size blocks,
+called <strong>frames</strong>. The size is a power of 2, between 512
+and 8192 bytes.</li>
+<li>Divide <strong>logical memory</strong> (the logical address space of
+a process) into blocks of the same size, called
+<strong>pages</strong>.</li>
+<li>To run a program of n pages, find <strong>any</strong> n free
+frames, and load one page into each.</li>
+<li>Keep a <strong>page table</strong> for each process. Entry i of the
+table holds the frame number of page i.</li>
+</ul>
+<p>The OS keeps a list of all free frames.</p>
+<ul>
+<li><strong>No external fragmentation.</strong> Every free frame is
+usable, because every page fits in every frame.</li>
+<li><strong>Internal fragmentation is still possible.</strong> The last
+page of a process is usually not full, but it uses a whole frame.</li>
+</ul>
+<figure>
+<img width="1400" height="856" src="media/7-artifacts/paging-example.webp" loading="lazy"
+decoding="async"
+alt="A paging example: 4 pages in 8 frames (Lecture 7, slide 7.25)" />
+<figcaption aria-hidden="true">A paging example: 4 pages in 8 frames
+(Lecture 7, slide 7.25)</figcaption>
+</figure>
+<p>In the slide, the page size is 4 bytes. The logical memory has 4
+pages (16 bytes). The physical memory has 8 frames (32 bytes). The page
+table maps page 0 → frame 5, page 1 → frame 6, page 2 → frame 1 and page
+3 → frame 2.</p>
+<h3 id="splitting-an-address-into-page-number-and-offset">4.2 Splitting
+an address into page number and offset</h3>
+<p>A logical address has two parts:</p>
+<ul>
+<li>The <strong>page number p</strong> says which page. It is an index
+into the page table. The entry gives the frame number.</li>
+<li>The <strong>page offset d</strong> says which byte inside the page.
+A page and its frame have the same size, so the offset stays the same in
+the frame.</li>
+</ul>
+<p><strong>Why the page size is a power of 2.</strong> If the page size
+is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>n</mi></msup><annotation encoding="application/x-tex">2^n</annotation></semantics></math>,
+the offset is simply the <strong>low n bits</strong> of the address, and
+the page number is the bits above them. The hardware splits the address
+by taking bits. It does not need to divide.</p>
+<p>If the page size is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>n</mi></msup><annotation encoding="application/x-tex">2^n</annotation></semantics></math>
+bytes and the logical address space is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>m</mi></msup><annotation encoding="application/x-tex">2^m</annotation></semantics></math>
+bytes:</p>
+<ul>
+<li>The <strong>low n bits</strong> are the offset d.</li>
+<li>The <strong>high m − n bits</strong> are the page number p.</li>
+<li>The process can have up to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>m</mi><mo>−</mo><mi>n</mi></mrow></msup><annotation encoding="application/x-tex">2^{m-n}</annotation></semantics></math>
+pages, so the page table has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>m</mi><mo>−</mo><mi>n</mi></mrow></msup><annotation encoding="application/x-tex">2^{m-n}</annotation></semantics></math>
+entries.</li>
+</ul>
+<figure>
+<img width="1400" height="820" src="media/7-artifacts/address-translation-scheme.webp"
+loading="lazy" decoding="async"
+alt="The page number indexes the page table; the offset passes through (Lecture 7, slide 7.27)" />
+<figcaption aria-hidden="true">The page number indexes the page table;
+the offset passes through (Lecture 7, slide 7.27)</figcaption>
+</figure>
+<h3 id="translating-an-address">4.3 Translating an address</h3>
+<p><strong>To translate a logical address to a physical
+address:</strong></p>
+<ol type="1">
+<li>Split the address: p = the high bits, d = the low n bits.</li>
+<li>Read entry p of the page table. It gives the frame number f.</li>
+<li>Write f, then d after it. That is the physical address. As a number:
+f × page size + d.</li>
+</ol>
+<figure>
+<img width="1400" height="866" src="media/7-artifacts/address-translation-example.webp"
+loading="lazy" decoding="async"
+alt="Translating logical address 0111 (Lecture 7, slide 7.28)" />
+<figcaption aria-hidden="true">Translating logical address 0111 (Lecture
+7, slide 7.28)</figcaption>
+</figure>
+<p>The slide’s example. The logical address has 4 bits. The page size is
+4 bytes, so n = 2.</p>
+<ol type="1">
+<li>Logical address <code>0111</code>. The high 2 bits are p =
+<code>01</code> = 1. The low 2 bits are d = <code>11</code> = 3.</li>
+<li>Entry 1 of the page table holds frame 6 = <code>110</code>.</li>
+<li>The physical address is <code>110</code> followed by
+<code>11</code>, which is <code>11011</code> = 27.</li>
+</ol>
+<p>Check with numbers: 6 × 4 + 3 = 27.</p>
+<h3 id="how-to-work-out-every-size">4.4 How to work out every size</h3>
+<p>The logical and the physical side have their own sizes:</p>
+<ul>
+<li>The page number size depends on the size of the
+<strong>logical</strong> address space.</li>
+<li>The frame number size depends on the size of
+<strong>physical</strong> memory.</li>
+</ul>
+<p>Let the logical address have m bits, the page size be
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>n</mi></msup><annotation encoding="application/x-tex">2^n</annotation></semantics></math>
+bytes, and physical memory be
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>q</mi></msup><annotation encoding="application/x-tex">2^q</annotation></semantics></math>
+bytes.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 45%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr>
+<th>Quantity</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Offset</td>
+<td>n bits (same in the logical and the physical address)</td>
+</tr>
+<tr>
+<td>Page number</td>
+<td>m − n bits</td>
+</tr>
+<tr>
+<td>Page-table entries (one for each page)</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>m</mi><mo>−</mo><mi>n</mi></mrow></msup><annotation encoding="application/x-tex">2^{m-n}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td>Number of frames</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>q</mi><mo>−</mo><mi>n</mi></mrow></msup><annotation encoding="application/x-tex">2^{q-n}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td>Frame number</td>
+<td>q − n bits</td>
+</tr>
+<tr>
+<td>Physical address</td>
+<td>q bits = (q − n) + n</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Example.</strong> A 24-bit logical address, 2 KB pages, and 4
+MB of physical memory.</p>
+<ul>
+<li>2 KB =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>11</mn></msup><annotation encoding="application/x-tex">2^{11}</annotation></semantics></math>
+bytes, so the offset is 11 bits.</li>
+<li>The page number is 24 − 11 = 13 bits. The page table has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>13</mn></msup><annotation encoding="application/x-tex">2^{13}</annotation></semantics></math>
+= 8192 entries.</li>
+<li>4 MB =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>22</mn></msup><annotation encoding="application/x-tex">2^{22}</annotation></semantics></math>
+bytes, so the physical address is 22 bits.</li>
+<li>The frame number is 22 − 11 = 11 bits. There are
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>11</mn></msup><annotation encoding="application/x-tex">2^{11}</annotation></semantics></math>
+= 2048 frames.</li>
+</ul>
+<p>So the logical address is (13 | 11) and the physical address is (11 |
+11).</p>
+<hr />
+<h2 id="making-paging-fast-the-tlb">5. Making Paging Fast: the TLB</h2>
+<h3 id="the-problem-two-memory-accesses-for-every-access">5.1 The
+problem: two memory accesses for every access</h3>
+<p>The page table is too large for registers, so it is kept in
+<strong>main memory</strong>:</p>
+<ul>
+<li>The <strong>page-table base register (PTBR)</strong> holds the
+address of the current process’s page table.</li>
+<li>The <strong>page-table length register (PTLR)</strong> holds the
+size of that page table.</li>
+</ul>
+<p>Now each access to data or an instruction needs <strong>two</strong>
+memory accesses:</p>
+<ol type="1">
+<li>Read the page-table entry, to get the frame number.</li>
+<li>Read the data or the instruction itself.</li>
+</ol>
+<p>If one memory access takes μ, each access now takes 2μ. Paging has
+made memory twice as slow.</p>
+<h3 id="the-tlb-a-cache-for-page-table-entries">5.2 The TLB: a cache for
+page-table entries</h3>
+<p>The <strong>translation look-aside buffer (TLB)</strong> is a small,
+fast hardware cache. It holds recent (page number → frame number) pairs.
+Another name is <strong>associative registers</strong>. The TLB checks
+all its entries at the same time, so a lookup is very fast.</p>
+<figure>
+<img width="1400" height="949" src="media/7-artifacts/paging-with-tlb.webp" loading="lazy"
+decoding="async"
+alt="Paging with a TLB: a hit skips the page table (Lecture 7, slide 7.30)" />
+<figcaption aria-hidden="true">Paging with a TLB: a hit skips the page
+table (Lecture 7, slide 7.30)</figcaption>
+</figure>
+<p>On each access, the hardware first looks in the TLB:</p>
+<ul>
+<li><strong>TLB hit:</strong> the page number is in the TLB. The frame
+number comes from the TLB. Only <strong>one</strong> memory access is
+needed, for the data.</li>
+<li><strong>TLB miss:</strong> the hardware reads the page table in
+memory (one access), then the data (one more access). It also puts the
+pair into the TLB, for the next time.</li>
+</ul>
+<h3 id="effective-access-time-with-a-tlb">5.3 Effective access time with
+a TLB</h3>
+<p>Let:</p>
+<ul>
+<li>ε = the time for one TLB lookup,</li>
+<li>μ = the time for one memory access,</li>
+<li>α = the <strong>hit ratio</strong>: the fraction of accesses that
+find the page number in the TLB.</li>
+</ul>
+<p>The cost of each case:</p>
+<ul>
+<li>A hit costs one TLB lookup and one memory access: μ + ε.</li>
+<li>A miss costs one TLB lookup, one page-table access and one data
+access: 2μ + ε.</li>
+</ul>
+<p>The <strong>effective access time (EAT)</strong> is the average
+cost:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">EAT</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>μ</mi><mo>+</mo><mi>ε</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>α</mi><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>μ</mi><mo>+</mo><mi>ε</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>−</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>μ</mi><mo>+</mo><mi>ε</mi></mrow><annotation encoding="application/x-tex">\text{EAT} = (\mu + \varepsilon)\,\alpha + (2\mu + \varepsilon)(1 - \alpha) = (2 - \alpha)\,\mu + \varepsilon</annotation></semantics></math></p>
+<p><strong>Example.</strong> μ = 100 ns, ε = 10 ns, α = 0.95.</p>
+<p>EAT = (2 − 0.95) × 100 + 10 = 105 + 10 = 115 ns. Without a TLB, each
+access takes 2 × 100 = 200 ns.</p>
+<h3 id="when-does-a-tlb-help">5.4 When does a TLB help?</h3>
+<p>A TLB helps only if the EAT with it is less than 2μ:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>−</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>μ</mi><mo>+</mo><mi>ε</mi><mo>&lt;</mo><mn>2</mn><mi>μ</mi><mspace width="1.0em"></mspace><mo>⇔</mo><mspace width="1.0em"></mspace><mi>α</mi><mspace width="0.167em"></mspace><mi>μ</mi><mo>&gt;</mo><mi>ε</mi><mspace width="1.0em"></mspace><mo>⇔</mo><mspace width="1.0em"></mspace><mi>α</mi><mo>&gt;</mo><mfrac><mi>ε</mi><mi>μ</mi></mfrac></mrow><annotation encoding="application/x-tex">(2 - \alpha)\,\mu + \varepsilon &lt; 2\mu \quad\Longleftrightarrow\quad \alpha\,\mu &gt; \varepsilon \quad\Longleftrightarrow\quad \alpha &gt; \frac{\varepsilon}{\mu}</annotation></semantics></math></p>
+<p>Every access pays ε, hit or miss. So if the hit ratio is very low,
+the TLB makes access <strong>slower</strong>. In the example above, the
+TLB helps only if α &gt; 10 / 100 = 0.1. Real programs have high hit
+ratios, because of locality (Lecture 8).</p>
+<hr />
+<h2 id="shared-pages">6. Shared Pages</h2>
+<p>Two processes can share code: their page tables point to the
+<strong>same frames</strong>. For example, three users run the same
+editor. The editor code is in physical memory only once. Each user has
+private data pages.</p>
+<figure>
+<img width="1400" height="856" src="media/7-artifacts/shared-pages.webp" loading="lazy"
+decoding="async"
+alt="Three processes share the editor’s code frames (Lecture 7, slide 7.32)" />
+<figcaption aria-hidden="true">Three processes share the editor’s code
+frames (Lecture 7, slide 7.32)</figcaption>
+</figure>
+<p>In the slide, the page tables of P1, P2 and P3 all map the editor
+pages ed 1, ed 2 and ed 3 to frames 3, 4 and 6. Each process maps its
+own data page to a different frame.</p>
+<p>Shared code must not change while it runs. It must be
+<strong>read-only</strong>. Otherwise one process could change the code
+for all the others.</p>
+<hr />
+<h2 id="two-level-page-tables">7. Two-Level Page Tables</h2>
+<h3 id="the-problem-a-one-level-page-table-is-large">7.1 The problem: a
+one-level page table is large</h3>
+<p>Take the lecture’s machine: a 32-bit logical address and 4 KB
+pages.</p>
+<ol type="1">
+<li>4 KB =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>12</mn></msup><annotation encoding="application/x-tex">2^{12}</annotation></semantics></math>
+bytes, so the offset is 12 bits.</li>
+<li>The page number is 32 − 12 = 20 bits.</li>
+<li>So the page table has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>20</mn></msup><annotation encoding="application/x-tex">2^{20}</annotation></semantics></math>
+entries, one for each page.</li>
+<li>Each entry is 4 bytes. So the page table is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>20</mn></msup><annotation encoding="application/x-tex">2^{20}</annotation></semantics></math>
+× 4 bytes =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>22</mn></msup><annotation encoding="application/x-tex">2^{22}</annotation></semantics></math>
+bytes = <strong>4 MB</strong>.</li>
+</ol>
+<p>That is 4 MB <strong>for each process</strong>, only for its page
+table.</p>
+<h3 id="why-the-size-hurts-the-page-table-must-be-contiguous">7.2 Why
+the size hurts: the page table must be contiguous</h3>
+<p>The hardware finds entry p by arithmetic:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">address of entry </mtext><mspace width="0.333em"></mspace></mrow><mi>p</mi><mo>=</mo><mtext mathvariant="normal">PTBR</mtext><mo>+</mo><mi>p</mi><mo>×</mo><mtext mathvariant="normal">entry size</mtext></mrow><annotation encoding="application/x-tex">\text{address of entry } p = \text{PTBR} + p \times \text{entry size}</annotation></semantics></math></p>
+<p>This works only if the whole table is <strong>one continuous
+block</strong> in memory. So a 4 MB page table needs 4 MB / 4 KB = 1024
+frames <strong>next to each other</strong>.</p>
+<p>But finding a large continuous block is exactly the problem that
+paging was meant to solve (section 4.1). The page table brings it
+back.</p>
+<h3 id="the-idea-page-the-page-table">7.3 The idea: page the page
+table</h3>
+<p>The page table is just data in memory. So treat it like any other
+data, and <strong>split it into pages</strong>:</p>
+<ul>
+<li>Cut the 4 MB page table into pieces of 4 KB, the size of one
+page.</li>
+<li>Each piece fits in <strong>one frame</strong>. The pieces can go
+into <strong>any</strong> frames. They do not need to be next to each
+other.</li>
+</ul>
+<p>How many pieces, and how many entries in each piece?</p>
+<ul>
+<li>Number of pieces: 4 MB / 4 KB =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>22</mn></msup><annotation encoding="application/x-tex">2^{22}</annotation></semantics></math>
+/
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>12</mn></msup><annotation encoding="application/x-tex">2^{12}</annotation></semantics></math>
+=
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>10</mn></msup><annotation encoding="application/x-tex">2^{10}</annotation></semantics></math>
+= 1024 pieces.</li>
+<li>Entries in each piece: 4 KB / 4 bytes =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>12</mn></msup><annotation encoding="application/x-tex">2^{12}</annotation></semantics></math>
+/
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>2</mn></msup><annotation encoding="application/x-tex">2^{2}</annotation></semantics></math>
+=
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>10</mn></msup><annotation encoding="application/x-tex">2^{10}</annotation></semantics></math>
+= 1024 entries.</li>
+</ul>
+<p>Check: 1024 pieces × 1024 entries =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>20</mn></msup><annotation encoding="application/x-tex">2^{20}</annotation></semantics></math>
+entries. That is the whole page table.</p>
+<h3 id="a-new-problem-and-a-small-new-table">7.4 A new problem, and a
+small new table</h3>
+<p>The pieces are now in scattered frames. The hardware must know
+<strong>which frame holds each piece</strong>. So the OS keeps one more
+table: the <strong>outer page table</strong>.</p>
+<ul>
+<li>The outer page table has one entry for each piece: 1024
+entries.</li>
+<li>Each entry holds the frame number of one piece.</li>
+<li>Its size is 1024 × 4 bytes = 4 KB. That is <strong>exactly one
+page</strong>, so it fits in one frame.</li>
+</ul>
+<p>The PTBR now points to the outer page table. The pieces of the
+original table are the <strong>inner page table</strong>. (The lecture
+calls one piece “a page of the page table”.)</p>
+<figure>
+<img width="1400" height="733" src="media/7-artifacts/two-level-sizes.webp" loading="lazy"
+decoding="async"
+alt="The sizes: a 4 KB outer table points to 1024 pages of the 4 MB inner table (Lecture 7, slide 7.34)" />
+<figcaption aria-hidden="true">The sizes: a 4 KB outer table points to
+1024 pages of the 4 MB inner table (Lecture 7, slide 7.34)</figcaption>
+</figure>
+<h3 id="splitting-the-page-number-into-p1-and-p2">7.5 Splitting the page
+number into p1 and p2</h3>
+<p>In a one-level table, the 20-bit page number p picks entry p. Now
+that entry is inside some piece. Which piece, and where in it?</p>
+<ul>
+<li>Each piece holds 1024 entries. So entry p is in <strong>piece number
+p ÷ 1024</strong> (whole-number division).</li>
+<li>Its <strong>position in that piece</strong> is p mod 1024 (the
+remainder).</li>
+</ul>
+<p>Because 1024 =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>10</mn></msup><annotation encoding="application/x-tex">2^{10}</annotation></semantics></math>,
+the hardware does not need to divide:</p>
+<ul>
+<li>p ÷ 1024 is the <strong>high 10 bits</strong> of p. Call it
+<strong>p1</strong>. It indexes the outer page table.</li>
+<li>p mod 1024 is the <strong>low 10 bits</strong> of p. Call it
+<strong>p2</strong>. It indexes one piece of the inner page table.</li>
+</ul>
+<p>So the 32-bit logical address now has three parts:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 34%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th>p1 (outer index)</th>
+<th>p2 (inner index)</th>
+<th>d (offset)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10 bits</td>
+<td>10 bits</td>
+<td>12 bits</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Where each width comes from:</p>
+<ul>
+<li>d = 12 bits, because a page is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>12</mn></msup><annotation encoding="application/x-tex">2^{12}</annotation></semantics></math>
+bytes.</li>
+<li>p2 = 10 bits, because one page of the page table holds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>10</mn></msup><annotation encoding="application/x-tex">2^{10}</annotation></semantics></math>
+entries.</li>
+<li>p1 = 10 bits, because the outer table has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>10</mn></msup><annotation encoding="application/x-tex">2^{10}</annotation></semantics></math>
+entries, one for each piece.</li>
+</ul>
+<h3 id="translating-an-address-step-by-step">7.6 Translating an address,
+step by step</h3>
+<figure>
+<img width="1400" height="775" src="media/7-artifacts/two-level-page-table.webp" loading="lazy"
+decoding="async"
+alt="Two-level address translation (Lecture 7, slide 7.36)" />
+<figcaption aria-hidden="true">Two-level address translation (Lecture 7,
+slide 7.36)</figcaption>
+</figure>
+<ol type="1">
+<li>Use <strong>p1</strong> as an index into the outer page table (found
+through the PTBR). The entry gives <strong>F#1</strong>: the frame that
+holds one page of the inner table.</li>
+<li>In frame F#1, use <strong>p2</strong> as an index. The entry gives
+<strong>F#2</strong>: the frame that holds the data.</li>
+<li>The physical address is <strong>F#2 followed by d</strong>.</li>
+</ol>
+<p><strong>A worked example</strong> (the frame numbers are invented for
+the example). Translate the logical address <code>0x00C02ABC</code>.</p>
+<ol type="1">
+<li><p>Write it in binary and split it 10 | 10 | 12:</p>
+<p><code>0000000011 | 0000000010 | 101010111100</code></p>
+<p>So p1 = 3, p2 = 2, d = <code>0xABC</code> = 2748.</p></li>
+<li><p>Check against the one-level view. The full page number is p = p1
+× 1024 + p2 = 3 × 1024 + 2 = 3074. Entry 3074 is in piece 3074 ÷ 1024 =
+3, at position 3074 mod 1024 = 2. That matches p1 and p2.</p></li>
+<li><p>Suppose entry 3 of the outer table says that piece 3 is in frame
+57. So F#1 = 57.</p></li>
+<li><p>Suppose entry 2 in frame 57 says that the data page is in frame
+900. So F#2 = 900.</p></li>
+<li><p>The physical address is 900 × 4096 + 2748 = 3,686,400 + 2748 =
+<strong>3,689,148</strong>.</p></li>
+</ol>
+<h3 id="the-cost-one-more-memory-access-on-a-tlb-miss">7.7 The cost: one
+more memory access on a TLB miss</h3>
+<p>A one-level table needs one page-table access on a TLB miss. A
+two-level table needs <strong>two</strong>: one in the outer table and
+one in the inner table. Then one more access reads the data.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 37%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Case</th>
+<th>One-level table</th>
+<th>Two-level table</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TLB hit</td>
+<td>ε + μ</td>
+<td>ε + μ</td>
+</tr>
+<tr>
+<td>TLB miss</td>
+<td>ε + 2μ</td>
+<td>ε + 3μ</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The TLB stores the final pair (page number → F#2). So a TLB hit costs
+the same as before. With a high hit ratio, the extra level adds only a
+little to the EAT. This is the lecture’s “small increase in effective
+access time”.</p>
+<p>With hit ratio α, the formula of section 5.3 becomes:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">EAT</mtext><mtext mathvariant="normal">two-level</mtext></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>ε</mi><mo>+</mo><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>α</mi><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>ε</mi><mo>+</mo><mn>3</mn><mi>μ</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>−</mo><mn>2</mn><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>μ</mi><mo>+</mo><mi>ε</mi></mrow><annotation encoding="application/x-tex">\text{EAT}_{\text{two-level}} = (\varepsilon + \mu)\,\alpha + (\varepsilon + 3\mu)(1 - \alpha) = (3 - 2\alpha)\,\mu + \varepsilon</annotation></semantics></math></p>
+<p>(The lecture gives the formula only for one level. This line uses the
+same method with one more access on a miss.)</p>
+<h3 id="what-two-levels-buy">7.8 What two levels buy</h3>
+<ul>
+<li><strong>No large contiguous block.</strong> Each piece of the table,
+and the outer table, fits in one frame. The OS can put each one in any
+free frame. This is the reason the lecture gives.</li>
+<li><strong>Less memory, in practice.</strong> (Standard, but not on the
+slides.) Most processes use only a small part of their 4 GB logical
+space. If no page in a piece’s 4 MB range is in use, the OS does not
+create that piece at all. It marks the outer entry as unused. For
+example, a process that uses only the lowest 4 MB (code and data) and
+the highest 4 MB (stack) needs only 2 pieces plus the outer table: 3 × 4
+KB = 12 KB, not 4 MB.</li>
+</ul>
+<h3 id="a-general-method-how-many-levels">7.9 A general method: how many
+levels?</h3>
+<p>Sometimes two levels are not enough: the outer table is still larger
+than one page. Then the OS pages the outer table too, and adds a third
+level. The rule is: <strong>keep adding levels until the outermost table
+fits in one page.</strong></p>
+<p>Let the logical address have m bits, the page size be
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>n</mi></msup><annotation encoding="application/x-tex">2^n</annotation></semantics></math>
+bytes, and each entry be e bytes.</p>
+<ol type="1">
+<li><strong>Offset:</strong> n bits.</li>
+<li><strong>Page number:</strong> m − n bits.</li>
+<li><strong>Index bits for one level:</strong> one page of a table holds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>n</mi></msup><mi>/</mi><mi>e</mi></mrow><annotation encoding="application/x-tex">2^n / e</annotation></semantics></math>
+entries. Write this as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>k</mi></msup><annotation encoding="application/x-tex">2^k</annotation></semantics></math>.
+So each level index can use at most k bits.</li>
+<li><strong>Number of levels:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>=</mo><mo stretchy="false" form="prefix">⌈</mo><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo>−</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>k</mi><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">L = \lceil (m - n) / k \rceil</annotation></semantics></math>
+(divide, then round up).</li>
+<li><strong>The address format:</strong> every inner level gets k bits.
+The <strong>outermost</strong> level gets what is left: (m − n) − (L −
+1) × k bits. The outermost table is the only one that may be smaller
+than a page.</li>
+</ol>
+<p><strong>Check with the lecture’s machine.</strong> m = 32, n = 12, e
+= 4. Then k = 12 − 2 = 10, and m − n = 20. L = 20 / 10 = 2 levels. The
+outermost level gets 20 − 10 = 10 bits. Format: (10 | 10 | 12). This
+matches section 7.5.</p>
+<p><strong>A second example.</strong> m = 32, 2 KB pages (n = 11), e = 4
+bytes.</p>
+<ol type="1">
+<li>Offset: 11 bits.</li>
+<li>Page number: 32 − 11 = 21 bits.</li>
+<li>One page holds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>11</mn></msup><mi>/</mi><mn>4</mn><mo>=</mo><msup><mn>2</mn><mn>9</mn></msup></mrow><annotation encoding="application/x-tex">2^{11} / 4 = 2^9</annotation></semantics></math>
+entries, so k = 9.</li>
+<li>L = ⌈21 / 9⌉ = ⌈2.33⌉ = 3 levels.</li>
+<li>The inner two levels get 9 bits each. The outermost gets 21 − 18 = 3
+bits.</li>
+</ol>
+<p>Format: (3 | 9 | 9 | 11).</p>
+<p>Why two levels are not enough here: with two levels, the inner index
+has 9 bits, so the outer index has 21 − 9 = 12 bits. The outer table has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>12</mn></msup><annotation encoding="application/x-tex">2^{12}</annotation></semantics></math>
+entries × 4 bytes = 16 KB. That is larger than one 2 KB page. So a third
+level is needed.</p>
+<p><strong>To test whether a table fits in one page:</strong> table size
+= (number of entries) × (entry size). Compare it with the page size.</p>
+<hr />
+<h2 id="inverted-page-tables">8. Inverted Page Tables</h2>
+<h3 id="the-problem">8.1 The problem</h3>
+<p>Each process has its own page table. Its size grows with the
+<strong>logical</strong> address space, not with the memory that the
+process really uses. With many processes, all the page tables together
+use a lot of memory.</p>
+<h3 id="the-idea-one-entry-for-each-frame">8.2 The idea: one entry for
+each frame</h3>
+<p>Turn the table around. Use <strong>one table for the whole
+system</strong>, with <strong>one entry for each physical
+frame</strong>. Entry i says which ⟨process ID, page number⟩ is now in
+frame i.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 24%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Index</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Normal page table</td>
+<td>Page number</td>
+<td>Frame number</td>
+</tr>
+<tr>
+<td>Inverted page table</td>
+<td>Frame number</td>
+<td>⟨process ID, page number⟩</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img width="1400" height="753" src="media/7-artifacts/inverted-page-table.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="Address translation with an inverted page table: search for ⟨pid, p⟩ (Lecture 7, slide 7.38)" />
+<figcaption aria-hidden="true">Address translation with an inverted page
+table: search for ⟨pid, p⟩ (Lecture 7, slide 7.38)</figcaption>
+</figure>
+<h3 id="translating-an-address-1">8.3 Translating an address</h3>
+<ul>
+<li>The logical address is ⟨process ID, page number, offset⟩.</li>
+<li>The hardware <strong>searches</strong> the table for the pair
+⟨process ID, page number⟩.</li>
+<li>If the match is at entry i, the physical address is ⟨i, offset⟩. The
+<strong>position</strong> of the entry is the frame number.</li>
+</ul>
+<h3 id="its-size">8.4 Its size</h3>
+<p>The number of entries equals the number of frames = physical memory
+size ÷ page size.</p>
+<p><strong>Example.</strong> 256 MB of physical memory
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>28</mn></msup><annotation encoding="application/x-tex">2^{28}</annotation></semantics></math>
+bytes) and 4 KB pages
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>12</mn></msup><annotation encoding="application/x-tex">2^{12}</annotation></semantics></math>
+bytes). The inverted page table has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>28</mn></msup><mi>/</mi><msup><mn>2</mn><mn>12</mn></msup><mo>=</mo><msup><mn>2</mn><mn>16</mn></msup></mrow><annotation encoding="application/x-tex">2^{28} / 2^{12} = 2^{16}</annotation></semantics></math>
+= 65,536 entries, for the whole system. With a 32-bit logical address, a
+normal page table has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>20</mn></msup><annotation encoding="application/x-tex">2^{20}</annotation></semantics></math>
+entries <strong>for each process</strong>.</p>
+<h3 id="advantage-and-disadvantage">8.5 Advantage and disadvantage</h3>
+<ul>
+<li><strong>Advantage:</strong> only one table, and its size grows with
+<strong>physical</strong> memory.</li>
+<li><strong>Disadvantage: slow search.</strong> The table is ordered by
+frame number, but the lookup uses the page number. The hardware cannot
+index it directly. In the worst case it searches the whole table.</li>
+</ul>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 35%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Normal page table</th>
+<th>Inverted page table</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>How many</td>
+<td>One for each process</td>
+<td>One for the whole system</td>
+</tr>
+<tr>
+<td>Number of entries</td>
+<td>One for each <strong>page</strong> of the process</td>
+<td>One for each <strong>frame</strong> of physical memory</td>
+</tr>
+<tr>
+<td>Lookup</td>
+<td>Index by page number (direct)</td>
+<td>Search for ⟨pid, page⟩</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="segmentation">9. Segmentation</h2>
+<h3 id="the-idea-1">9.1 The idea</h3>
+<p>A programmer does not think of a program as pages of equal size. They
+think of <strong>logical parts</strong>: the main program, functions,
+the stack, a symbol table, arrays. <strong>Segmentation</strong> divides
+the program into these parts, the <strong>segments</strong>, and places
+each one in memory separately.</p>
+<figure>
+<img width="1400" height="880" src="media/7-artifacts/segmentation-example.webp" loading="lazy"
+decoding="async"
+alt="A program as segments, placed separately in memory (Lecture 7, slide 7.39)" />
+<figcaption aria-hidden="true">A program as segments, placed separately
+in memory (Lecture 7, slide 7.39)</figcaption>
+</figure>
+<ul>
+<li>Segments can have <strong>different sizes</strong>.</li>
+<li>The segments of one process do <strong>not</strong> need to be next
+to each other in memory.</li>
+</ul>
+<h3 id="the-address-format">9.2 The address format</h3>
+<p>A logical address is ⟨segment number s, offset d⟩. The offset gives
+the position inside the segment.</p>
+<p>If the largest possible segment is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>k</mi></msup><annotation encoding="application/x-tex">2^k</annotation></semantics></math>
+bytes, the offset needs k bits. The other bits of the address are the
+segment number. <strong>Example:</strong> a 16-bit address and a largest
+segment of 4 KB
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>12</mn></msup><annotation encoding="application/x-tex">2^{12}</annotation></semantics></math>).
+The offset is 12 bits, and the segment number is 16 − 12 = 4 bits, so a
+process can have up to 16 segments.</p>
+<h3 id="translating-a-segment-address">9.3 Translating a segment
+address</h3>
+<p>The <strong>segment table</strong> has one entry for each
+segment:</p>
+<ul>
+<li><strong>base:</strong> the physical start address of the
+segment,</li>
+<li><strong>limit:</strong> the length of the segment.</li>
+</ul>
+<p>The <strong>segment-table base register (STBR)</strong> points to the
+segment table. The <strong>segment-table length register (STLR)</strong>
+gives the number of segments that the program uses.</p>
+<figure>
+<img width="1400" height="894" src="media/7-artifacts/segmentation-translation.webp"
+style="width:80.0%" loading="lazy" decoding="async"
+alt="Segment address translation: check d &lt; limit, then add base (Lecture 7, slide 7.42)" />
+<figcaption aria-hidden="true">Segment address translation: check d &lt;
+limit, then add base (Lecture 7, slide 7.42)</figcaption>
+</figure>
+<p><strong>To translate ⟨s, d⟩:</strong></p>
+<ol type="1">
+<li>Read entry s of the segment table.</li>
+<li>Check that d &lt; limit. If not, trap to the OS (addressing
+error).</li>
+<li>The physical address is base + d.</li>
+</ol>
+<p><strong>The slide’s example.</strong> Translate ⟨3, 128⟩. Segment 3
+has base 3200 and limit 1100. 128 &lt; 1100, so the address is legal.
+The physical address is 3200 + 128 = 3328.</p>
+<p><strong>Two more requests on the same segment table</strong> (segment
+1: base 6300, limit 400; segment 2: base 4300, limit 400):</p>
+<ul>
+<li>⟨2, 53⟩: 53 &lt; 400, legal. Physical address 4300 + 53 = 4353.</li>
+<li>⟨1, 500⟩: 500 &lt; 400 is false. The hardware traps to the OS.</li>
+</ul>
+<p><strong>Compare with paging.</strong> Paging <strong>joins</strong>
+the frame number and the offset, as bits. Segmentation
+<strong>adds</strong> the base and the offset, as numbers, because a
+segment can start at any address. Paging needs no limit check on the
+offset, because every offset fits in a page. Segmentation must check,
+because segments have different lengths.</p>
+<h3 id="segmentation-has-external-fragmentation">9.4 Segmentation has
+external fragmentation</h3>
+<p>Segments have different sizes. So placing them is the same problem as
+dynamic partitioning (section 3.2). The OS usually uses best-fit or
+first-fit. When a process leaves, its segments become <strong>holes of
+different sizes</strong>. So segmentation has <strong>external
+fragmentation</strong>.</p>
+<p>It has no internal fragmentation, because each segment gets exactly
+its own size.</p>
+<h3 id="paging-and-segmentation-side-by-side">9.5 Paging and
+segmentation side by side</h3>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 34%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Paging</th>
+<th>Segmentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Block size</td>
+<td>Fixed (pages)</td>
+<td>Variable (segments)</td>
+</tr>
+<tr>
+<td>Based on</td>
+<td>The hardware’s page size</td>
+<td>The logical parts of the program</td>
+</tr>
+<tr>
+<td>External fragmentation</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Internal fragmentation</td>
+<td>Yes (in the last page)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Translation</td>
+<td>Frame number joined with offset</td>
+<td>Base + offset, after the check d &lt; limit</td>
+</tr>
+<tr>
+<td>Sharing code</td>
+<td>Through shared pages; the code in a page must not change</td>
+<td>Natural: share a whole segment, such as one function</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="summary-of-the-allocation-schemes">10. Summary of the Allocation
+Schemes</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 22%" />
+<col style="width: 26%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th>Scheme</th>
+<th>Contiguous?</th>
+<th>Internal fragmentation</th>
+<th>External fragmentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fixed partitioning</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Dynamic partitioning</td>
+<td>Yes</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Paging</td>
+<td>No</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Segmentation</td>
+<td>No</td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="what-you-know-now-lecture-7">What You Know Now (Lecture 7)</h2>
+<ul>
+<li>Binding can occur at compile time (absolute code), at load time (the
+loader adds the start address) or at execution time (the MMU adds the
+base on every access). Only execution-time binding lets a process move
+while it runs.</li>
+<li>With absolute addresses, an address is legal if base ≤ address &lt;
+base + limit. With relative addresses, it is legal if address &lt;
+limit, and the physical address is address + base.</li>
+<li>Fixed partitions waste space inside (internal fragmentation).
+Dynamic partitions leave holes outside (external fragmentation).
+Compaction joins the holes, but needs execution-time binding.</li>
+<li>First-fit takes the first hole that is large enough, best-fit the
+smallest such hole, worst-fit the largest hole.</li>
+<li>Paging splits a logical address into page number (high bits) and
+offset (low bits). The page table maps pages to frames. The page number
+size comes from logical memory; the frame number size comes from
+physical memory.</li>
+<li>A TLB caches page-table entries: EAT = (2 − α)μ + ε. It helps only
+if α &gt; ε/μ.</li>
+<li>A one-level page table can be large and must be contiguous. A
+two-level table pages it: p1 indexes the outer table, p2 indexes one
+page of the inner table. For 32-bit addresses and 4 KB pages: 10 | 10 |
+12. Add levels until the outermost table fits in one page.</li>
+<li>An inverted page table has one entry for each frame, for the whole
+system, and must be searched.</li>
+<li>Segmentation uses variable-size logical segments, checks d &lt;
+limit, and adds base + d. It has external fragmentation.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../6b-virtualization/6b.html">← 6b.
+Virtualization</a>
+  <a class="next-page" href="../8-virtual-memory/8.html">8. Virtual
+Memory →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

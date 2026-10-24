@@ -7,8 +7,8 @@ SC2005 Operating Systems, NTU AY25/26 Semester 1.
 What the notes do not cover yet:
 
 * **I/O management:** the lecture is not released yet. The notes cover Lectures 1–9.
-* **Tutorial 7–11:** solutions not released, so these tutorials have no question pages yet. The question pages cover Tutorials 1–6, which have official solutions.
-* **Past-year paper questions:** not on the question pages yet.
+* **Tutorial 7–11:** solutions not released, so they are not on the tutorial revision page yet. It covers Tutorials 1–6, which have official solutions.
+* **Past-year paper questions:** not on the tutorial revision page yet.
 * **PDF notes on Google Drive:** the lecture PDFs are not uploaded to the Drive folder yet.
 
 ## SC2005 Ecosystem

@@ -2,10 +2,10 @@
     # Build manifest for the shared web pipeline (../../web-pipeline/publish.ps1).
     #
     # SC2005 is authored in Markdown. Lectures are one folder each (N-slug/N.md,
-    # figures in N-artifacts/), the same layout as SC2008. The tutorial question
-    # pages (tutorial-questions/tutorial-N.md, figures in tutorial-N-artifacts/)
-    # replaced the old exam cheatsheet. 1-overview/1.tex was the older LaTeX
-    # lecture 1; it was replaced by 1.md.
+    # figures in N-artifacts/), the same layout as SC2008. The tutorial revision
+    # page (tutorial-questions/tutorial-revision.md, figures in
+    # tutorial-N-artifacts/) replaced the old exam cheatsheet. 1-overview/1.tex
+    # was the older LaTeX lecture 1; it was replaced by 1.md.
     #
     # The lab guides live under labs/. Labs 1-2 are flat .md files that use the
     # course-root images/ folder (build.ps1 puts it on the resource path); labs
@@ -32,18 +32,8 @@
            Title  = '8. Virtual Memory' }
         @{ Source = '9-file-systems\9.md'
            Title  = '9. File Systems' }
-        @{ Source = 'tutorial-questions\tutorial-1.md'
-           Title  = 'Tutorial 1: Overview of Operating Systems' }
-        @{ Source = 'tutorial-questions\tutorial-2.md'
-           Title  = 'Tutorial 2: Processes and Threads' }
-        @{ Source = 'tutorial-questions\tutorial-3.md'
-           Title  = 'Tutorial 3: CPU Scheduling' }
-        @{ Source = 'tutorial-questions\tutorial-4.md'
-           Title  = 'Tutorial 4: Process Synchronization I' }
-        @{ Source = 'tutorial-questions\tutorial-5.md'
-           Title  = 'Tutorial 5: Process Synchronization II' }
-        @{ Source = 'tutorial-questions\tutorial-6.md'
-           Title  = 'Tutorial 6: Deadlocks' }
+        @{ Source = 'tutorial-questions\tutorial-revision.md'
+           Title  = 'Tutorial Revision' }
         @{ Source = 'labs\lab-1.md'
            Title  = 'Lab 1 Guide' }
         @{ Source = 'labs\lab-2.md'

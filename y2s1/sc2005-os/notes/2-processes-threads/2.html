@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>2. Processes and Threads · SC2005 Operating Systems</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">2. Processes and
+Threads</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">2. Processes and Threads</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-overview/1.html"
+                   data-nav="notes/1-overview/1.html">1. Overview of
+Operating Systems</a></li>
+            <li><a href="../../notes/2-processes-threads/2.html"
+                   data-nav="notes/2-processes-threads/2.html">2.
+Processes and Threads</a></li>
+            <li><a href="../../notes/3-cpu-scheduling/3.html"
+                   data-nav="notes/3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../../notes/4-synchronization/4.html"
+                   data-nav="notes/4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../../notes/5-deadlocks/5.html"
+                   data-nav="notes/5-deadlocks/5.html">5.
+Deadlocks</a></li>
+            <li><a href="../../notes/6a-rtos/6a.html"
+                   data-nav="notes/6a-rtos/6a.html">6a. Real-Time
+Operating Systems</a></li>
+            <li><a href="../../notes/6b-virtualization/6b.html"
+                   data-nav="notes/6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../../notes/7-memory-organization/7.html"
+                   data-nav="notes/7-memory-organization/7.html">7.
+Memory Organization</a></li>
+            <li><a href="../../notes/8-virtual-memory/8.html"
+                   data-nav="notes/8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../../notes/9-file-systems/9.html"
+                   data-nav="notes/9-file-systems/9.html">9. File
+Systems</a></li>
+            <li><a href="../../notes/10-io-disk/10.html"
+                   data-nav="notes/10-io-disk/10.html">10. I/O Systems
+and Disk</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Course
+Cheatsheet</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../../notes/labs/lab-1.html"
+                   data-nav="notes/labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../../notes/labs/lab-2.html"
+                   data-nav="notes/labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3.html"
+                   data-nav="notes/labs/lab-3/lab-3.html">Lab 3
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4.html"
+                   data-nav="notes/labs/lab-4/lab-4.html">Lab 4
+Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#what-a-process-is-memory-layout"
+id="toc-what-a-process-is-memory-layout">1. What a Process Is: Memory
+Layout</a></li>
+<li><a href="#process-life-cycle-and-state-transitions"
+id="toc-process-life-cycle-and-state-transitions">2. Process Life Cycle
+and State Transitions</a>
+<ul>
+<li><a href="#the-five-canonical-process-states"
+id="toc-the-five-canonical-process-states">The Five Canonical Process
+States</a></li>
+<li><a href="#process-state-transitions"
+id="toc-process-state-transitions">Process State Transitions</a></li>
+</ul></li>
+<li><a href="#process-control-block-pcb-and-context-switching"
+id="toc-process-control-block-pcb-and-context-switching">3. Process
+Control Block (PCB) and Context Switching</a>
+<ul>
+<li><a href="#the-process-control-block-pcb"
+id="toc-the-process-control-block-pcb">The Process Control Block
+(PCB)</a></li>
+<li><a href="#the-context-switch" id="toc-the-context-switch">The
+Context Switch</a></li>
+<li><a href="#process-scheduling-queues-and-schedulers"
+id="toc-process-scheduling-queues-and-schedulers">Process Scheduling
+Queues and Schedulers</a></li>
+<li><a
+href="#step-by-step-method-tracing-state-transitions-and-context-switches"
+id="toc-step-by-step-method-tracing-state-transitions-and-context-switches">Step-by-Step
+Method: Tracing State Transitions and Context Switches</a></li>
+</ul></li>
+<li><a href="#process-creation-synchronization-and-termination"
+id="toc-process-creation-synchronization-and-termination">4. Process
+Creation, Synchronization, and Termination</a>
+<ul>
+<li><a href="#process-hierarchy-the-process-tree"
+id="toc-process-hierarchy-the-process-tree">Process Hierarchy: The
+Process Tree</a></li>
+<li><a href="#fork-execution-mechanics"
+id="toc-fork-execution-mechanics"><code>fork()</code> Execution
+Mechanics</a></li>
+<li><a href="#process-termination-exit-vs.-abort"
+id="toc-process-termination-exit-vs.-abort">Process Termination:
+<code>exit()</code> vs. <code>abort()</code></a></li>
+</ul></li>
+<li><a href="#interprocess-communication-ipc"
+id="toc-interprocess-communication-ipc">5. Interprocess Communication
+(IPC)</a>
+<ul>
+<li><a href="#direct-vs.-indirect-message-passing"
+id="toc-direct-vs.-indirect-message-passing">Direct vs. Indirect Message
+Passing</a></li>
+</ul></li>
+<li><a href="#threads-and-multithreading-models"
+id="toc-threads-and-multithreading-models">6. Threads and Multithreading
+Models</a>
+<ul>
+<li><a href="#thread-definition-and-anatomy"
+id="toc-thread-definition-and-anatomy">Thread Definition and
+Anatomy</a></li>
+<li><a href="#multithreading-models-user-vs.-kernel-threads"
+id="toc-multithreading-models-user-vs.-kernel-threads">Multithreading
+Models: User vs. Kernel Threads</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>An operating system manages computing by dividing work into
+independent units of execution. The foundational unit of work is the
+<strong>process</strong>.</p>
+<p>This chapter examines the internal structure of a process, how the
+operating system tracks processes through state transitions and context
+switches, how processes coordinate via interprocess communication (IPC),
+and how <strong>threads</strong> provide lightweight concurrency within
+a single process.</p>
+<hr />
+<h2 id="what-a-process-is-memory-layout">1. What a Process Is: Memory
+Layout</h2>
+<p>A <strong>program</strong> is a passive entity—an executable file
+stored on disk containing a list of machine instructions. A
+<strong>process</strong> is an active entity—a <strong>program in
+execution</strong>. Running the same executable binary twice
+instantiates two distinct processes with independent address spaces.</p>
+<p>The operating system allocates each process a dedicated memory image
+structured into four distinct segments:</p>
+<figure>
+<img width="1400" height="776" src="media/2-artifacts/process-in-memory.webp" style="width:55.0%"
+loading="lazy" decoding="async" alt="Process Memory Layout" />
+<figcaption aria-hidden="true">Process Memory Layout</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 28%" />
+<col style="width: 30%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th>Memory Segment</th>
+<th>Stored Content</th>
+<th>Size Characteristics</th>
+<th>Shared Across Threads?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Text</strong></td>
+<td>Executable machine code instructions.</td>
+<td><strong>Fixed</strong> at compile time; typically read-only.</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><strong>Data</strong></td>
+<td>Global and static variables initialized before runtime.</td>
+<td><strong>Fixed</strong> size during execution.</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><strong>Heap</strong></td>
+<td>Dynamically allocated memory requested at runtime
+(e.g. <code>malloc()</code> in C, <code>new</code> in Java/C++).</td>
+<td><strong>Grows upward</strong> toward higher addresses as memory is
+allocated.</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><strong>Stack</strong></td>
+<td>Function activation records, local variables, parameters, and return
+addresses.</td>
+<td><strong>Grows downward</strong> toward lower addresses on function
+calls; shrinks on return.</td>
+<td><strong>No</strong> (Each thread gets a private stack).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>[!NOTE] The heap and stack grow toward each other into the
+unallocated space between them. The physical base and limit registers
+configured by the OS ensure memory references do not overflow outside
+this allocated region.</p>
+</blockquote>
+<details class="qa box">
+<summary>
+<strong>Tutorial 2 Q2:</strong> Data vs. Stack Memory Segments <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>What are two main differences between
+the data and stack regions of a process memory?</em></p>
+<p><strong>Answer:</strong></p>
+<ol type="1">
+<li><strong>Dynamic Sizing:</strong> The size of the <strong>data
+segment is fixed</strong> when the program loads into memory, whereas
+the <strong>stack segment dynamically expands and contracts</strong> as
+functions are called and return.</li>
+<li><strong>Variable Scope and Lifetime:</strong> The data segment
+stores <strong>global and static variables</strong> that persist
+throughout the entire execution of the process. The stack segment stores
+<strong>local variables, function parameters, and return
+addresses</strong> whose lifetimes are tied strictly to individual
+function invocations.</li>
+</ol>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY15/16 S2 Q1c(ii):</strong> Tracing Memory Changes in Recursive
+Execution <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Describe how the four memory sections
+of the process (text, data, heap, and stack) change during the execution
+of this program:</em></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  f1<span class="op">(</span><span class="dv">5</span><span class="op">);</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> f1<span class="op">(</span><span class="dt">int</span> times<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>times <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> pid <span class="op">=</span> fork<span class="op">();</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">%d\n</span><span class="st">&quot;</span><span class="op">,</span> pid<span class="op">);</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    f1<span class="op">(</span>times <span class="op">-</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">&quot;done</span><span class="sc">\n</span><span class="st">&quot;</span><span class="op">);</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>Text Segment:</strong> Remains completely
+<strong>unchanged</strong>. The executable instructions are static and
+read-only.</li>
+<li><strong>Data Segment:</strong> Remains <strong>empty /
+static</strong>. The program defines no global or static variables
+(<code>pid</code> and <code>times</code> are local variables).</li>
+<li><strong>Heap Segment:</strong> Remains <strong>empty /
+unchanged</strong>. No dynamic memory allocation (<code>malloc</code> or
+<code>new</code>) is performed. (Creating a new process via
+<code>fork()</code> instantiates a separate process address space; it
+does not allocate heap memory).</li>
+<li><strong>Stack Segment:</strong> <strong>Grows and shrinks
+dynamically</strong>. Each recursive invocation of <code>f1()</code>
+pushes a new activation frame (<code>times</code>, local variable
+<code>pid</code>, return address) onto the stack from <code>f1(5)</code>
+down to <code>f1(0)</code>. As the recursion unwinds, these frames are
+popped off in reverse order.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="process-life-cycle-and-state-transitions">2. Process Life Cycle
+and State Transitions</h2>
+<p>As a process executes, its execution status changes dynamically. On a
+single-core processor, only <strong>one process can be executing at any
+given instant</strong>. All other resident processes wait in operating
+system scheduler queues.</p>
+<figure>
+<img width="1400" height="700" src="media/2-artifacts/process-state-diagram.webp"
+style="width:70.0%" loading="lazy" decoding="async"
+alt="Process State Transition Diagram" />
+<figcaption aria-hidden="true">Process State Transition
+Diagram</figcaption>
+</figure>
+<h3 id="the-five-canonical-process-states">The Five Canonical Process
+States</h3>
+<ol type="1">
+<li><strong>New:</strong> The process is currently being instantiated
+(the OS is allocating memory and initializing its PCB).</li>
+<li><strong>Ready:</strong> The process is fully prepared to execute in
+memory and is <strong>waiting exclusively for the CPU scheduler</strong>
+to allocate processor time.</li>
+<li><strong>Running:</strong> The process’s instructions are actively
+executing on physical CPU core(s).</li>
+<li><strong>Waiting (Blocked):</strong> The process cannot execute until
+an <strong>external event or I/O operation completes</strong> (e.g. disk
+read, network packet, child termination).</li>
+<li><strong>Terminated:</strong> The process has finished execution and
+is releasing its allocated resources.</li>
+</ol>
+<h3 id="process-state-transitions">Process State Transitions</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 71%" />
+</colgroup>
+<thead>
+<tr>
+<th>State Transition</th>
+<th>Cause / Trigger Event</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>New
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready</strong></td>
+<td><strong>Admitted:</strong> The OS completes process initialization
+and adds it to the ready queue.</td>
+</tr>
+<tr>
+<td><strong>Ready
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Running</strong></td>
+<td><strong>Scheduler Dispatch:</strong> The CPU scheduler selects this
+process to execute next.</td>
+</tr>
+<tr>
+<td><strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready</strong></td>
+<td><strong>Interrupt (Preemption):</strong> An external hardware
+interrupt arrives (most commonly a <strong>timer interrupt</strong>
+signaling time-slice expiration) or a higher-priority process
+arrives.</td>
+</tr>
+<tr>
+<td><strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Waiting</strong></td>
+<td><strong>I/O or Event Wait:</strong> The process executes a blocking
+system call (e.g. <code>read()</code>, <code>wait()</code>).</td>
+</tr>
+<tr>
+<td><strong>Waiting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready</strong></td>
+<td><strong>I/O / Event Completion:</strong> The peripheral device
+controller signals event completion via an interrupt.</td>
+</tr>
+<tr>
+<td><strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Terminated</strong></td>
+<td><strong>Exit:</strong> The process completes execution or encounters
+a fatal runtime fault.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>[!IMPORTANT] <strong>Two High-Yield Process State Traps:</strong></p>
+<ol type="1">
+<li><strong>Waiting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Running NEVER Happens:</strong> A process completing an I/O operation
+moves to <strong>Ready</strong>, never directly to Running. It must wait
+in the ready queue until the CPU scheduler dispatches it.</li>
+<li><strong>Ready
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\ne</annotation></semantics></math>
+Waiting:</strong> A <em>Ready</em> process has all required resources
+and waits only for the CPU. A <em>Waiting</em> process is blocked on an
+external event and <strong>cannot run even if the CPU is completely
+idle</strong>.</li>
+</ol>
+</blockquote>
+<hr />
+<h2 id="process-control-block-pcb-and-context-switching">3. Process
+Control Block (PCB) and Context Switching</h2>
+<h3 id="the-process-control-block-pcb">The Process Control Block
+(PCB)</h3>
+<p>The operating system manages each active process through a dedicated
+data structure called the <strong>Process Control Block (PCB)</strong>
+(also known as a task control block):</p>
+<figure>
+<img width="1093" height="885" src="media/2-artifacts/pcb.webp" style="width:50.0%" loading="lazy"
+decoding="async" alt="Fields of a Process Control Block" />
+<figcaption aria-hidden="true">Fields of a Process Control
+Block</figcaption>
+</figure>
+<ul>
+<li><strong>Process State:</strong> Current state (New, Ready, Running,
+Waiting, Terminated).</li>
+<li><strong>Program Counter (PC):</strong> Memory address of the next
+instruction to execute.</li>
+<li><strong>CPU Registers:</strong> Accumulators, index registers, stack
+pointers, and condition codes.</li>
+<li><strong>CPU-Scheduling Information:</strong> Process priority,
+pointers to scheduling queues.</li>
+<li><strong>Memory-Management Information:</strong> Base and limit
+registers, or page/segment tables.</li>
+<li><strong>Accounting Information:</strong> CPU execution time used,
+time limits, process ID (PID).</li>
+<li><strong>I/O Status Information:</strong> List of open file
+descriptors and allocated I/O devices.</li>
+</ul>
+<blockquote>
+<p>[!WARNING] <strong>Where PCBs Reside:</strong> All PCBs reside
+strictly in <strong>Kernel Memory Space</strong>. User programs cannot
+access or alter PCBs directly; modifying scheduling priorities or file
+descriptors requires privileged kernel system calls.</p>
+</blockquote>
+<hr />
+<h3 id="the-context-switch">The Context Switch</h3>
+<p>A <strong>context switch</strong> occurs when the CPU scheduler stops
+executing one process and resumes execution of another:</p>
+<figure>
+<img width="1400" height="1129" src="media/2-artifacts/context-switch.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Context Switch Timeline" />
+<figcaption aria-hidden="true">Context Switch Timeline</figcaption>
+</figure>
+<ol type="1">
+<li><strong>State Preservation:</strong> The hardware and OS save the
+CPU registers and Program Counter of the currently executing process
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>)
+into its PCB
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>C</mi><msub><mi>B</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">PCB_0</annotation></semantics></math>).</li>
+<li><strong>State Transition:</strong> The OS updates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>’s
+status (to Ready if preempted, or Waiting if blocked on I/O).</li>
+<li><strong>Process Selection:</strong> The scheduler selects the next
+process
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>)
+from the ready queue.</li>
+<li><strong>State Restoration:</strong> The OS loads the processor
+context from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>C</mi><msub><mi>B</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">PCB_1</annotation></semantics></math>
+into physical CPU registers.</li>
+<li><strong>Execution:</strong> The CPU switches back to user mode and
+begins executing instructions for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>.</li>
+</ol>
+<blockquote>
+<p>[!IMPORTANT] <strong>Context Switch is Pure Overhead:</strong> During
+a context switch, the computer does no useful application work. Context
+switch latency depends on hardware architecture, register set sizes, and
+cache flushing overhead.</p>
+</blockquote>
+<hr />
+<h3 id="process-scheduling-queues-and-schedulers">Process Scheduling
+Queues and Schedulers</h3>
+<p>Processes migrate through operating system queues represented as
+linked lists of PCBs:</p>
+<ul>
+<li><strong>Ready Queue:</strong> Holds all resident processes in the
+Ready state waiting for CPU allocation.</li>
+<li><strong>Device (I/O) Queues:</strong> Each peripheral device
+maintains a dedicated queue of processes blocked waiting for that
+specific hardware interface.</li>
+</ul>
+<figure>
+<img width="1400" height="860" src="media/2-artifacts/scheduling-queues.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Scheduling Queues Architecture" />
+<figcaption aria-hidden="true">Scheduling Queues
+Architecture</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 36%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr>
+<th>Scheduler</th>
+<th>Frequency of Execution</th>
+<th>Primary Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Short-Term Scheduler (CPU Scheduler)</strong></td>
+<td>Extremely frequent (e.g. every 10–100 ms).</td>
+<td>Selects which <strong>Ready process</strong> from the ready queue
+executes next on the CPU. Must be exceptionally fast.</td>
+</tr>
+<tr>
+<td><strong>Medium-Term Scheduler (Swapper)</strong></td>
+<td>Intermediate frequency (triggered by memory pressure).</td>
+<td>Removes partially executed processes from RAM to secondary storage
+(<strong>swapping</strong>) to reduce memory contention, and restores
+them when load decreases.</td>
+</tr>
+<tr>
+<td><strong>Long-Term Scheduler (Job Scheduler)</strong></td>
+<td>Infrequent (seconds/minutes).</td>
+<td>Selects jobs from disk spool pools and loads them into memory as New
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready. Controls the <strong>degree of multiprogramming</strong> (total
+resident processes in RAM).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h3
+id="step-by-step-method-tracing-state-transitions-and-context-switches">Step-by-Step
+Method: Tracing State Transitions and Context Switches</h3>
+<p>When analyzing execution timelines involving multiple processes
+(e.g. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>0</mn></msub><mo>,</mo><msub><mi>P</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">P_0, P_1</annotation></semantics></math>):</p>
+<ol type="1">
+<li><strong>Identify Preemption Events:</strong>
+<ul>
+<li>A <strong>timer interrupt</strong> forces the running process from
+<strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready</strong>.</li>
+<li>A <strong>blocking I/O system call</strong> forces the running
+process from <strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Waiting</strong>.</li>
+<li>An <strong>I/O-completion interrupt</strong> transitions the blocked
+process from <strong>Waiting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready</strong>.</li>
+</ul></li>
+<li><strong>Track PCB Operations During Gaps:</strong>
+<ul>
+<li>For any switch between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>j</mi></msub><annotation encoding="application/x-tex">P_j</annotation></semantics></math>:
+<ul>
+<li>Step 1: Save state of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+into
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>C</mi><msub><mi>B</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">PCB_i</annotation></semantics></math>.</li>
+<li>Step 2: Load state of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>j</mi></msub><annotation encoding="application/x-tex">P_j</annotation></semantics></math>
+from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>C</mi><msub><mi>B</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">PCB_j</annotation></semantics></math>.</li>
+</ul></li>
+</ul></li>
+<li><strong>Dispatching Rules:</strong>
+<ul>
+<li>The short-term scheduler dispatches <strong>only from the Ready
+Queue</strong>.</li>
+<li>If two processes become ready simultaneously, apply the queue
+tie-breaking order (standard convention: newly arrived processes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+preempted processes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+processes returning from I/O).</li>
+</ul></li>
+</ol>
+<details class="qa box">
+<summary>
+<strong>Tutorial 2 Q4:</strong> Tracing Context Switch Operations <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>The figure below shows the execution
+of processes P0 and P1 in a multiprogramming system. (a) Identify state
+transitions of each process. (b) Describe operations A, B, C, and D
+performed by the kernel.</em></p>
+<figure>
+<img width="626" height="510" src="media/2-artifacts/t2-q4-p0-p1-execution.webp"
+style="width:45.0%" loading="lazy" decoding="async"
+alt="Process Interleaving" />
+<figcaption aria-hidden="true">Process Interleaving</figcaption>
+</figure>
+<figure>
+<img width="1400" height="749" src="media/2-artifacts/t2-q4-operations-abcd.webp"
+style="width:70.0%" loading="lazy" decoding="async"
+alt="Official Solution Trace" />
+<figcaption aria-hidden="true">Official Solution Trace</figcaption>
+</figure>
+<p><strong>Solution:</strong></p>
+<p><strong>(a) State Transitions:</strong></p>
+<ul>
+<li><strong>Process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>:</strong>
+<ul>
+<li>When the interrupt arrives: <strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready</strong>.</li>
+<li>When dispatched at point D: <strong>Ready
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Running</strong>.</li>
+</ul></li>
+<li><strong>Process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:</strong>
+<ul>
+<li>When dispatched at point B: <strong>Ready
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Running</strong>.</li>
+<li>When issuing the I/O system call: <strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Waiting</strong>. (It returns to Ready later when the I/O
+finishes).</li>
+</ul></li>
+</ul>
+<p><strong>(b) Kernel Operations:</strong></p>
+<ul>
+<li><strong>A:</strong> Save processor state of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+into
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>C</mi><msub><mi>B</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">PCB_1</annotation></semantics></math>.</li>
+<li><strong>B:</strong> Reload saved state of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>C</mi><msub><mi>B</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">PCB_0</annotation></semantics></math>
+into CPU registers.</li>
+<li><strong>C:</strong> Save processor state of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+into
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>C</mi><msub><mi>B</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">PCB_0</annotation></semantics></math>.</li>
+<li><strong>D:</strong> Reload saved state of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mi>C</mi><msub><mi>B</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">PCB_1</annotation></semantics></math>
+into CPU registers.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY19/20 S1 Q1c:</strong> Complete Execution Timeline Trace <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Two processes P0 and P1 execute across
+7 time instants (A through G). At instant B, an I/O interrupt is
+received. At instant D, a timer interrupt is received. (i) Describe with
+justifications all state transitions for each process. (ii) Identify
+durations when the OS kernel executes and explain its
+operations.</em></p>
+<figure>
+<img width="818" height="590" src="media/2-artifacts/pyp-ay1920s1-q1-timeline.webp"
+style="width:60.0%" loading="lazy" decoding="async"
+alt="Timeline for P0 and P1" />
+<figcaption aria-hidden="true">Timeline for P0 and P1</figcaption>
+</figure>
+<p><strong>Solution:</strong></p>
+<p><strong>(i) State Transitions:</strong></p>
+<ul>
+<li><strong>Instant A:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:
+<strong>Ready
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Running</strong> (P0 is the sole ready process dispatched by
+scheduler).</li>
+<li><strong>Instant B:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:
+<strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Waiting</strong> (Initiates I/O request).</li>
+<li><strong>Instant C:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:
+<strong>Waiting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Running</strong> (I/O completes; P0 is the only ready process,
+immediately dispatched).</li>
+<li><strong>Instant D:</strong>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:
+<strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready</strong> (Preempted by timer interrupt; placed at tail of ready
+queue).</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>:
+<strong>New
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready</strong> (P1 arrives and enters ready queue ahead of preempted
+P0).</li>
+</ul></li>
+<li><strong>Instant E:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>:
+<strong>Ready
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Running</strong> (Scheduler dispatches head of ready queue).</li>
+<li><strong>Instant F:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>:
+<strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready</strong> (Preempted by timer interrupt; yields CPU to P0).</li>
+<li><strong>Instant G:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:
+<strong>Ready
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Running</strong> (Dispatched by scheduler).</li>
+</ul>
+<p><strong>(ii) Kernel Executions &amp; Operations:</strong></p>
+<ul>
+<li>The OS kernel executes at <strong>every transition instant (A, B, C,
+D, E, F, G)</strong>.</li>
+<li><strong>Operations:</strong> Saving context to outgoing PCB,
+updating process state in PCB, managing ready/waiting queues, running
+ISRs for I/O and timer interrupts, and restoring context from incoming
+PCB. All operations require <strong>kernel mode</strong> because PCBs
+reside in protected kernel memory.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY Past-Paper Checks:</strong> PCBs &amp; Schedulers <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY16/17 S1 Q2a(ii):</strong> <em>When a context switch
+occurs from P0 to P1, register values are loaded from the PCB of P0 to
+the PCB of P1.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>False.</strong> Registers are saved <strong>from CPU to
+PCB0</strong>, and loaded <strong>from PCB1 to CPU</strong>. Values
+never transfer between PCBs.</li>
+<li><strong>AY16/17 S1 Q2a(iv):</strong> <em>Base and limit registers in
+a PCB are used for memory protection.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>True.</strong> Loaded into hardware registers on dispatch to
+enforce bounds checks.</li>
+<li><strong>AY18/19 S2 Q1a(iv):</strong> <em>The short-term scheduler
+considers all processes waiting for CPU and I/O devices.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>False.</strong> The short-term scheduler selects <strong>only
+from the Ready queue</strong> (processes waiting for CPU). Processes
+waiting for I/O are in Waiting state and cannot run.</li>
+<li><strong>AY16/17 S2 Q1d:</strong> <em>Ready queue singly linked list
+pointers (<code>head</code>, <code>tail</code>) under Round Robin after
+timer interrupt with list <code>PCB1 -&gt; PCB2 -&gt; PCB3</code>:</em>
+<ul>
+<li>The running process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+is preempted and appends to <code>tail</code>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+at <code>head</code> is dispatched.</li>
+<li>Updated list:
+<strong><code>PCB2 -&gt; PCB3 -&gt; PCB0</code></strong>, where
+<code>head</code> points to PCB2 and <code>tail</code> points to
+PCB0.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="process-creation-synchronization-and-termination">4. Process
+Creation, Synchronization, and Termination</h2>
+<h3 id="process-hierarchy-the-process-tree">Process Hierarchy: The
+Process Tree</h3>
+<p>Operating systems organize processes in a hierarchical tree. A
+<strong>parent process</strong> creates <strong>child processes</strong>
+via the <code>fork()</code> system call:</p>
+<figure>
+<img width="1400" height="560" src="media/2-artifacts/process-tree.webp" style="width:60.0%"
+loading="lazy" decoding="async" alt="Process Tree Hierarchy" />
+<figcaption aria-hidden="true">Process Tree Hierarchy</figcaption>
+</figure>
+<ul>
+<li><strong>Resource Sharing Models:</strong>
+<ol type="1">
+<li>Parent and child share all resources.</li>
+<li>Children share a subset of the parent’s resources.</li>
+<li>Parent and child share no resources (child receives dedicated
+allocations).</li>
+</ol></li>
+<li><strong>Execution Options:</strong>
+<ol type="1">
+<li>Parent and child continue executing concurrently.</li>
+<li>Parent executes <code>wait()</code> (or <code>join()</code>) to
+suspend execution until the child terminates.</li>
+</ol></li>
+</ul>
+<h3 id="fork-execution-mechanics"><code>fork()</code> Execution
+Mechanics</h3>
+<p>When a process executes <code>fork()</code>:</p>
+<ol type="1">
+<li>The OS creates a <strong>new, duplicate address space</strong> and
+PCB for the child.</li>
+<li>The child duplicates the parent’s memory image (text, data, heap,
+stack) and inherits open file descriptors.</li>
+<li><strong>Both processes resume execution at the instruction
+immediately following <code>fork()</code></strong>.</li>
+<li>The return value of <code>fork()</code> differentiates parent from
+child:
+<ul>
+<li><strong>In the Parent:</strong> Returns the <strong>child’s
+PID</strong>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">&gt; 0</annotation></semantics></math>).</li>
+<li><strong>In the Child:</strong> Returns
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math></strong>.</li>
+<li>On failure: Returns
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">-1</annotation></semantics></math>.</li>
+</ul></li>
+</ol>
+<h3 id="process-termination-exit-vs.-abort">Process Termination:
+<code>exit()</code> vs. <code>abort()</code></h3>
+<ul>
+<li><strong><code>exit()</code> (Self-Termination):</strong> Invoked by
+the process when it finishes executing its final statement, passing a
+status integer back to its waiting parent.</li>
+<li><strong><code>abort()</code> (Forced Termination by
+Parent):</strong> Invoked by a parent process to forcibly terminate a
+child (e.g. child exceeded resource limits, or child’s task is no longer
+required).</li>
+</ul>
+<details class="qa box">
+<summary>
+<strong>AY18/19 S2 Q1c:</strong> The Fork-Join Model and Missing Join
+Calls <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Explain what is meant by the
+“fork-join” processing model. Devise an example with pseudo-code to
+illustrate the difference between: 1) all required join() calls are
+present; and 2) some join() calls are missing.</em></p>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>Fork-Join Model:</strong> A parallel processing pattern
+where an execution flow splits into concurrent independent branches
+(<code>fork</code>), and later synchronizes at a barrier
+(<code>join</code>) before proceeding sequentially.</li>
+</ul>
+<p><strong>Example Code:</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> main<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  Thread t1<span class="op">,</span> t2<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  fork<span class="op">(&amp;</span>t1<span class="op">,</span> <span class="op">&amp;</span>count<span class="op">,</span> <span class="dv">1</span><span class="op">);</span>   <span class="co">// t1 increments count</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  fork<span class="op">(&amp;</span>t2<span class="op">,</span> <span class="op">&amp;</span>count<span class="op">,</span> <span class="dv">1</span><span class="op">);</span>   <span class="co">// t2 increments count</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  join<span class="op">(&amp;</span>t1<span class="op">);</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  join<span class="op">(&amp;</span>t2<span class="op">);</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  printf<span class="op">(</span><span class="st">&quot;</span><span class="sc">%d\n</span><span class="st">&quot;</span><span class="op">,</span> count<span class="op">);</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<ul>
+<li><strong>Case 1 (All joins present):</strong> The parent waits for
+both threads to finish before printing. The output is deterministically
+<strong><code>2</code></strong>.</li>
+<li><strong>Case 2 (A join is missing):</strong> If
+<code>join(&amp;t2)</code> is omitted, the parent may execute
+<code>printf</code> before thread <code>t2</code> completes its write.
+Depending on thread interleaving, the output may print
+<strong><code>1</code> or <code>2</code></strong> (non-deterministic
+race condition).</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY Past-Paper Checks:</strong> Process Creation &amp;
+Termination <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY17/18 S1 Q1a(iii):</strong> <em>The <code>abort()</code>
+system call is used by a child process to terminate its own
+execution.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>False.</strong> A child terminates itself using
+<strong><code>exit()</code></strong>. The
+<strong><code>abort()</code></strong> system call is invoked by a parent
+to forcibly kill its child.</li>
+<li><strong>AY15/16 S2 Q1c(i):</strong> <em>Identify a line causing a
+mode switch in recursive fork code.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+Line containing <code>fork()</code> or <code>printf()</code>. Both
+require kernel system calls, triggering hardware traps from user mode to
+kernel mode.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="interprocess-communication-ipc">5. Interprocess Communication
+(IPC)</h2>
+<p>Processes executing concurrently are either
+<strong>independent</strong> (cannot affect or be affected by other
+processes) or <strong>cooperating</strong> (share data or state).
+Cooperating processes communicate via two foundational models:</p>
+<figure>
+<img width="1400" height="862" src="media/2-artifacts/ipc-models.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Message Passing vs Shared Memory IPC Models" />
+<figcaption aria-hidden="true">Message Passing vs Shared Memory IPC
+Models</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 37%" />
+<col style="width: 42%" />
+</colgroup>
+<thead>
+<tr>
+<th>Characteristic</th>
+<th>Shared Memory</th>
+<th>Message Passing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mechanism</strong></td>
+<td>A common memory region is mapped into both processes’ address
+spaces.</td>
+<td>The OS provides communication primitives: <code>send(message)</code>
+and <code>receive(message)</code>.</td>
+</tr>
+<tr>
+<td><strong>Kernel Involvement</strong></td>
+<td><strong>Only during initial setup.</strong> Once memory is mapped,
+read/write accesses occur at hardware memory speed with <strong>zero
+system calls</strong>.</td>
+<td><strong>Every message requires kernel intervention</strong> via
+system calls.</td>
+</tr>
+<tr>
+<td><strong>Memory Overhead</strong></td>
+<td><strong>Low:</strong> Data exists in a single shared location.</td>
+<td><strong>Higher:</strong> Data is copied multiple times (User Sender
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Kernel Buffer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+User Receiver).</td>
+</tr>
+<tr>
+<td><strong>Synchronization</strong></td>
+<td>Processes must manage mutual exclusion and race conditions
+themselves (e.g. via Semaphores).</td>
+<td>Handled automatically by the kernel’s message queue buffers.</td>
+</tr>
+<tr>
+<td><strong>Best Suited For</strong></td>
+<td>High-speed, large-volume data transfers on the same physical
+host.</td>
+<td>Small-to-medium transfers across processes or distributed network
+hosts.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img width="1400" height="668" src="media/2-artifacts/t2-message-passing-vs-shared-memory.webp"
+style="width:65.0%" loading="lazy" decoding="async"
+alt="Message Passing Buffer Copies vs Shared Memory Direct Write" />
+<figcaption aria-hidden="true">Message Passing Buffer Copies vs Shared
+Memory Direct Write</figcaption>
+</figure>
+<h3 id="direct-vs.-indirect-message-passing">Direct vs. Indirect Message
+Passing</h3>
+<ul>
+<li><strong>Direct Communication:</strong> Senders and receivers
+explicitly name each other:
+<ul>
+<li><code>send(P, &amp;message)</code>: Send a message to process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>.</li>
+<li><code>receive(Q, &amp;message)</code>: Receive a message from
+process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Indirect Communication:</strong> Messages are sent to and
+received from shared <strong>mailboxes (ports)</strong>:
+<ul>
+<li><code>send(mailbox_A, &amp;message)</code>,
+<code>receive(mailbox_A, &amp;message)</code>.</li>
+<li>Multiple processes can send to or read from the same mailbox.</li>
+</ul></li>
+</ul>
+<details class="qa box">
+<summary>
+<strong>Tutorial 2 Q1:</strong> True/False Process Concepts and IPC
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Justify whether true or false:</em>
+<em>(a) A ready process waiting for access to the CPU is in the
+“waiting” state.</em> <em>(b) When any hardware interrupt arrives, the
+running process is moved to “ready”.</em> <em>(c) The “wait()” system
+call is generally used by a child process to wait for instructions from
+a parent.</em> <em>(d) Message passing IPC consumes less memory than
+shared memory IPC.</em></p>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>(a) False.</strong> It is in the <strong>Ready</strong>
+state. The Waiting state is reserved for processes blocked on external
+events or I/O completions.</li>
+<li><strong>(b) True.</strong> The running process is moved to Ready to
+yield the processor to the Interrupt Service Routine (ISR).</li>
+<li><strong>(c) False.</strong> <code>wait()</code> is invoked by the
+<strong>parent</strong> process to suspend execution until its child
+terminates and collects its exit code.</li>
+<li><strong>(d) False.</strong> Message passing consumes <strong>more
+memory</strong> than shared memory because messages are duplicated into
+kernel buffers before delivery to the receiver, whereas shared memory
+exists in one place.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="threads-and-multithreading-models">6. Threads and Multithreading
+Models</h2>
+<h3 id="thread-definition-and-anatomy">Thread Definition and
+Anatomy</h3>
+<p>A <strong>thread</strong> is the basic unit of CPU utilization (often
+called a <em>lightweight process</em>). A traditional “heavyweight”
+process has a single thread of execution.</p>
+<p><img width="1400" height="942" src="media/2-artifacts/single-vs-multithreaded.webp"
+style="width:60.0%" loading="lazy" decoding="async"
+alt="Single-Threaded vs Multi-Threaded Process" /> <img width="1400" height="837"
+src="media/2-artifacts/t2-single-vs-multithreaded.webp"
+style="width:55.0%" loading="lazy" decoding="async"
+alt="Process Memory Sharing across Multiple Threads" /></p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 49%" />
+</colgroup>
+<thead>
+<tr>
+<th>Shared by All Threads in a Process</th>
+<th>Private to Each Individual Thread</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>• <strong>Text Segment</strong> (Executable code)<br>• <strong>Data
+Segment</strong> (Global variables)<br>• <strong>Heap Segment</strong>
+(Dynamic memory)<br>• <strong>OS Resources</strong> (Open files,
+sockets, signals)</td>
+<td>• <strong>Thread ID (TID)</strong><br>• <strong>Program Counter
+(PC)</strong><br>• <strong>Register Set</strong><br>• <strong>Dedicated
+Stack</strong> (Local variables, call stack)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>[!NOTE] <strong>Why Multithreading is Superior to Multiple
+Processes:</strong></p>
+<ol type="1">
+<li><strong>Resource Sharing:</strong> Threads share memory by default;
+processes require complex IPC.</li>
+<li><strong>Economy:</strong> Creating a thread and switching between
+threads within the same process is an order of magnitude faster than
+process creation/context switching (no memory address space or page
+table reloads required).</li>
+<li><strong>Responsiveness:</strong> In an interactive app or web
+server, a background thread can perform slow disk I/O while the main
+thread continues servicing user requests.</li>
+</ol>
+</blockquote>
+<figure>
+<img width="1400" height="584" src="media/2-artifacts/multithreaded-server.webp"
+style="width:55.0%" loading="lazy" decoding="async"
+alt="Multithreaded Server Architecture" />
+<figcaption aria-hidden="true">Multithreaded Server
+Architecture</figcaption>
+</figure>
+<hr />
+<h3 id="multithreading-models-user-vs.-kernel-threads">Multithreading
+Models: User vs. Kernel Threads</h3>
+<p>Operating systems distinguish between <strong>User Threads</strong>
+(managed in user space by thread libraries without kernel awareness) and
+<strong>Kernel Threads</strong> (managed and scheduled directly by the
+OS kernel):</p>
+<p><img width="1400" height="816" src="media/2-artifacts/many-to-one.webp" style="width:45.0%"
+loading="lazy" decoding="async" alt="Many-to-One Thread Model" /> <img width="1188" height="996"
+src="media/2-artifacts/many-to-many.webp" style="width:45.0%"
+loading="lazy" decoding="async" alt="Many-to-Many Thread Model" /></p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 27%" />
+<col style="width: 27%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th>Model</th>
+<th>Mapping Architecture</th>
+<th>Concurrency &amp; Blocking Behavior</th>
+<th>Primary Trade-Off</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Many-to-One</strong></td>
+<td>Many user threads map to a <strong>single kernel
+thread</strong>.</td>
+<td><strong>Poor:</strong> If one user thread makes a blocking system
+call, <strong>the entire process blocks</strong> because the kernel
+thread blocks.</td>
+<td>Fast user-space thread management; cannot leverage multiple CPU
+cores.</td>
+</tr>
+<tr>
+<td><strong>One-to-One</strong></td>
+<td>Each user thread maps to an <strong>independent kernel
+thread</strong>.</td>
+<td><strong>High:</strong> One thread blocking on I/O does not affect
+other threads. True multi-core parallelism.</td>
+<td>High kernel overhead: creating too many user threads creates too
+many kernel threads, straining OS resources. (Standard in Linux &amp;
+Windows).</td>
+</tr>
+<tr>
+<td><strong>Many-to-Many</strong></td>
+<td>Multiplexes many user threads onto a smaller or equal number of
+kernel threads.</td>
+<td><strong>High:</strong> Blocking threads do not block the entire
+process; threads execute across multiple cores.</td>
+<td>Complex kernel-space scheduler implementations.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>[!TIP] <strong>Why No “One-to-Many” Model?</strong> A single user
+thread represents one sequential execution path with one Program
+Counter. It cannot execute on multiple kernel threads simultaneously;
+allocating extra kernel threads to one user thread wastes system
+resources with zero concurrency benefit.</p>
+</blockquote>
+<details class="qa box">
+<summary>
+<strong>Tutorial 2 Q3 &amp; AY18/19 S1 Q1a(i):</strong> Thread Models
+and Concurrency <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Tutorial 2 Q3 (Single vs. Multi-threaded):</strong> A
+single-threaded process has only one execution context (one PC, one
+stack, one register set). A multi-threaded process contains multiple
+concurrent execution streams sharing text, data, and heap, but each
+possessing a private stack, registers, and Thread Control Block (TCB).
+Multi-threading improves throughput and responsiveness.</li>
+<li><strong>AY18/19 S1 Q1a(i):</strong> <em>In many-to-one mapping, when
+a running logical thread blocks, the CPU scheduler can simply switch to
+one of the other mapped logical threads.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>False.</strong> Because all user threads share a single kernel
+thread, the kernel views the entire process as one entity. When a
+blocking system call occurs, the kernel thread blocks, freezing all
+other user threads in that process.</li>
+</ul>
+</div>
+</details>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/1-overview/1.html">← 1.
+Overview of Operating Systems</a>
+  <a class="next-page" href="../../notes/3-cpu-scheduling/3.html">3. CPU
+Scheduling →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

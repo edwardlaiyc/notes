@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>6. Greedy Algorithms: Dijkstra's Shortest Paths and Prim's
+MST · SC2301 Algorithm Design &amp; Analysis</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">6. Greedy
+Algorithms: Dijkstra's Shortest Paths and Prim's MST</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">6. Greedy Algorithms: Dijkstra's Shortest Paths
+and Prim's MST</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-foundations/1.html"
+                   data-nav="notes/1-foundations/1.html">1. Foundations:
+Asymptotic Notation and Insertion Sort</a></li>
+            <li><a href="../../notes/2-mergesort/2.html"
+                   data-nav="notes/2-mergesort/2.html">2. Divide and
+Conquer: Mergesort</a></li>
+            <li><a href="../../notes/3-heapsort/3.html"
+                   data-nav="notes/3-heapsort/3.html">3. Heaps and
+Heapsort</a></li>
+            <li><a href="../../notes/4-quicksort-linear-sorts/4.html"
+                   data-nav="notes/4-quicksort-linear-sorts/4.html">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a></li>
+            <li><a href="../../notes/5-graph-traversal/5.html"
+                   data-nav="notes/5-graph-traversal/5.html">5. Graphs:
+Representations, BFS, DFS and Topological Sort</a></li>
+            <li><a href="../../notes/6-dijkstra-prim/6.html"
+                   data-nav="notes/6-dijkstra-prim/6.html">6. Greedy
+Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</a></li>
+            <li><a href="../../notes/7-union-find-kruskal/7.html"
+                   data-nav="notes/7-union-find-kruskal/7.html">7.
+Union-Find and Kruskal’s Algorithm</a></li>
+            <li><a href="../../notes/8-recurrences/8.html"
+                   data-nav="notes/8-recurrences/8.html">8. Analysis
+Techniques: Solving Recurrences</a></li>
+            <li><a href="../../notes/9-amortized-analysis/9.html"
+                   data-nav="notes/9-amortized-analysis/9.html">9.
+Amortized Analysis</a></li>
+            <li><a href="../../notes/10-dynamic-programming/10.html"
+                   data-nav="notes/10-dynamic-programming/10.html">10.
+Dynamic Programming</a></li>
+            <li><a href="../../notes/11-string-matching/11.html"
+                   data-nav="notes/11-string-matching/11.html">11.
+String Matching</a></li>
+            <li><a href="../../notes/12-np-completeness/12.html"
+                   data-nav="notes/12-np-completeness/12.html">12.
+NP-Completeness</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Cheatsheet</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#the-greedy-strategy-and-optimal-substructure"
+id="toc-the-greedy-strategy-and-optimal-substructure">1. The Greedy
+Strategy and Optimal Substructure</a></li>
+<li><a href="#single-source-shortest-paths-dijkstras-algorithm"
+id="toc-single-source-shortest-paths-dijkstras-algorithm">2.
+Single-Source Shortest Paths: Dijkstra’s Algorithm</a>
+<ul>
+<li><a href="#sub-path-optimality" id="toc-sub-path-optimality">Sub-path
+Optimality</a></li>
+<li><a href="#dijkstras-algorithm"
+id="toc-dijkstras-algorithm">Dijkstra’s Algorithm</a></li>
+<li><a href="#edge-relaxation-invariant"
+id="toc-edge-relaxation-invariant">Edge Relaxation Invariant</a></li>
+<li><a href="#step-by-step-method-tabular-execution-of-dijkstra"
+id="toc-step-by-step-method-tabular-execution-of-dijkstra">Step-by-Step
+Method: Tabular Execution of Dijkstra</a></li>
+</ul></li>
+<li><a href="#minimum-spanning-trees-mst"
+id="toc-minimum-spanning-trees-mst">3. Minimum Spanning Trees (MST)</a>
+<ul>
+<li><a href="#fundamental-cut-and-cycle-properties"
+id="toc-fundamental-cut-and-cycle-properties">Fundamental Cut and Cycle
+Properties</a></li>
+</ul></li>
+<li><a href="#prims-algorithm" id="toc-prims-algorithm">4. Prim’s
+Algorithm</a>
+<ul>
+<li><a href="#step-by-step-method-tracing-prims-algorithm"
+id="toc-step-by-step-method-tracing-prims-algorithm">Step-by-Step
+Method: Tracing Prim’s Algorithm</a></li>
+</ul></li>
+<li><a href="#architectural-comparison-dijkstra-vs.-prim"
+id="toc-architectural-comparison-dijkstra-vs.-prim">5. Architectural
+Comparison: Dijkstra vs. Prim</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>The <strong>greedy strategy</strong> solves optimization problems by
+making the locally optimal choice at each decision step, never
+backtracking or reconsidering past selections. While greedy heuristics
+fail on arbitrary optimization landscapes, they yield provably optimal
+global solutions when the problem exhibits <strong>greedy-choice
+property</strong> and <strong>optimal substructure</strong>.</p>
+<p>This chapter analyzes two classic greedy graph algorithms:
+<strong>Dijkstra’s Algorithm</strong> for single-source shortest paths
+on non-negative weighted graphs, and <strong>Prim’s Algorithm</strong>
+for constructing Minimum Spanning Trees (MSTs).</p>
+<hr />
+<h2 id="the-greedy-strategy-and-optimal-substructure">1. The Greedy
+Strategy and Optimal Substructure</h2>
+<p>In an optimization problem, an algorithm constructs a solution
+through a sequence of choices:</p>
+<pre class="mermaid"><code>flowchart LR
+    Opt[&quot;Global Optimum&quot;] --- Sub[&quot;1. Optimal Substructure: Optimal solution contains optimal sub-solutions&quot;]
+    Opt --- GCP[&quot;2. Greedy Choice Property: Globally optimal solution reached via locally optimal choices&quot;]</code></pre>
+<ul>
+<li><strong>Optimal Substructure:</strong> A problem exhibits optimal
+substructure if an optimal solution to the problem contains within it
+optimal solutions to subproblems.</li>
+<li><strong>Greedy-Choice Property:</strong> A global optimum can be
+arrived at by making a series of locally optimal choices without solving
+subproblems first.</li>
+</ul>
+<figure>
+<img width="1400" height="924" src="media/6-artifacts/greedy-local-optimum.webp"
+style="width:60.0%" loading="lazy" decoding="async"
+alt="Greedy choices can become trapped in local optima on general landscapes. Greedy algorithms require rigorous mathematical proof to establish optimality." />
+<figcaption aria-hidden="true">Greedy choices can become trapped in
+local optima on general landscapes. Greedy algorithms require rigorous
+mathematical proof to establish optimality.</figcaption>
+</figure>
+<hr />
+<h2 id="single-source-shortest-paths-dijkstras-algorithm">2.
+Single-Source Shortest Paths: Dijkstra’s Algorithm</h2>
+<p>Given a directed or undirected weighted graph
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo>,</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G = (V, E, W)</annotation></semantics></math>
+and source
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>∈</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">s \in V</annotation></semantics></math>,
+find the shortest path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+to every vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>∈</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">v \in V</annotation></semantics></math>.</p>
+<h3 id="sub-path-optimality">Sub-path Optimality</h3>
+<p><strong>Lemma (Optimal Substructure of Shortest Paths):</strong> Any
+sub-path of a shortest path is itself a shortest path between its
+endpoints. <em>Proof by Contradiction:</em> If a sub-path between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>y</mi><annotation encoding="application/x-tex">y</annotation></semantics></math>
+could be replaced by a strictly shorter path, splicing that shorter path
+into the original route would yield a shorter overall path between
+source and destination, contradicting optimality.</p>
+<hr />
+<h3 id="dijkstras-algorithm">Dijkstra’s Algorithm</h3>
+<p>Dijkstra maintains a set of finalized vertices
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+and iteratively pulls the closest non-finalized vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>∈</mo><mi>V</mi><mo>\</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">u \in V \setminus S</annotation></semantics></math>
+into
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+relaxing all outgoing edges
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> Dijkstra<span class="op">(</span><span class="at">const</span> Graph<span class="op">&amp;</span> G<span class="op">,</span> <span class="dt">int</span> source<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> dist<span class="op">(</span>V<span class="op">,</span> INF<span class="op">);</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> parent<span class="op">(</span>V<span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    vector<span class="op">&lt;</span><span class="dt">bool</span><span class="op">&gt;</span> S<span class="op">(</span>V<span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    dist<span class="op">[</span>source<span class="op">]</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    priority_queue<span class="op">&lt;</span>pair<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> <span class="dt">int</span><span class="op">&gt;,</span> vector<span class="op">&lt;</span>pair<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> <span class="dt">int</span><span class="op">&gt;&gt;,</span> greater<span class="op">&lt;&gt;&gt;</span> PQ<span class="op">;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    PQ<span class="op">.</span>push<span class="op">({</span><span class="dv">0</span><span class="op">,</span> source<span class="op">});</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(!</span>PQ<span class="op">.</span>empty<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> u <span class="op">=</span> PQ<span class="op">.</span>top<span class="op">().</span>second<span class="op">;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>        PQ<span class="op">.</span>pop<span class="op">();</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>S<span class="op">[</span>u<span class="op">])</span> <span class="cf">continue</span><span class="op">;</span>                <span class="co">// Already finalized</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>        S<span class="op">[</span>u<span class="op">]</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>                       <span class="co">// u is finalized into S</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> <span class="op">[</span>v<span class="op">,</span> weight<span class="op">]</span> <span class="op">:</span> G<span class="op">.</span>adj<span class="op">[</span>u<span class="op">])</span> <span class="op">{</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(!</span>S<span class="op">[</span>v<span class="op">]</span> <span class="op">&amp;&amp;</span> dist<span class="op">[</span>u<span class="op">]</span> <span class="op">+</span> weight <span class="op">&lt;</span> dist<span class="op">[</span>v<span class="op">])</span> <span class="op">{</span> <span class="co">// Relaxation step</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>                dist<span class="op">[</span>v<span class="op">]</span> <span class="op">=</span> dist<span class="op">[</span>u<span class="op">]</span> <span class="op">+</span> weight<span class="op">;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>                parent<span class="op">[</span>v<span class="op">]</span> <span class="op">=</span> u<span class="op">;</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>                PQ<span class="op">.</span>push<span class="op">({</span>dist<span class="op">[</span>v<span class="op">],</span> v<span class="op">});</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<figure>
+<img width="1400" height="651" src="media/6-artifacts/dijkstra-run.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Dijkstra’s execution. Blue vertices form finalized set S. Tan vertices reside in the priority queue. Relaxing edges from newly added vertices lowers neighboring distance estimates." />
+<figcaption aria-hidden="true">Dijkstra’s execution. Blue vertices form
+finalized set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.
+Tan vertices reside in the priority queue. Relaxing edges from newly
+added vertices lowers neighboring distance estimates.</figcaption>
+</figure>
+<h3 id="edge-relaxation-invariant">Edge Relaxation Invariant</h3>
+<p>Relaxing edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u, v)</annotation></semantics></math>
+tests whether traversing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>→</mo><mi>v</mi></mrow><annotation encoding="application/x-tex">u \to v</annotation></semantics></math>
+improves the current shortest estimate to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">If </mtext><mspace width="0.333em"></mspace></mrow><mi>d</mi><mi>i</mi><mi>s</mi><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>u</mi><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>d</mi><mi>i</mi><mi>s</mi><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>⟹</mo><mi>d</mi><mi>i</mi><mi>s</mi><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>d</mi><mi>i</mi><mi>s</mi><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>u</mi><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><mi>p</mi><mi>a</mi><mi>r</mi><mi>e</mi><mi>n</mi><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>u</mi></mrow><annotation encoding="application/x-tex">\text{If } dist[u] + w(u, v) &lt; dist[v] \implies dist[v] = dist[u] + w(u, v), \quad parent[v] = u</annotation></semantics></math></p>
+<blockquote>
+<p>[!WARNING] <strong>Strict Requirement: Non-Negative Weights
+Only:</strong> Dijkstra assumes that once a vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+enters
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+no path discovered later can reach
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+with lower cost. If an edge has a <strong>negative weight</strong>, a
+longer path discovered later could offset previous costs, violating the
+greedy choice.</p>
+<p><em>Adding a positive constant
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+to all edges does NOT fix negative weights!</em> Paths containing more
+edges accumulate more copies of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>,
+altering which path is shortest.</p>
+</blockquote>
+<hr />
+<h3 id="step-by-step-method-tabular-execution-of-dijkstra">Step-by-Step
+Method: Tabular Execution of Dijkstra</h3>
+<ol type="1">
+<li><strong>Setup Columns:</strong> Create columns for Vertex, Status in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+Distance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>,
+and Parent
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>π</mi><annotation encoding="application/x-tex">\pi</annotation></semantics></math>.</li>
+<li><strong>Initialize:</strong> Set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>s</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>0</mn><mo>,</mo><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mi>s</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mtext mathvariant="normal">null</mtext></mrow><annotation encoding="application/x-tex">d[s] = 0, \pi[s] = \text{null}</annotation></semantics></math>.
+Set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>∞</mi><mo>,</mo><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mtext mathvariant="normal">null</mtext></mrow><annotation encoding="application/x-tex">d[v] = \infty, \pi[v] = \text{null}</annotation></semantics></math>
+for all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>≠</mo><mi>s</mi></mrow><annotation encoding="application/x-tex">v \ne s</annotation></semantics></math>.</li>
+<li><strong>Iterate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|V|</annotation></semantics></math>
+Times:</strong>
+<ul>
+<li>Select vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>∉</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">u \notin S</annotation></semantics></math>
+with minimum
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>u</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">d[u]</annotation></semantics></math>.
+Mark
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>∈</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">u \in S</annotation></semantics></math>.</li>
+<li>For each unvisited neighbor
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>v</mi><annotation encoding="application/x-tex">v</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>:
+if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>u</mi><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">d[u] + w(u, v) &lt; d[v]</annotation></semantics></math>,
+update
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>u</mi><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d[v] = d[u] + w(u, v)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>u</mi></mrow><annotation encoding="application/x-tex">\pi[v] = u</annotation></semantics></math>.</li>
+<li>Record updated state row.</li>
+</ul></li>
+</ol>
+<figure>
+<img width="1000" height="765" src="media/6-artifacts/dijkstra-graph.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Graph for Tutorial 5 Dijkstra tracing." />
+<figcaption aria-hidden="true">Graph for Tutorial 5 Dijkstra
+tracing.</figcaption>
+</figure>
+<details class="qa box">
+<summary>
+<strong>Tutorial 5 Q1:</strong> Dijkstra’s Algorithm State Table Trace
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Apply Dijkstra’s algorithm to the graph
+represented by the following adjacency matrix to find the shortest path
+from vertex 0 to all other vertices. Provide the full trace of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>,</mo><mi>d</mi><mo>,</mo><mi>π</mi></mrow><annotation encoding="application/x-tex">S, d, \pi</annotation></semantics></math>
+at each step.</p>
+<pre><code>A = [
+  [0, 4, 0, 0, 0, 0, 0, 8, 0],
+  [4, 0, 8, 0, 0, 0, 0, 11, 0],
+  [0, 8, 0, 7, 0, 4, 0, 0, 2],
+  [0, 0, 7, 0, 9, 14, 0, 0, 0],
+  [0, 0, 0, 9, 0, 10, 0, 0, 0],
+  [0, 0, 4, 14, 10, 0, 2, 0, 0],
+  [0, 0, 0, 0, 0, 2, 0, 1, 6],
+  [8, 11, 0, 0, 0, 0, 1, 0, 7],
+  [0, 0, 2, 0, 0, 0, 6, 7, 0]
+]</code></pre>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Iteration Trace:</strong>
+<ul>
+<li><strong>Init:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mi>∅</mi></mrow><annotation encoding="application/x-tex">S = \emptyset</annotation></semantics></math>.
+Distances
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo>,</mo><mi>∞</mi><mo>,</mo><mi>∞</mi><mo>,</mo><mi>∞</mi><mo>,</mo><mi>∞</mi><mo>,</mo><mi>∞</mi><mo>,</mo><mi>∞</mi><mo>,</mo><mi>∞</mi><mo>,</mo><mi>∞</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">d = [0, \infty, \infty, \infty, \infty, \infty, \infty, \infty, \infty]</annotation></semantics></math>.</li>
+<li><strong>Step 1:</strong> Min
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+is vertex 0
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">d=0</annotation></semantics></math>).
+Add 0 to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.
+<ul>
+<li>Relax neighbors of 0:
+<ul>
+<li>Vertex 1:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>0</mn><mo>+</mo><mn>4</mn><mo>=</mo><mn>4</mn><mo>,</mo><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">d[1] = 0 + 4 = 4, \pi[1] = 0</annotation></semantics></math></li>
+<li>Vertex 7:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>7</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>0</mn><mo>+</mo><mn>8</mn><mo>=</mo><mn>8</mn><mo>,</mo><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mn>7</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">d[7] = 0 + 8 = 8, \pi[7] = 0</annotation></semantics></math></li>
+</ul></li>
+</ul></li>
+<li><strong>Step 2:</strong> Min in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>\</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">V \setminus S</annotation></semantics></math>
+is vertex 1
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">d=4</annotation></semantics></math>).
+Add 1 to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.
+<ul>
+<li>Relax neighbors of 1:
+<ul>
+<li>Vertex 2:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>2</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>4</mn><mo>+</mo><mn>8</mn><mo>=</mo><mn>12</mn><mo>,</mo><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mn>2</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">d[2] = 4 + 8 = 12, \pi[2] = 1</annotation></semantics></math></li>
+<li>Vertex 7:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mo>+</mo><mn>11</mn><mo>=</mo><mn>15</mn><mo>&gt;</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">4 + 11 = 15 &gt; 8</annotation></semantics></math>
+(no change)</li>
+</ul></li>
+</ul></li>
+<li><strong>Step 3:</strong> Min in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>\</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">V \setminus S</annotation></semantics></math>
+is vertex 7
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">d=8</annotation></semantics></math>).
+Add 7 to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.
+<ul>
+<li>Relax neighbors of 7:
+<ul>
+<li>Vertex 6:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>6</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>8</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>9</mn><mo>,</mo><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mn>6</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">d[6] = 8 + 1 = 9, \pi[6] = 7</annotation></semantics></math></li>
+<li>Vertex 8:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>8</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>8</mn><mo>+</mo><mn>7</mn><mo>=</mo><mn>15</mn><mo>,</mo><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mn>8</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">d[8] = 8 + 7 = 15, \pi[8] = 7</annotation></semantics></math></li>
+</ul></li>
+</ul></li>
+<li><strong>Step 4:</strong> Min in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>\</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">V \setminus S</annotation></semantics></math>
+is vertex 6
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>9</mn></mrow><annotation encoding="application/x-tex">d=9</annotation></semantics></math>).
+Add 6 to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.
+<ul>
+<li>Relax neighbors of 6:
+<ul>
+<li>Vertex 5:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>5</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>9</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>11</mn><mo>,</mo><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mn>5</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">d[5] = 9 + 2 = 11, \pi[5] = 6</annotation></semantics></math></li>
+<li>Vertex 8:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>8</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>15</mn><mo>,</mo><mn>9</mn><mo>+</mo><mn>6</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>15</mn></mrow><annotation encoding="application/x-tex">d[8] = \min(15, 9 + 6) = 15</annotation></semantics></math>
+(no change)</li>
+</ul></li>
+</ul></li>
+<li><strong>Step 5:</strong> Min in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>\</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">V \setminus S</annotation></semantics></math>
+is vertex 5
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>11</mn></mrow><annotation encoding="application/x-tex">d=11</annotation></semantics></math>).
+Add 5 to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.
+<ul>
+<li>Relax neighbors of 5:
+<ul>
+<li>Vertex 2:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>2</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>12</mn><mo>,</mo><mn>11</mn><mo>+</mo><mn>4</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">d[2] = \min(12, 11 + 4) = 12</annotation></semantics></math></li>
+<li>Vertex 3:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>3</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>11</mn><mo>+</mo><mn>14</mn><mo>=</mo><mn>25</mn><mo>,</mo><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mn>3</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">d[3] = 11 + 14 = 25, \pi[3] = 5</annotation></semantics></math></li>
+<li>Vertex 4:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>4</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>11</mn><mo>+</mo><mn>10</mn><mo>=</mo><mn>21</mn><mo>,</mo><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mn>4</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">d[4] = 11 + 10 = 21, \pi[4] = 5</annotation></semantics></math></li>
+</ul></li>
+</ul></li>
+<li><strong>Step 6:</strong> Min in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>\</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">V \setminus S</annotation></semantics></math>
+is vertex 2
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">d=12</annotation></semantics></math>).
+Add 2 to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.
+<ul>
+<li>Relax neighbors of 2:
+<ul>
+<li>Vertex 3:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>3</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>25</mn><mo>,</mo><mn>12</mn><mo>+</mo><mn>7</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>19</mn><mo>,</mo><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mn>3</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">d[3] = \min(25, 12 + 7) = 19, \pi[3] = 2</annotation></semantics></math></li>
+<li>Vertex 8:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>8</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>15</mn><mo>,</mo><mn>12</mn><mo>+</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>14</mn><mo>,</mo><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mn>8</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">d[8] = \min(15, 12 + 2) = 14, \pi[8] = 2</annotation></semantics></math></li>
+</ul></li>
+</ul></li>
+<li><strong>Step 7:</strong> Min in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>\</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">V \setminus S</annotation></semantics></math>
+is vertex 8
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>14</mn></mrow><annotation encoding="application/x-tex">d=14</annotation></semantics></math>).
+Add 8 to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.
+<ul>
+<li>No neighbors in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>\</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">V \setminus S</annotation></semantics></math>
+relaxed.</li>
+</ul></li>
+<li><strong>Step 8:</strong> Min in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>\</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">V \setminus S</annotation></semantics></math>
+is vertex 3
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>19</mn></mrow><annotation encoding="application/x-tex">d=19</annotation></semantics></math>).
+Add 3 to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.
+<ul>
+<li>Relax neighbor 4:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mn>4</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>21</mn><mo>,</mo><mn>19</mn><mo>+</mo><mn>9</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>21</mn></mrow><annotation encoding="application/x-tex">d[4] = \min(21, 19 + 9) = 21</annotation></semantics></math>
+(no change).</li>
+</ul></li>
+<li><strong>Step 9:</strong> Min in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mo>\</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">V \setminus S</annotation></semantics></math>
+is vertex 4
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>21</mn></mrow><annotation encoding="application/x-tex">d=21</annotation></semantics></math>).
+Add 4 to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Final Shortest Distances and Predecessors:</strong> | Vertex
+| 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | |—|—|—|—|—|—|—|—|—|—| |
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">d[v]</annotation></semantics></math></strong>
+| 0 | 4 | 12 | 19 | 21 | 11 | 9 | 8 | 14 | |
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>π</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\pi[v]</annotation></semantics></math></strong>
+| - | 0 | 1 | 2 | 5 | 6 | 7 | 0 | 2 |</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 5 Q2:</strong> Shortest Path Uniqueness Under Distinct
+Edge Weights <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo>,</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G = (V, E, W)</annotation></semantics></math>
+be a weighted graph with distinct vertices
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>.
+If all edge weights are distinct and positive, is the shortest path
+between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>z</mi><annotation encoding="application/x-tex">z</annotation></semantics></math>
+guaranteed to be unique? Justify with proof or counterexample.</p>
+<p><strong>Solution:</strong></p>
+<p><strong>No</strong>, distinct edge weights do <strong>not</strong>
+guarantee a unique shortest path.</p>
+<ul>
+<li><strong>Counterexample:</strong> Consider a 3-vertex graph with
+vertices
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{s, a, z\}</annotation></semantics></math>:
+<ul>
+<li>Edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(s, a)</annotation></semantics></math>
+with weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>2</mn><annotation encoding="application/x-tex">2</annotation></semantics></math>.</li>
+<li>Edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>a</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(a, z)</annotation></semantics></math>
+with weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>3</mn><annotation encoding="application/x-tex">3</annotation></semantics></math>.</li>
+<li>Edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>s</mi><mo>,</mo><mi>z</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(s, z)</annotation></semantics></math>
+with weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>5</mn><annotation encoding="application/x-tex">5</annotation></semantics></math>.</li>
+<li>All edge weights
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{2, 3, 5\}</annotation></semantics></math>
+are strictly positive and distinct.</li>
+<li>Path 1:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>→</mo><mi>a</mi><mo>→</mo><mi>z</mi></mrow><annotation encoding="application/x-tex">s \to a \to z</annotation></semantics></math>
+with total length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>+</mo><mn>3</mn><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">2 + 3 = 5</annotation></semantics></math>.</li>
+<li>Path 2:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>→</mo><mi>z</mi></mrow><annotation encoding="application/x-tex">s \to z</annotation></semantics></math>
+with total length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>5</mn><annotation encoding="application/x-tex">5</annotation></semantics></math>.</li>
+<li>Both paths have identical total weight 5, demonstrating that
+shortest paths can tie even when all individual edge weights are
+unique.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="minimum-spanning-trees-mst">3. Minimum Spanning Trees (MST)</h2>
+<p>For a connected, undirected weighted graph
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo>,</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G = (V, E, W)</annotation></semantics></math>,
+a <strong>spanning tree</strong> is an acyclic subgraph connecting all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|V|</annotation></semantics></math>
+vertices, containing exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">|V| - 1</annotation></semantics></math>
+edges. A <strong>Minimum Spanning Tree (MST)</strong> minimizes total
+weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mo>∑</mo><mrow><mi>e</mi><mo>∈</mo><mi>T</mi></mrow></msub><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>e</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sum_{e \in T} w(e)</annotation></semantics></math>.</p>
+<figure>
+<img width="1400" height="470" src="media/6-artifacts/mst-property.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="The MST Property: Adding any non-tree edge to an MST creates a unique cycle where the added edge has maximal weight on that cycle." />
+<figcaption aria-hidden="true">The MST Property: Adding any non-tree
+edge to an MST creates a unique cycle where the added edge has maximal
+weight on that cycle.</figcaption>
+</figure>
+<h3 id="fundamental-cut-and-cycle-properties">Fundamental Cut and Cycle
+Properties</h3>
+<ul>
+<li><strong>The Cut Property:</strong> For any partition (cut) of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>
+into
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>S</mi><mo>,</mo><mi>V</mi><mo>\</mo><mi>S</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(S, V \setminus S)</annotation></semantics></math>,
+the minimum-weight edge crossing the cut belongs to an MST. If this
+crossing edge is uniquely minimal, it belongs to <strong>every</strong>
+MST.</li>
+<li><strong>The Cycle Property:</strong> For any cycle in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>,
+the strictly heaviest edge on the cycle cannot belong to any MST.</li>
+</ul>
+<details class="qa box">
+<summary>
+<strong>Tutorial 5 Q3:</strong> Proof of Unique MST When Edge Weights
+Are Distinct <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Show that every connected weighted graph
+whose edge weights are all distinct has a <strong>unique</strong>
+minimum spanning tree.</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Proof by Contradiction:</strong>
+<ol type="1">
+<li>Suppose
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+contains distinct edge weights but possesses two distinct MSTs,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>1</mn></msub><annotation encoding="application/x-tex">T_1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>2</mn></msub><annotation encoding="application/x-tex">T_2</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mn>1</mn></msub><mo>≠</mo><msub><mi>T</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">T_1 \ne T_2</annotation></semantics></math>).</li>
+<li>Consider the set of symmetric difference edges
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>T</mi><mn>1</mn></msub><mo>\</mo><msub><mi>T</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>∪</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>T</mi><mn>2</mn></msub><mo>\</mo><msub><mi>T</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(T_1 \setminus T_2) \cup (T_2 \setminus T_1)</annotation></semantics></math>.</li>
+<li>Because edge weights are distinct, this set contains a unique edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">e = (u, v)</annotation></semantics></math>
+of <strong>minimum weight</strong>. Without loss of generality, assume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>e</mi><mo>∈</mo><msub><mi>T</mi><mn>1</mn></msub><mo>\</mo><msub><mi>T</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">e \in T_1 \setminus T_2</annotation></semantics></math>.</li>
+<li>Adding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>2</mn></msub><annotation encoding="application/x-tex">T_2</annotation></semantics></math>
+forms a unique cycle
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mn>2</mn></msub><mo>∪</mo><mo stretchy="false" form="prefix">{</mo><mi>e</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">T_2 \cup \{e\}</annotation></semantics></math>.</li>
+<li>Since
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>1</mn></msub><annotation encoding="application/x-tex">T_1</annotation></semantics></math>
+is an acyclic tree, cycle
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+cannot be entirely contained in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>1</mn></msub><annotation encoding="application/x-tex">T_1</annotation></semantics></math>.
+Therefore, there must exist at least one edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mo>′</mo></msup><mo>∈</mo><mi>C</mi></mrow><annotation encoding="application/x-tex">e&#39; \in C</annotation></semantics></math>
+such that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mo>′</mo></msup><mo>∉</mo><msub><mi>T</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">e&#39; \notin T_1</annotation></semantics></math>
+(meaning
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>e</mi><mo>′</mo></msup><mo>∈</mo><msub><mi>T</mi><mn>2</mn></msub><mo>\</mo><msub><mi>T</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">e&#39; \in T_2 \setminus T_1</annotation></semantics></math>).</li>
+<li>By definition of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>e</mi><annotation encoding="application/x-tex">e</annotation></semantics></math>
+as the strictly lightest edge in the symmetric difference, we have
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>e</mi><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>e</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w(e) &lt; w(e&#39;)</annotation></semantics></math>.</li>
+<li>Construct a new spanning tree
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mn>3</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>T</mi><mn>2</mn></msub><mo>\</mo><mo stretchy="false" form="prefix">{</mo><msup><mi>e</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">}</mo><mo stretchy="false" form="postfix">)</mo><mo>∪</mo><mo stretchy="false" form="prefix">{</mo><mi>e</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">T_3 = (T_2 \setminus \{e&#39;\}) \cup \{e\}</annotation></semantics></math>.</li>
+<li>The total weight of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>3</mn></msub><annotation encoding="application/x-tex">T_3</annotation></semantics></math>
+is:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>T</mi><mn>3</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>T</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>e</mi><mo>′</mo></msup><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>e</mi><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>T</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">w(T_3) = w(T_2) - w(e&#39;) + w(e) &lt; w(T_2)</annotation></semantics></math></li>
+<li>This strictly contradicts the assumption that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mn>2</mn></msub><annotation encoding="application/x-tex">T_2</annotation></semantics></math>
+is a Minimum Spanning Tree.</li>
+<li>Hence, the MST must be unique.</li>
+</ol></li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="prims-algorithm">4. Prim’s Algorithm</h2>
+<p>Prim’s algorithm grows a single tree
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+outward from an arbitrary start vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>.
+At each iteration, it absorbs the lightest edge connecting a vertex in
+the tree to a vertex outside the tree (the fringe).</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> Prim<span class="op">(</span><span class="at">const</span> Graph<span class="op">&amp;</span> G<span class="op">,</span> <span class="dt">int</span> start<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> key<span class="op">(</span>V<span class="op">,</span> INF<span class="op">);</span>              <span class="co">// Lightest single edge to tree</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> parent<span class="op">(</span>V<span class="op">,</span> <span class="op">-</span><span class="dv">1</span><span class="op">);</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    vector<span class="op">&lt;</span><span class="dt">bool</span><span class="op">&gt;</span> inMST<span class="op">(</span>V<span class="op">,</span> <span class="kw">false</span><span class="op">);</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    key<span class="op">[</span>start<span class="op">]</span> <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    priority_queue<span class="op">&lt;</span>pair<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> <span class="dt">int</span><span class="op">&gt;,</span> vector<span class="op">&lt;</span>pair<span class="op">&lt;</span><span class="dt">int</span><span class="op">,</span> <span class="dt">int</span><span class="op">&gt;&gt;,</span> greater<span class="op">&lt;&gt;&gt;</span> PQ<span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    PQ<span class="op">.</span>push<span class="op">({</span><span class="dv">0</span><span class="op">,</span> start<span class="op">});</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(!</span>PQ<span class="op">.</span>empty<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> u <span class="op">=</span> PQ<span class="op">.</span>top<span class="op">().</span>second<span class="op">;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        PQ<span class="op">.</span>pop<span class="op">();</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>inMST<span class="op">[</span>u<span class="op">])</span> <span class="cf">continue</span><span class="op">;</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>        inMST<span class="op">[</span>u<span class="op">]</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> <span class="op">[</span>v<span class="op">,</span> weight<span class="op">]</span> <span class="op">:</span> G<span class="op">.</span>adj<span class="op">[</span>u<span class="op">])</span> <span class="op">{</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(!</span>inMST<span class="op">[</span>v<span class="op">]</span> <span class="op">&amp;&amp;</span> weight <span class="op">&lt;</span> key<span class="op">[</span>v<span class="op">])</span> <span class="op">{</span> <span class="co">// Prim&#39;s update rule</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                key<span class="op">[</span>v<span class="op">]</span> <span class="op">=</span> weight<span class="op">;</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                parent<span class="op">[</span>v<span class="op">]</span> <span class="op">=</span> u<span class="op">;</span></span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                PQ<span class="op">.</span>push<span class="op">({</span>key<span class="op">[</span>v<span class="op">],</span> v<span class="op">});</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<figure>
+<img width="1253" height="570" src="media/6-artifacts/prim-graph.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Graph used for Prim’s algorithm tracing starting from vertex G." />
+<figcaption aria-hidden="true">Graph used for Prim’s algorithm tracing
+starting from vertex G.</figcaption>
+</figure>
+<hr />
+<h3 id="step-by-step-method-tracing-prims-algorithm">Step-by-Step
+Method: Tracing Prim’s Algorithm</h3>
+<ol type="1">
+<li><strong>Vertex Partitioning:</strong> Maintain sets
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+(in tree), Fringe
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mi>e</mi><mi>y</mi><mo>&lt;</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">key &lt; \infty</annotation></semantics></math>),
+and Unseen
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mi>e</mi><mi>y</mi><mo>=</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">key = \infty</annotation></semantics></math>).</li>
+<li><strong>Key Interpretation:</strong> Unlike Dijkstra
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>u</mi><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mi>w</mi></mrow><annotation encoding="application/x-tex">d[v] = d[u] + w</annotation></semantics></math>),
+Prim updates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mi>e</mi><mi>y</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">key[v] = w(u, v)</annotation></semantics></math>
+(cost of a single edge).</li>
+<li><strong>Execution Protocol:</strong>
+<ul>
+<li>Pop minimum key from fringe.</li>
+<li>Add edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>p</mi><mi>a</mi><mi>r</mi><mi>e</mi><mi>n</mi><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>u</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(parent[u], u)</annotation></semantics></math>
+to MST.</li>
+<li>For each neighbor
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>v</mi><mo>∉</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">v \notin T</annotation></semantics></math>,
+update
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mi>e</mi><mi>y</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mi>e</mi><mi>y</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>,</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">key[v] = \min(key[v], w(u, v))</annotation></semantics></math>.</li>
+</ul></li>
+</ol>
+<details class="qa box">
+<summary>
+<strong>Tutorial 6 Q1:</strong> Prim’s Algorithm Execution Trace from
+Vertex G <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Execute Prim’s algorithm on the graph
+below, starting at vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>.
+Show the order of edge additions and the vertex inclusion sequence. <img width="1253" height="570"
+src="media/6-artifacts/prim-graph.webp" style="width:60.0%"
+loading="lazy" decoding="async" alt="Prim execution graph" /></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Step-by-Step Traversal from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>:</strong>
+<ol type="1">
+<li><strong>Start at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>:</strong>
+Fringe initialized with incident edges:
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>G</mi><mo>,</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mn>1</mn><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mi>G</mi><mo>,</mo><mi>F</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mn>2</mn><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mi>G</mi><mo>,</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">(G, H): 1, (G, F): 2, (G, I): 6</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Add edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>G</mi><mo>,</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(G, H)</annotation></semantics></math>
+with weight 1:</strong> Vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>
+joins tree.
+<ul>
+<li>New fringe candidates from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>H</mi><annotation encoding="application/x-tex">H</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo>,</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mn>4</mn><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mi>H</mi><mo>,</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">(H, A): 4, (H, B): 7</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Add edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>G</mi><mo>,</mo><mi>F</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(G, F)</annotation></semantics></math>
+with weight 2:</strong> Vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>
+joins tree.
+<ul>
+<li>New candidates from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>F</mi><mo>,</mo><mi>C</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mn>3</mn><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mi>F</mi><mo>,</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">(F, C): 3, (F, D): 2</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Add edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>F</mi><mo>,</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(F, D)</annotation></semantics></math>
+with weight 2:</strong> Vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>
+joins tree.
+<ul>
+<li>New candidates from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo>,</mo><mi>C</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mn>1</mn><mo>,</mo><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo>,</mo><mi>E</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">(D, C): 1, (D, E): 5</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Add edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo>,</mo><mi>C</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(D, C)</annotation></semantics></math>
+with weight 1:</strong> Vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+joins tree.
+<ul>
+<li>Edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>F</mi><mo>,</mo><mi>C</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(F, C)</annotation></semantics></math>
+now internal; update
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>C</mi><mo>,</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">(C, B): 3</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Add edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>C</mi><mo>,</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(C, B)</annotation></semantics></math>
+with weight 3:</strong> Vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+joins tree.
+<ul>
+<li>New candidate from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo>,</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo><mo>:</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">(B, A): 2</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Add edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo>,</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(B, A)</annotation></semantics></math>
+with weight 2:</strong> Vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+joins tree.</li>
+<li><strong>Add edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo>,</mo><mi>E</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(D, E)</annotation></semantics></math>
+with weight 5:</strong> Vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>
+joins tree.</li>
+<li><strong>Add edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>G</mi><mo>,</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(G, I)</annotation></semantics></math>
+with weight 6:</strong> Vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>I</mi><annotation encoding="application/x-tex">I</annotation></semantics></math>
+joins tree.</li>
+</ol></li>
+<li><strong>Order of Edges Added to MST:</strong>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>G</mi><mo>,</mo><mi>H</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(G, H)</annotation></semantics></math>
+[weight 1]</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>G</mi><mo>,</mo><mi>F</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(G, F)</annotation></semantics></math>
+[weight 2]</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>F</mi><mo>,</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(F, D)</annotation></semantics></math>
+[weight 2]</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo>,</mo><mi>C</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(D, C)</annotation></semantics></math>
+[weight 1]</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>C</mi><mo>,</mo><mi>B</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(C, B)</annotation></semantics></math>
+[weight 3]</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>B</mi><mo>,</mo><mi>A</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(B, A)</annotation></semantics></math>
+[weight 2]</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo>,</mo><mi>E</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(D, E)</annotation></semantics></math>
+[weight 5]</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>G</mi><mo>,</mo><mi>I</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(G, I)</annotation></semantics></math>
+[weight 6]</li>
+</ol></li>
+<li><strong>Total MST Weight:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>1</mn><mo>+</mo><mn>3</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>5</mn><mo>+</mo><mn>6</mn><mo>=</mo><mn mathvariant="bold">𝟐𝟐</mn></mrow><annotation encoding="application/x-tex">1 + 2 + 2 + 1 + 3 + 2 + 5 + 6 = \mathbf{22}</annotation></semantics></math>.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="architectural-comparison-dijkstra-vs.-prim">5. Architectural
+Comparison: Dijkstra vs. Prim</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 39%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Dijkstra’s Algorithm</th>
+<th>Prim’s Algorithm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Primary Goal</strong></td>
+<td>Single-Source Shortest Paths</td>
+<td>Minimum Spanning Tree</td>
+</tr>
+<tr>
+<td><strong>Edge Update Rule</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>d</mi><mo stretchy="false" form="prefix">[</mo><mi>u</mi><mo stretchy="false" form="postfix">]</mo><mo>+</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d[v] = d[u] + w(u, v)</annotation></semantics></math>
+(cumulative path length)</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mi>e</mi><mi>y</mi><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">key[v] = w(u, v)</annotation></semantics></math>
+(isolated edge weight)</td>
+</tr>
+<tr>
+<td><strong>Negative Edge Weights</strong></td>
+<td><strong>Strictly Forbidden</strong> (algorithm fails)</td>
+<td><strong>Allowed</strong> (relative order preserved)</td>
+</tr>
+<tr>
+<td><strong>Graph Type</strong></td>
+<td>Directed or Undirected</td>
+<td>Undirected, Connected</td>
+</tr>
+<tr>
+<td><strong>Data Structure Time</strong></td>
+<td>Matrix:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">∥</mo><mi>V</mi><msup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\|V\|^2)</annotation></semantics></math>;
+Min-Heap:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">∥</mo><mi>E</mi><mo stretchy="false" form="postfix">∥</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">∥</mo><mi>V</mi><mo stretchy="false" form="postfix">∥</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\|E\| \log \|V\|)</annotation></semantics></math></td>
+<td>Matrix:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">∥</mo><mi>V</mi><msup><mo stretchy="false" form="postfix">∥</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\|V\|^2)</annotation></semantics></math>;
+Min-Heap:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="postfix">∥</mo><mi>E</mi><mo stretchy="false" form="postfix">∥</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="postfix">∥</mo><mi>V</mi><mo stretchy="false" form="postfix">∥</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\|E\| \log \|V\|)</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/5-graph-traversal/5.html">← 5.
+Graphs: Representations, BFS, DFS and Topological Sort</a>
+  <a class="next-page" href="../../notes/7-union-find-kruskal/7.html">7.
+Union-Find and Kruskal's Algorithm →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

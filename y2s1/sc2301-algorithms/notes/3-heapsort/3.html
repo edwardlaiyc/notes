@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>3. Heaps and Heapsort · SC2301 Algorithm Design &amp;
+Analysis</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">3. Heaps and
+Heapsort</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">3. Heaps and Heapsort</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-foundations/1.html"
+                   data-nav="notes/1-foundations/1.html">1. Foundations:
+Asymptotic Notation and Insertion Sort</a></li>
+            <li><a href="../../notes/2-mergesort/2.html"
+                   data-nav="notes/2-mergesort/2.html">2. Divide and
+Conquer: Mergesort</a></li>
+            <li><a href="../../notes/3-heapsort/3.html"
+                   data-nav="notes/3-heapsort/3.html">3. Heaps and
+Heapsort</a></li>
+            <li><a href="../../notes/4-quicksort-linear-sorts/4.html"
+                   data-nav="notes/4-quicksort-linear-sorts/4.html">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a></li>
+            <li><a href="../../notes/5-graph-traversal/5.html"
+                   data-nav="notes/5-graph-traversal/5.html">5. Graphs:
+Representations, BFS, DFS and Topological Sort</a></li>
+            <li><a href="../../notes/6-dijkstra-prim/6.html"
+                   data-nav="notes/6-dijkstra-prim/6.html">6. Greedy
+Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</a></li>
+            <li><a href="../../notes/7-union-find-kruskal/7.html"
+                   data-nav="notes/7-union-find-kruskal/7.html">7.
+Union-Find and Kruskal’s Algorithm</a></li>
+            <li><a href="../../notes/8-recurrences/8.html"
+                   data-nav="notes/8-recurrences/8.html">8. Analysis
+Techniques: Solving Recurrences</a></li>
+            <li><a href="../../notes/9-amortized-analysis/9.html"
+                   data-nav="notes/9-amortized-analysis/9.html">9.
+Amortized Analysis</a></li>
+            <li><a href="../../notes/10-dynamic-programming/10.html"
+                   data-nav="notes/10-dynamic-programming/10.html">10.
+Dynamic Programming</a></li>
+            <li><a href="../../notes/11-string-matching/11.html"
+                   data-nav="notes/11-string-matching/11.html">11.
+String Matching</a></li>
+            <li><a href="../../notes/12-np-completeness/12.html"
+                   data-nav="notes/12-np-completeness/12.html">12.
+NP-Completeness</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Cheatsheet</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#heap-structure-and-array-representation"
+id="toc-heap-structure-and-array-representation">1. Heap Structure and
+Array Representation</a>
+<ul>
+<li><a href="#complete-binary-tree-topology"
+id="toc-complete-binary-tree-topology">Complete Binary Tree
+Topology</a></li>
+</ul></li>
+<li><a href="#restoring-the-heap-fixheap-sift-down"
+id="toc-restoring-the-heap-fixheap-sift-down">2. Restoring the Heap:
+<code>fixHeap</code> (Sift-Down)</a>
+<ul>
+<li><a href="#complexity-of-fixheap"
+id="toc-complexity-of-fixheap">Complexity of
+<code>fixHeap</code></a></li>
+</ul></li>
+<li><a href="#bottom-up-heap-construction"
+id="toc-bottom-up-heap-construction">3. Bottom-Up Heap Construction</a>
+<ul>
+<li><a
+href="#step-by-step-method-proving-linear-time-on-for-constructheap"
+id="toc-step-by-step-method-proving-linear-time-on-for-constructheap">Step-by-Step
+Method: Proving Linear Time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+for <code>constructHeap</code></a></li>
+</ul></li>
+<li><a href="#the-heapsort-algorithm" id="toc-the-heapsort-algorithm">4.
+The Heapsort Algorithm</a>
+<ul>
+<li><a href="#heapsort-complexity-profile"
+id="toc-heapsort-complexity-profile">Heapsort Complexity
+Profile</a></li>
+</ul></li>
+<li><a href="#priority-queue-application-k-way-merging"
+id="toc-priority-queue-application-k-way-merging">5. Priority Queue
+Application:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-Way
+Merging</a>
+<ul>
+<li><a href="#step-by-step-method-merging-k-sorted-lists-via-min-heap"
+id="toc-step-by-step-method-merging-k-sorted-lists-via-min-heap">Step-by-Step
+Method: Merging
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+Sorted Lists via Min-Heap</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>A <strong>binary heap</strong> is an array-backed complete binary
+tree that maintains a strict partial ordering between parents and
+children. Heaps provide optimal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+worst-case priority queue operations and enable
+<strong>Heapsort</strong>—an in-place, comparison-based sorting
+algorithm requiring
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math>
+time in all cases.</p>
+<p>This chapter covers heap structural and ordering invariants, array
+index mechanics, the <code>fixHeap</code> (sift-down) routine, bottom-up
+linear-time heap construction, the full Heapsort lifecycle, and priority
+queue applications including
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-way
+merging.</p>
+<hr />
+<h2 id="heap-structure-and-array-representation">1. Heap Structure and
+Array Representation</h2>
+<p>A binary max-heap satisfies two simultaneous properties:</p>
+<pre class="mermaid"><code>flowchart TD
+    subgraph Shape [&quot;1. Shape Property (Complete Binary Tree)&quot;]
+        S1[&quot;All levels full except possibly the bottom&quot;]
+        S2[&quot;Bottom level packed strictly left-to-right&quot;]
+    end
+    subgraph Order [&quot;2. Partial Order Property (Max-Heap)&quot;]
+        O1[&quot;Parent key &gt;= Children keys&quot;]
+        O2[&quot;Global maximum always at root&quot;]
+    end</code></pre>
+<h3 id="complete-binary-tree-topology">Complete Binary Tree
+Topology</h3>
+<ul>
+<li><strong>Height:</strong> A heap containing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements has height
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">h = \lfloor \lg n \rfloor</annotation></semantics></math>.</li>
+<li><strong>Implicit Array Layout:</strong> Because there are no missing
+nodes, heaps require zero pointer overhead. Nodes map directly to
+consecutive indices in an array.</li>
+</ul>
+<figure>
+<img width="1400" height="465" src="media/3-artifacts/heap-tree-array.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="A binary max-heap represented simultaneously as a tree and as a compact 1-indexed array." />
+<figcaption aria-hidden="true">A binary max-heap represented
+simultaneously as a tree and as a compact 1-indexed array.</figcaption>
+</figure>
+<p>Using <strong>1-based indexing</strong> for node
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>n</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">k \in \{1, 2, \dots, n\}</annotation></semantics></math>:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 40%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th>Relationship</th>
+<th>Formula</th>
+<th>Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Parent</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌊</mo><mi>k</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">\lfloor k / 2 \rfloor</annotation></semantics></math></td>
+<td>Valid for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k &gt; 1</annotation></semantics></math>
+(root at index 1 has no parent)</td>
+</tr>
+<tr>
+<td><strong>Left Child</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>k</mi></mrow><annotation encoding="application/x-tex">2k</annotation></semantics></math></td>
+<td>Exists if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>k</mi><mo>≤</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">2k \le n</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>Right Child</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>k</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">2k + 1</annotation></semantics></math></td>
+<td>Exists if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>k</mi><mo>+</mo><mn>1</mn><mo>≤</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">2k + 1 \le n</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>Internal Node</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>≤</mo><mi>k</mi><mo>≤</mo><mo stretchy="false" form="prefix">⌊</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">1 \le k \le \lfloor n / 2 \rfloor</annotation></semantics></math></td>
+<td>Nodes with at least one child</td>
+</tr>
+<tr>
+<td><strong>Leaf Node</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌊</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo><mo>+</mo><mn>1</mn><mo>≤</mo><mi>k</mi><mo>≤</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">\lfloor n / 2 \rfloor + 1 \le k \le n</annotation></semantics></math></td>
+<td>Nodes with no children
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">\lceil n / 2 \rceil</annotation></semantics></math>
+total leaves)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>[!NOTE] <strong>Partial Order vs. Total Order:</strong> The heap
+property specifies relationships only along vertical ancestor-descendant
+paths
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo stretchy="false" form="prefix">[</mo><mo stretchy="false" form="prefix">⌊</mo><mi>k</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo><mo stretchy="false" form="postfix">]</mo><mo>≥</mo><mi>A</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">A[\lfloor k/2 \rfloor] \ge A[k]</annotation></semantics></math>).
+It enforces <strong>no ordering between siblings or across
+subtrees</strong>. The left child may be larger or smaller than the
+right child.</p>
+</blockquote>
+<hr />
+<h2 id="restoring-the-heap-fixheap-sift-down">2. Restoring the Heap:
+<code>fixHeap</code> (Sift-Down)</h2>
+<p>When the left and right subtrees of a node satisfy the heap property
+but the root key
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+violates it, <code>fixHeap</code> restores the invariant by sinking
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+down to its valid level.</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> fixHeap<span class="op">(</span><span class="dt">int</span> H<span class="op">[],</span> <span class="dt">int</span> n<span class="op">,</span> <span class="dt">int</span> root<span class="op">,</span> <span class="dt">int</span> k<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> j <span class="op">=</span> root<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> cj <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> j<span class="op">;</span>                       <span class="co">// Left child index</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>cj <span class="op">&lt;=</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>cj <span class="op">&lt;</span> n <span class="op">&amp;&amp;</span> H<span class="op">[</span>cj<span class="op">]</span> <span class="op">&lt;</span> H<span class="op">[</span>cj <span class="op">+</span> <span class="dv">1</span><span class="op">])</span>  <span class="co">// Comparison 1: Find larger child</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>            cj<span class="op">++;</span>                         <span class="co">// cj is now right child</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>k <span class="op">&gt;=</span> H<span class="op">[</span>cj<span class="op">])</span>                   <span class="co">// Comparison 2: Does k dominate children?</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span><span class="op">;</span>                        <span class="co">// k is properly positioned</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>        H<span class="op">[</span>j<span class="op">]</span> <span class="op">=</span> H<span class="op">[</span>cj<span class="op">];</span>                     <span class="co">// Promote larger child</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        j <span class="op">=</span> cj<span class="op">;</span>                           <span class="co">// Vacant slot sinks down</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        cj <span class="op">=</span> <span class="dv">2</span> <span class="op">*</span> j<span class="op">;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    H<span class="op">[</span>j<span class="op">]</span> <span class="op">=</span> k<span class="op">;</span>                             <span class="co">// Deposit key into final resting slot</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<figure>
+<img width="1400" height="743" src="media/3-artifacts/fixheap-step.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="Illustration of fixHeap. Key C violates the heap property at the root. Key R dominates sibling P and key C, promoting R to root while C sinks." />
+<figcaption aria-hidden="true">Illustration of <code>fixHeap</code>. Key
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+violates the heap property at the root. Key
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+dominates sibling
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+and key
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>,
+promoting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+to root while
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+sinks.</figcaption>
+</figure>
+<h3 id="complexity-of-fixheap">Complexity of <code>fixHeap</code></h3>
+<ul>
+<li>At each level, <code>fixHeap</code> makes at most <strong>2
+comparisons</strong>:
+<ol type="1">
+<li>Compare left and right children to identify the larger child
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">[</mo><mi>c</mi><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>&lt;</mo><mi>H</mi><mo stretchy="false" form="prefix">[</mo><mi>c</mi><mi>j</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">H[cj] &lt; H[cj+1]</annotation></semantics></math>).</li>
+<li>Compare key
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+against the larger child
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>&lt;</mo><mi>H</mi><mo stretchy="false" form="prefix">[</mo><mi>c</mi><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">k &lt; H[cj]</annotation></semantics></math>).
+<em>(If the node has only one child, it performs only 1
+comparison).</em></li>
+</ol></li>
+<li>The maximum path length is the height of the tree,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌊</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">\lfloor \lg n \rfloor</annotation></semantics></math>.</li>
+<li><strong>Worst-Case Cost:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mn>2</mn><mo stretchy="false" form="prefix">⌊</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">⌋</mo><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\le 2 \lfloor \lg n \rfloor = O(\log n)</annotation></semantics></math>
+comparisons.</li>
+<li><strong>Best-Case Cost:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>2</mn><annotation encoding="application/x-tex">2</annotation></semantics></math>
+comparisons (or 1 if 1 child) when
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+already exceeds both children:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>.</li>
+</ul>
+<hr />
+<h2 id="bottom-up-heap-construction">3. Bottom-Up Heap Construction</h2>
+<p>To build a heap from an arbitrary unsorted array of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>,
+we process internal nodes bottom-up, starting from the last internal
+node
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌊</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">\lfloor n/2 \rfloor</annotation></semantics></math>
+down to the root 1:</p>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> constructHeap<span class="op">(</span><span class="dt">int</span> H<span class="op">[],</span> <span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> n <span class="op">/</span> <span class="dv">2</span><span class="op">;</span> i <span class="op">&gt;=</span> <span class="dv">1</span><span class="op">;</span> i<span class="op">--)</span> <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>        fixHeap<span class="op">(</span>H<span class="op">,</span> n<span class="op">,</span> i<span class="op">,</span> H<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<figure>
+<img width="1400" height="754" src="media/3-artifacts/heap-construction-1.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="Construction phase 1: Leaves are trivially heaps. Internal nodes at indices 3 and 2 are repaired by fixHeap." />
+<figcaption aria-hidden="true">Construction phase 1: Leaves are
+trivially heaps. Internal nodes at indices 3 and 2 are repaired by
+<code>fixHeap</code>.</figcaption>
+</figure>
+<figure>
+<img width="1400" height="754" src="media/3-artifacts/heap-construction-2.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="Construction phase 2: The final fixHeap runs at root index 1, sinking element 1 down as larger values 7 and 6 promote upwards." />
+<figcaption aria-hidden="true">Construction phase 2: The final
+<code>fixHeap</code> runs at root index 1, sinking element 1 down as
+larger values 7 and 6 promote upwards.</figcaption>
+</figure>
+<hr />
+<h3
+id="step-by-step-method-proving-linear-time-on-for-constructheap">Step-by-Step
+Method: Proving Linear Time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+for <code>constructHeap</code></h3>
+<ol type="1">
+<li><strong>Count Nodes per Height:</strong> In an almost complete
+binary tree of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements, the number of nodes at height
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+(where leaves have height 0) is at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mi>n</mi><mi>/</mi><msup><mn>2</mn><mrow><mi>h</mi><mo>+</mo><mn>1</mn></mrow></msup><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">\lceil n / 2^{h+1} \rceil</annotation></semantics></math>.</li>
+<li><strong>Formulate Total Comparisons:</strong> Each node at height
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+can sink at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+levels, costing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mn>2</mn><mi>h</mi></mrow><annotation encoding="application/x-tex">\le 2h</annotation></semantics></math>
+comparisons:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>h</mi><mo>=</mo><mn>0</mn></mrow><mrow><mo stretchy="false" form="prefix">⌊</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">⌋</mo></mrow></munderover><mrow><mo stretchy="true" form="prefix">⌈</mo><mfrac><mi>n</mi><msup><mn>2</mn><mrow><mi>h</mi><mo>+</mo><mn>1</mn></mrow></msup></mfrac><mo stretchy="true" form="postfix">⌉</mo></mrow><mn>2</mn><mi>h</mi><mo>≤</mo><mn>2</mn><mi>n</mi><munderover><mo>∑</mo><mrow><mi>h</mi><mo>=</mo><mn>1</mn></mrow><mo accent="false">∞</mo></munderover><mfrac><mi>h</mi><msup><mn>2</mn><mrow><mi>h</mi><mo>+</mo><mn>1</mn></mrow></msup></mfrac><mo>=</mo><mi>n</mi><munderover><mo>∑</mo><mrow><mi>h</mi><mo>=</mo><mn>1</mn></mrow><mo accent="false">∞</mo></munderover><mfrac><mi>h</mi><msup><mn>2</mn><mi>h</mi></msup></mfrac></mrow><annotation encoding="application/x-tex">T(n) = \sum_{h=0}^{\lfloor \lg n \rfloor} \left\lceil \frac{n}{2^{h+1}} \right\rceil 2h \le 2n \sum_{h=1}^{\infty} \frac{h}{2^{h+1}} = n \sum_{h=1}^{\infty} \frac{h}{2^h}</annotation></semantics></math></li>
+<li><strong>Evaluate the Infinite Arithmetic-Geometric Series:</strong>
+Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><msubsup><mo>∑</mo><mrow><mi>h</mi><mo>=</mo><mn>1</mn></mrow><mi>∞</mi></msubsup><mfrac><mi>h</mi><msup><mn>2</mn><mi>h</mi></msup></mfrac><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>+</mo><mfrac><mn>2</mn><mn>4</mn></mfrac><mo>+</mo><mfrac><mn>3</mn><mn>8</mn></mfrac><mo>+</mo><mfrac><mn>4</mn><mn>16</mn></mfrac><mo>+</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">S = \sum_{h=1}^{\infty} \frac{h}{2^h} = \frac{1}{2} + \frac{2}{4} + \frac{3}{8} + \frac{4}{16} + \dots</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>S</mi><mo>=</mo><mfrac><mn>1</mn><mn>4</mn></mfrac><mo>+</mo><mfrac><mn>2</mn><mn>8</mn></mfrac><mo>+</mo><mfrac><mn>3</mn><mn>16</mn></mfrac><mo>+</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">\frac{1}{2}S = \frac{1}{4} + \frac{2}{8} + \frac{3}{16} + \dots</annotation></semantics></math>
+Subtracting the two series:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>S</mi><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>+</mo><mfrac><mn>1</mn><mn>4</mn></mfrac><mo>+</mo><mfrac><mn>1</mn><mn>8</mn></mfrac><mo>+</mo><mfrac><mn>1</mn><mn>16</mn></mfrac><mo>+</mo><mi>…</mi><mo>=</mo><mn>1</mn><mo>⟹</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mi>S</mi><mo>=</mo><mn>1</mn><mo>⟹</mo><mi>S</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">S - \frac{1}{2}S = \frac{1}{2} + \frac{1}{4} + \frac{1}{8} + \frac{1}{16} + \dots = 1 \implies \frac{1}{2}S = 1 \implies S = 2</annotation></semantics></math></li>
+<li><strong>Final Bound:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>n</mi><mo>⋅</mo><mi>S</mi><mo>=</mo><mn>2</mn><mi>n</mi><mo>⟹</mo><mrow><mi mathvariant="bold-italic">𝑻</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒏</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo><mo mathvariant="bold">=</mo><mi mathvariant="bold">𝚯</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒏</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">T(n) \le n \cdot S = 2n \implies \mathbf{T(n) = \Theta(n)}</annotation></semantics></math></li>
+</ol>
+<blockquote>
+<p>[!IMPORTANT] <strong>Bottom-Up Construction is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>,
+Top-Down Insertion is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n \log n)</annotation></semantics></math>:</strong>
+Building a heap by calling <code>Insert</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+times performs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+insertions from the leaves up, where most nodes sit at height
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\approx \lg n</annotation></semantics></math>,
+costing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>i</mi><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sum_{i=1}^n \lg i = \Theta(n \log n)</annotation></semantics></math>.
+Bottom-up construction applies <code>fixHeap</code> downwards, where the
+vast majority of nodes reside near the bottom and sink at most 1 or 2
+levels, achieving
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>.</p>
+</blockquote>
+<details class="qa box">
+<summary>
+<strong>Tutorial 4 Q1:</strong> Step-by-Step Bottom-Up Heap Construction
+on Dates <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Given an array of 10 dates:
+<code>1 Jul, 30 Jan, 22 Mar, 22 Dec, 30 May, 21 Feb, 3 Nov, 7 Jun, 22 Feb, 18 Oct</code>.
+Construct a max-heap where chronological order determines key magnitude
+(earlier dates are smaller, later dates are larger: Jan &lt; Feb &lt; …
+&lt; Dec). Show the intermediate heap states and count the total key
+comparisons.</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><p><strong>Initial Array Representation
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">n = 10</annotation></semantics></math>):</strong>
+Leaves: indices
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌊</mo><mn>10</mn><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo><mo>+</mo><mn>1</mn><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">\lfloor 10/2 \rfloor + 1 = 6</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>10</mn><annotation encoding="application/x-tex">10</annotation></semantics></math>
+(<code>21 Feb, 3 Nov, 7 Jun, 22 Feb, 18 Oct</code>). Internal nodes to
+heapify: indices
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>5</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">i = 5, 4, 3, 2, 1</annotation></semantics></math>.</p>
+<figure>
+<img width="1400" height="712" src="media/3-artifacts/dates-initial.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Initial complete binary tree layout of the 10 dates prior to bottom-up construction." />
+<figcaption aria-hidden="true">Initial complete binary tree layout of
+the 10 dates prior to bottom-up construction.</figcaption>
+</figure></li>
+<li><p><strong>Trace of <code>fixHeap</code> Invocations:</strong></p>
+<ol type="1">
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">i = 5</annotation></semantics></math>
+(<code>30 May</code>):</strong>
+<ul>
+<li>Child: index
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>i</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">2i = 10</annotation></semantics></math>
+(<code>18 Oct</code>). (Only 1 child, no sibling comparison).</li>
+<li>Compare key <code>30 May</code> vs <code>18 Oct</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>18</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Oct</mtext></mrow><mo>&gt;</mo><mn>30</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> May</mtext></mrow></mrow><annotation encoding="application/x-tex">18\text{ Oct} &gt; 30\text{ May}</annotation></semantics></math>.</li>
+<li>Promote <code>18 Oct</code> to index 5; place <code>30 May</code> at
+index 10.</li>
+<li><em>Comparisons:</em> 1.</li>
+</ul></li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">i = 4</annotation></semantics></math>
+(<code>22 Dec</code>):</strong>
+<ul>
+<li>Children: index 8 (<code>7 Jun</code>) and index 9
+(<code>22 Feb</code>).</li>
+<li>Compare children:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Jun</mtext></mrow><mo>&gt;</mo><mn>22</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Feb</mtext></mrow><mo>⟹</mo></mrow><annotation encoding="application/x-tex">7\text{ Jun} &gt; 22\text{ Feb} \implies</annotation></semantics></math>
+larger child is <code>7 Jun</code>.</li>
+<li>Compare key <code>22 Dec</code> vs <code>7 Jun</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>22</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Dec</mtext></mrow><mo>&gt;</mo><mn>7</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Jun</mtext></mrow></mrow><annotation encoding="application/x-tex">22\text{ Dec} &gt; 7\text{ Jun}</annotation></semantics></math>.</li>
+<li>No swap. <code>22 Dec</code> remains at index 4.</li>
+<li><em>Comparisons:</em> 2.</li>
+</ul></li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">i = 3</annotation></semantics></math>
+(<code>22 Mar</code>):</strong>
+<ul>
+<li>Children: index 6 (<code>21 Feb</code>) and index 7
+(<code>3 Nov</code>).</li>
+<li>Compare children:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Nov</mtext></mrow><mo>&gt;</mo><mn>21</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Feb</mtext></mrow><mo>⟹</mo></mrow><annotation encoding="application/x-tex">3\text{ Nov} &gt; 21\text{ Feb} \implies</annotation></semantics></math>
+larger child is <code>3 Nov</code>.</li>
+<li>Compare key <code>22 Mar</code> vs <code>3 Nov</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Nov</mtext></mrow><mo>&gt;</mo><mn>22</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Mar</mtext></mrow></mrow><annotation encoding="application/x-tex">3\text{ Nov} &gt; 22\text{ Mar}</annotation></semantics></math>.</li>
+<li>Promote <code>3 Nov</code> to index 3; place <code>22 Mar</code> at
+index 7.</li>
+<li><em>Comparisons:</em> 2.</li>
+</ul></li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">i = 2</annotation></semantics></math>
+(<code>30 Jan</code>):</strong>
+<ul>
+<li>Children: index 4 (<code>22 Dec</code>) and index 5
+(<code>18 Oct</code>).</li>
+<li>Compare children:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>22</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Dec</mtext></mrow><mo>&gt;</mo><mn>18</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Oct</mtext></mrow><mo>⟹</mo></mrow><annotation encoding="application/x-tex">22\text{ Dec} &gt; 18\text{ Oct} \implies</annotation></semantics></math>
+larger child is <code>22 Dec</code>.</li>
+<li>Compare key <code>30 Jan</code> vs <code>22 Dec</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>22</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Dec</mtext></mrow><mo>&gt;</mo><mn>30</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Jan</mtext></mrow></mrow><annotation encoding="application/x-tex">22\text{ Dec} &gt; 30\text{ Jan}</annotation></semantics></math>.</li>
+<li>Promote <code>22 Dec</code> to index 2. Slot 4 is vacant.</li>
+<li>Check children of slot 4: indices 8 (<code>7 Jun</code>) and 9
+(<code>22 Feb</code>).</li>
+<li>Compare children:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Jun</mtext></mrow><mo>&gt;</mo><mn>22</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Feb</mtext></mrow></mrow><annotation encoding="application/x-tex">7\text{ Jun} &gt; 22\text{ Feb}</annotation></semantics></math>.</li>
+<li>Compare key <code>30 Jan</code> vs <code>7 Jun</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Jun</mtext></mrow><mo>&gt;</mo><mn>30</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Jan</mtext></mrow></mrow><annotation encoding="application/x-tex">7\text{ Jun} &gt; 30\text{ Jan}</annotation></semantics></math>.</li>
+<li>Promote <code>7 Jun</code> to index 4; place <code>30 Jan</code> at
+index 8.</li>
+<li><em>Comparisons:</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">2 + 2 = 4</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">i = 1</annotation></semantics></math>
+(<code>1 Jul</code>):</strong>
+<ul>
+<li>Children: index 2 (<code>22 Dec</code>) and index 3
+(<code>3 Nov</code>).</li>
+<li>Compare children:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>22</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Dec</mtext></mrow><mo>&gt;</mo><mn>3</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Nov</mtext></mrow><mo>⟹</mo></mrow><annotation encoding="application/x-tex">22\text{ Dec} &gt; 3\text{ Nov} \implies</annotation></semantics></math>
+larger child is <code>22 Dec</code>.</li>
+<li>Compare key <code>1 Jul</code> vs <code>22 Dec</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>22</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Dec</mtext></mrow><mo>&gt;</mo><mn>1</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Jul</mtext></mrow></mrow><annotation encoding="application/x-tex">22\text{ Dec} &gt; 1\text{ Jul}</annotation></semantics></math>.</li>
+<li>Promote <code>22 Dec</code> to index 1. Slot 2 is vacant.</li>
+<li>Children of slot 2: indices 4 (<code>7 Jun</code>) and 5
+(<code>18 Oct</code>).</li>
+<li>Compare children:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>18</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Oct</mtext></mrow><mo>&gt;</mo><mn>7</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Jun</mtext></mrow><mo>⟹</mo></mrow><annotation encoding="application/x-tex">18\text{ Oct} &gt; 7\text{ Jun} \implies</annotation></semantics></math>
+larger child is <code>18 Oct</code>.</li>
+<li>Compare key <code>1 Jul</code> vs <code>18 Oct</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>18</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Oct</mtext></mrow><mo>&gt;</mo><mn>1</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Jul</mtext></mrow></mrow><annotation encoding="application/x-tex">18\text{ Oct} &gt; 1\text{ Jul}</annotation></semantics></math>.</li>
+<li>Promote <code>18 Oct</code> to index 2. Slot 5 is vacant.</li>
+<li>Child of slot 5: index 10 (<code>30 May</code>). (1 child).</li>
+<li>Compare key <code>1 Jul</code> vs <code>30 May</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> Jul</mtext></mrow><mo>&gt;</mo><mn>30</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> May</mtext></mrow></mrow><annotation encoding="application/x-tex">1\text{ Jul} &gt; 30\text{ May}</annotation></semantics></math>.</li>
+<li>Deposit <code>1 Jul</code> at index 5.</li>
+<li><em>Comparisons:</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">2 + 2 + 1 = 5</annotation></semantics></math>.</li>
+</ul></li>
+</ol></li>
+<li><p><strong>Final Max-Heap Array:</strong>
+<code>[22 Dec, 18 Oct, 3 Nov, 7 Jun, 1 Jul, 21 Feb, 22 Mar, 30 Jan, 22 Feb, 30 May]</code></p>
+<figure>
+<img width="1400" height="576" src="media/3-artifacts/dates-final-heap.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Final binary max-heap state after completing bottom-up construction." />
+<figcaption aria-hidden="true">Final binary max-heap state after
+completing bottom-up construction.</figcaption>
+</figure></li>
+<li><p><strong>Total Key Comparisons:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>4</mn><mo>+</mo><mn>5</mn><mo>=</mo><mn mathvariant="bold">𝟏𝟒</mn></mrow><annotation encoding="application/x-tex">1 + 2 + 2 + 4 + 5 = \mathbf{14}</annotation></semantics></math>
+comparisons.</p></li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="the-heapsort-algorithm">4. The Heapsort Algorithm</h2>
+<p>Heapsort converts a max-heap into an ascending sorted array in-place
+by repeatedly extracting the maximum:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> heapSort<span class="op">(</span><span class="dt">int</span> H<span class="op">[],</span> <span class="dt">int</span> n<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    constructHeap<span class="op">(</span>H<span class="op">,</span> n<span class="op">);</span>                  <span class="co">// Phase 1: Build max-heap in O(n)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> n<span class="op">;</span> i <span class="op">&gt;=</span> <span class="dv">2</span><span class="op">;</span> i<span class="op">--)</span> <span class="op">{</span>        <span class="co">// Phase 2: Successive extractions</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> maxVal <span class="op">=</span> H<span class="op">[</span><span class="dv">1</span><span class="op">];</span>                <span class="co">// Root holds current maximum</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> lastKey <span class="op">=</span> H<span class="op">[</span>i<span class="op">];</span>               <span class="co">// Evict last element of active heap</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        H<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> maxVal<span class="op">;</span>                    <span class="co">// Place maximum into its final resting cell</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        fixHeap<span class="op">(</span>H<span class="op">,</span> i <span class="op">-</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">1</span><span class="op">,</span> lastKey<span class="op">);</span>    <span class="co">// Sift lastKey down into heap of size i - 1</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<pre><code>[ Active Max-Heap: H[1 .. i-1] ]  |  [ Sorted Prefix Ascending: H[i .. n] ]
+&lt;-------------------------------&gt;    &lt;-----------------------------------&gt;</code></pre>
+<h3 id="heapsort-complexity-profile">Heapsort Complexity Profile</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 19%" />
+<col style="width: 61%" />
+</colgroup>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Best-Case Time</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math></td>
+<td>Sinking evicted leaf keys down shrinking heaps requires
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mi>n</mi><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\approx n \lg n</annotation></semantics></math>
+steps.</td>
+</tr>
+<tr>
+<td><strong>Worst-Case Time</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+build +
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mn>2</mn><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">(n-1) \times 2 \lg n</annotation></semantics></math>
+extraction comparisons
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>2</mn><mi>n</mi><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\approx 2n \lg n</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td><strong>Average-Case Time</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \log n)</annotation></semantics></math></td>
+<td>Squeezed between best and worst bounds.</td>
+</tr>
+<tr>
+<td><strong>Auxiliary Space</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math></td>
+<td>Completely in-place; uses iterative <code>fixHeap</code>.</td>
+</tr>
+<tr>
+<td><strong>Stability</strong></td>
+<td><strong>Unstable</strong></td>
+<td>Evicting keys across the tree permutes equal keys arbitrarily.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+<strong>Tutorial 4 Q2:</strong> Heapsort Comparison Analysis on
+Decreasing Input <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> An array of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+distinct keys in strictly decreasing order is sorted into ascending
+order using Heapsort.</p>
+<ol type="a">
+<li>How many key comparisons are made to construct the initial
+heap?</li>
+<li>Describe the behavior and comparison cost during the extraction
+sorting phase.</li>
+</ol>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(a) Construction Phase Comparison Count:</strong>
+<ul>
+<li>When an array is strictly decreasing, every parent
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">H[k]</annotation></semantics></math>
+is already larger than both its children
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">[</mo><mn>2</mn><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">H[2k]</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">[</mo><mn>2</mn><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">H[2k+1]</annotation></semantics></math>).</li>
+<li>Consequently, every call to <code>fixHeap(H, n, i, H[i])</code>
+terminates at the root of its subtree on the very first test.</li>
+<li>For each internal node with 2 children: exactly 2 comparisons (one
+to find the larger child, one to compare with parent).</li>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+is even, exactly one internal node (at index
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n/2</annotation></semantics></math>)
+has only 1 child: 1 comparison.</li>
+<li>Number of internal nodes is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌊</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">\lfloor n/2 \rfloor</annotation></semantics></math>.
+<ul>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+is odd:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><mn>2</mn></mfrac><annotation encoding="application/x-tex">\frac{n-1}{2}</annotation></semantics></math>
+nodes with 2 children
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⟹</mo><mn>2</mn><mo>×</mo><mfrac><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><mn>2</mn></mfrac><mo>=</mo><mrow><mi mathvariant="bold-italic">𝒏</mi><mo mathvariant="bold">−</mo><mn mathvariant="bold">𝟏</mn></mrow></mrow><annotation encoding="application/x-tex">\implies 2 \times \frac{n-1}{2} = \mathbf{n - 1}</annotation></semantics></math>
+comparisons.</li>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+is even:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mi>n</mi><mn>2</mn></mfrac><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\frac{n}{2} - 1</annotation></semantics></math>
+nodes with 2 children, 1 node with 1 child
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⟹</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mfrac><mi>n</mi><mn>2</mn></mfrac><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>1</mn><mo>=</mo><mrow><mi mathvariant="bold-italic">𝒏</mi><mo mathvariant="bold">−</mo><mn mathvariant="bold">𝟏</mn></mrow></mrow><annotation encoding="application/x-tex">\implies 2(\frac{n}{2} - 1) + 1 = \mathbf{n - 1}</annotation></semantics></math>
+comparisons.</li>
+</ul></li>
+<li><strong>Result:</strong> Constructing the heap from a strictly
+decreasing array is the absolute <strong>best case</strong>, requiring
+exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝒏</mi><mo mathvariant="bold">−</mo><mn mathvariant="bold">𝟏</mn></mrow><annotation encoding="application/x-tex">\mathbf{n - 1}</annotation></semantics></math>
+comparisons and zero data swaps.</li>
+</ul>
+<figure>
+<img width="1400" height="630" src="media/3-artifacts/decreasing-heap.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Initial heap formed from a strictly decreasing input array." />
+<figcaption aria-hidden="true">Initial heap formed from a strictly
+decreasing input array.</figcaption>
+</figure></li>
+<li><strong>(b) Extraction Phase Behavior:</strong>
+<ul>
+<li>In the extraction phase, the root (maximum element) is swapped with
+the last element of the active heap
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">H[i]</annotation></semantics></math>.</li>
+<li>Because the original input was decreasing,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>H</mi><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">H[i]</annotation></semantics></math>
+holds one of the smallest elements in the entire data set.</li>
+<li>When this tiny key is inserted at root and sifted down via
+<code>fixHeap</code>, it must sink all the way to a leaf at the bottom
+of the active heap on almost every iteration.</li>
+<li>Each sift-down across height
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">\lg i</annotation></semantics></math>
+takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">2 \lg i</annotation></semantics></math>
+comparisons.</li>
+<li>Total comparisons in Phase 2:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>2</mn></mrow><mi>n</mi></munderover><mn>2</mn><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>i</mi><mo>=</mo><mn>2</mn><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>!</mi><mo stretchy="false" form="postfix">)</mo><mo>≈</mo><mn>2</mn><mi>n</mi><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo>−</mo><mn>2.88</mn><mi>n</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> comparisons</mtext></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\sum_{i=2}^n 2 \lg i = 2 \lg(n!) \approx 2n \lg n - 2.88n \text{ comparisons}.</annotation></semantics></math></li>
+<li><em>Takeaway:</em> A decreasing array yields an optimal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+heap build, but forces maximum
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>n</mi><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">2n \lg n</annotation></semantics></math>
+sinking during sorting.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="priority-queue-application-k-way-merging">5. Priority Queue
+Application:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-Way
+Merging</h2>
+<p>A <strong>Priority Queue</strong> maintains a dynamic collection
+under <code>Insert</code>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>),
+<code>ExtractMax</code> / <code>ExtractMin</code>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>),
+and <code>Peek</code>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>).</p>
+<p>A major application is merging
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+sorted lists containing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements in total into a single sorted list.</p>
+<figure>
+<img width="1400" height="742" src="media/3-artifacts/kmerge-start.webp" style="width:55.0%"
+loading="lazy" decoding="async"
+alt="Initial state: Min-heap stores the head element from each of the k sorted lists." />
+<figcaption aria-hidden="true">Initial state: Min-heap stores the head
+element from each of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+sorted lists.</figcaption>
+</figure>
+<hr />
+<h3
+id="step-by-step-method-merging-k-sorted-lists-via-min-heap">Step-by-Step
+Method: Merging
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+Sorted Lists via Min-Heap</h3>
+<ol type="1">
+<li><strong>Initialize Min-Heap:</strong> Insert the first element of
+each of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+lists into a min-heap of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.
+Store list identifiers alongside keys: <code>(key, list_index)</code>.
+Cost:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(k)</annotation></semantics></math>.</li>
+<li><strong>Extract and Replenish:</strong>
+<ul>
+<li>Extract the minimum element <code>(key, list_index)</code> from the
+root and append it to the sorted output array.</li>
+<li>Fetch the next element from list <code>list_index</code>.</li>
+<li>If the list has remaining elements, sift the new element down into
+the heap using <code>fixHeap</code>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log k)</annotation></semantics></math>).</li>
+<li>If the list is exhausted, replace the root with the last element of
+the heap and shrink heap size by 1
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log k)</annotation></semantics></math>).</li>
+</ul></li>
+<li><strong>Repeat:</strong> Continue until all lists are empty and the
+heap is exhausted.</li>
+</ol>
+<figure>
+<img width="1400" height="625" src="media/3-artifacts/kmerge-step3.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="Intermediate step: The minimum element is output, and the replacement key from the corresponding list sifts down the heap." />
+<figcaption aria-hidden="true">Intermediate step: The minimum element is
+output, and the replacement key from the corresponding list sifts down
+the heap.</figcaption>
+</figure>
+<details class="qa box">
+<summary>
+<strong>Tutorial 4 Q3:</strong> Algorithm and Complexity of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-Way
+List Merging <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Given
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+sorted lists containing a total of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+numbers
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>≥</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">k \ge 2</annotation></semantics></math>),
+each sorted in decreasing order:</p>
+<ol type="a">
+<li>Design an efficient algorithm using a heap to merge all lists into
+one single sorted list.</li>
+<li>State and analyze the worst-case running time and auxiliary
+space.</li>
+</ol>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><p><strong>(a) Algorithm Design:</strong> Since the input lists are
+in decreasing order and we want a final list in decreasing order, use a
+<strong>Max-Heap</strong> of capacity
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> HeapNode <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> val<span class="op">;</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> listIdx<span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> elemIdx<span class="op">;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> MergeKSortedLists<span class="op">(</span>vector<span class="op">&lt;</span>vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;&gt;&amp;</span> lists<span class="op">,</span> <span class="dt">int</span> k<span class="op">,</span> <span class="dt">int</span> n<span class="op">,</span> vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;&amp;</span> output<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    vector<span class="op">&lt;</span>HeapNode<span class="op">&gt;</span> H<span class="op">(</span>k <span class="op">+</span> <span class="dv">1</span><span class="op">);</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> heapSize <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 1. Initialize heap with head of each non-empty list</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> k<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span>lists<span class="op">[</span>i<span class="op">].</span>empty<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>            heapSize<span class="op">++;</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>            H<span class="op">[</span>heapSize<span class="op">]</span> <span class="op">=</span> <span class="op">{</span>lists<span class="op">[</span>i<span class="op">][</span><span class="dv">0</span><span class="op">],</span> i<span class="op">,</span> <span class="dv">0</span><span class="op">};</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    constructHeap<span class="op">(</span>H<span class="op">,</span> heapSize<span class="op">);</span> <span class="co">// O(k)</span></span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">// 2. Extract maximum and replenish</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> step <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> step <span class="op">&lt;</span> n<span class="op">;</span> step<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        HeapNode maxNode <span class="op">=</span> H<span class="op">[</span><span class="dv">1</span><span class="op">];</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        output<span class="op">.</span>push_back<span class="op">(</span>maxNode<span class="op">.</span>val<span class="op">);</span></span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        <span class="dt">int</span> nextElemIdx <span class="op">=</span> maxNode<span class="op">.</span>elemIdx <span class="op">+</span> <span class="dv">1</span><span class="op">;</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>nextElemIdx <span class="op">&lt;</span> lists<span class="op">[</span>maxNode<span class="op">.</span>listIdx<span class="op">].</span>size<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>            <span class="co">// Replace root with next element from same list</span></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>            H<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span>lists<span class="op">[</span>maxNode<span class="op">.</span>listIdx<span class="op">][</span>nextElemIdx<span class="op">],</span> maxNode<span class="op">.</span>listIdx<span class="op">,</span> nextElemIdx<span class="op">};</span></span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>            fixHeap<span class="op">(</span>H<span class="op">,</span> heapSize<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> H<span class="op">[</span><span class="dv">1</span><span class="op">].</span>val<span class="op">);</span> <span class="co">// O(log k)</span></span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>            <span class="co">// List exhausted: move last heap element to root and reduce size</span></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>            H<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> H<span class="op">[</span>heapSize<span class="op">];</span></span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>            heapSize<span class="op">--;</span></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>heapSize <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>                fixHeap<span class="op">(</span>H<span class="op">,</span> heapSize<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> H<span class="op">[</span><span class="dv">1</span><span class="op">].</span>val<span class="op">);</span> <span class="co">// O(log k)</span></span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div></li>
+<li><p><strong>(b) Complexity Analysis:</strong></p>
+<ul>
+<li><strong>Heap Initialization:</strong> Inserting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+elements takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(k)</annotation></semantics></math>
+time.</li>
+<li><strong>Processing Elements:</strong> Each of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements is extracted from the heap exactly once. Each extraction
+triggers one <code>fixHeap</code> on a heap of size at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>,
+taking
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log k)</annotation></semantics></math>
+time.</li>
+<li><strong>Total Worst-Case Time:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>+</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="bold-italic">𝑶</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒏</mi><mrow><mi mathvariant="bold-italic">𝒍𝒐𝒈</mi><mo mathvariant="bold">&#8289;</mo></mrow><mi mathvariant="bold-italic">𝒌</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">O(k + n \log k) = \mathbf{O(n \log k)}</annotation></semantics></math>.
+<em>(This significantly outperforms pairwise merging, which takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>⋅</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n \cdot k)</annotation></semantics></math>
+time).</em></li>
+<li><strong>Auxiliary Space:</strong> The heap stores at most 1 element
+per list:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝑶</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒌</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{O(k)}</annotation></semantics></math>
+space (excluding the output array).</li>
+</ul></li>
+</ul>
+</div>
+</details>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/2-mergesort/2.html">← 2.
+Divide and Conquer: Mergesort</a>
+  <a class="next-page" href="../../notes/4-quicksort-linear-sorts/4.html">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

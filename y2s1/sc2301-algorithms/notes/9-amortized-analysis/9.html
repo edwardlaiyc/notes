@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>9. Amortized Analysis · SC2301 Algorithm Design &amp;
+Analysis</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">9. Amortized
+Analysis</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">9. Amortized Analysis</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-foundations/1.html"
+                   data-nav="notes/1-foundations/1.html">1. Foundations:
+Asymptotic Notation and Insertion Sort</a></li>
+            <li><a href="../../notes/2-mergesort/2.html"
+                   data-nav="notes/2-mergesort/2.html">2. Divide and
+Conquer: Mergesort</a></li>
+            <li><a href="../../notes/3-heapsort/3.html"
+                   data-nav="notes/3-heapsort/3.html">3. Heaps and
+Heapsort</a></li>
+            <li><a href="../../notes/4-quicksort-linear-sorts/4.html"
+                   data-nav="notes/4-quicksort-linear-sorts/4.html">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a></li>
+            <li><a href="../../notes/5-graph-traversal/5.html"
+                   data-nav="notes/5-graph-traversal/5.html">5. Graphs:
+Representations, BFS, DFS and Topological Sort</a></li>
+            <li><a href="../../notes/6-dijkstra-prim/6.html"
+                   data-nav="notes/6-dijkstra-prim/6.html">6. Greedy
+Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</a></li>
+            <li><a href="../../notes/7-union-find-kruskal/7.html"
+                   data-nav="notes/7-union-find-kruskal/7.html">7.
+Union-Find and Kruskal’s Algorithm</a></li>
+            <li><a href="../../notes/8-recurrences/8.html"
+                   data-nav="notes/8-recurrences/8.html">8. Analysis
+Techniques: Solving Recurrences</a></li>
+            <li><a href="../../notes/9-amortized-analysis/9.html"
+                   data-nav="notes/9-amortized-analysis/9.html">9.
+Amortized Analysis</a></li>
+            <li><a href="../../notes/10-dynamic-programming/10.html"
+                   data-nav="notes/10-dynamic-programming/10.html">10.
+Dynamic Programming</a></li>
+            <li><a href="../../notes/11-string-matching/11.html"
+                   data-nav="notes/11-string-matching/11.html">11.
+String Matching</a></li>
+            <li><a href="../../notes/12-np-completeness/12.html"
+                   data-nav="notes/12-np-completeness/12.html">12.
+NP-Completeness</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Cheatsheet</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#principles-of-amortized-analysis"
+id="toc-principles-of-amortized-analysis">1. Principles of Amortized
+Analysis</a></li>
+<li><a href="#dynamic-array-resizing-table-doubling"
+id="toc-dynamic-array-resizing-table-doubling">2. Dynamic Array Resizing
+(Table Doubling)</a></li>
+<li><a href="#the-four-amortization-methods"
+id="toc-the-four-amortization-methods">3. The Four Amortization
+Methods</a>
+<ul>
+<li><a href="#method-1-aggregate-analysis"
+id="toc-method-1-aggregate-analysis">Method 1: Aggregate
+Analysis</a></li>
+<li><a href="#method-2-the-accounting-method-credit-bankers-method"
+id="toc-method-2-the-accounting-method-credit-bankers-method">Method 2:
+The Accounting Method (Credit / Banker’s Method)</a></li>
+<li><a href="#method-3-the-charging-method"
+id="toc-method-3-the-charging-method">Method 3: The Charging
+Method</a></li>
+<li><a href="#method-4-the-potential-method-physicists-method"
+id="toc-method-4-the-potential-method-physicists-method">Method 4: The
+Potential Method (Physicist’s Method)</a></li>
+<li><a href="#step-by-step-method-designing-potential-functions"
+id="toc-step-by-step-method-designing-potential-functions">Step-by-Step
+Method: Designing Potential Functions</a></li>
+</ul></li>
+<li><a href="#pathological-sequences-and-thrashing"
+id="toc-pathological-sequences-and-thrashing">4. Pathological Sequences
+and Thrashing</a>
+<ul>
+<li><a href="#the-k-bit-counter-with-decrement"
+id="toc-the-k-bit-counter-with-decrement">The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-Bit
+Counter with DECREMENT</a></li>
+<li><a href="#dynamic-table-contraction-preventing-thrashing"
+id="toc-dynamic-table-contraction-preventing-thrashing">Dynamic Table
+Contraction: Preventing Thrashing</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>Worst-case analysis per operation can be excessively pessimistic when
+an expensive operation cannot occur in isolation, but only after a
+prolonged sequence of cheap operations. <strong>Amortized
+analysis</strong> determines the average performance of each operation
+over a worst-case sequence of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+operations, guaranteeing that the total cost of any sequence is strictly
+bounded.</p>
+<p>This chapter covers the four standard amortization
+methodologies—<strong>Aggregate Analysis</strong>, the
+<strong>Accounting Method</strong>, the <strong>Charging
+Method</strong>, and the <strong>Potential Method</strong>—applied to
+dynamic array resizing, binary counters, heap operations, and thrashing
+prevention.</p>
+<hr />
+<h2 id="principles-of-amortized-analysis">1. Principles of Amortized
+Analysis</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 44%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr>
+<th>Paradigm</th>
+<th>Evaluates</th>
+<th>Role of Probability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Worst-Case Cost</strong></td>
+<td>Maximum possible cost of a <strong>single isolated
+operation</strong></td>
+<td>None</td>
+</tr>
+<tr>
+<td><strong>Average-Case Cost</strong></td>
+<td>Expected cost of an operation over <strong>random
+inputs</strong></td>
+<td>High (assumes input distribution)</td>
+</tr>
+<tr>
+<td><strong>Amortized Cost</strong></td>
+<td>Average cost per operation over the <strong>worst possible
+sequence</strong></td>
+<td><strong>None</strong> (deterministic bound)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>[!IMPORTANT] <strong>No Probability Involved:</strong> Amortized
+bounds hold deterministically for <strong>any sequence of
+operations</strong>, regardless of input ordering. While individual
+operations within a sequence may spike to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n)</annotation></semantics></math>,
+the average cost per operation is guaranteed to remain
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>.</p>
+</blockquote>
+<hr />
+<h2 id="dynamic-array-resizing-table-doubling">2. Dynamic Array Resizing
+(Table Doubling)</h2>
+<p>When inserting into an array of fixed capacity
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>,
+an insertion into a non-full array costs 1. When the array is full
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n = m</annotation></semantics></math>),
+capacity doubles to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>m</mi></mrow><annotation encoding="application/x-tex">2m</annotation></semantics></math>,
+requiring allocation of a new buffer, copying all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+old elements, and inserting the new element (total cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">m + 1</annotation></semantics></math>).</p>
+<figure>
+<img width="1400" height="735" src="media/9-artifacts/doubling-cost-chart.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="Actual insertion costs for table doubling. Most operations cost 1, punctuated by rare doubling spikes. The horizontal line represents the constant amortized cost \hat{c} = 3." />
+<figcaption aria-hidden="true">Actual insertion costs for table
+doubling. Most operations cost 1, punctuated by rare doubling spikes.
+The horizontal line represents the constant amortized cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>c</mi><mo accent="true">̂</mo></mover><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\hat{c} = 3</annotation></semantics></math>.</figcaption>
+</figure>
+<hr />
+<h2 id="the-four-amortization-methods">3. The Four Amortization
+Methods</h2>
+<h3 id="method-1-aggregate-analysis">Method 1: Aggregate Analysis</h3>
+<p>Compute the total worst-case cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T(n)</annotation></semantics></math>
+across the entire sequence of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+operations, then divide uniformly:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>c</mi><mo accent="true">̂</mo></mover><mo>=</mo><mfrac><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac></mrow><annotation encoding="application/x-tex">\hat{c} = \frac{T(n)}{n}</annotation></semantics></math></p>
+<p>For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+insertions with initial capacity 1:</p>
+<ul>
+<li>Writing cost across
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+insertions:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mn>1</mn><mo>=</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">\sum_{i=1}^n 1 = n</annotation></semantics></math>.</li>
+<li>Copying costs occur at capacities
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>4</mn><mo>,</mo><mi>…</mi><mo>,</mo><msup><mn>2</mn><mrow><mo stretchy="false" form="prefix">⌊</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">⌋</mo></mrow></msup></mrow><annotation encoding="application/x-tex">1, 2, 4, \dots, 2^{\lfloor \lg n \rfloor}</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mo stretchy="false" form="prefix">⌊</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">⌋</mo></mrow></munderover><msup><mn>2</mn><mi>j</mi></msup><mo>=</mo><msup><mn>2</mn><mrow><mo stretchy="false" form="prefix">⌊</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">⌋</mo><mo>+</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo>&lt;</mo><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">\sum_{j=0}^{\lfloor \lg n \rfloor} 2^j = 2^{\lfloor \lg n \rfloor + 1} - 1 &lt; 2n</annotation></semantics></math></li>
+<li>Total cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>n</mi><mo>+</mo><mn>2</mn><mi>n</mi><mo>=</mo><mn>3</mn><mi>n</mi><mo>⟹</mo><mrow><mover><mi mathvariant="bold-italic">𝒄</mi><mo accent="true">̂</mo></mover><mo mathvariant="bold">&lt;</mo><mn mathvariant="bold">𝟑</mn><mo mathvariant="bold">=</mo><mi mathvariant="bold-italic">𝑶</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">T(n) &lt; n + 2n = 3n \implies \mathbf{\hat{c} &lt; 3 = O(1)}</annotation></semantics></math>.</li>
+</ul>
+<hr />
+<h3 id="method-2-the-accounting-method-credit-bankers-method">Method 2:
+The Accounting Method (Credit / Banker’s Method)</h3>
+<p>Assign an artificial <strong>amortized charge</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><annotation encoding="application/x-tex">\hat{c}_i</annotation></semantics></math>
+to each operation. If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>&gt;</mo><msub><mi>c</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\hat{c}_i &gt; c_i</annotation></semantics></math>,
+deposit the surplus
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>−</mo><msub><mi>c</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\hat{c}_i - c_i</annotation></semantics></math>
+as <strong>credit</strong> (coins) associated with specific data
+structures. When an expensive operation occurs
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>i</mi></msub><mo>&gt;</mo><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">c_i &gt; \hat{c}_i</annotation></semantics></math>),
+withdraw stored credit.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Credit Balance </mtext><mspace width="0.333em"></mspace></mrow><msub><mtext mathvariant="normal">Bank</mtext><mi>n</mi></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>−</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>c</mi><mi>i</mi></msub><mo>≥</mo><mn>0</mn><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mo>∀</mo><mi>n</mi><mo>≥</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Credit Balance } \text{Bank}_n = \sum_{i=1}^n \hat{c}_i - \sum_{i=1}^n c_i \ge 0 \quad (\forall n \ge 1)</annotation></semantics></math></p>
+<blockquote>
+<p>[!CAUTION] <strong>Credit Invariant:</strong> The total accumulated
+credit balance in the bank must <strong>never drop below zero</strong>
+at any step in the sequence. If the bank ever falls negative, the
+amortized charges fail to upper-bound the actual workload.</p>
+</blockquote>
+<ul>
+<li><strong>Table Doubling Protocol (Charge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>c</mi><mo accent="true">̂</mo></mover><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\hat{c} = 3</annotation></semantics></math>):</strong>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
+coin pays for writing the element into the array.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
+coin is deposited as credit to pay for moving <strong>this
+element</strong> during the next resize.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>1</mn><annotation encoding="application/x-tex">1</annotation></semantics></math>
+coin is deposited as credit to pay for moving <strong>an older
+element</strong> (which spent its credit in the prior resize). When
+table size doubles from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>m</mi></mrow><annotation encoding="application/x-tex">2m</annotation></semantics></math>,
+exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">m/2</annotation></semantics></math>
+insertions occurred since the last resize, accumulating
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mn>2</mn><mo>=</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">(m/2) \times 2 = m</annotation></semantics></math>
+credit coins—exactly paying for copying all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+elements.</li>
+</ol></li>
+</ul>
+<hr />
+<h3 id="method-3-the-charging-method">Method 3: The Charging Method</h3>
+<p>Rather than banking credit in advance, an expensive operation bills
+its excess cost <strong>backwards</strong> to previous cheap operations
+that set up the resize:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><msub><mi>c</mi><mi>i</mi></msub><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">cost billed to past operations</mtext><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">cost billed by future operations</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\hat{c}_i = c_i - (\text{cost billed to past operations}) + (\text{cost billed by future operations})</annotation></semantics></math></p>
+<figure>
+<img width="1296" height="1040" src="media/9-artifacts/charging-method.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="The charging method: An expensive resize bills its copying overhead evenly across the preceding half of insertions." />
+<figcaption aria-hidden="true">The charging method: An expensive resize
+bills its copying overhead evenly across the preceding half of
+insertions.</figcaption>
+</figure>
+<hr />
+<h3 id="method-4-the-potential-method-physicists-method">Method 4: The
+Potential Method (Physicist’s Method)</h3>
+<p>Instead of associating credit with individual elements, the potential
+method models credit as state energy
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><mi>D</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Phi(D)</annotation></semantics></math>
+stored within the overall data structure
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><msub><mi>c</mi><mi>i</mi></msub><mo>+</mo><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msub><mi>c</mi><mi>i</mi></msub><mo>+</mo><mi mathvariant="normal">Δ</mi><msub><mi mathvariant="normal">Φ</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\hat{c}_i = c_i + \Phi(D_i) - \Phi(D_{i-1}) = c_i + \Delta\Phi_i</annotation></semantics></math></p>
+<p>Summing across all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+operations yields a <strong>telescoping sum</strong>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mo stretchy="false" form="prefix">(</mo><msub><mi>c</mi><mi>i</mi></msub><mo>+</mo><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>c</mi><mi>i</mi></msub><mo>+</mo><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sum_{i=1}^n \hat{c}_i = \sum_{i=1}^n (c_i + \Phi(D_i) - \Phi(D_{i-1})) = \sum_{i=1}^n c_i + \Phi(D_n) - \Phi(D_0)</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>c</mi><mi>i</mi></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mspace width="1.0em"></mspace><mrow><mtext mathvariant="normal">provided </mtext><mspace width="0.333em"></mspace></mrow><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sum_{i=1}^n c_i = \sum_{i=1}^n \hat{c}_i - (\Phi(D_n) - \Phi(D_0)) \le \sum_{i=1}^n \hat{c}_i \quad \text{provided } \Phi(D_n) \ge \Phi(D_0)</annotation></semantics></math></p>
+<figure>
+<img width="1400" height="898" src="media/9-artifacts/potential-method.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="The potential method: Tracking potential \Phi = 2n - m. Spikes in actual cost are offset by sharp drops in potential \Delta\Phi &lt; 0, keeping amortized cost flat." />
+<figcaption aria-hidden="true">The potential method: Tracking potential
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Φ</mi><mo>=</mo><mn>2</mn><mi>n</mi><mo>−</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">\Phi = 2n - m</annotation></semantics></math>.
+Spikes in actual cost are offset by sharp drops in potential
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi mathvariant="normal">Φ</mi><mo>&lt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\Delta\Phi &lt; 0</annotation></semantics></math>,
+keeping amortized cost flat.</figcaption>
+</figure>
+<hr />
+<h3 id="step-by-step-method-designing-potential-functions">Step-by-Step
+Method: Designing Potential Functions</h3>
+<ol type="1">
+<li><strong>Set Baseline:</strong> Ensure
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\Phi(D_0) = 0</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>≥</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\Phi(D_i) \ge 0</annotation></semantics></math>
+for all valid states
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>D</mi><mi>i</mi></msub><annotation encoding="application/x-tex">D_i</annotation></semantics></math>.</li>
+<li><strong>Align with Expense:</strong> Potential should reach a
+maximum immediately before an expensive operation, and drop to near-zero
+immediately after.</li>
+<li><strong>Formulate for Table Doubling:</strong>
+<ul>
+<li>Before resize:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n = m</annotation></semantics></math>,
+table needs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+work
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⟹</mo><mi mathvariant="normal">Φ</mi><mo>=</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">\implies \Phi = m</annotation></semantics></math>.</li>
+<li>After resize:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mi>m</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n = m/2</annotation></semantics></math>,
+table just doubled
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⟹</mo><mi mathvariant="normal">Φ</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\implies \Phi = 0</annotation></semantics></math>.</li>
+<li>Linear relation:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold">𝚽</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝑫</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo><mo mathvariant="bold">=</mo><mn mathvariant="bold">𝟐</mn><mi mathvariant="bold-italic">𝒏</mi><mo mathvariant="bold">−</mo><mi mathvariant="bold-italic">𝒎</mi></mrow><annotation encoding="application/x-tex">\mathbf{\Phi(D) = 2n - m}</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Evaluate Cases:</strong>
+<ul>
+<li><em>No resize
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>&lt;</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n &lt; m</annotation></semantics></math>):</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn><mo>,</mo><mi mathvariant="normal">Δ</mi><mi mathvariant="normal">Φ</mi><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo>−</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mo>⟹</mo><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><mn>1</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn mathvariant="bold">𝟑</mn></mrow><annotation encoding="application/x-tex">c_i = 1, \Delta\Phi = 2(n+1 - n) = 2 \implies \hat{c}_i = 1 + 2 = \mathbf{3}</annotation></semantics></math>.</li>
+<li><em>Resize
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n = m</annotation></semantics></math>):</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>i</mi></msub><mo>=</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo>,</mo><msub><mi mathvariant="normal">Φ</mi><mtext mathvariant="normal">before</mtext></msub><mo>=</mo><mi>m</mi><mo>,</mo><msub><mi mathvariant="normal">Φ</mi><mtext mathvariant="normal">after</mtext></msub><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mn>2</mn><mi>m</mi><mo>=</mo><mn>2</mn><mo>⟹</mo><mi mathvariant="normal">Δ</mi><mi mathvariant="normal">Φ</mi><mo>=</mo><mn>2</mn><mo>−</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">c_i = m + 1, \Phi_{\text{before}} = m, \Phi_{\text{after}} = 2(m+1) - 2m = 2 \implies \Delta\Phi = 2 - m</annotation></semantics></math>.
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>−</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn mathvariant="bold">𝟑</mn></mrow><annotation encoding="application/x-tex">\hat{c}_i = (m + 1) + (2 - m) = \mathbf{3}</annotation></semantics></math></li>
+</ul></li>
+</ol>
+<details class="qa box">
+<summary>
+<strong>Tutorial 9 Q2:</strong> Multi-Method Amortized Analysis of
+Geometric Work Sequence <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Suppose a sequence of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+operations is performed on a data structure where the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>-th
+operation costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+is an exact power of 2, and 1 otherwise. Determine the amortized cost
+per operation using:</p>
+<ol type="a">
+<li>Aggregate Analysis</li>
+<li>The Accounting Method</li>
+<li>The Potential Method</li>
+</ol>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><p><strong>(a) Aggregate Analysis:</strong> The actual cost of
+operation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>i</mi></msub><mo>=</mo><mi>i</mi></mrow><annotation encoding="application/x-tex">c_i = i</annotation></semantics></math>
+if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">i = 2^k</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">c_i = 1</annotation></semantics></math>
+otherwise. Total cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T(n)</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>c</mi><mi>i</mi></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><mn>1</mn><mo>+</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mo stretchy="false" form="prefix">⌊</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">⌋</mo></mrow></munderover><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>j</mi></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>n</mi><mo>+</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mo stretchy="false" form="prefix">⌊</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">⌋</mo></mrow></munderover><msup><mn>2</mn><mi>j</mi></msup><mo>=</mo><mi>n</mi><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mo stretchy="false" form="prefix">⌊</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">⌋</mo><mo>+</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>n</mi><mo>+</mo><mn>2</mn><mi>n</mi><mo>=</mo><mn>3</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">T(n) = \sum_{i=1}^n c_i = \sum_{i=1}^n 1 + \sum_{j=0}^{\lfloor \lg n \rfloor} (2^j - 1) \le n + \sum_{j=0}^{\lfloor \lg n \rfloor} 2^j = n + (2^{\lfloor \lg n \rfloor + 1} - 1) &lt; n + 2n = 3n</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Amortized Cost </mtext><mspace width="0.333em"></mspace></mrow><mover><mi>c</mi><mo accent="true">̂</mo></mover><mo>=</mo><mfrac><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><mi>n</mi></mfrac><mo>&lt;</mo><mfrac><mrow><mn>3</mn><mi>n</mi></mrow><mi>n</mi></mfrac><mo>=</mo><mrow><mn mathvariant="bold">𝟑</mn><mo mathvariant="bold">=</mo><mi mathvariant="bold-italic">𝑶</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\text{Amortized Cost } \hat{c} = \frac{T(n)}{n} &lt; \frac{3n}{n} = \mathbf{3 = O(1)}.</annotation></semantics></math></p></li>
+<li><p><strong>(b) Accounting Method:</strong> Assign a uniform
+amortized charge of
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\hat{c}_i = 3</annotation></semantics></math></strong>
+to every operation.</p>
+<ul>
+<li>When
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+is not a power of 2, actual cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">c_i = 1</annotation></semantics></math>.
+The surplus
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>−</mo><mn>1</mn><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">3 - 1 = 2</annotation></semantics></math>
+coins are deposited into the credit bank.</li>
+<li>Between power of two
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">2^{k-1}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>k</mi></msup><annotation encoding="application/x-tex">2^k</annotation></semantics></math>,
+there are exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo>=</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">2^k - 2^{k-1} - 1 = 2^{k-1} - 1</annotation></semantics></math>
+cheap operations, accumulating
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">2(2^{k-1} - 1) = 2^k - 2</annotation></semantics></math>
+coins.</li>
+<li>When operation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">i = 2^k</annotation></semantics></math>
+arrives, its actual cost is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>k</mi></msup><annotation encoding="application/x-tex">2^k</annotation></semantics></math>.
+We pay
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mover><mi>c</mi><mo accent="true">̂</mo></mover><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\hat{c} = 3</annotation></semantics></math>
+from the operation charge and withdraw the saved
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">2^k - 3</annotation></semantics></math>
+coins from credit.</li>
+<li>The bank balance never drops below zero. Hence, amortized cost is
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn mathvariant="bold">𝟑</mn><mo mathvariant="bold">=</mo><mi mathvariant="bold-italic">𝑶</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{3 = O(1)}</annotation></semantics></math></strong>.</li>
+</ul></li>
+<li><p><strong>(c) Potential Method:</strong> Define potential function:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>i</mi><mo>−</mo><msup><mn>2</mn><mrow><mo stretchy="false" form="prefix">⌈</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>i</mi><mo stretchy="false" form="postfix">⌉</mo><mo>+</mo><mn>1</mn></mrow></msup><mo>+</mo><mn>2</mn><mo>≥</mo><mn>0</mn><mo>,</mo><mspace width="1.0em"></mspace><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\Phi(D_i) = 2i - 2^{\lceil \lg i \rceil + 1} + 2 \ge 0, \quad \Phi(D_0) = 0</annotation></semantics></math></p>
+<ul>
+<li><em>Case 1:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+is not a power of 2
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>&lt;</mo><mi>i</mi><mo>&lt;</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">2^{k-1} &lt; i &lt; 2^k</annotation></semantics></math>):</em>
+Actual cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">c_i = 1</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>i</mi><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">\lceil \lg i \rceil</annotation></semantics></math>
+is constant.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi mathvariant="normal">Φ</mi><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\Delta\Phi = 2(i - (i - 1)) = 2</annotation></semantics></math>.
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><msub><mi>c</mi><mi>i</mi></msub><mo>+</mo><mi mathvariant="normal">Δ</mi><mi mathvariant="normal">Φ</mi><mo>=</mo><mn>1</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn mathvariant="bold">𝟑</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">\hat{c}_i = c_i + \Delta\Phi = 1 + 2 = \mathbf{3}.</annotation></semantics></math></li>
+<li><em>Case 2:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+is a power of 2
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">i = 2^k</annotation></semantics></math>):</em>
+Actual cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>i</mi></msub><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">c_i = 2^k</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>+</mo><mn>2</mn><mo>=</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>2</mn><mo>−</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>+</mo><mn>2</mn><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\Phi(D_{i-1}) = 2(2^k - 1) - 2^{k+1} + 2 = 2^{k+1} - 2 - 2^{k+1} + 2 = 0</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Φ</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>D</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>k</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>−</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>+</mo><mn>2</mn><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\Phi(D_i) = 2(2^k) - 2^{k+1} + 2 = 2</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mi mathvariant="normal">Φ</mi><mo>=</mo><mn>2</mn><mo>−</mo><mn>0</mn><mo>=</mo><mn>2</mn><mo>−</mo><msup><mn>2</mn><mi>k</mi></msup></mrow><annotation encoding="application/x-tex">\Delta\Phi = 2 - 0 = 2 - 2^k</annotation></semantics></math>.
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>c</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><msub><mi>c</mi><mi>i</mi></msub><mo>+</mo><mi mathvariant="normal">Δ</mi><mi mathvariant="normal">Φ</mi><mo>=</mo><msup><mn>2</mn><mi>k</mi></msup><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>−</mo><msup><mn>2</mn><mi>k</mi></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn mathvariant="bold">𝟐</mn><mo>≤</mo><mn>3</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">\hat{c}_i = c_i + \Delta\Phi = 2^k + (2 - 2^k) = \mathbf{2} \le 3.</annotation></semantics></math></li>
+<li>Both cases yield
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="bold-italic">𝑶</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow><annotation encoding="application/x-tex">\mathbf{O(1)}</annotation></semantics></math>
+amortized cost.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="pathological-sequences-and-thrashing">4. Pathological Sequences
+and Thrashing</h2>
+<p>An amortized bound is valid <strong>strictly for the specific set of
+operations evaluated</strong>. Introducing a new operation can destroy
+amortization if it resets the structure into an expensive boundary
+state.</p>
+<h3 id="the-k-bit-counter-with-decrement">The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-Bit
+Counter with DECREMENT</h3>
+<p>A standard
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-bit
+counter supporting only <code>INCREMENT</code> achieves
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+amortized cost (Tutorial 8). Adding <code>DECREMENT</code> destroys this
+bound:</p>
+<details class="qa box">
+<summary>
+<strong>Tutorial 9 Q1:</strong> Amortization Breakdown in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-Bit
+Counter with DECREMENT <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Show that if a <code>DECREMENT</code>
+operation is included alongside <code>INCREMENT</code> on an initially
+zero
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-bit
+counter, a sequence of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+operations can cost as much as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>⋅</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n \cdot k)</annotation></semantics></math>.</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Adversarial Thrashing Sequence:</strong>
+<ol type="1">
+<li>Perform
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">2^{k-1}</annotation></semantics></math>
+initial increments to reach state:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>=</mo><mn>01111</mn><mi>…</mi><mn>1</mn><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mrow><mtext mathvariant="normal">value </mtext><mspace width="0.333em"></mspace></mrow><msup><mn>2</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">A = 01111\dots1 \quad (\text{value } 2^{k-1} - 1)</annotation></semantics></math></li>
+<li>Now alternate between <code>INCREMENT</code> and
+<code>DECREMENT</code>:
+<ul>
+<li><code>INCREMENT</code>: flips all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+bits to transition
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>01111</mn><mi>…</mi><mn>1</mn><mo>→</mo><mn>10000</mn><mi>…</mi><mn>0</mn></mrow><annotation encoding="application/x-tex">01111\dots1 \to 10000\dots0</annotation></semantics></math>.
+Actual cost =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.</li>
+<li><code>DECREMENT</code>: flips all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+bits to transition
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10000</mn><mi>…</mi><mn>0</mn><mo>→</mo><mn>01111</mn><mi>…</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">10000\dots0 \to 01111\dots1</annotation></semantics></math>.
+Actual cost =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.</li>
+</ul></li>
+<li>Repeating this alternation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mi>n</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">m = n/2</annotation></semantics></math>
+times forces every single operation to flip all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+bits.</li>
+<li>Total cost of the sequence:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></munderover><msub><mi>c</mi><mi>i</mi></msub><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>⋅</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sum_{i=1}^n c_i = \Theta(n \cdot k)</annotation></semantics></math></li>
+<li>The amortized cost per operation degrades from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+to
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(k)</annotation></semantics></math></strong>,
+matching worst-case single operation cost.</li>
+</ol></li>
+</ul>
+</div>
+</details>
+<hr />
+<h3 id="dynamic-table-contraction-preventing-thrashing">Dynamic Table
+Contraction: Preventing Thrashing</h3>
+<p>When elements are deleted, shrinking the array when it becomes
+half-full
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mi>m</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">n = m/2</annotation></semantics></math>)
+causes <strong>thrashing</strong>: alternating <code>INSERT</code> and
+<code>DELETE</code> at the boundary forces a resize on every step.</p>
+<pre><code>Half-Full Resizing Flaw:
+[ Full: n = m ] -&gt; Insert -&gt; [ Double: m&#39; = 2m, n = m + 1 ]
+                &lt;- Delete &lt;- [ Halve: m&#39; = m, n = m ] (Copies m elements on every step!)</code></pre>
+<p>To preserve
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+amortized cost, the contraction threshold must be decoupled from the
+doubling expansion:</p>
+<details class="qa box">
+<summary>
+<strong>Tutorial 9 Q4:</strong> Dynamic Table Contraction at One-Third
+Load Factor <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Suppose that instead of contracting an
+array by halving when load factor drops below
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">1/4</annotation></semantics></math>,
+we contract by halving when load factor drops below
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">1/3</annotation></semantics></math>
+(contracting from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">m/2</annotation></semantics></math>,
+so the new load factor is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">2/3</annotation></semantics></math>).
+Show that this rule still achieves
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+amortized time for <code>INSERT</code> and <code>DELETE</code>.</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Load Factor Invariant:</strong>
+<ul>
+<li>When
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mi>m</mi><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">n = m/3</annotation></semantics></math>,
+we halve capacity from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>→</mo><mi>m</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">m \to m/2</annotation></semantics></math>.</li>
+<li>The new load factor immediately following resize is:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>α</mi><mtext mathvariant="normal">new</mtext></msub><mo>=</mo><mfrac><mi>n</mi><mrow><mi>m</mi><mi>/</mi><mn>2</mn></mrow></mfrac><mo>=</mo><mfrac><mrow><mi>m</mi><mi>/</mi><mn>3</mn></mrow><mrow><mi>m</mi><mi>/</mi><mn>2</mn></mrow></mfrac><mo>=</mo><mfrac><mn>2</mn><mn>3</mn></mfrac><mi>.</mi></mrow><annotation encoding="application/x-tex">\alpha_{\text{new}} = \frac{n}{m/2} = \frac{m/3}{m/2} = \frac{2}{3}.</annotation></semantics></math></li>
+<li>The table is now at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">2/3</annotation></semantics></math>
+capacity, which is strictly separated from both triggers:
+<ol type="1">
+<li>To trigger a <strong>doubling</strong> (at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\alpha = 1</annotation></semantics></math>),
+the table must absorb:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>/</mi><mn>2</mn><mo>−</mo><mi>n</mi><mo>=</mo><mi>m</mi><mi>/</mi><mn>2</mn><mo>−</mo><mi>m</mi><mi>/</mi><mn>3</mn><mo>=</mo><mfrac><mi>m</mi><mn>6</mn></mfrac><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> insertions</mtext></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">m/2 - n = m/2 - m/3 = \frac{m}{6} \text{ insertions}.</annotation></semantics></math></li>
+<li>To trigger another <strong>halving</strong> (at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>=</mo><mn>1</mn><mi>/</mi><mn>3</mn></mrow><annotation encoding="application/x-tex">\alpha = 1/3</annotation></semantics></math>),
+the table must absorb:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mfrac><mrow><mi>m</mi><mi>/</mi><mn>2</mn></mrow><mn>3</mn></mfrac><mo>=</mo><mfrac><mi>m</mi><mn>3</mn></mfrac><mo>−</mo><mfrac><mi>m</mi><mn>6</mn></mfrac><mo>=</mo><mfrac><mi>m</mi><mn>6</mn></mfrac><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> deletions</mtext></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">n - \frac{m/2}{3} = \frac{m}{3} - \frac{m}{6} = \frac{m}{6} \text{ deletions}.</annotation></semantics></math></li>
+</ol></li>
+</ul></li>
+<li><strong>Amortization Accounting:</strong>
+<ul>
+<li>In either direction, at least
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>/</mi><mn>6</mn><mo>=</mo><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">m/6 = \Omega(m)</annotation></semantics></math>
+non-resizing operations</strong> must occur before the next resize can
+possibly trigger.</li>
+<li>The actual cost of contracting is copying
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mi>m</mi><mi>/</mi><mn>3</mn><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">n = m/3 = \Theta(m)</annotation></semantics></math>
+elements.</li>
+<li>Spreading the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(m)</annotation></semantics></math>
+resize cost across the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Omega(m)</annotation></semantics></math>
+preceding operations charges at most:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>m</mi><mi>/</mi><mn>3</mn></mrow><mrow><mi>m</mi><mi>/</mi><mn>6</mn></mrow></mfrac><mo>=</mo><mn>2</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> coins per operation</mtext></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">\frac{m/3}{m/6} = 2 \text{ coins per operation}.</annotation></semantics></math></li>
+<li>Hence, both <code>INSERT</code> and <code>DELETE</code> execute in
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+amortized time</strong>.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 9 Q3:</strong> Amortized Analysis of Binary Min-Heap
+Operations <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Consider an ordinary binary min-heap
+supporting <code>INSERT</code> and <code>EXTRACT-MIN</code>. Can we
+achieve
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+amortized cost for <code>INSERT</code> while keeping
+<code>EXTRACT-MIN</code> at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>?
+Explain.</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Standard Binary Heap:</strong>
+<ul>
+<li>In an ordinary binary min-heap, <code>INSERT</code> places an
+element at the next available leaf and bubbles up, costing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+in the worst case.</li>
+<li>However, over a sequence of insertions into an initially empty heap,
+the average height of a newly inserted node is small: half of all nodes
+reside in leaves (height 0), one quarter at height 1, etc.</li>
+<li>By aggregate analysis,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+insertions into an empty heap cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>n</mi></msubsup><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">depth</mtext><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sum_{i=1}^n O(\text{depth}(i)) = O(n)</annotation></semantics></math>
+total work. Thus, <strong><code>INSERT</code> takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+amortized time</strong> when no deletions occur.</li>
+</ul></li>
+<li><strong>Interleaved Sequence Bound:</strong>
+<ul>
+<li>If arbitrary sequences of <code>INSERT</code> and
+<code>EXTRACT-MIN</code> are allowed, comparison lower bounds dictate
+that sorting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+elements by performing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+insertions followed by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+extractions requires
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Omega(n \log n)</annotation></semantics></math>
+comparisons.</li>
+<li>If <code>INSERT</code> were
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+amortized and <code>EXTRACT-MIN</code> were
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>o</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">o(\log n)</annotation></semantics></math>,
+sorting would violate the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Omega(n \log n)</annotation></semantics></math>
+decision tree lower bound.</li>
+<li>In a binary min-heap, <code>EXTRACT-MIN</code> remains
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(\log n)</annotation></semantics></math></strong>,
+while <code>INSERT</code> achieves
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+amortized</strong> and
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+worst-case</strong>.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/8-recurrences/8.html">← 8.
+Analysis Techniques: Solving Recurrences</a>
+  <a class="next-page" href="../../notes/10-dynamic-programming/10.html">10.
+Dynamic Programming →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

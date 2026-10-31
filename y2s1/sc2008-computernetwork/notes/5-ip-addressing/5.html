@@ -1,0 +1,2496 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>5. Network Layer: IP Addressing · SC2008 Computer
+Network</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">5. Network Layer:
+IP Addressing</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2008</p>
+  <p class="site-title">Computer Network</p>
+  <h1 class="page-title">5. Network Layer: IP Addressing</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 1</h2>
+          <ul>
+            <li><a href="../../notes/1-networklayers/1.html"
+                   data-nav="notes/1-networklayers/1.html">1. Network
+Layers and Physical Resilience</a></li>
+            <li><a href="../../notes/2-dll-flow-error-control/2.html"
+                   data-nav="notes/2-dll-flow-error-control/2.html">2.
+Data Link Layer (DLL): Flow &amp; Error Control</a></li>
+            <li><a href="../../notes/3-dll-mac-lan/3.html"
+                   data-nav="notes/3-dll-mac-lan/3.html">3. Data Link
+Layer (DLL): Medium Access Control &amp; LANs</a></li>
+            <li><a href="../../notes/4-network-paradigms/4.html"
+                   data-nav="notes/4-network-paradigms/4.html">4.
+Network Paradigms</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 2</h2>
+          <ul>
+            <li><a href="../../notes/5-ip-addressing/5.html"
+                   data-nav="notes/5-ip-addressing/5.html">5. Network
+Layer: IP Addressing</a></li>
+            <li><a href="../../notes/6-ip-forwarding/6.html"
+                   data-nav="notes/6-ip-forwarding/6.html">6. Network
+Layer: Forwarding, ARP, Fragmentation &amp; ICMP</a></li>
+            <li><a href="../../notes/7-routing/7.html"
+                   data-nav="notes/7-routing/7.html">7. Network Layer:
+Routing (RIP, OSPF, BGP)</a></li>
+            <li><a href="../../notes/8-routing-practice/8.html"
+                   data-nav="notes/8-routing-practice/8.html">8. Routing
+in Practice</a></li>
+            <li><a href="../../notes/9-transport/9.html"
+                   data-nav="notes/9-transport/9.html">9. Transport
+Layer: Ports, UDP and TCP</a></li>
+            <li><a href="../../notes/10-application-layer/10.html"
+                   data-nav="notes/10-application-layer/10.html">10.
+Application Layer: HTTP and DNS</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#network-layer-ip-addressing"
+id="toc-network-layer-ip-addressing">5. Network Layer: IP Addressing</a>
+<ul>
+<li><a href="#quick-reference" id="toc-quick-reference">Quick
+reference</a></li>
+<li><a href="#three-layers-three-addresses"
+id="toc-three-layers-three-addresses">1. Three layers, three
+addresses</a></li>
+<li><a href="#ip-basics" id="toc-ip-basics">2. IP basics</a></li>
+<li><a href="#ipv4-addresses" id="toc-ipv4-addresses">3. IPv4
+addresses</a>
+<ul>
+<li><a href="#the-format" id="toc-the-format">The format</a></li>
+<li><a href="#network-part-and-host-part"
+id="toc-network-part-and-host-part">Network part and host part</a></li>
+<li><a href="#subnet-prefix-and-mask"
+id="toc-subnet-prefix-and-mask">Subnet, prefix and mask</a></li>
+<li><a href="#network-broadcast-and-usable-addresses"
+id="toc-network-broadcast-and-usable-addresses">Network, broadcast and
+usable addresses</a></li>
+<li><a href="#cidr-and-the-old-classes"
+id="toc-cidr-and-the-old-classes">CIDR and the old classes</a></li>
+</ul></li>
+<li><a href="#from-an-address-to-its-subnet"
+id="toc-from-an-address-to-its-subnet">4. From an address to its
+subnet</a></li>
+<li><a href="#equal-size-subnetting" id="toc-equal-size-subnetting">5.
+Equal-size subnetting</a></li>
+<li><a href="#vlsm-subnets-of-different-sizes"
+id="toc-vlsm-subnets-of-different-sizes">6. VLSM: subnets of different
+sizes</a>
+<ul>
+<li><a href="#two-sizes-in-one-parent-tutorial-2.1-q1"
+id="toc-two-sizes-in-one-parent-tutorial-2.1-q1">Two sizes in one
+parent: Tutorial 2.1 Q1</a></li>
+<li><a href="#lans-and-router-links-in-one-24-tutorial-2.1-q3"
+id="toc-lans-and-router-links-in-one-24-tutorial-2.1-q3">LANs and router
+links in one /24: Tutorial 2.1 Q3</a></li>
+</ul></li>
+<li><a href="#smallest-subnet-for-two-addresses-and-route-aggregation"
+id="toc-smallest-subnet-for-two-addresses-and-route-aggregation">7.
+Smallest subnet for two addresses, and route aggregation</a></li>
+<li><a href="#private-addresses-and-nat"
+id="toc-private-addresses-and-nat">8. Private addresses and NAT</a>
+<ul>
+<li><a href="#private-blocks" id="toc-private-blocks">Private
+blocks</a></li>
+<li><a href="#ports-and-napt" id="toc-ports-and-napt">Ports and
+NAPT</a></li>
+</ul></li>
+<li><a href="#getting-ip-settings-static-or-dhcp"
+id="toc-getting-ip-settings-static-or-dhcp">9. Getting IP settings:
+static or DHCP</a>
+<ul>
+<li><a href="#dhcp" id="toc-dhcp">DHCP</a></li>
+<li><a href="#what-the-home-router-does-tutorial-2.3-q3"
+id="toc-what-the-home-router-does-tutorial-2.3-q3">What the home router
+does: Tutorial 2.3 Q3</a></li>
+<li><a href="#why-have-subnets-at-all"
+id="toc-why-have-subnets-at-all">Why have subnets at all?</a></li>
+</ul></li>
+<li><a href="#exam-patterns" id="toc-exam-patterns">Exam
+patterns</a></li>
+<li><a href="#common-traps" id="toc-common-traps">Common Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="network-layer-ip-addressing">5. Network Layer: IP
+Addressing</h1>
+<p>This chapter starts Part II. It covers Part II Lecture 1 (overview),
+the first half of Lecture 2 (IP addressing and subnetting), and the “IP
+addressing in practice” session (IP settings, DHCP, NAT).</p>
+<p>Part I showed how a frame crosses <strong>one</strong> link. Part II
+shows how data crosses <strong>many</strong> networks and reaches the
+right program on the right computer. This chapter answers one question:
+<strong>how does an address tell a router where to send a
+packet?</strong></p>
+<p>In the exam you will:</p>
+<ul>
+<li>find the network address, broadcast address and usable range from an
+address and a mask;</li>
+<li>choose subnet sizes and give each router interface an address
+(equal-size subnetting and VLSM);</li>
+<li>find the smallest subnet that holds two addresses, or one route that
+covers many networks;</li>
+<li>fill in a NAT or DHCP packet table, and explain what a home router
+does.</li>
+</ul>
+<p><strong>How to use this page.</strong> Each section teaches one idea
+in a few lines, then gives the questions on it, with a general method.
+Tutorial 2.1 has official solutions. Tutorial 2.3 has
+<strong>none</strong>, so its answer is unofficial. Concept checks and
+extensions are unofficial too. Past-year papers are not on this page:
+use the original papers.</p>
+<hr />
+<h2 id="quick-reference">Quick reference</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 36%" />
+<col style="width: 63%" />
+</colgroup>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IPv4 address</td>
+<td>32 bits = 4 octets. It names an <strong>interface</strong>, not a
+computer. A router has one per interface.</td>
+</tr>
+<tr>
+<td>Mask <code>/n</code></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+ones, then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>32</mn><mo>−</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">32-n</annotation></semantics></math>
+zeros. Valid mask octets: 128, 192, 224, 240, 248, 252, 254, 255.</td>
+</tr>
+<tr>
+<td>Block size</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>256</mn><mo>−</mo></mrow><annotation encoding="application/x-tex">256 -</annotation></semantics></math>
+(mask value in the interesting octet). Blocks start at multiples of
+it.</td>
+</tr>
+<tr>
+<td>Network / broadcast</td>
+<td>Host bits all 0 / all 1. Usable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><msup><mn>2</mn><mi>h</mi></msup><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">= 2^h - 2</annotation></semantics></math>,
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+= host bits.</td>
+</tr>
+<tr>
+<td>Hosts to prefix</td>
+<td>Count computers <strong>+ every router interface</strong>. Smallest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>h</mi></msup><mo>−</mo><mn>2</mn><mo>≥</mo></mrow><annotation encoding="application/x-tex">2^h - 2 \ge</annotation></semantics></math>
+count. Prefix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>32</mn><mo>−</mo><mi>h</mi></mrow><annotation encoding="application/x-tex">= 32 - h</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td>Same subnet?</td>
+<td>AND each address with the mask. Same result = same subnet.</td>
+</tr>
+<tr>
+<td>Subnetting <code>/p</code> to <code>/q</code></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>q</mi><mo>−</mo><mi>p</mi></mrow></msup><annotation encoding="application/x-tex">2^{q-p}</annotation></semantics></math>
+subnets, each with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>32</mn><mo>−</mo><mi>q</mi></mrow><annotation encoding="application/x-tex">32 - q</annotation></semantics></math>
+host bits.</td>
+</tr>
+<tr>
+<td>VLSM order</td>
+<td>Fixed blocks first, then largest first. Each block starts on a
+multiple of its own size. Router links are <code>/30</code>.</td>
+</tr>
+<tr>
+<td>Smallest subnet for two addresses</td>
+<td>Write the first differing octet in binary. Prefix = bits before the
+first difference.</td>
+</tr>
+<tr>
+<td>Aggregate route</td>
+<td>Same method over many networks: the shared leading bits.</td>
+</tr>
+<tr>
+<td>Classes</td>
+<td>A <code>0…</code> (0–127, /8) · B <code>10…</code> (128–191, /16) ·
+C <code>110…</code> (192–223, /24) · D <code>1110…</code> multicast · E
+<code>1111…</code> reserved</td>
+</tr>
+<tr>
+<td>Private blocks</td>
+<td>10.0.0.0/8 · 172.16.0.0/12 · 192.168.0.0/16</td>
+</tr>
+<tr>
+<td>NAPT</td>
+<td>Out: private IP:port becomes public IP:new port. MAC addresses
+change on <strong>every</strong> link.</td>
+</tr>
+<tr>
+<td>DHCP</td>
+<td>Discover, Offer, Request, Acknowledge. The client sends Discover and
+Request from 0.0.0.0 to 255.255.255.255.</td>
+</tr>
+<tr>
+<td>IPv6</td>
+<td>128-bit addresses (IPv4 has 32).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="three-layers-three-addresses">1. Three layers, three
+addresses</h2>
+<p>Part I covered the physical and data link layers. Part II covers the
+next three.</p>
+<div class="table-wrap">
+<table style="width: 90%;">
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 35%" />
+<col style="width: 20%" />
+<col style="width: 18%" />
+<col style="width: 12%" />
+</colgroup>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Delivers</th>
+<th>Address it uses</th>
+<th>Size</th>
+<th>Chapters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data link</td>
+<td>node to node (one link)</td>
+<td>MAC address</td>
+<td>48 bits</td>
+<td>Part I</td>
+</tr>
+<tr>
+<td>Network</td>
+<td>host to host (the whole path)</td>
+<td>IP address</td>
+<td>32 bits (IPv4)</td>
+<td>5 to 8</td>
+</tr>
+<tr>
+<td>Transport</td>
+<td>process to process</td>
+<td>Port number</td>
+<td>16 bits</td>
+<td>9</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A <strong>node</strong> is any device on the path. A
+<strong>host</strong> is an end computer. A <strong>process</strong> is
+a program running on a host. All three addresses sit in the packet at
+once: the port in the transport header, the IP address in the IP header,
+and the MAC address in the frame header.</p>
+<figure>
+<img width="1089" height="458" src="media/5-artifacts/node-host-process.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="The data link layer works node to node. The network layer works host to host. The transport layer works process to process." />
+<figcaption aria-hidden="true">The data link layer works node to node.
+The network layer works host to host. The transport layer works process
+to process.</figcaption>
+</figure>
+<figure>
+<img width="1400" height="764" src="media/5-artifacts/address-placement.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="Where each address sits in the headers" />
+<figcaption aria-hidden="true">Where each address sits in the
+headers</figcaption>
+</figure>
+<p>The two <strong>hosts</strong> run all five layers. A
+<strong>router</strong> runs only the physical, data link and network
+layers. At each router, the network layer picks the next hop. Then the
+data link layer carries the packet over that one link.</p>
+<figure>
+<img width="1248" height="604" src="media/5-artifacts/who-does-what.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Who runs which layers along the path" />
+<figcaption aria-hidden="true">Who runs which layers along the
+path</figcaption>
+</figure>
+<details class="qa box">
+<summary>
+The network layer delivers data from process to process. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> The network layer delivers host to host. The
+transport layer delivers process to process, using port numbers.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A router runs all five layers. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A router runs the physical, data link and
+network layers only. It forwards packets and never reads the transport
+header.</p>
+</div>
+</details>
+<p><strong>What happens when you open a web page.</strong> Each step
+needs a different part of the course.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 45%" />
+<col style="width: 47%" />
+</colgroup>
+<thead>
+<tr>
+<th>Step</th>
+<th>Problem</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>You typed a name, but routers need an address.</td>
+<td>DNS (Chapter 10)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Which network does the address belong to?</td>
+<td>IP addressing (this chapter)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Which way should the packet go at each router?</td>
+<td>Routing (Chapters 6 to 8)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>How does the packet cross each link?</td>
+<td>Ethernet or Wi-Fi, joined to IP by ARP (Chapter 6)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Which program gets the data?</td>
+<td>Port numbers (Chapter 9)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>What if packets are lost or out of order?</td>
+<td>TCP (Chapter 9)</td>
+</tr>
+<tr>
+<td>7</td>
+<td>What do browser and server say?</td>
+<td>HTTP (Chapter 10)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="ip-basics">2. IP basics</h2>
+<p><strong>IP (Internet Protocol)</strong> is the network-layer protocol
+of the Internet. An <strong>IP packet</strong> (or
+<strong>datagram</strong>) has two parts:</p>
+<ul>
+<li>the <strong>IP header</strong>: control information, including the
+source and destination IP addresses;</li>
+<li>the <strong>payload</strong>: the data after the header, for example
+a TCP segment.</li>
+</ul>
+<p>An Ethernet frame carries the packet over one link. At each router
+the packet goes into a <strong>new</strong> frame for the next link.</p>
+<p>IP is <strong>connectionless</strong>: it sends each datagram on its
+own, with no set-up. IP is also <strong>best effort</strong>: packets
+can be lost, delayed, duplicated or reordered, and IP never resends
+them. TCP, above IP, adds reliability.</p>
+<details class="qa box">
+<summary>
+The Internet Protocol (IP) provides a reliable service. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> IP is best effort. It can lose, delay,
+duplicate or reorder packets, and it does not resend them. TCP adds
+reliability.</p>
+</div>
+</details>
+<hr />
+<h2 id="ipv4-addresses">3. IPv4 addresses</h2>
+<h3 id="the-format">The format</h3>
+<p>An <strong>IPv4 address</strong> is a 32-bit number given to a
+network <strong>interface</strong> (one Ethernet port, one Wi-Fi
+connection). We write it as four decimal numbers, one per byte (an
+<strong>octet</strong>, 0 to 255), with dots between them.</p>
+<pre><code>192    .168     .10      .77
+11000000.10101000.00001010.01001101   (8 + 8 + 8 + 8 = 32 bits)</code></pre>
+<p>A router has one IP address on <strong>each</strong> interface, and
+each address belongs to the subnet on that side.</p>
+<h3 id="network-part-and-host-part">Network part and host part</h3>
+<p>A MAC address is <strong>flat</strong>: it says <em>who</em> a device
+is, not <em>where</em>. If IP addresses were flat too, every router
+would need one table entry for every computer on Earth. So an IP address
+has two parts, like a phone number with a country code:</p>
+<ul>
+<li>the <strong>network prefix</strong> (the leading bits) names the
+network;</li>
+<li>the <strong>host part</strong> (the remaining bits) names the
+interface inside it.</li>
+</ul>
+<p>Example: in 155.69.8.3, “155.69” names NTU and “8.3” names one
+machine. A router far away needs only one route for the whole NTU
+block.</p>
+<h3 id="subnet-prefix-and-mask">Subnet, prefix and mask</h3>
+<ul>
+<li>A <strong>subnet</strong> is a group of interfaces with the same
+network prefix. Hosts in one subnet talk directly, without a
+router.</li>
+<li>A <strong>subnet mask</strong> is a 32-bit value. Its leading 1s
+mark the prefix. Its trailing 0s mark the host bits. The 1s must be one
+unbroken run.</li>
+<li><strong>Prefix notation</strong> writes <code>/n</code> after the
+address, where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+is the number of 1s in the mask.</li>
+</ul>
+<div class="table-wrap">
+<table style="width: 65%;">
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 27%" />
+<col style="width: 18%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Prefix</th>
+<th>Mask</th>
+<th>Host bits</th>
+<th>Total</th>
+<th>Usable</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/8</td>
+<td>255.0.0.0</td>
+<td>24</td>
+<td>16 777 216</td>
+<td>16 777 214</td>
+</tr>
+<tr>
+<td>/16</td>
+<td>255.255.0.0</td>
+<td>16</td>
+<td>65 536</td>
+<td>65 534</td>
+</tr>
+<tr>
+<td>/20</td>
+<td>255.255.240.0</td>
+<td>12</td>
+<td>4 096</td>
+<td>4 094</td>
+</tr>
+<tr>
+<td>/22</td>
+<td>255.255.252.0</td>
+<td>10</td>
+<td>1 024</td>
+<td>1 022</td>
+</tr>
+<tr>
+<td>/23</td>
+<td>255.255.254.0</td>
+<td>9</td>
+<td>512</td>
+<td>510</td>
+</tr>
+<tr>
+<td>/24</td>
+<td>255.255.255.0</td>
+<td>8</td>
+<td>256</td>
+<td>254</td>
+</tr>
+<tr>
+<td>/25</td>
+<td>255.255.255.128</td>
+<td>7</td>
+<td>128</td>
+<td>126</td>
+</tr>
+<tr>
+<td>/26</td>
+<td>255.255.255.192</td>
+<td>6</td>
+<td>64</td>
+<td>62</td>
+</tr>
+<tr>
+<td>/27</td>
+<td>255.255.255.224</td>
+<td>5</td>
+<td>32</td>
+<td>30</td>
+</tr>
+<tr>
+<td>/28</td>
+<td>255.255.255.240</td>
+<td>4</td>
+<td>16</td>
+<td>14</td>
+</tr>
+<tr>
+<td>/29</td>
+<td>255.255.255.248</td>
+<td>3</td>
+<td>8</td>
+<td>6</td>
+</tr>
+<tr>
+<td>/30</td>
+<td>255.255.255.252</td>
+<td>2</td>
+<td>4</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Learn the mask octets: 128, 192, 224, 240, 248, 252, 254, 255. Each
+one adds the next bit (128, +64, +32, +16, +8, +4, +2, +1).</p>
+<details class="qa box">
+<summary>
+255.255.253.0 is a valid subnet mask. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> 253 is <code>11111101</code>. A 0 comes
+before a 1, so the 1s are not one unbroken run.</p>
+</div>
+</details>
+<h3 id="network-broadcast-and-usable-addresses">Network, broadcast and
+usable addresses</h3>
+<p>With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+host bits:</p>
+<ul>
+<li><strong>Network address:</strong> all host bits 0. First address of
+the block. It names the subnet.</li>
+<li><strong>Broadcast address:</strong> all host bits 1. Last address of
+the block. It means “every host on this subnet”.</li>
+<li><strong>Usable addresses:</strong> everything in between.</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">total</mtext><mo>=</mo><msup><mn>2</mn><mi>h</mi></msup><mo>,</mo><mspace width="2.0em"></mspace><mtext mathvariant="normal">usable</mtext><mo>=</mo><msup><mn>2</mn><mi>h</mi></msup><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\text{total} = 2^h, \qquad \text{usable} = 2^h - 2</annotation></semantics></math></p>
+<blockquote>
+<p><strong>Always count the router interface.</strong> A LAN with 62
+computers and 1 gateway needs 63 usable addresses. A /26 has only 62, so
+you need a /25.</p>
+</blockquote>
+<details class="qa box">
+<summary>
+A /24 subnet can hold 256 hosts. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A /24 has 256 addresses, but the network and
+broadcast addresses are not for hosts. It holds 254 interfaces, and a
+router interface is one of them.</p>
+</div>
+</details>
+<h3 id="cidr-and-the-old-classes">CIDR and the old classes</h3>
+<p><strong>CIDR (Classless Inter-Domain Routing)</strong> allows any
+prefix length. Use the prefix or mask that the question gives.
+<strong>Do not guess the boundary from the first number.</strong></p>
+<p>The <strong>old classful</strong> system fixed the boundary from the
+first bits. You still need to recognise the classes.</p>
+<div class="table-wrap">
+<table style="width: 80%;">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 18%" />
+<col style="width: 17%" />
+<col style="width: 18%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr>
+<th>Class</th>
+<th>Leading bits</th>
+<th>First octet</th>
+<th>Network bits</th>
+<th>Hosts per network</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>0</td>
+<td>0–127</td>
+<td>8</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>24</mn></msup><mo>−</mo><mn>2</mn><mo>=</mo><mn>16</mn><mspace width="0.167em"></mspace><mn>777</mn><mspace width="0.167em"></mspace><mn>214</mn></mrow><annotation encoding="application/x-tex">2^{24} - 2 = 16\,777\,214</annotation></semantics></math></td>
+</tr>
+<tr>
+<td>B</td>
+<td>10</td>
+<td>128–191</td>
+<td>16</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>16</mn></msup><mo>−</mo><mn>2</mn><mo>=</mo><mn>65</mn><mspace width="0.167em"></mspace><mn>534</mn></mrow><annotation encoding="application/x-tex">2^{16} - 2 = 65\,534</annotation></semantics></math></td>
+</tr>
+<tr>
+<td>C</td>
+<td>110</td>
+<td>192–223</td>
+<td>24</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>8</mn></msup><mo>−</mo><mn>2</mn><mo>=</mo><mn>254</mn></mrow><annotation encoding="application/x-tex">2^8 - 2 = 254</annotation></semantics></math></td>
+</tr>
+<tr>
+<td>D</td>
+<td>1110</td>
+<td>224–239</td>
+<td>—</td>
+<td>multicast</td>
+</tr>
+<tr>
+<td>E</td>
+<td>1111</td>
+<td>240–255</td>
+<td>—</td>
+<td>reserved</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Example: 152.73.184.68 starts with 152, which is in 128–191, so it is
+<strong>Class B</strong>.</p>
+<details class="qa box">
+<summary>
+A Class B address starts with the bits 110 and has a 24-bit network
+part. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> Class B starts with <strong>10</strong> and
+has a 16-bit network part. “110” and 24 bits describe Class C.</p>
+</div>
+</details>
+<hr />
+<h2 id="from-an-address-to-its-subnet">4. From an address to its
+subnet</h2>
+<p><strong>The question:</strong> given an address and a mask, which
+block is the address in?</p>
+<p><strong>Fast method (block size).</strong> The mask cuts the address
+space into equal blocks that start on multiples of the block size.</p>
+<ol type="1">
+<li>Find the <strong>interesting octet</strong>: the one octet where the
+mask is neither 255 nor 0.</li>
+<li>Block size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>=</mo><mn>256</mn><mo>−</mo></mrow><annotation encoding="application/x-tex">B = 256 -</annotation></semantics></math>
+(mask value in that octet).</li>
+<li>List the block starts
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>,</mo><mi>B</mi><mo>,</mo><mn>2</mn><mi>B</mi><mo>,</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">0, B, 2B, \dots</annotation></semantics></math>
+Find the block that holds the address.</li>
+<li>Network = the start of that block, with 0 in later octets. Broadcast
+= the next start
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">- 1</annotation></semantics></math>,
+with 255 in later octets.</li>
+</ol>
+<div class="table-wrap">
+<table style="width: 90%;">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 13%" />
+<col style="width: 17%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr>
+<th>Address</th>
+<th>Mask octet</th>
+<th>Block size</th>
+<th>Block</th>
+<th>Network</th>
+<th>Broadcast</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>192.168.10.77/26</td>
+<td>192 (4th)</td>
+<td>64</td>
+<td>64–127</td>
+<td>192.168.10.64</td>
+<td>192.168.10.127</td>
+</tr>
+<tr>
+<td>10.0.5.94/27</td>
+<td>224 (4th)</td>
+<td>32</td>
+<td>64–95</td>
+<td>10.0.5.64</td>
+<td>10.0.5.95</td>
+</tr>
+<tr>
+<td>172.20.142.98/22</td>
+<td>252 (3rd)</td>
+<td>4</td>
+<td>140–143</td>
+<td>172.20.140.0</td>
+<td>172.20.143.255</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Full method (bitwise AND).</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> AND </mtext><mspace width="0.333em"></mspace></mrow><mn>1</mn><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">1 \text{ AND } 1 = 1</annotation></semantics></math>.
+Every other pair gives 0. So <strong>address AND mask</strong> keeps the
+prefix and sets every host bit to 0. The result is the network
+address.</p>
+<p>For 192.168.10.77/26: the last mask octet is 192.
+<code>01001101</code> (77) AND <code>11000000</code> (192) =
+<code>01000000</code> = 64. The network is 192.168.10.64/26.</p>
+<p><strong>Same subnet?</strong> AND <strong>each</strong> address with
+the mask and compare. With 192.168.10.77/26, the address .126 gives .64
+(same, so local). The address .130 gives .128 (different, so
+remote).</p>
+<blockquote>
+<p><strong>Close is not local.</strong> 10.0.5.96 is <em>not</em> in
+10.0.5.64/27. It starts the next block. And an address that ends in .0
+is not always a network address: in 150.10.100.0/19 the block is .96.0
+to .127.255, so .100.0 is an ordinary host.</p>
+</blockquote>
+<p><strong>Tutorial 2.1 Q2.</strong> An organization is assigned a /16
+IP address block. The organization has created several subnets for its
+network. It is known that one of the subnets is
+145.32.128.0/255.255.224.0. What is the broadcast address for this
+subnet?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The mask 255.255.224.0 has 19 ones, so the subnet is a
+<strong>/19</strong>. The interesting octet is the 3rd.</p>
+<p>In binary, the 3rd octet of the subnet is <code>10000000</code> and
+the mask is <code>11100000</code>. The first 3 bits (<code>100</code>)
+are the prefix. The other 5 bits and the whole 4th octet are host bits.
+Set every host bit to 1: <code>145.32.10011111.11111111</code>.</p>
+<p><strong>Broadcast address = 145.32.159.255.</strong></p>
+<p><em>Check:</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>=</mo><mn>256</mn><mo>−</mo><mn>224</mn><mo>=</mo><mn>32</mn></mrow><annotation encoding="application/x-tex">B = 256 - 224 = 32</annotation></semantics></math>.
+The block starts at 128 and ends at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>128</mn><mo>+</mo><mn>32</mn><mo>−</mo><mn>1</mn><mo>=</mo><mn>159</mn></mrow><annotation encoding="application/x-tex">128 + 32 - 1 = 159</annotation></semantics></math>.
+✓</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> from an address and a mask to the whole
+range <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Turn <code>/n</code> into a mask, or read the mask. Find the
+interesting octet.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>=</mo><mn>256</mn><mo>−</mo></mrow><annotation encoding="application/x-tex">B = 256 -</annotation></semantics></math>
+mask value there.</li>
+<li>The <strong>network</strong> octet is the multiple of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+at or below the address octet. Later octets are 0.</li>
+<li>The <strong>broadcast</strong> octet is the network octet
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mi>B</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">+ B - 1</annotation></semantics></math>.
+Later octets are 255.</li>
+<li><strong>Usable</strong> = network
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">+1</annotation></semantics></math>
+to broadcast
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">-1</annotation></semantics></math>.
+The count is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>h</mi></msup><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">2^h - 2</annotation></semantics></math>.</li>
+<li>If the question gives a network address, check that its octet is a
+multiple of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>.
+If not, it is not a network address.</li>
+</ol>
+</div>
+</details>
+<p><strong>Extension 2.1.</strong> A host is configured as
+172.16.77.200/18. Find the mask, the network address, the broadcast
+address, the usable range and the number of usable addresses.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 2.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>/18 means 18 ones, so the mask is 255.255.192.0. The interesting
+octet is the 3rd, with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>=</mo><mn>256</mn><mo>−</mo><mn>192</mn><mo>=</mo><mn>64</mn></mrow><annotation encoding="application/x-tex">B = 256 - 192 = 64</annotation></semantics></math>.
+The block starts are 0, 64, 128, 192, and 77 is in 64–127.</p>
+<ul>
+<li>Network: <strong>172.16.64.0/18</strong></li>
+<li>Broadcast: <strong>172.16.127.255</strong></li>
+<li>Usable: <strong>172.16.64.1 to 172.16.127.254</strong>, which is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>14</mn></msup><mo>−</mo><mn>2</mn><mo>=</mo><mn>16</mn><mspace width="0.167em"></mspace><mn>382</mn></mrow><annotation encoding="application/x-tex">2^{14} - 2 = 16\,382</annotation></semantics></math>
+addresses.</li>
+</ul>
+<p><em>Check:</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>64</mn><mo>+</mo><mn>64</mn><mo>−</mo><mn>1</mn><mo>=</mo><mn>127</mn></mrow><annotation encoding="application/x-tex">64 + 64 - 1 = 127</annotation></semantics></math>.
+✓</p>
+</div>
+</details>
+<hr />
+<h2 id="equal-size-subnetting">5. Equal-size subnetting</h2>
+<p><strong>The question:</strong> how do I cut one block into smaller
+blocks of the same size?</p>
+<p><strong>Subnetting</strong> divides a <strong>parent</strong> block
+into non-overlapping <strong>child</strong> blocks by making the prefix
+longer. Going from
+/<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+to
+/<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+uses
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>−</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">q - p</annotation></semantics></math>
+extra bits to number the children. So the parent holds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>q</mi><mo>−</mo><mi>p</mi></mrow></msup><annotation encoding="application/x-tex">2^{q-p}</annotation></semantics></math>
+children, each with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>32</mn><mo>−</mo><mi>q</mi></mrow><annotation encoding="application/x-tex">32 - q</annotation></semantics></math>
+host bits. More subnets means fewer addresses in each one. The total
+does not grow.</p>
+<figure>
+<img width="1299" height="720" src="media/5-artifacts/subnet-24-into-26.webp" style="width:75.0%"
+loading="lazy" decoding="async" alt="A /24 becomes four /26 subnets" />
+<figcaption aria-hidden="true">A /24 becomes four /26
+subnets</figcaption>
+</figure>
+<p><strong>Method.</strong> Two things must both fit: the
+<strong>largest</strong> subnet, and the <strong>number</strong> of
+subnets (include future ones). Size first, then count.</p>
+<ol type="1">
+<li>Interfaces needed = hosts + 1 for the router.</li>
+<li>Smallest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>h</mi></msup><mo>−</mo><mn>2</mn><mo>≥</mo></mrow><annotation encoding="application/x-tex">2^h - 2 \ge</annotation></semantics></math>
+interfaces. Prefix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>32</mn><mo>−</mo><mi>h</mi></mrow><annotation encoding="application/x-tex">= 32 - h</annotation></semantics></math>.</li>
+<li>Count check:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mrow><mi>q</mi><mo>−</mo><mi>p</mi></mrow></msup><mo>≥</mo></mrow><annotation encoding="application/x-tex">2^{q-p} \ge</annotation></semantics></math>
+the number of subnets.</li>
+</ol>
+<p>If the count check fails, you need a bigger parent or subnets of
+different sizes (Section 6).</p>
+<p><strong>Lecture example.</strong> Parent 10.20.0.0/20. There are 6
+departments, each with up to 300 computers and 1 gateway.</p>
+<ol type="1">
+<li>Size: 301 interfaces.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>9</mn></msup><mo>−</mo><mn>2</mn><mo>=</mo><mn>510</mn><mo>≥</mo><mn>301</mn></mrow><annotation encoding="application/x-tex">2^9 - 2 = 510 \ge 301</annotation></semantics></math>,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo>=</mo><mn>9</mn></mrow><annotation encoding="application/x-tex">h = 9</annotation></semantics></math>
+and the prefix is <strong>/23</strong>.</li>
+<li>Count:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>23</mn><mo>−</mo><mn>20</mn><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">23 - 20 = 3</annotation></semantics></math>
+bits give
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>3</mn></msup><mo>=</mo><mn>8</mn><mo>≥</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">2^3 = 8 \ge 6</annotation></semantics></math>
+subnets. ✓</li>
+<li>The 3rd octet goes up by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>256</mn><mo>−</mo><mn>254</mn><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">256 - 254 = 2</annotation></semantics></math>
+each time.</li>
+</ol>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 75%" />
+</colgroup>
+<thead>
+<tr>
+<th>Use</th>
+<th>Subnets</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Departments 1 to 6</td>
+<td>10.20.0.0/23, 10.20.2.0, 10.20.4.0, 10.20.6.0, 10.20.8.0,
+10.20.10.0</td>
+</tr>
+<tr>
+<td>Reserved</td>
+<td>10.20.12.0/23 and 10.20.14.0/23</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="vlsm-subnets-of-different-sizes">6. VLSM: subnets of different
+sizes</h2>
+<p><strong>The question:</strong> what if the LANs have very different
+sizes?</p>
+<p><strong>VLSM (Variable-Length Subnet Masking)</strong> gives each
+segment its own prefix. A big LAN gets a big block. A link between two
+routers needs only 2 addresses, so it gets a <strong>/30</strong>.</p>
+<p><strong>Method.</strong></p>
+<ol type="1">
+<li><strong>List every segment</strong> that needs a subnet: every LAN
+<strong>and every router-to-router link</strong>.</li>
+<li><strong>Size each one</strong> (hosts + router interfaces) and
+choose the smallest prefix.</li>
+<li><strong>Check the total.</strong> The block sizes must add up to no
+more than the parent.</li>
+<li><strong>Place fixed blocks first.</strong> If the question names a
+host address, the subnet must contain it. A block already in use is
+fixed too.</li>
+<li><strong>Then largest first.</strong> Each block must start on a
+multiple of its own size. This leaves no unusable gaps.</li>
+<li><strong>Give each router interface</strong> a usable address in its
+subnet. Both ends of a /30 take the two usable addresses. Skip any
+address a host already has.</li>
+<li><strong>Check:</strong> enough capacity, aligned, no overlap, every
+address unique.</li>
+</ol>
+<p>If the total does not fit, re-read what the host counts include. One
+extra address can double a block. State your assumption.</p>
+<p><strong>Lecture example.</strong> Parent 192.168.50.0/24. LAN A has
+100 computers, LAN B 50, LAN C 20, LAN D 10. Each LAN also needs one
+gateway. Four routers R1–R4 are joined by four links.</p>
+<div class="table-wrap">
+<table style="width: 80%;">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 10%" />
+<col style="width: 11%" />
+<col style="width: 22%" />
+<col style="width: 20%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th>Segment</th>
+<th>Needs</th>
+<th>Prefix</th>
+<th>Subnet</th>
+<th>Usable</th>
+<th>Router interface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LAN A</td>
+<td>101</td>
+<td>/25</td>
+<td>192.168.50.0/25</td>
+<td>.1 – .126</td>
+<td>R1: .1</td>
+</tr>
+<tr>
+<td>LAN B</td>
+<td>51</td>
+<td>/26</td>
+<td>.128/26</td>
+<td>.129 – .190</td>
+<td>R2: .129</td>
+</tr>
+<tr>
+<td>LAN C</td>
+<td>21</td>
+<td>/27</td>
+<td>.192/27</td>
+<td>.193 – .222</td>
+<td>R3: .193</td>
+</tr>
+<tr>
+<td>LAN D</td>
+<td>11</td>
+<td>/28</td>
+<td>.224/28</td>
+<td>.225 – .238</td>
+<td>R4: .225</td>
+</tr>
+<tr>
+<td>R1–R2</td>
+<td>2</td>
+<td>/30</td>
+<td>.240/30</td>
+<td>.241 – .242</td>
+<td>R1 .241, R2 .242</td>
+</tr>
+<tr>
+<td>R1–R3</td>
+<td>2</td>
+<td>/30</td>
+<td>.244/30</td>
+<td>.245 – .246</td>
+<td>R1 .245, R3 .246</td>
+</tr>
+<tr>
+<td>R2–R4</td>
+<td>2</td>
+<td>/30</td>
+<td>.248/30</td>
+<td>.249 – .250</td>
+<td>R2 .249, R4 .250</td>
+</tr>
+<tr>
+<td>R3–R4</td>
+<td>2</td>
+<td>/30</td>
+<td>.252/30</td>
+<td>.253 – .254</td>
+<td>R3 .253, R4 .254</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Total:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>128</mn><mo>+</mo><mn>64</mn><mo>+</mo><mn>32</mn><mo>+</mo><mn>16</mn><mo>+</mo><mn>4</mn><mo>×</mo><mn>4</mn><mo>=</mo><mn>256</mn></mrow><annotation encoding="application/x-tex">128 + 64 + 32 + 16 + 4 \times 4 = 256</annotation></semantics></math>.
+It fits exactly.</p>
+<h3 id="two-sizes-in-one-parent-tutorial-2.1-q1">Two sizes in one
+parent: Tutorial 2.1 Q1</h3>
+<p><strong>Tutorial 2.1 Q1.</strong> A university has been allocated the
+155.69.0.0/16 address block. As the network administrator of the
+university, you have been asked to subnet the network. There are
+presently 10 schools in the university, and it may increase to 15 over
+the next few years. Currently, each school has a maximum number of host
+stations of 2000, but three schools are growing and may have 4000 hosts
+in a couple of years later. Determine the subnet address/subnet mask for
+each school.</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Plan for the 15 schools of the future: 3 schools with 4000 hosts and
+12 with 2000.</p>
+<p><strong>Sizes.</strong></p>
+<ul>
+<li>4000 + 1 router = 4001.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>12</mn></msup><mo>−</mo><mn>2</mn><mo>=</mo><mn>4094</mn><mo>≥</mo><mn>4001</mn></mrow><annotation encoding="application/x-tex">2^{12} - 2 = 4094 \ge 4001</annotation></semantics></math>,
+so the prefix is <strong>/20</strong>. Mask
+255.255.<strong>240</strong>.0.</li>
+<li>2000 + 1 = 2001.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>11</mn></msup><mo>−</mo><mn>2</mn><mo>=</mo><mn>2046</mn><mo>≥</mo><mn>2001</mn></mrow><annotation encoding="application/x-tex">2^{11} - 2 = 2046 \ge 2001</annotation></semantics></math>,
+so the prefix is <strong>/21</strong>. Mask
+255.255.<strong>248</strong>.0.</li>
+</ul>
+<p><strong>Fit.</strong> Count in units of /21. A /16 holds 32 of them.
+A /20 is 2 units. The plan needs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>×</mo><mn>2</mn><mo>+</mo><mn>12</mn><mo>=</mo><mn>18</mn><mo>≤</mo><mn>32</mn></mrow><annotation encoding="application/x-tex">3 \times 2 + 12 = 18 \le 32</annotation></semantics></math>,
+so it fits. <strong>7 blocks of /20 stay free.</strong></p>
+<p><strong>Placement.</strong> Big blocks first. The 3rd octet moves by
+16 for a /20 and by 8 for a /21.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 62%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Schools</th>
+<th>Subnets</th>
+<th>Mask</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1–3 (4000 hosts)</td>
+<td>155.69.0.0/20, 155.69.16.0/20, 155.69.32.0/20</td>
+<td>255.255.240.0</td>
+</tr>
+<tr>
+<td>4–15 (2000 hosts)</td>
+<td>155.69.48.0/21, .56.0, .64.0, .72.0, .80.0, .88.0, .96.0, .104.0,
+.112.0, .120.0, .128.0, .136.0 (all /21)</td>
+<td>255.255.248.0</td>
+</tr>
+<tr>
+<td>Free</td>
+<td>155.69.144.0 to 155.69.255.255</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The official slide places its blocks elsewhere. Any aligned blocks
+that do not overlap are correct.</p>
+<p><em>Check:</em> the last /21 starts at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>48</mn><mo>+</mo><mn>11</mn><mo>×</mo><mn>8</mn><mo>=</mo><mn>136</mn></mrow><annotation encoding="application/x-tex">48 + 11 \times 8 = 136</annotation></semantics></math>
+and ends at 143.255. The free space starts at 144.0. ✓</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> two or more subnet sizes in one parent
+block <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Plan for the <strong>future</strong> count, not the present
+one.</li>
+<li>Find the prefix for each size (hosts + router interface).</li>
+<li>Measure every block in units of the <strong>smallest</strong>
+prefix. Add the units and compare with the parent.</li>
+<li>Place the biggest blocks first, each on a multiple of its own size.
+Then place the smaller ones.</li>
+<li>Write the free space as aligned blocks.</li>
+</ol>
+</div>
+</details>
+<h3 id="lans-and-router-links-in-one-24-tutorial-2.1-q3">LANs and router
+links in one /24: Tutorial 2.1 Q3</h3>
+<p><strong>Tutorial 2.1 Q3.</strong> Figure Q3 shows a network
+consisting of four subnets being interconnected by four routers. The
+integer on each link indicates the cost of that link. As a network
+engineer, you are allocated the IP address range 193.169.1.0/24 to
+support the network. Assign suitable IP address/subnet mask to each
+interface of the routers.</p>
+<figure>
+<img width="925" height="568" src="media/5-artifacts/t21-q3-topology.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Figure Q3: four subnets joined by four routers. Host A is 193.169.1.129 and Host D is 193.169.1.190." />
+<figcaption aria-hidden="true">Figure Q3: four subnets joined by four
+routers. Host A is 193.169.1.129 and Host D is
+193.169.1.190.</figcaption>
+</figure>
+<p><em>Clarification for Q3 (this question only):</em> “hosts” in Figure
+Q3 means the number of IP addresses each LAN needs, including the
+address for its router interface. For example, Subnet A’s “30 hosts”
+means 29 end hosts plus 1 router interface. Do not add another address
+for the router.</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Step 1: sizes.</strong> There are four LANs and four router
+links. The link costs are for routing (Chapter 7), so ignore them
+here.</p>
+<div class="table-wrap">
+<table style="width: 55%;">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 21%" />
+<col style="width: 34%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th>Segment</th>
+<th>Addresses</th>
+<th>Prefix</th>
+<th>Block size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Subnet A</td>
+<td>30</td>
+<td>/27 (30 usable)</td>
+<td>32</td>
+</tr>
+<tr>
+<td>Subnet B</td>
+<td>100</td>
+<td>/25 (126 usable)</td>
+<td>128</td>
+</tr>
+<tr>
+<td>Subnet C</td>
+<td>60</td>
+<td>/26 (62 usable)</td>
+<td>64</td>
+</tr>
+<tr>
+<td>Subnet D</td>
+<td>10</td>
+<td>/28 (14 usable)</td>
+<td>16</td>
+</tr>
+<tr>
+<td>4 links</td>
+<td>2 each</td>
+<td>/30</td>
+<td>4 each</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Total
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>32</mn><mo>+</mo><mn>128</mn><mo>+</mo><mn>64</mn><mo>+</mo><mn>16</mn><mo>+</mo><mn>4</mn><mo>×</mo><mn>4</mn><mo>=</mo><mn>256</mn></mrow><annotation encoding="application/x-tex">= 32 + 128 + 64 + 16 + 4 \times 4 = 256</annotation></semantics></math>.
+It fits the /24 exactly.</p>
+<p><strong>Step 2: fixed blocks first.</strong> The two host addresses
+pin two subnets.</p>
+<ul>
+<li>Host A is .129, so Subnet A is the /27 that holds it:
+<strong>193.169.1.128/27</strong> (.128–.159).</li>
+<li>Host D is .190, so Subnet D is the /28 that holds it:
+<strong>193.169.1.176/28</strong> (.176–.191).</li>
+</ul>
+<p><strong>Step 3: the rest.</strong></p>
+<ul>
+<li>Subnet B needs a /25. The upper /25 (.128–.255) holds A and D, so B
+is <strong>193.169.1.0/25</strong>.</li>
+<li>Subnet C needs a /26. The only free aligned /26 is
+<strong>193.169.1.192/26</strong>.</li>
+<li>The four /30 links share what is left, .160–.175: <strong>.160/30,
+.164/30, .168/30, .172/30</strong>.</li>
+</ul>
+<figure>
+<img width="1400" height="813" src="media/5-artifacts/t21-q3-allocation-tree.webp"
+style="width:65.0%" loading="lazy" decoding="async"
+alt="The official allocation tree. Subnet B is the lower /25. A and D sit in the upper /25 with C." />
+<figcaption aria-hidden="true">The official allocation tree. Subnet B is
+the lower /25. A and D sit in the upper /25 with C.</figcaption>
+</figure>
+<figure>
+<img width="1400" height="563" src="media/5-artifacts/t21-q3-allocation-map.webp"
+style="width:65.0%" loading="lazy" decoding="async"
+alt="The official result: the four /30 blocks sit in the middle. The slide does not say which link gets which." />
+<figcaption aria-hidden="true">The official result: the four /30 blocks
+sit in the middle. The slide does not say which link gets
+which.</figcaption>
+</figure>
+<p><strong>Step 4: interface addresses.</strong> The slide does not
+match the /30 blocks to links. This table makes one choice
+(unofficial).</p>
+<div class="table-wrap">
+<table style="width: 71%;">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 19%" />
+<col style="width: 64%" />
+</colgroup>
+<thead>
+<tr>
+<th>Router</th>
+<th>Interface</th>
+<th>Address / mask</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Router 1</td>
+<td>to Subnet A</td>
+<td>193.169.1.158/27 (not .129, Host A uses it)</td>
+</tr>
+<tr>
+<td>Router 1</td>
+<td>to Router 2</td>
+<td>193.169.1.161/30</td>
+</tr>
+<tr>
+<td>Router 1</td>
+<td>to Router 3</td>
+<td>193.169.1.165/30</td>
+</tr>
+<tr>
+<td>Router 2</td>
+<td>to Subnet C</td>
+<td>193.169.1.193/26</td>
+</tr>
+<tr>
+<td>Router 2</td>
+<td>to Router 1</td>
+<td>193.169.1.162/30</td>
+</tr>
+<tr>
+<td>Router 2</td>
+<td>to Router 4</td>
+<td>193.169.1.169/30</td>
+</tr>
+<tr>
+<td>Router 3</td>
+<td>to Subnet B</td>
+<td>193.169.1.1/25</td>
+</tr>
+<tr>
+<td>Router 3</td>
+<td>to Router 1</td>
+<td>193.169.1.166/30</td>
+</tr>
+<tr>
+<td>Router 3</td>
+<td>to Router 4</td>
+<td>193.169.1.173/30</td>
+</tr>
+<tr>
+<td>Router 4</td>
+<td>to Subnet D</td>
+<td>193.169.1.177/28 (not .190, Host D uses it)</td>
+</tr>
+<tr>
+<td>Router 4</td>
+<td>to Router 2</td>
+<td>193.169.1.170/30</td>
+</tr>
+<tr>
+<td>Router 4</td>
+<td>to Router 3</td>
+<td>193.169.1.174/30</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The link blocks are R1–R2 = .160/30, R1–R3 = .164/30, R2–R4 =
+.168/30, R3–R4 = .172/30.</p>
+<p><em>Check:</em> every address is inside its subnet, no blocks
+overlap, and no router address equals a host address. ✓</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> a network of LANs and router links in
+one block <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>List the segments: one per LAN, one per router link. Ignore link
+costs.</li>
+<li>Size each one and add the block sizes. Stop if the total is more
+than the parent.</li>
+<li><strong>Fixed addresses first.</strong> Place the block that holds
+each given host address. Largest-first alone would put C at .128/26 and
+break Host A.</li>
+<li>Largest first for the rest, each block on a multiple of its own
+size.</li>
+<li>Give each router interface an address in its subnet, skipping any
+host address. Both ends of a /30 take the two usable addresses.</li>
+<li>Check each address against its block.</li>
+</ol>
+</div>
+</details>
+<p><strong>Extension 3.1.</strong> Remove the clarification of Q3. Now
+“30 hosts” means 30 computers, and each LAN also needs one router
+interface. Do the four LANs and four links still fit in
+193.169.1.0/24?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The sizes become 31, 101, 61 and 11 interfaces.</p>
+<div class="table-wrap">
+<table style="width: 56%;">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 23%" />
+<col style="width: 32%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Segment</th>
+<th>Interfaces</th>
+<th>Prefix</th>
+<th>Block size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Subnet A</td>
+<td>31</td>
+<td>/26 (62 usable)</td>
+<td>64</td>
+</tr>
+<tr>
+<td>Subnet B</td>
+<td>101</td>
+<td>/25</td>
+<td>128</td>
+</tr>
+<tr>
+<td>Subnet C</td>
+<td>61</td>
+<td>/26</td>
+<td>64</td>
+</tr>
+<tr>
+<td>Subnet D</td>
+<td>11</td>
+<td>/28</td>
+<td>16</td>
+</tr>
+<tr>
+<td>4 links</td>
+<td>2 each</td>
+<td>/30</td>
+<td>16 in total</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Total
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>64</mn><mo>+</mo><mn>128</mn><mo>+</mo><mn>64</mn><mo>+</mo><mn>16</mn><mo>+</mo><mn>16</mn><mo>=</mo><mn>288</mn><mo>&gt;</mo><mn>256</mn></mrow><annotation encoding="application/x-tex">= 64 + 128 + 64 + 16 + 16 = 288 &gt; 256</annotation></semantics></math>.
+<strong>It does not fit.</strong> One extra address for Subnet A moves
+it from a /27 to a /26 and the plan overflows. This is why the question
+states the clarification.</p>
+</div>
+</details>
+<p><strong>Extension 3.2.</strong> The parent is 10.1.1.0/24. Each count
+below already includes the router interface. LAN P needs 100 addresses,
+LAN Q needs 40 and LAN R needs 20. Two router links need a /30 each. A
+server in LAN R must keep the address <strong>10.1.1.40</strong>.
+Allocate the subnets and give the router interfaces.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Sizes.</strong> P: /25 (128). Q: /26 (64). R: /27 (32). Two
+links: 8 in total. Total
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>232</mn><mo>≤</mo><mn>256</mn></mrow><annotation encoding="application/x-tex">= 232 \le 256</annotation></semantics></math>.
+It fits.</p>
+<p><strong>Placement.</strong></p>
+<ol type="1">
+<li><strong>Fixed block first.</strong> R’s /27 must hold .40, so R is
+<strong>10.1.1.32/27</strong> (.32–.63).</li>
+<li>P needs a /25. The lower /25 holds R, so P is
+<strong>10.1.1.128/25</strong>.</li>
+<li>Q needs a /26. The block .0/26 holds R. The next one is free, so Q
+is <strong>10.1.1.64/26</strong>.</li>
+<li>The links use the space left, .0–.31: <strong>10.1.1.0/30</strong>
+and <strong>10.1.1.4/30</strong>.</li>
+</ol>
+<p>Plain “largest first” would put P at .0/25, and the server’s .40
+would land in P.</p>
+<div class="table-wrap">
+<table style="width: 63%;">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 71%" />
+</colgroup>
+<thead>
+<tr>
+<th>Interface</th>
+<th>Address / mask</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Router on LAN P</td>
+<td>10.1.1.129/25</td>
+</tr>
+<tr>
+<td>Router on LAN Q</td>
+<td>10.1.1.65/26</td>
+</tr>
+<tr>
+<td>Router on LAN R</td>
+<td>10.1.1.33/27 (not .40, the server uses it)</td>
+</tr>
+<tr>
+<td>Link 1</td>
+<td>10.1.1.1/30 and 10.1.1.2/30</td>
+</tr>
+<tr>
+<td>Link 2</td>
+<td>10.1.1.5/30 and 10.1.1.6/30</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<hr />
+<h2 id="smallest-subnet-for-two-addresses-and-route-aggregation">7.
+Smallest subnet for two addresses, and route aggregation</h2>
+<p><strong>The question:</strong> which one block holds these
+addresses?</p>
+<p>Write the first octet where the addresses differ in binary. Count the
+leading bits that all of them share. The prefix is 8 for each full octet
+before it, plus the shared bits in that octet.</p>
+<p><strong>Extension 7.1.</strong> Find the smallest subnet (longest
+prefix) that holds both addresses, and give its mask. (a) 20.30.150.10
+and 20.30.158.5. (b) 60.1.130.4 and 60.1.20.9.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 7.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(a)</strong> The first two octets match: 16 bits. The 3rd
+octet differs:</p>
+<pre><code>150 = 1001 0110
+158 = 1001 1110
+      1001          → 4 bits match</code></pre>
+<p>The prefix is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>16</mn><mo>+</mo><mn>4</mn><mo>=</mo><mn>20</mn></mrow><annotation encoding="application/x-tex">16 + 4 = 20</annotation></semantics></math>.
+The mask is <strong>255.255.240.0</strong>. The subnet is 150 AND 240 =
+144, so <strong>20.30.144.0/20</strong>.</p>
+<p><strong>(b)</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>130</mn><mo>=</mo><mn>10000010</mn></mrow><annotation encoding="application/x-tex">130 = 10000010</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>20</mn><mo>=</mo><mn>00010100</mn></mrow><annotation encoding="application/x-tex">20 = 00010100</annotation></semantics></math>.
+They differ at the first bit, so the prefix is <strong>/16</strong>, the
+mask is <strong>255.255.0.0</strong>, and the subnet is 60.1.0.0/16.</p>
+<p><em>Check (a):</em> 20.30.144.0/20 covers 144–159, and 150 and 158
+are inside. ✓</p>
+</div>
+</details>
+<p><strong>Route aggregation.</strong> A router can replace many routes
+with <strong>one shorter prefix</strong> that covers them all. This
+makes the routing table smaller. The method is the same, applied to many
+networks.</p>
+<p><strong>Extension 7.2.</strong> A router has routes to 10.5.72.0/24,
+10.5.73.0/24, 10.5.74.0/24, 10.5.75.0/24 and 10.5.78.0/24. Find one
+aggregate route. Does it cover any address that is not in the list?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 7.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Only the 3rd octet changes:</p>
+<pre><code>72 = 0100 1000
+73 = 0100 1001
+74 = 0100 1010
+75 = 0100 1011
+78 = 0100 1110
+     ^^^^ ^         5 shared bits</code></pre>
+<p>The prefix is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>16</mn><mo>+</mo><mn>5</mn><mo>=</mo><mn>21</mn></mrow><annotation encoding="application/x-tex">16 + 5 = 21</annotation></semantics></math>.
+The aggregate route is <strong>10.5.72.0/21</strong>, which covers
+10.5.72.0 to 10.5.79.255.</p>
+<p>It also covers the networks 76, 77 and 79, which were not in the
+list. An aggregate always covers a whole aligned block. This is fine if
+those addresses are unused or go the same way. If not, the router needs
+more specific routes for them, and longest-prefix match (Chapter 6)
+picks those first.</p>
+<p><em>Check:</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>=</mo><mn>256</mn><mo>−</mo><mn>248</mn><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">B = 256 - 248 = 8</annotation></semantics></math>,
+and 72 is a multiple of 8. ✓</p>
+</div>
+</details>
+<hr />
+<h2 id="private-addresses-and-nat">8. Private addresses and NAT</h2>
+<p><strong>The question:</strong> IPv4 has too few addresses. How do
+millions of homes share them?</p>
+<p>IPv4 has only
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>32</mn></msup><mo>≈</mo><mn>4.29</mn></mrow><annotation encoding="application/x-tex">2^{32} \approx 4.29</annotation></semantics></math>
+billion addresses. There are two fixes: <strong>private addresses with
+NAT</strong> (used in almost every home), and <strong>IPv6</strong> with
+128-bit addresses.</p>
+<details class="qa box">
+<summary>
+IPv6 doubles the address space of IPv4. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> IPv6 addresses have 128 bits, against 32.
+That is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>96</mn></msup><annotation encoding="application/x-tex">2^{96}</annotation></semantics></math>
+times as many addresses, not twice as many.</p>
+</div>
+</details>
+<h3 id="private-blocks">Private blocks</h3>
+<div class="table-wrap">
+<table style="width: 67%;">
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 50%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th>Block</th>
+<th>Range</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10.0.0.0/8</td>
+<td>10.0.0.0 – 10.255.255.255</td>
+<td>Organisations</td>
+</tr>
+<tr>
+<td>172.16.0.0/12</td>
+<td>172.16.0.0 – 172.31.255.255</td>
+<td>Organisations</td>
+</tr>
+<tr>
+<td>192.168.0.0/16</td>
+<td>192.168.0.0 – 192.168.255.255</td>
+<td>Home routers</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Many separate networks reuse these addresses. The public Internet
+does <strong>not</strong> route them. “Private” does not mean “same
+subnet”: the mask decides that.</p>
+<h3 id="ports-and-napt">Ports and NAPT</h3>
+<p>A <strong>port number</strong> (16 bits, in the transport header)
+names the <strong>program</strong> on a host. <code>IP:port</code> names
+one end of a connection, for example <code>192.168.1.10:50000</code>. A
+web server uses a well-known port (80 for HTTP, 443 for HTTPS). The
+client’s operating system picks a temporary source port for each
+connection.</p>
+<ul>
+<li><strong>NAT (Network Address Translation):</strong> a router changes
+the IP addresses of packets that cross between a private network and the
+Internet.</li>
+<li><strong>NAPT (Network Address and Port Translation)</strong>, also
+called <strong>PAT</strong>: the router also changes the
+<strong>port</strong>. Many private hosts can then share
+<strong>one</strong> public IP address.</li>
+</ul>
+<p>The router keeps a <strong>translation table</strong>:</p>
+<ul>
+<li><strong>Outgoing packet:</strong> it changes the
+<strong>source</strong> private IP:port to its public IP:new port, and
+saves the mapping.</li>
+<li><strong>Reply:</strong> it looks up the mapping and changes the
+<strong>destination</strong> back to the private IP:port.</li>
+</ul>
+<figure>
+<img width="1400" height="422" src="media/5-artifacts/nat-mapping.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="One home NAT: the outgoing source changes, then the reply’s destination changes back" />
+<figcaption aria-hidden="true">One home NAT: the outgoing source
+changes, then the reply’s destination changes back</figcaption>
+</figure>
+<p>Two hosts can use the same source port. The <strong>different public
+ports</strong> tell their connections apart.</p>
+<div class="table-wrap">
+<table style="width: 73%;">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 46%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr>
+<th>Inside</th>
+<th>After NAPT (public 203.0.113.5)</th>
+<th>Reply goes back to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10.0.0.10:50000</td>
+<td>203.0.113.5:61001</td>
+<td>10.0.0.10:50000</td>
+</tr>
+<tr>
+<td>10.0.0.20:50000</td>
+<td>203.0.113.5:61002</td>
+<td>10.0.0.20:50000</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>CGNAT (carrier-grade NAT):</strong> the ISP runs a second
+NAT, so many customers share one public address. The home router’s ISP
+side then has an address in <strong>100.64.0.0/10</strong>, a shared
+range that is neither public nor private.</li>
+<li><strong>Port forwarding:</strong> an outside host cannot start a
+connection to a private server, because no mapping exists yet. A
+forwarding rule creates a fixed mapping, for example public
+203.0.113.5:443 → 192.168.40.25:443. With CGNAT, a home rule alone is
+not enough.</li>
+</ul>
+<details class="qa box">
+<summary>
+The public Internet routes packets to private addresses such as
+192.168.1.10. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> Private addresses are for use inside one
+network, and many networks reuse them. A NAT router changes them to a
+public address at the edge.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+With NAPT, the MAC addresses in a packet stay the same from the private
+host to the server. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> MAC addresses change on every link, because
+each frame goes from one interface to the next on that link. The IP
+addresses and ports change only at the NAT router.</p>
+</div>
+</details>
+<p><strong>Extension E1. Fill in the header table.</strong> Host A
+(private 192.168.5.20, MAC <code>MAC-A</code>) opens a connection from
+port 51000 to server B (203.0.113.80, MAC <code>MAC-B</code>) on port
+443. Router R does NAPT with public address 198.51.100.7. R’s MAC is
+<code>MAC-R1</code> on A’s side and <code>MAC-R2</code> on B’s side. R
+maps the connection to public port 62001. P1 and P2 are the request. P3
+and P4 are the reply. Fill in the MAC, IP and port fields of each
+packet.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (E1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<div class="table-wrap">
+<table style="width: 74%;">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>P1 (A → R)</th>
+<th>P2 (R → B)</th>
+<th>P3 (B → R)</th>
+<th>P4 (R → A)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dest. MAC</td>
+<td>MAC-R1</td>
+<td>MAC-B</td>
+<td>MAC-R2</td>
+<td>MAC-A</td>
+</tr>
+<tr>
+<td>Source MAC</td>
+<td>MAC-A</td>
+<td>MAC-R2</td>
+<td>MAC-B</td>
+<td>MAC-R1</td>
+</tr>
+<tr>
+<td>Source IP</td>
+<td>192.168.5.20</td>
+<td><strong>198.51.100.7</strong></td>
+<td>203.0.113.80</td>
+<td>203.0.113.80</td>
+</tr>
+<tr>
+<td>Dest. IP</td>
+<td>203.0.113.80</td>
+<td>203.0.113.80</td>
+<td>198.51.100.7</td>
+<td><strong>192.168.5.20</strong></td>
+</tr>
+<tr>
+<td>Source port</td>
+<td>51000</td>
+<td><strong>62001</strong></td>
+<td>443</td>
+<td>443</td>
+</tr>
+<tr>
+<td>Dest. port</td>
+<td>443</td>
+<td>443</td>
+<td>62001</td>
+<td><strong>51000</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>The <strong>MAC addresses change on every link</strong>. In P1, A
+sends to the router’s MAC, not B’s, because B is not on A’s link.</li>
+<li>The bold cells are the ones R changes. B never sees A’s private
+address. B replies to 198.51.100.7:62001.</li>
+<li>R looks up port 62001 in its table and changes the reply’s
+destination back to 192.168.5.20:51000.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> tracing a packet through NAPT <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Draw one column per link crossing: the request on each side of the
+router, then the reply on each side.</li>
+<li><strong>MACs:</strong> source = the interface that sends on this
+link. Destination = the next interface on this link. Never the far end,
+unless it is on this link.</li>
+<li><strong>Private side:</strong> the host’s private IP:port and the
+server’s IP:port.</li>
+<li><strong>Public side:</strong> the router’s public IP and the
+translated port replace the <strong>source</strong> on the request. The
+reply uses them as the <strong>destination</strong>.</li>
+<li>The reply swaps source and destination, and the router undoes the
+translation.</li>
+</ol>
+</div>
+</details>
+<hr />
+<h2 id="getting-ip-settings-static-or-dhcp">9. Getting IP settings:
+static or DHCP</h2>
+<p><strong>The question:</strong> how does a host learn its address?</p>
+<p>A host needs five settings.</p>
+<div class="table-wrap">
+<table style="width: 85%;">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 18%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Example</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IPv4 address</td>
+<td>192.168.1.68</td>
+<td>This interface’s address</td>
+</tr>
+<tr>
+<td>Subnet mask</td>
+<td>255.255.255.0</td>
+<td>Defines the local subnet (/24)</td>
+</tr>
+<tr>
+<td>Default gateway</td>
+<td>192.168.1.254</td>
+<td>The router for any destination that is not local</td>
+</tr>
+<tr>
+<td>DNS server</td>
+<td>192.168.1.254</td>
+<td>Changes names into IP addresses</td>
+</tr>
+<tr>
+<td>DHCP server</td>
+<td>192.168.1.254</td>
+<td>Gave the host its settings</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>You can type them in (<strong>static</strong>) or get them
+automatically with <strong>DHCP</strong>.</p>
+<h3 id="dhcp">DHCP</h3>
+<p><strong>DHCP (Dynamic Host Configuration Protocol)</strong> gives a
+host its address, mask, gateway and DNS server. An administrator sets up
+a <strong>pool</strong> of addresses, for example .30–.50. The pool is
+only <strong>part</strong> of the subnet. A printer at a fixed .20
+outside the pool is still valid. The host gets the address on a
+<strong>lease</strong> (for example 8 hours) and can renew it.</p>
+<p><strong>The problem:</strong> the host has no address yet, so how can
+it talk? It uses four messages, <strong>DORA</strong>.</p>
+<figure>
+<img width="1400" height="496" src="media/5-artifacts/dhcp-dora.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="DHCP: Discover, Offer, Request, Acknowledge" />
+<figcaption aria-hidden="true">DHCP: Discover, Offer, Request,
+Acknowledge</figcaption>
+</figure>
+<ol type="1">
+<li><strong>Discover:</strong> the client broadcasts “Is there a DHCP
+server?”</li>
+<li><strong>Offer:</strong> the server offers an address and the
+settings.</li>
+<li><strong>Request:</strong> the client asks for the offered
+address.</li>
+<li><strong>Acknowledge:</strong> the server confirms the lease.</li>
+</ol>
+<p>Routers do not forward a local broadcast. To reach a server on
+another LAN, a <strong>DHCP relay</strong> passes the messages on.</p>
+<p>Suppose the server is 10.0.0.1 and offers 10.0.0.50. If the server
+replies by unicast:</p>
+<div class="table-wrap">
+<table style="width: 48%;">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 25%" />
+<col style="width: 37%" />
+<col style="width: 29%" />
+</colgroup>
+<thead>
+<tr>
+<th>#</th>
+<th>Source IP</th>
+<th>Destination IP</th>
+<th>Message</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0.0.0.0</td>
+<td>255.255.255.255</td>
+<td>Discover</td>
+</tr>
+<tr>
+<td>2</td>
+<td>10.0.0.1</td>
+<td>10.0.0.50</td>
+<td>Offer</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0.0.0.0</td>
+<td>255.255.255.255</td>
+<td>Request</td>
+</tr>
+<tr>
+<td>4</td>
+<td>10.0.0.1</td>
+<td>10.0.0.50</td>
+<td>Acknowledge</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The client sends both its messages from 0.0.0.0, because it owns no
+address until the ACK. Some servers broadcast the Offer and ACK instead.
+Use whichever the question states.</p>
+<details class="qa box">
+<summary>
+A DHCP Request is sent from the address that the server offered. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> The client does not own the offered address
+until the ACK arrives. It sends the Request from 0.0.0.0 to
+255.255.255.255.</p>
+</div>
+</details>
+<h3 id="what-the-home-router-does-tutorial-2.3-q3">What the home router
+does: Tutorial 2.3 Q3</h3>
+<p><strong>Tutorial 2.3 Q3.</strong> A user subscribes to an ISP home
+broadband service and connects his computer directly to it via an ADSL
+modem as shown in Figure Q3a. An extract of the output by the
+<code>ipconfig</code> command issued on the computer is shown in Figure
+Q3b.</p>
+<ol type="a">
+<li><p>Based on Figure Q3a and Q3b, deduce the roles performed by the
+ADSL modem, and briefly describe the purpose of each role.</p></li>
+<li><p>The user launches his web browser and requests for the default
+web page at http://www.ntu.edu.sg without the use of web proxy. Assume
+that all the caches of the computer are initially empty. Using a table
+similar to Table Q3, list the sequence of frames being sent and received
+by the computer until the first frame containing the requested web page
+is received.</p></li>
+</ol>
+<p><em>Part (b) needs the application layer (HTTP and DNS). It is
+answered in Chapter 10, section 6.3. Only part (a) is answered
+here.</em></p>
+<figure>
+<img width="1087" height="410" src="media/5-artifacts/t23-q3a-home-network.webp"
+style="width:70.0%" loading="lazy" decoding="async"
+alt="Figure Q3a: the computer connects to the Internet through the ADSL modem." />
+<figcaption aria-hidden="true">Figure Q3a: the computer connects to the
+Internet through the ADSL modem.</figcaption>
+</figure>
+<pre><code>c:\&gt;ipconfig /all
+Ethernet adapter Local Area Connection:
+
+   Physical Address . . . . . . . . . . . : 00-23-26-AA-AA-AA
+   DHCP Enabled . . . . . . . . . . . . : Yes
+   IPv4 Address . . . . . . . . . . . . . . : 192.168.1.68
+   Subnet Mask . . . . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . . . : 192.168.1.254
+   DHCP Server . . . . . . . . . . . . . : 192.168.1.254
+   DNS Server . . . . . . . . . . . . . . . : 192.168.1.254</code></pre>
+<details class="qa box">
+<summary>
+<strong>Answer (a), unofficial: no solution was released</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The computer lists the modem’s address, 192.168.1.254, for
+<strong>three</strong> settings. Each one shows a role:</p>
+<ul>
+<li><strong>Default gateway.</strong> The computer sends every packet
+for a destination outside 192.168.1.0/24 to the modem. So the modem is
+the <strong>router</strong> between the home LAN and the ISP.</li>
+<li><strong>DHCP server.</strong> “DHCP Enabled: Yes” and the DHCP
+server 192.168.1.254 show that the modem gave the computer its address,
+mask, gateway and DNS server.</li>
+<li><strong>DNS server.</strong> The computer asks the modem to change
+names into IP addresses. The modem answers, or passes the question to
+the ISP’s DNS server (a proxy).</li>
+</ul>
+<p>Two more roles follow from the figure and the address:</p>
+<ul>
+<li><strong>NAT.</strong> 192.168.1.68 is a private address, and the
+Internet does not route it. The modem must change it to the public
+address from the ISP, so the web server can reply.</li>
+<li><strong>Modem.</strong> It sends the bits over the ADSL line to the
+ISP, and turns the ISP’s signal back into bits for the home.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> reading an <code>ipconfig</code> output
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Put the address and mask side by side. They give the local subnet
+(here 192.168.1.0/24).</li>
+<li>If the gateway, DHCP server and DNS server are <strong>the same
+address</strong>, one box does all three jobs.</li>
+<li>If the host address is <strong>private</strong>, a NAT router must
+sit between it and the Internet.</li>
+<li>If the box also connects to the ISP over a phone line (ADSL), it
+also has the modem role.</li>
+<li>For each role, give one sentence on its purpose.</li>
+</ol>
+</div>
+</details>
+<h3 id="why-have-subnets-at-all">Why have subnets at all?</h3>
+<ul>
+<li>To <strong>organise</strong> addresses: each department gets a
+block, with room to grow.</li>
+<li>To <strong>limit broadcasts</strong>: an ARP broadcast stays on its
+own LAN.</li>
+<li>To <strong>apply access rules</strong>: traffic between subnets
+passes a router, where rules can allow or deny it.</li>
+</ul>
+<details class="qa box">
+<summary>
+Putting two departments on separate subnets stops them from talking to
+each other. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> With working routes, separate subnets can
+talk through the router. To restrict access, you need access-control
+rules on a router or firewall.</p>
+</div>
+</details>
+<hr />
+<h2 id="exam-patterns">Exam patterns</h2>
+<p>Tutorial sources: Tutorial 2.1 Q1 (two subnet sizes), Q2 (broadcast
+address), Q3 (LANs and router links, with fixed hosts); Tutorial 2.3 Q3a
+(home router roles). The other patterns come from the lecture’s
+examples. Past-year papers are not on this page.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 35%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Question type</th>
+<th>How to attack it</th>
+<th>Trap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Network, broadcast, usable range</td>
+<td>Block size in the interesting octet, then the block that holds the
+address</td>
+<td>Treating .0 as always a network address. Wrong octet for the
+mask.</td>
+</tr>
+<tr>
+<td>Same subnet, or list of members</td>
+<td>AND with the mask, or test each octet against the block</td>
+<td>Checking only the interesting octet. Trusting numbers that are
+close.</td>
+</tr>
+<tr>
+<td>Prefix for N hosts</td>
+<td>Add the router interface, then smallest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>h</mi><annotation encoding="application/x-tex">h</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>h</mi></msup><mo>−</mo><mn>2</mn><mo>≥</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">2^h - 2 \ge N</annotation></semantics></math></td>
+<td>Forgetting the router. Using
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>h</mi></msup><annotation encoding="application/x-tex">2^h</annotation></semantics></math>
+instead of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>h</mi></msup><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">2^h - 2</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td>Equal-size subnets</td>
+<td>Size first, then check the count with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>q</mi><mo>−</mo><mi>p</mi></mrow></msup><annotation encoding="application/x-tex">2^{q-p}</annotation></semantics></math></td>
+<td>Checking only one of the two</td>
+</tr>
+<tr>
+<td>VLSM with LANs and links</td>
+<td>Size all, check the total, fixed blocks first, largest first, /30
+for links</td>
+<td>Largest-first before the fixed host. Forgetting the links. An
+unaligned block.</td>
+</tr>
+<tr>
+<td>Assign router interfaces</td>
+<td>Both ends of a /30 take the two usable addresses. Skip host
+addresses.</td>
+<td>Using the network or broadcast address. Using a host’s address.</td>
+</tr>
+<tr>
+<td>Smallest subnet for two addresses, or aggregate route</td>
+<td>Shared leading bits in the first octet that differs</td>
+<td>Counting bits from the wrong octet. Forgetting that the whole block
+is covered.</td>
+</tr>
+<tr>
+<td>NAPT header table</td>
+<td>One column per link. MACs change every link. IP and port change at
+the router.</td>
+<td>Using the server’s MAC on the first link</td>
+</tr>
+<tr>
+<td>DHCP messages</td>
+<td>Discover and Request: 0.0.0.0 → 255.255.255.255</td>
+<td>Giving the client the offered address too early</td>
+</tr>
+<tr>
+<td>Home router roles</td>
+<td>Same address for gateway, DHCP and DNS = one box. Private address =
+NAT.</td>
+<td>Naming only “router” and “modem”</td>
+</tr>
+<tr>
+<td>True/false</td>
+<td>IP is best effort. Class B starts with 10. IPv6 is 128 bits. Private
+is not routed.</td>
+<td>See Common Traps</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="common-traps">Common Traps</h2>
+<ul>
+<li><strong>Block size first.</strong> Write the mask in decimal and
+find the block size before anything else.</li>
+<li><strong>Network = host bits 0. Broadcast = host bits 1. Usable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><msup><mn>2</mn><mi>h</mi></msup><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">= 2^h - 2</annotation></semantics></math>.</strong></li>
+<li><strong>.0 and .255 prove nothing.</strong> Only the mask says which
+address is the network or broadcast.</li>
+<li><strong>Count the router interface</strong> in every LAN, unless the
+question says the count already includes it.</li>
+<li><strong>Align every block.</strong> A network address must be a
+multiple of its block size. 172.16.112.0/19 is not a valid block.</li>
+<li><strong>Close is not local.</strong> AND each address with the
+mask.</li>
+<li><strong>Use the given prefix.</strong> Never guess it from the first
+octet. Class B starts with bits <strong>10</strong> and has a 16-bit
+network part.</li>
+<li><strong>VLSM order:</strong> fixed blocks first, then largest first,
+every block aligned, /30 for router links. Check that the total fits
+<strong>before</strong> you allocate.</li>
+<li><strong>Router address clashes.</strong> A router interface must not
+take a host’s address.</li>
+<li><strong>Aggregation covers the whole block,</strong> including
+networks that were not in your list.</li>
+<li><strong>NAT:</strong> MAC addresses change on every link. The IP and
+port change only at the NAT router.</li>
+<li><strong>IPv6 has 128 bits,</strong> four times the bits of IPv4, not
+double the addresses.</li>
+<li><strong>Private addresses</strong> are not routed on the Internet.
+“Private” does not mean “same subnet”.</li>
+<li><strong>DHCP:</strong> Discover and Request go 0.0.0.0 →
+255.255.255.255.</li>
+<li><strong>IP is best effort,</strong> not reliable.</li>
+<li><strong>Subnets do not block traffic on their own.</strong> Access
+rules on a router or firewall do.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/4-network-paradigms/4.html">← 4.
+Network Paradigms</a>
+  <a class="next-page" href="../../notes/6-ip-forwarding/6.html">6.
+Network Layer: Forwarding, ARP, Fragmentation &amp; ICMP →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

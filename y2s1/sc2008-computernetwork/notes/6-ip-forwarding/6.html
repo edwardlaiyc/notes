@@ -1,0 +1,2821 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>6. Network Layer: Forwarding, ARP, Fragmentation &amp;
+ICMP · SC2008 Computer Network</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">6. Network Layer:
+Forwarding, ARP, Fragmentation &amp; ICMP</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2008</p>
+  <p class="site-title">Computer Network</p>
+  <h1 class="page-title">6. Network Layer: Forwarding, ARP,
+Fragmentation &amp; ICMP</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 1</h2>
+          <ul>
+            <li><a href="../../notes/1-networklayers/1.html"
+                   data-nav="notes/1-networklayers/1.html">1. Network
+Layers and Physical Resilience</a></li>
+            <li><a href="../../notes/2-dll-flow-error-control/2.html"
+                   data-nav="notes/2-dll-flow-error-control/2.html">2.
+Data Link Layer (DLL): Flow &amp; Error Control</a></li>
+            <li><a href="../../notes/3-dll-mac-lan/3.html"
+                   data-nav="notes/3-dll-mac-lan/3.html">3. Data Link
+Layer (DLL): Medium Access Control &amp; LANs</a></li>
+            <li><a href="../../notes/4-network-paradigms/4.html"
+                   data-nav="notes/4-network-paradigms/4.html">4.
+Network Paradigms</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 2</h2>
+          <ul>
+            <li><a href="../../notes/5-ip-addressing/5.html"
+                   data-nav="notes/5-ip-addressing/5.html">5. Network
+Layer: IP Addressing</a></li>
+            <li><a href="../../notes/6-ip-forwarding/6.html"
+                   data-nav="notes/6-ip-forwarding/6.html">6. Network
+Layer: Forwarding, ARP, Fragmentation &amp; ICMP</a></li>
+            <li><a href="../../notes/7-routing/7.html"
+                   data-nav="notes/7-routing/7.html">7. Network Layer:
+Routing (RIP, OSPF, BGP)</a></li>
+            <li><a href="../../notes/8-routing-practice/8.html"
+                   data-nav="notes/8-routing-practice/8.html">8. Routing
+in Practice</a></li>
+            <li><a href="../../notes/9-transport/9.html"
+                   data-nav="notes/9-transport/9.html">9. Transport
+Layer: Ports, UDP and TCP</a></li>
+            <li><a href="../../notes/10-application-layer/10.html"
+                   data-nav="notes/10-application-layer/10.html">10.
+Application Layer: HTTP and DNS</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#network-layer-forwarding-arp-fragmentation-icmp"
+id="toc-network-layer-forwarding-arp-fragmentation-icmp">6. Network
+Layer: Forwarding, ARP, Fragmentation &amp; ICMP</a>
+<ul>
+<li><a href="#quick-reference" id="toc-quick-reference">Quick
+reference</a></li>
+<li><a href="#forwarding" id="toc-forwarding">1. Forwarding</a>
+<ul>
+<li><a href="#terms" id="toc-terms">1.1 Terms</a></li>
+<li><a href="#how-a-host-decides-local-or-remote"
+id="toc-how-a-host-decides-local-or-remote">1.2 How a host decides:
+local or remote</a></li>
+<li><a href="#why-the-mask-matters" id="toc-why-the-mask-matters">1.3
+Why the mask matters</a></li>
+<li><a href="#longest-prefix-match" id="toc-longest-prefix-match">1.4
+Longest-prefix match</a></li>
+<li><a href="#reading-a-real-routing-table"
+id="toc-reading-a-real-routing-table">1.5 Reading a real routing
+table</a></li>
+</ul></li>
+<li><a href="#arp-from-an-ip-address-to-a-mac-address"
+id="toc-arp-from-an-ip-address-to-a-mac-address">2. ARP: From an IP
+Address to a MAC Address</a>
+<ul>
+<li><a href="#why-we-need-arp" id="toc-why-we-need-arp">2.1 Why we need
+ARP</a></li>
+<li><a href="#how-arp-works" id="toc-how-arp-works">2.2 How ARP
+works</a></li>
+<li><a href="#three-tables-three-devices"
+id="toc-three-tables-three-devices">2.3 Three tables, three
+devices</a></li>
+<li><a href="#how-an-ethernet-switch-learns"
+id="toc-how-an-ethernet-switch-learns">2.4 How an Ethernet switch
+learns</a></li>
+</ul></li>
+<li><a href="#frame-sequences-during-a-ping"
+id="toc-frame-sequences-during-a-ping">3. Frame Sequences During a
+Ping</a>
+<ul>
+<li><a href="#ping-through-a-switch" id="toc-ping-through-a-switch">3.1
+Ping through a switch</a></li>
+<li><a href="#ping-through-a-router" id="toc-ping-through-a-router">3.2
+Ping through a router</a></li>
+</ul></li>
+<li><a href="#ipv4-fragmentation" id="toc-ipv4-fragmentation">4. IPv4
+Fragmentation</a>
+<ul>
+<li><a href="#mtu" id="toc-mtu">4.1 MTU</a></li>
+<li><a href="#the-header-fields" id="toc-the-header-fields">4.2 The
+header fields</a></li>
+<li><a href="#method" id="toc-method">4.3 Method</a></li>
+<li><a href="#lecture-examples" id="toc-lecture-examples">4.4 Lecture
+examples</a></li>
+<li><a href="#tutorial-2.1-q4" id="toc-tutorial-2.1-q4">4.5 Tutorial 2.1
+Q4</a></li>
+<li><a href="#what-if-one-fragment-is-lost"
+id="toc-what-if-one-fragment-is-lost">4.6 What if one fragment is
+lost?</a></li>
+<li><a href="#packet-size-is-a-trade-off"
+id="toc-packet-size-is-a-trade-off">4.7 Packet size is a
+trade-off</a></li>
+<li><a href="#df-and-path-mtu-discovery"
+id="toc-df-and-path-mtu-discovery">4.8 DF and Path MTU
+Discovery</a></li>
+</ul></li>
+<li><a href="#icmp-ping-and-traceroute"
+id="toc-icmp-ping-and-traceroute">5. ICMP, Ping and Traceroute</a>
+<ul>
+<li><a href="#icmp" id="toc-icmp">5.1 ICMP</a></li>
+<li><a href="#what-ping-tells-you" id="toc-what-ping-tells-you">5.2 What
+ping tells you</a></li>
+<li><a href="#ttl" id="toc-ttl">5.3 TTL</a></li>
+<li><a href="#how-traceroute-works" id="toc-how-traceroute-works">5.4
+How traceroute works</a></li>
+<li><a href="#why-the-reverse-trace-shows-different-addresses"
+id="toc-why-the-reverse-trace-shows-different-addresses">5.5 Why the
+reverse trace shows different addresses</a></li>
+</ul></li>
+<li><a href="#rebuilding-a-topology-from-traceroutes"
+id="toc-rebuilding-a-topology-from-traceroutes">6. Rebuilding a Topology
+from Traceroutes</a>
+<ul>
+<li><a href="#method-1" id="toc-method-1">6.1 Method</a></li>
+<li><a href="#tutorial-2.2-q3" id="toc-tutorial-2.2-q3">6.2 Tutorial 2.2
+Q3</a></li>
+</ul></li>
+<li><a href="#exam-patterns" id="toc-exam-patterns">Exam
+patterns</a></li>
+<li><a href="#common-traps" id="toc-common-traps">Common Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="network-layer-forwarding-arp-fragmentation-icmp">6. Network
+Layer: Forwarding, ARP, Fragmentation &amp; ICMP</h1>
+<p>This chapter covers the second half of Part II Lecture 2. It answers
+four questions:</p>
+<ol type="1">
+<li>When a host or router has a packet, <strong>where does it send it
+next?</strong> (Forwarding, longest-prefix match.)</li>
+<li>How does it find the <strong>MAC address</strong> of that next
+device? (ARP.)</li>
+<li>What happens when a packet is <strong>too big</strong> for the next
+link? (Fragmentation.)</li>
+<li>How do we <strong>test</strong> the path? (ICMP, ping,
+traceroute.)</li>
+</ol>
+<p>The exam asks you to list the frames seen at a station during a ping,
+pick a route with longest-prefix match, build a fragmentation table, and
+rebuild a topology from traceroute outputs.</p>
+<p>The questions sit in drawers after the concept they test. Tutorial
+2.1 Q4 and Tutorial 2.2 Q1 to Q3 have official solutions. Concept checks
+and extensions are unofficial. Past-year papers are not in these notes.
+Tutorial 2.2 Q4 (Dijkstra) is in Chapter 7.</p>
+<hr />
+<h2 id="quick-reference">Quick reference</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 73%" />
+</colgroup>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local or remote</td>
+<td>AND the destination with <strong>your own</strong> mask. Same
+network = local: ARP for the destination. Different = remote: ARP for
+the <strong>gateway</strong>. The IP destination never changes.</td>
+</tr>
+<tr>
+<td>Longest-prefix match</td>
+<td>Keep the entries that contain the destination. Take the largest
+<code>/n</code>. <code>0.0.0.0/0</code> matches everything and loses to
+any other match.</td>
+</tr>
+<tr>
+<td>ARP</td>
+<td>Request = Ethernet broadcast <code>FF:FF:FF:FF:FF:FF</code>. Reply =
+unicast. Asks for the <strong>next-hop</strong> IP. Routers never
+forward it.</td>
+</tr>
+<tr>
+<td>Switch</td>
+<td>Learns the <strong>source</strong> MAC and port. Forwards on the
+<strong>destination</strong> MAC. Floods broadcast and unknown
+unicast.</td>
+</tr>
+<tr>
+<td>Router, per hop</td>
+<td>New frame (new MAC pair), TTL
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">-1</annotation></semantics></math>,
+checksum recalculated. IP source and destination stay the same (no
+NAT).</td>
+</tr>
+<tr>
+<td>Fragment data size</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>8</mn><mo>×</mo><mo stretchy="false" form="prefix">⌊</mo><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">MTU</mtext><mo>−</mo><mn>20</mn><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mn>8</mn><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">8 \times \lfloor (\text{MTU} - 20)/8 \rfloor</annotation></semantics></math>
+for every fragment except the last</td>
+</tr>
+<tr>
+<td>Fragments</td>
+<td>Count
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo stretchy="false" form="prefix">⌈</mo><mtext mathvariant="normal">data</mtext><mi>/</mi><mtext mathvariant="normal">max data</mtext><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">= \lceil \text{data}/\text{max data} \rceil</annotation></semantics></math>.
+Offset = start byte / 8. Total Length = data + 20. Same ID. MF = 1
+except the last.</td>
+</tr>
+<tr>
+<td>Reassembly</td>
+<td>Only at the destination. One lost fragment loses the datagram:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">P = (1-p)^n</annotation></semantics></math>.</td>
+</tr>
+<tr>
+<td>DF = 1</td>
+<td>Router drops an oversized packet and sends ICMP “fragmentation
+needed”.</td>
+</tr>
+<tr>
+<td>TTL</td>
+<td>Each router subtracts 1. At 0 the router drops the packet and sends
+ICMP Time Exceeded.</td>
+</tr>
+<tr>
+<td>Traceroute</td>
+<td>Probes with TTL 1, 2, 3, … Each router answers with the interface
+<strong>towards the source</strong>. <code>*</code> = no reply.</td>
+</tr>
+<tr>
+<td>Ping</td>
+<td>Echo Request and Echo Reply (ICMP). A reply proves ICMP works, not
+the application.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="forwarding">1. Forwarding</h2>
+<h3 id="terms">1.1 Terms</h3>
+<ul>
+<li><strong>Forwarding:</strong> the decision to send a packet out of a
+particular interface towards its destination. It is <strong>one lookup
+in a table</strong> for each packet.</li>
+<li><strong>Routing:</strong> the process that <strong>fills in</strong>
+that table (Chapter 7).</li>
+<li><strong>Next hop:</strong> the device that should get the packet
+next. It is either the destination itself (when the destination is on
+the same subnet) or a router.</li>
+<li><strong>Routing table:</strong> a list of entries. Each entry maps a
+<strong>destination prefix</strong> to an <strong>outgoing
+interface</strong> and, if needed, a <strong>next-hop
+router</strong>.</li>
+<li><strong>Default route:</strong> 0.0.0.0/0. It matches
+<strong>every</strong> destination.</li>
+<li><strong>Default gateway:</strong> the next-hop router for a host’s
+default route. The host uses it when no more specific route
+matches.</li>
+</ul>
+<h3 id="how-a-host-decides-local-or-remote">1.2 How a host decides:
+local or remote</h3>
+<ol type="1">
+<li>AND the destination address with <strong>its own</strong> mask.</li>
+<li>Compare the result with its own network address.</li>
+<li><strong>Same:</strong> the destination is <strong>local</strong>
+(on-link). Send the frame directly to the destination.</li>
+<li><strong>Different:</strong> the destination is
+<strong>remote</strong>. Send the frame to the <strong>default
+gateway</strong>.</li>
+</ol>
+<p>In both cases, the <strong>IP destination stays the final
+host</strong>. Only the next hop changes.</p>
+<figure>
+<img width="1017" height="774" src="media/6-artifacts/addresses-per-hop.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Across three LANs, the IP addresses (A, P) stay the same. Each router writes a new pair of physical (MAC) addresses: 20/10, then 33/99, then 95/66" />
+<figcaption aria-hidden="true">Across three LANs, the IP addresses (A,
+P) stay the same. Each router writes a new pair of physical (MAC)
+addresses: 20/10, then 33/99, then 95/66</figcaption>
+</figure>
+<figure>
+<img width="1400" height="458" src="media/6-artifacts/two-lan-topology.webp" style="width:80.0%"
+loading="lazy" decoding="async" alt="Two LANs joined by one router" />
+<figcaption aria-hidden="true">Two LANs joined by one
+router</figcaption>
+</figure>
+<p>Host A (192.168.10.10/24, gateway 192.168.10.1) has this table:</p>
+<div class="table-wrap">
+<table style="width: 63%;">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 39%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Destination prefix</th>
+<th style="text-align: left;">Next hop</th>
+<th style="text-align: left;">Interface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">192.168.10.0/24</td>
+<td style="text-align: left;">the destination itself</td>
+<td style="text-align: left;">A’s Ethernet</td>
+</tr>
+<tr>
+<td style="text-align: left;">0.0.0.0/0</td>
+<td style="text-align: left;">192.168.10.1</td>
+<td style="text-align: left;">A’s Ethernet</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>To B (192.168.10.20): it is local, so A sends directly.</li>
+<li>To C (192.168.20.20): it is remote, so A sends to the gateway.</li>
+</ul>
+<h3 id="why-the-mask-matters">1.3 Why the mask matters</h3>
+<p>The same two addresses can be local or remote. It depends only on the
+mask. A = 172.16.10.5 and the destination is 172.16.200.9.</p>
+<div class="table-wrap">
+<table style="width: 94%;">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 17%" />
+<col style="width: 27%" />
+<col style="width: 42%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Host mask</th>
+<th style="text-align: left;">A’s network</th>
+<th style="text-align: left;">Destination’s network</th>
+<th style="text-align: left;">Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">/16</td>
+<td style="text-align: left;">172.16.0.0</td>
+<td style="text-align: left;">172.16.0.0</td>
+<td style="text-align: left;"><strong>Local:</strong> ARP for the
+destination itself</td>
+</tr>
+<tr>
+<td style="text-align: left;">/24</td>
+<td style="text-align: left;">172.16.10.0</td>
+<td style="text-align: left;">172.16.200.0</td>
+<td style="text-align: left;"><strong>Remote:</strong> send to the
+gateway</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A <strong>wrong mask</strong> breaks things. In the lecture, a laptop
+with .10/24 instead of .10/26 thinks server .70 is local. It sends an
+ARP request for .70. That broadcast stays on its own LAN, so nobody
+answers, and the traffic fails. With the correct /26, the laptop ARPs
+for gateway .1 instead.</p>
+<h3 id="longest-prefix-match">1.4 Longest-prefix match</h3>
+<p>Several entries can match one destination. The router chooses the
+match with the <strong>longest prefix</strong>, because it describes the
+most specific block. The default route /0 is the least specific, so it
+is the last choice.</p>
+<p><strong>Method:</strong></p>
+<ol type="1">
+<li>For each entry, check whether the destination is inside that block.
+(AND the destination with the entry’s mask and compare.)</li>
+<li>Among the matches, choose the one with the largest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>/</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">/n</annotation></semantics></math>.</li>
+</ol>
+<p><strong>Lecture example:</strong> the destination is 10.20.18.7. The
+entries 0.0.0.0/0, 10.0.0.0/8, 10.20.0.0/16 and 10.20.18.0/24
+<strong>all</strong> match. Choose <strong>/24</strong>.</p>
+<p>The /22 inside a /20 shows why this works: longest-prefix match lets
+a router send most of a block one way and a small part of it another
+way.</p>
+<p><strong>E1. Choose the route.</strong> A router has this table.</p>
+<div class="table-wrap">
+<table style="width: 42%;">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 38%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Network</th>
+<th style="text-align: left;">Mask</th>
+<th style="text-align: left;">Interface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">0.0.0.0</td>
+<td style="text-align: left;">0.0.0.0</td>
+<td style="text-align: left;">Idx0</td>
+</tr>
+<tr>
+<td style="text-align: left;">150.20.32.0</td>
+<td style="text-align: left;">255.255.240.0</td>
+<td style="text-align: left;">Idx1</td>
+</tr>
+<tr>
+<td style="text-align: left;">160.5.128.0</td>
+<td style="text-align: left;">255.255.192.0</td>
+<td style="text-align: left;">Idx2</td>
+</tr>
+<tr>
+<td style="text-align: left;">150.20.40.0</td>
+<td style="text-align: left;">255.255.252.0</td>
+<td style="text-align: left;">Idx3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Which interface does it use for the destinations 150.20.42.7,
+160.5.190.1, 150.20.47.16 and 9.9.9.9?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (E1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>First write each entry as a block (Chapter 5, Section 4).</p>
+<div class="table-wrap">
+<table style="width: 90%;">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 10%" />
+<col style="width: 36%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Mask</th>
+<th style="text-align: left;">Prefix</th>
+<th style="text-align: left;">Block size (interesting octet)</th>
+<th style="text-align: left;">Covers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">255.255.240.0</td>
+<td style="text-align: left;">/20</td>
+<td style="text-align: left;">16 (3rd octet)</td>
+<td style="text-align: left;">150.20.32.0 – 150.20.47.255</td>
+</tr>
+<tr>
+<td style="text-align: left;">255.255.192.0</td>
+<td style="text-align: left;">/18</td>
+<td style="text-align: left;">64 (3rd octet)</td>
+<td style="text-align: left;">160.5.128.0 – 160.5.191.255</td>
+</tr>
+<tr>
+<td style="text-align: left;">255.255.252.0</td>
+<td style="text-align: left;">/22</td>
+<td style="text-align: left;">4 (3rd octet)</td>
+<td style="text-align: left;">150.20.40.0 – 150.20.43.255</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 52%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Destination</th>
+<th style="text-align: left;">Entries that match</th>
+<th style="text-align: left;">Chosen</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">150.20.42.7</td>
+<td style="text-align: left;">/0, /20, /22</td>
+<td style="text-align: left;"><strong>Idx3</strong> (the /22 is the
+longest)</td>
+</tr>
+<tr>
+<td style="text-align: left;">160.5.190.1</td>
+<td style="text-align: left;">/0, /18</td>
+<td style="text-align: left;"><strong>Idx2</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">150.20.47.16</td>
+<td style="text-align: left;">/0, /20 (47 is outside 40–43, so the /22
+fails)</td>
+<td style="text-align: left;"><strong>Idx1</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">9.9.9.9</td>
+<td style="text-align: left;">/0 only</td>
+<td style="text-align: left;"><strong>Idx0</strong> (the default
+route)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> longest-prefix match <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Turn every mask into a prefix length and a block (start and
+end).</li>
+<li>For the destination, list every entry whose block contains it. The
+default route always does.</li>
+<li>Take the entry with the largest prefix length.</li>
+<li>If a table also has next hops, read the next hop of that entry. If
+it says “on-link”, send to the destination itself.</li>
+</ol>
+</div>
+</details>
+<h3 id="reading-a-real-routing-table">1.5 Reading a real routing
+table</h3>
+<p>On Windows, <code>route print</code> shows the table. “0.0.0.0 with
+mask 0.0.0.0” is the default route. “On-link” means the destination is
+directly reachable (no gateway). First match the destination and the
+mask. Then read the gateway and the interface.</p>
+<figure>
+<img width="1400" height="535" src="media/6-artifacts/route-print.webp" style="width:75.0%"
+loading="lazy" decoding="async" alt="Windows route print" />
+<figcaption aria-hidden="true">Windows
+<code>route print</code></figcaption>
+</figure>
+<details class="qa box">
+<summary>
+A host sends a packet for a remote destination with the destination IP
+set to the gateway’s address. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> The <strong>IP destination</strong> stays the
+final host. Only the <strong>Ethernet destination</strong> is the
+gateway’s MAC.</p>
+</div>
+</details>
+<hr />
+<h2 id="arp-from-an-ip-address-to-a-mac-address">2. ARP: From an IP
+Address to a MAC Address</h2>
+<h3 id="why-we-need-arp">2.1 Why we need ARP</h3>
+<p>Forwarding gives the <strong>IP address</strong> of the next hop. But
+an Ethernet frame needs the next hop’s <strong>MAC address</strong>.
+<strong>ARP (Address Resolution Protocol)</strong> finds the MAC address
+for an IPv4 address on the local link.</p>
+<h3 id="how-arp-works">2.2 How ARP works</h3>
+<ol type="1">
+<li>The host looks in its <strong>ARP cache</strong> (a table of IP →
+MAC pairs it has learnt).</li>
+<li>If the pair is missing, it sends an <strong>ARP request</strong> as
+an Ethernet <strong>broadcast</strong> (destination MAC
+<code>FF:FF:FF:FF:FF:FF</code>): “Who has 192.168.10.20? Tell
+192.168.10.10.”</li>
+<li>The device that owns that IP sends an <strong>ARP reply</strong> as
+a <strong>unicast</strong>: “192.168.10.20 is at MAC B.”</li>
+<li>The host saves the pair in its cache. The other device also learns
+the sender’s pair from the request.</li>
+</ol>
+<div class="table-wrap">
+<table style="width: 71%;">
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 45%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">ARP request</th>
+<th style="text-align: left;">ARP reply</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Ethernet source</td>
+<td style="text-align: left;">A</td>
+<td style="text-align: left;">B</td>
+</tr>
+<tr>
+<td style="text-align: left;">Ethernet destination</td>
+<td style="text-align: left;">FF:FF:FF:FF:FF:FF (broadcast)</td>
+<td style="text-align: left;">A</td>
+</tr>
+<tr>
+<td style="text-align: left;">Sender IP</td>
+<td style="text-align: left;">192.168.10.10</td>
+<td style="text-align: left;">192.168.10.20</td>
+</tr>
+<tr>
+<td style="text-align: left;">Target IP</td>
+<td style="text-align: left;">192.168.10.20</td>
+<td style="text-align: left;">192.168.10.10</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>ARP stays on the <strong>local link</strong>. <strong>Routers do not
+forward ARP broadcasts.</strong></li>
+<li>An ARP request is an <strong>Ethernet</strong> broadcast, not an IP
+broadcast.</li>
+<li><strong>Which IP does ARP ask for?</strong> The
+<strong>next-hop</strong> IP. For a remote destination, that is the
+<strong>gateway’s</strong> IP, not the final destination’s IP.</li>
+</ul>
+<p><strong>Remote server example:</strong> A is 192.168.10.10/24 with
+gateway .1, and the server is 203.0.113.80. ARP target = 192.168.10.1.
+Ethernet destination = the gateway’s MAC. IP destination =
+203.0.113.80.</p>
+<figure>
+<img width="1400" height="474" src="media/6-artifacts/arp-a.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="Windows arp -a: Internet Address = IPv4, Physical Address = MAC" />
+<figcaption aria-hidden="true">Windows <code>arp -a</code>: Internet
+Address = IPv4, Physical Address = MAC</figcaption>
+</figure>
+<h3 id="three-tables-three-devices">2.3 Three tables, three devices</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 38%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Table</th>
+<th style="text-align: left;">Maps</th>
+<th style="text-align: left;">Used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">ARP cache</td>
+<td style="text-align: left;">next-hop IPv4 → MAC</td>
+<td style="text-align: left;">a host or router that builds a frame</td>
+</tr>
+<tr>
+<td style="text-align: left;">Switch forwarding table</td>
+<td style="text-align: left;">MAC → switch port</td>
+<td style="text-align: left;">a switch that forwards a frame</td>
+</tr>
+<tr>
+<td style="text-align: left;">Routing table</td>
+<td style="text-align: left;">destination prefix → next hop /
+interface</td>
+<td style="text-align: left;">a host or router that forwards an IP
+packet</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The route lookup chooses the next hop. ARP finds its MAC. The switch
+chooses the output port.</p>
+<h3 id="how-an-ethernet-switch-learns">2.4 How an Ethernet switch
+learns</h3>
+<ul>
+<li>When a frame arrives, the switch <strong>learns</strong> its
+<strong>source</strong> MAC and the port it came in on.</li>
+<li>For a <strong>known unicast</strong> destination, it forwards the
+frame only out of the learnt port. If that port is the incoming port, it
+does not forward the frame at all.</li>
+<li>For a <strong>broadcast</strong> or an <strong>unknown
+unicast</strong>, it <strong>floods</strong> the frame out of every port
+except the incoming one.</li>
+</ul>
+<p>The switch learns from <strong>source</strong> MACs and forwards on
+<strong>destination</strong> MACs. Don’t mix the two up.</p>
+<details class="qa box">
+<summary>
+An ARP request is sent to the target host as a unicast frame. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> The sender does not know the target’s MAC
+yet, so the request goes to <code>FF:FF:FF:FF:FF:FF</code>. Only the
+<strong>reply</strong> is a unicast.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A switch learns a station’s MAC address from the destination field of a
+frame. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> It learns from the <strong>source</strong>
+MAC. It uses the <strong>destination</strong> MAC to choose the output
+port.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A router forwards an ARP broadcast to its other interfaces. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> ARP works on one link only. A router does not
+forward Ethernet broadcasts, so each LAN runs its own ARP.</p>
+</div>
+</details>
+<hr />
+<h2 id="frame-sequences-during-a-ping">3. Frame Sequences During a
+Ping</h2>
+<p><code>ping</code> sends an <strong>ICMP Echo Request</strong> inside
+an IP packet, inside a frame. The destination sends back an <strong>ICMP
+Echo Reply</strong>. Every IP packet still needs a route and a frame, so
+ARP runs first if the cache is empty.</p>
+<p>To list the frames, ask three questions in order:</p>
+<ol type="1">
+<li>Is the destination local or remote? (AND it with the sender’s own
+mask.)</li>
+<li>So which IP address must ARP resolve: the destination’s or the
+gateway’s?</li>
+<li>Which LAN is each frame on? A station sees only the frames on its
+own LAN.</li>
+</ol>
+<p><strong>What a router does to a packet</strong> (lecture example: A =
+192.168.10.10/24 pings C = 192.168.20.20/24; the router’s left interface
+is R-left, its right interface is R-right):</p>
+<ol type="1">
+<li>It removes the old frame.</li>
+<li>It looks up 192.168.20.20 in its routing table. The match is
+192.168.20.0/24, directly connected on the right.</li>
+<li>It decreases the TTL by 1 and recalculates the header checksum.</li>
+<li>It ARPs for C on the right LAN if needed.</li>
+<li>It puts the packet in a <strong>new</strong> frame from R-right to
+C.</li>
+</ol>
+<div class="table-wrap">
+<table style="width: 78%;">
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 41%" />
+<col style="width: 29%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Arriving at the router</th>
+<th style="text-align: left;">Leaving towards C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Ethernet source</td>
+<td style="text-align: left;">A</td>
+<td style="text-align: left;"><strong>R-right</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Ethernet destination</td>
+<td style="text-align: left;"><strong>R-left</strong></td>
+<td style="text-align: left;">C</td>
+</tr>
+<tr>
+<td style="text-align: left;">IP source</td>
+<td style="text-align: left;">192.168.10.10</td>
+<td style="text-align: left;">192.168.10.10 (same)</td>
+</tr>
+<tr>
+<td style="text-align: left;">IP destination</td>
+<td style="text-align: left;">192.168.20.20</td>
+<td style="text-align: left;">192.168.20.20 (same)</td>
+</tr>
+<tr>
+<td style="text-align: left;">TTL</td>
+<td style="text-align: left;">for example 64</td>
+<td style="text-align: left;"><strong>63</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Header checksum</td>
+<td style="text-align: left;">valid for the incoming header</td>
+<td style="text-align: left;"><strong>recalculated</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>Without NAT, the IP addresses stay the same end to end. The
+MAC addresses change on every hop.</strong></p>
+</blockquote>
+<h3 id="ping-through-a-switch">3.1 Ping through a switch</h3>
+<p><strong>Tutorial 2.2 Q1.</strong> Consider three hub-based Ethernets
+being interconnected by a transparent switch as shown in Figure Q1.
+Assume that all ARP caches and the switch forwarding table are initially
+empty.</p>
+<p>Suppose that a user at Station A issues a command
+<code>ping 192.168.222.222</code>. Using a table similar to Table Q1,
+list the sequence of Ethernet frames that are being sent and received at
+Station A, the purposes of the frames (e.g. Ping request for
+192.168.222.222), and the actions taken by the transparent switch upon
+receiving the frames.</p>
+<figure>
+<img width="987" height="463" src="media/6-artifacts/t22-q1-switch.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Figure Q1: three hub-based Ethernets joined by a transparent switch. Both stations are in 192.168.0.0/16." />
+<figcaption aria-hidden="true">Figure Q1: three hub-based Ethernets
+joined by a transparent switch. Both stations are in
+192.168.0.0/16.</figcaption>
+</figure>
+<p>Table Q1 has the columns <em>Frame</em>, <em>MAC address (Source,
+Destination)</em>, <em>Purpose of Frame</em> and <em>Actions taken by
+the Switch</em>. For simplicity, assume ping sends 1 packet instead of
+4.</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Step 1: local or remote?</strong> A is
+192.168.111.111/<strong>16</strong> and B is
+192.168.222.222/<strong>16</strong>. Both AND to 192.168.0.0, so B is
+<strong>local</strong>. There is no router. A ARPs for <strong>B
+itself</strong>.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 28%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Frame</th>
+<th style="text-align: left;">Source MAC</th>
+<th style="text-align: left;">Destination MAC</th>
+<th style="text-align: left;">Purpose</th>
+<th style="text-align: left;">Actions of the switch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">00-24-81-AA-AA-AA</td>
+<td style="text-align: left;">FF-FF-FF-FF-FF-FF</td>
+<td style="text-align: left;">ARP request for 192.168.222.222</td>
+<td style="text-align: left;">New table entry: AA-AA-AA on port 1.
+Broadcast, so flood to ports 2 and 3.</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">00-24-81-BB-BB-BB</td>
+<td style="text-align: left;">00-24-81-AA-AA-AA</td>
+<td style="text-align: left;">ARP reply</td>
+<td style="text-align: left;">New table entry: BB-BB-BB on port 2.
+Forward to port 1 only.</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">00-24-81-AA-AA-AA</td>
+<td style="text-align: left;">00-24-81-BB-BB-BB</td>
+<td style="text-align: left;">Ping request for 192.168.222.222</td>
+<td style="text-align: left;">Update the AA-AA-AA entry (new time).
+Forward to port 2 only.</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">00-24-81-BB-BB-BB</td>
+<td style="text-align: left;">00-24-81-AA-AA-AA</td>
+<td style="text-align: left;">Ping reply</td>
+<td style="text-align: left;">Update the BB-BB-BB entry (new time).
+Forward to port 1 only.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A sends frames 1 and 3 and receives frames 2 and 4. B learns A’s
+IP-to-MAC pair from frame 1, so B needs no ARP of its own.</p>
+<p>Each hub repeats every frame to all stations on that hub, and a
+station ignores frames that are not for it. The left hub (A’s) and the
+right hub (B’s) see all four frames. The middle hub (port 3) sees only
+frame 1, the flood.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> frame table for a ping through a switch
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>AND the destination with the sender’s mask. Local: the ARP target is
+the destination.</li>
+<li>Frame 1: the sender’s ARP request. Source = sender. Destination =
+broadcast. The switch <strong>learns</strong> the sender’s port and
+<strong>floods</strong>.</li>
+<li>Frame 2: the target’s ARP reply (unicast). The switch learns the
+target’s port and forwards to the sender’s port only.</li>
+<li>Frame 3 and 4: the ping request and reply. The switch only
+<strong>updates</strong> the entries and forwards to one port.</li>
+<li>If a cache or the switch table already has an entry,
+<strong>skip</strong> that step. That is how you shorten the table.</li>
+</ol>
+</div>
+</details>
+<p><strong>Extension 1.1.</strong> Right after Q1, Station A runs
+<code>ping 192.168.222.222</code> again. No cache has timed out. List
+the frames and the switch’s actions.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 1.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A already has B’s MAC in its ARP cache, so there is <strong>no
+ARP</strong>. Only the ping frames remain.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 11%" />
+<col style="width: 14%" />
+<col style="width: 15%" />
+<col style="width: 52%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Frame</th>
+<th style="text-align: left;">Source</th>
+<th style="text-align: left;">Destination</th>
+<th style="text-align: left;">Purpose</th>
+<th style="text-align: left;">Switch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">AA-AA-AA</td>
+<td style="text-align: left;">BB-BB-BB</td>
+<td style="text-align: left;">Ping request</td>
+<td style="text-align: left;">Both entries exist. Refresh A’s entry.
+Forward to port 2 only.</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">BB-BB-BB</td>
+<td style="text-align: left;">AA-AA-AA</td>
+<td style="text-align: left;">Ping reply</td>
+<td style="text-align: left;">Refresh B’s entry. Forward to port 1
+only.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<p><strong>Extension 1.2.</strong> After Q1, a new station C on
+<strong>the same hub as A</strong> (MAC 00:24:81:CC:CC:CC, IP
+192.168.111.50/16) runs <code>ping 192.168.222.222</code>. C’s ARP cache
+is empty. List the frames and the switch’s actions.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 1.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>C and B are in the same /16, so C ARPs for B. The switch already
+knows A (port 1) and B (port 2), but not C.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 11%" />
+<col style="width: 20%" />
+<col style="width: 34%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Frame</th>
+<th style="text-align: left;">Source</th>
+<th style="text-align: left;">Destination</th>
+<th style="text-align: left;">Purpose</th>
+<th style="text-align: left;">Switch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">CC-CC-CC</td>
+<td style="text-align: left;">FF-FF-FF-FF-FF-FF</td>
+<td style="text-align: left;">ARP request for 192.168.222.222</td>
+<td style="text-align: left;">New entry: CC-CC-CC on port 1. Flood to
+ports 2 and 3.</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">BB-BB-BB</td>
+<td style="text-align: left;">CC-CC-CC</td>
+<td style="text-align: left;">ARP reply</td>
+<td style="text-align: left;">Known: C is on port 1. Forward to port 1
+only.</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">CC-CC-CC</td>
+<td style="text-align: left;">BB-BB-BB</td>
+<td style="text-align: left;">Ping request</td>
+<td style="text-align: left;">Forward to port 2 only.</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">BB-BB-BB</td>
+<td style="text-align: left;">CC-CC-CC</td>
+<td style="text-align: left;">Ping reply</td>
+<td style="text-align: left;">Forward to port 1 only.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Station A sees these frames on its hub too, because a hub repeats
+everything. A ignores them, because they are not addressed to A.</p>
+</div>
+</details>
+<h3 id="ping-through-a-router">3.2 Ping through a router</h3>
+<p><strong>Tutorial 2.2 Q2.</strong> Now consider the three hub-based
+Ethernets being interconnected by a router, which is configured as the
+default gateway for all stations as shown in Figure Q2. Assume that all
+ARP caches are initially empty.</p>
+<p>Similarly, suppose that a user at Station A issues a command
+<code>ping 192.168.222.222</code>. Using a table similar to Table Q2,
+list the sequence of Ethernet frames that are being sent and received at
+Station A, the purposes of the frames (e.g. Ping request for
+192.168.222.222), and the actions taken by the router upon receiving the
+frames.</p>
+<figure>
+<img width="987" height="460" src="media/6-artifacts/t22-q2-router.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Figure Q2: the router is the default gateway. Its left interface is 192.168.111.254 and its right interface is 192.168.222.254." />
+<figcaption aria-hidden="true">Figure Q2: the router is the default
+gateway. Its left interface is 192.168.111.254 and its right interface
+is 192.168.222.254.</figcaption>
+</figure>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Step 1: local or remote?</strong> A is
+192.168.111.111/<strong>24</strong>. B is in 192.168.222.0/24, so B is
+<strong>remote</strong>. A ARPs for the <strong>default
+gateway</strong>, 192.168.111.254. For simplicity, assume ping sends 1
+packet instead of 4.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 24%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Frame</th>
+<th style="text-align: left;">Source MAC</th>
+<th style="text-align: left;">Destination MAC</th>
+<th style="text-align: left;">Purpose</th>
+<th style="text-align: left;">Actions of the router</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">00-24-81-AA-AA-AA</td>
+<td style="text-align: left;">FF-FF-FF-FF-FF-FF</td>
+<td style="text-align: left;">ARP request for the default gateway
+192.168.111.254</td>
+<td style="text-align: left;">New ARP cache entry: 192.168.111.111 =
+00-24-81-AA-AA-AA. Send an ARP reply.</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">00-00-0C-D1-D1-D1</td>
+<td style="text-align: left;">00-24-81-AA-AA-AA</td>
+<td style="text-align: left;">ARP reply</td>
+<td style="text-align: left;">(sent in frame 1’s action)</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">00-24-81-AA-AA-AA</td>
+<td style="text-align: left;">00-00-0C-D1-D1-D1</td>
+<td style="text-align: left;">Ping request for 192.168.222.222</td>
+<td style="text-align: left;">Broadcast an ARP request for
+192.168.222.222 on subnet 192.168.222.0/24. Receive the ARP reply. New
+ARP cache entry: 192.168.222.222 = 00-24-81-BB-BB-BB. Forward the ping
+request to 192.168.222.222.</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">00-00-0C-D1-D1-D1</td>
+<td style="text-align: left;">00-24-81-AA-AA-AA</td>
+<td style="text-align: left;">Ping reply</td>
+<td style="text-align: left;">Receive the ping reply. Forward it to
+192.168.111.111.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>What A does not see.</strong> The router’s ARP exchange with
+B and the forwarded ping happen on the <strong>right</strong> LAN, so A
+sees none of them. On that LAN the frames are: ARP request (D2 →
+broadcast), ARP reply (B → D2), ping request (D2 → B), ping reply (B →
+D2).</p>
+<p>In frame 3 the <strong>Ethernet</strong> destination is the router’s
+MAC (D1-D1-D1), but the <strong>IP</strong> destination is B
+(192.168.222.222).</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> frame table for a ping through a router
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Local or remote? Remote: the ARP target is the
+<strong>gateway</strong>.</li>
+<li>On A’s LAN: ARP request for the gateway, ARP reply from the gateway,
+then the ping request (Ethernet destination = gateway MAC, IP
+destination = B), and later the ping reply.</li>
+<li>The router learns A’s MAC from A’s ARP request, so it needs no ARP
+on A’s side for the reply.</li>
+<li>On B’s LAN, the router acts as a host: it ARPs for B, then sends the
+request in a new frame. Station A never sees these frames.</li>
+<li>A station lists only frames on its own LAN. Count the frames it
+<strong>sends and receives</strong>.</li>
+</ol>
+</div>
+</details>
+<p><strong>Extension 2.1.</strong> In Q2’s network, A has already pinged
+B, so A’s ARP cache holds the gateway. Now A pings a new station B2 on
+the right LAN (192.168.222.100, MAC 00:24:81:DD:DD:DD). The router’s ARP
+cache holds only A’s entry. How many frames does A send and receive?
+List the frames on the right LAN too.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 2.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A’s cache already holds the gateway’s MAC, so A needs <strong>no
+ARP</strong>. A sends 1 frame and receives 1 frame.</p>
+<div class="table-wrap">
+<table style="width: 89%;">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 14%" />
+<col style="width: 22%" />
+<col style="width: 53%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">LAN</th>
+<th style="text-align: left;">Source MAC</th>
+<th style="text-align: left;">Destination MAC</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Left</td>
+<td style="text-align: left;">AA-AA-AA</td>
+<td style="text-align: left;">D1-D1-D1</td>
+<td style="text-align: left;">Ping request (IP destination
+192.168.222.100)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Right</td>
+<td style="text-align: left;">D2-D2-D2</td>
+<td style="text-align: left;">FF-FF-FF-FF-FF-FF</td>
+<td style="text-align: left;">Router’s ARP request for
+192.168.222.100</td>
+</tr>
+<tr>
+<td style="text-align: left;">Right</td>
+<td style="text-align: left;">DD-DD-DD</td>
+<td style="text-align: left;">D2-D2-D2</td>
+<td style="text-align: left;">ARP reply</td>
+</tr>
+<tr>
+<td style="text-align: left;">Right</td>
+<td style="text-align: left;">D2-D2-D2</td>
+<td style="text-align: left;">DD-DD-DD</td>
+<td style="text-align: left;">Ping request, TTL reduced by 1</td>
+</tr>
+<tr>
+<td style="text-align: left;">Right</td>
+<td style="text-align: left;">DD-DD-DD</td>
+<td style="text-align: left;">D2-D2-D2</td>
+<td style="text-align: left;">Ping reply</td>
+</tr>
+<tr>
+<td style="text-align: left;">Left</td>
+<td style="text-align: left;">D1-D1-D1</td>
+<td style="text-align: left;">AA-AA-AA</td>
+<td style="text-align: left;">Ping reply</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The router must ARP on the right, because it has no entry for B2. A
+sees only the first and last rows.</p>
+</div>
+</details>
+<p><strong>Extension 2.2.</strong> In Q2’s network, a technician sets
+Station A to 192.168.111.111 with mask <strong>255.255.0.0</strong> by
+mistake. The gateway is still 192.168.111.254. A runs
+<code>ping 192.168.222.222</code>. What happens?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 2.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>With a /16 mask, both addresses AND to 192.168.0.0, so A thinks B is
+<strong>local</strong>. A sends an ARP request for <strong>B
+itself</strong> (192.168.222.222), not for the gateway.</p>
+<p>The request is an Ethernet broadcast on the left LAN. The router
+receives it but does not forward it, and the router does not own
+192.168.222.222. Nobody replies. A has no MAC for B, so it never sends
+the ping request. The ping <strong>fails</strong>.</p>
+<p>Fix: use the correct mask, 255.255.255.0. A then ARPs for the
+gateway, exactly as in Q2.</p>
+</div>
+</details>
+<hr />
+<h2 id="ipv4-fragmentation">4. IPv4 Fragmentation</h2>
+<h3 id="mtu">4.1 MTU</h3>
+<p>The <strong>MTU (Maximum Transmission Unit)</strong> is the largest
+IP packet that a link can carry. It counts the <strong>IP header + IP
+data</strong>. It does not count the Ethernet header and trailer.
+Different links can have different MTUs. When a packet is bigger than
+the next link’s MTU, an IPv4 router can split it into
+<strong>fragments</strong>.</p>
+<h3 id="the-header-fields">4.2 The header fields</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Total Length</strong></td>
+<td style="text-align: left;">The size of <strong>this</strong> packet
+or fragment in bytes: header + data.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>IHL</strong> (Internet Header
+Length)</td>
+<td style="text-align: left;">The header length in 32-bit words. IHL = 5
+means
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>5</mn><mo>×</mo><mn>4</mn><mo>=</mo><mn>20</mn></mrow><annotation encoding="application/x-tex">5 \times 4 = 20</annotation></semantics></math>
+bytes.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Identification (ID)</strong></td>
+<td style="text-align: left;">The same value in every fragment of one
+datagram. It groups them together.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Fragment Offset</strong></td>
+<td style="text-align: left;">Where this fragment’s data starts in the
+original data, <strong>in units of 8 bytes</strong>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>DF</strong> (Don’t Fragment)</td>
+<td style="text-align: left;">DF = 1: the router must not fragment. If
+the packet is too big, the router <strong>drops</strong> it and normally
+sends ICMP “fragmentation needed”.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>MF</strong> (More Fragments)</td>
+<td style="text-align: left;">MF = 1: more fragments follow. <strong>The
+last fragment has MF = 0.</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Every fragment gets its <strong>own</strong> IP header.</li>
+<li>Only the <strong>final destination</strong> puts the fragments back
+together (reassembly). Routers in between do not. The destination groups
+fragments by ID, source, destination and protocol.</li>
+<li>Offsets put the data back in place even if fragments arrive out of
+order.</li>
+</ul>
+<h3 id="method">4.3 Method</h3>
+<ol type="1">
+<li><strong>Data size:</strong> original data = Total Length − header
+(usually 20 bytes). Read carefully whether the question gives the total
+length or the data length.</li>
+<li><strong>Space per fragment:</strong> MTU − 20.</li>
+<li><strong>Round down to a multiple of 8:</strong> max data per
+fragment
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>8</mn><mo>×</mo><mo stretchy="false" form="prefix">⌊</mo><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">MTU</mtext><mo>−</mo><mn>20</mn><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mn>8</mn><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">= 8 \times \lfloor (\text{MTU} - 20)/8 \rfloor</annotation></semantics></math>.
+Every fragment except the last must carry a multiple of 8 data bytes,
+because offsets count in 8-byte units.</li>
+<li><strong>Number of fragments:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mtext mathvariant="normal">data</mtext><mi>/</mi><mtext mathvariant="normal">max data</mtext><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">\lceil \text{data} / \text{max data} \rceil</annotation></semantics></math>.
+The last fragment carries what is left.</li>
+<li><strong>For each fragment:</strong> Total Length = data + 20. Offset
+= (start byte) / 8. MF = 1 except for the last. ID = the original
+ID.</li>
+<li><strong>Check:</strong> the data adds up to the original; every
+Total Length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≤</mo><annotation encoding="application/x-tex">\le</annotation></semantics></math>
+MTU; only the last has MF = 0.</li>
+</ol>
+<h3 id="lecture-examples">4.4 Lecture examples</h3>
+<p><strong>Example 1.</strong> Total Length 2420 bytes, 20-byte header,
+MTU 1000, DF = 0, ID = 77.</p>
+<ul>
+<li>Data
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>2420</mn><mo>−</mo><mn>20</mn><mo>=</mo><mn>2400</mn></mrow><annotation encoding="application/x-tex">= 2420 - 20 = 2400</annotation></semantics></math>
+bytes.</li>
+<li>Space
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>1000</mn><mo>−</mo><mn>20</mn><mo>=</mo><mn>980</mn></mrow><annotation encoding="application/x-tex">= 1000 - 20 = 980</annotation></semantics></math>,
+so max data
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>8</mn><mo>×</mo><mn>122</mn><mo>=</mo><mn>976</mn></mrow><annotation encoding="application/x-tex">= 8 \times 122 = 976</annotation></semantics></math>
+bytes.</li>
+</ul>
+<figure>
+<img width="1400" height="496" src="media/6-artifacts/fragment-positions.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="Where each fragment’s data sits in the original 2400 bytes" />
+<figcaption aria-hidden="true">Where each fragment’s data sits in the
+original 2400 bytes</figcaption>
+</figure>
+<div class="table-wrap">
+<table style="width: 64%;">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 20%" />
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Fragment</th>
+<th style="text-align: left;">Data bytes</th>
+<th style="text-align: left;">Total Length</th>
+<th style="text-align: left;">Offset</th>
+<th style="text-align: left;">MF</th>
+<th style="text-align: left;">ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">976</td>
+<td style="text-align: left;">996</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">77</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">976</td>
+<td style="text-align: left;">996</td>
+<td style="text-align: left;">976/8 = <strong>122</strong></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">77</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">448</td>
+<td style="text-align: left;">468</td>
+<td style="text-align: left;">1952/8 = <strong>244</strong></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">77</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Example 2.</strong> Total Length 2020, MTU 620, ID 88. Data
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>2000</mn></mrow><annotation encoding="application/x-tex">= 2000</annotation></semantics></math>.
+Space
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>600</mn></mrow><annotation encoding="application/x-tex">= 600</annotation></semantics></math>,
+already a multiple of 8. Four fragments carry 600, 600, 600 and 200
+bytes, at offsets 0, 75, 150 and 225.</p>
+<p><strong>A quick check on offsets.</strong> Each offset equals the
+previous offset plus the previous fragment’s data divided by 8.</p>
+<h3 id="tutorial-2.1-q4">4.5 Tutorial 2.1 Q4</h3>
+<p><strong>Tutorial 2.1 Q4.</strong> Consider sending a 3000 byte
+datagram into a link that has an MTU of 500 bytes. Suppose the original
+datagram is stamped with the identification number 422. How many
+fragments are generated? What are their characteristics?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>Data
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>3000</mn><mo>−</mo><mn>20</mn><mo>=</mo><mn>2980</mn></mrow><annotation encoding="application/x-tex">= 3000 - 20 = 2980</annotation></semantics></math>
+bytes.</li>
+<li>Space
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>500</mn><mo>−</mo><mn>20</mn><mo>=</mo><mn>480</mn></mrow><annotation encoding="application/x-tex">= 500 - 20 = 480</annotation></semantics></math>
+bytes.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>480</mn><mo>=</mo><mn>8</mn><mo>×</mo><mn>60</mn></mrow><annotation encoding="application/x-tex">480 = 8 \times 60</annotation></semantics></math>,
+so no rounding is needed.</li>
+<li>Number of fragments
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo stretchy="false" form="prefix">⌈</mo><mn>2980</mn><mi>/</mi><mn>480</mn><mo stretchy="false" form="postfix">⌉</mo><mo>=</mo><mo stretchy="false" form="prefix">⌈</mo><mn>6.21</mn><mo stretchy="false" form="postfix">⌉</mo><mo>=</mo></mrow><annotation encoding="application/x-tex">= \lceil 2980 / 480 \rceil = \lceil 6.21 \rceil =</annotation></semantics></math>
+<strong>7</strong>.</li>
+<li>Six fragments carry 480 bytes each
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mo>×</mo><mn>480</mn><mo>=</mo><mn>2880</mn></mrow><annotation encoding="application/x-tex">6 \times 480 = 2880</annotation></semantics></math>).
+The seventh carries
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2980</mn><mo>−</mo><mn>2880</mn><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">2980 - 2880 = 100</annotation></semantics></math>
+bytes.</li>
+</ul>
+<figure>
+<img width="1400" height="816" src="media/6-artifacts/t21-q4-fragments.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="The official table: each fragment’s length, ID, MF and offset. The offset is in 8-byte units." />
+<figcaption aria-hidden="true">The official table: each fragment’s
+length, ID, MF and offset. The offset is in 8-byte units.</figcaption>
+</figure>
+<div class="table-wrap">
+<table style="width: 47%;">
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 14%" />
+<col style="width: 19%" />
+<col style="width: 12%" />
+<col style="width: 10%" />
+<col style="width: 19%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Fragment</th>
+<th style="text-align: left;">Data</th>
+<th style="text-align: left;">Length</th>
+<th style="text-align: left;">ID</th>
+<th style="text-align: left;">MF</th>
+<th style="text-align: left;">Offset</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">480</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">422</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">480</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">422</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">60</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">480</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">422</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">120</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">480</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">422</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">180</td>
+</tr>
+<tr>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">480</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">422</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">240</td>
+</tr>
+<tr>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">480</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">422</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">300</td>
+</tr>
+<tr>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">100</td>
+<td style="text-align: left;">120</td>
+<td style="text-align: left;">422</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">360</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><em>Check:</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>360</mn><mo>×</mo><mn>8</mn><mo>=</mo><mn>2880</mn></mrow><annotation encoding="application/x-tex">360 \times 8 = 2880</annotation></semantics></math>,
+the start of the last fragment, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2880</mn><mo>+</mo><mn>100</mn><mo>=</mo><mn>2980</mn></mrow><annotation encoding="application/x-tex">2880 + 100 = 2980</annotation></semantics></math>.
+✓</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> a fragmentation table <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Data
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>=</mo><annotation encoding="application/x-tex">=</annotation></semantics></math>
+Total Length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>20</mn></mrow><annotation encoding="application/x-tex">- 20</annotation></semantics></math>.</li>
+<li>Max data
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>8</mn><mo stretchy="false" form="prefix">⌊</mo><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">MTU</mtext><mo>−</mo><mn>20</mn><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mn>8</mn><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">= 8 \lfloor (\text{MTU} - 20)/8 \rfloor</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mo stretchy="false" form="prefix">⌈</mo><mtext mathvariant="normal">data</mtext><mi>/</mi><mtext mathvariant="normal">max data</mtext><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">n = \lceil \text{data} / \text{max data} \rceil</annotation></semantics></math>.
+The last fragment has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">data</mtext><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mtext mathvariant="normal">max data</mtext></mrow><annotation encoding="application/x-tex">\text{data} - (n-1) \times \text{max data}</annotation></semantics></math>
+bytes.</li>
+<li>Offsets: 0, then add (max data)/8 each time.</li>
+<li>Total Length = data + 20. MF = 1, except 0 on the last. ID is the
+same everywhere.</li>
+<li>Check that the data adds up and that no length is above the
+MTU.</li>
+</ol>
+</div>
+</details>
+<p><strong>Extension 4.1.</strong> A datagram has Total Length 4000
+bytes, a 20-byte header and ID 9. It enters a link with MTU 1500. Build
+the fragment table.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 4.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Data
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>3980</mn></mrow><annotation encoding="application/x-tex">= 3980</annotation></semantics></math>.
+Space
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>1480</mn><mo>=</mo><mn>8</mn><mo>×</mo><mn>185</mn></mrow><annotation encoding="application/x-tex">= 1480 = 8 \times 185</annotation></semantics></math>,
+so no rounding.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mn>3980</mn><mi>/</mi><mn>1480</mn><mo stretchy="false" form="postfix">⌉</mo><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\lceil 3980 / 1480 \rceil = 3</annotation></semantics></math>
+fragments, carrying 1480, 1480 and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3980</mn><mo>−</mo><mn>2960</mn><mo>=</mo><mn>1020</mn></mrow><annotation encoding="application/x-tex">3980 - 2960 = 1020</annotation></semantics></math>
+bytes.</p>
+<div class="table-wrap">
+<table style="width: 58%;">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 12%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Fragment</th>
+<th style="text-align: left;">Data</th>
+<th style="text-align: left;">Total Length</th>
+<th style="text-align: left;">Offset</th>
+<th style="text-align: left;">MF</th>
+<th style="text-align: left;">ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1480</td>
+<td style="text-align: left;">1500</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">9</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">1480</td>
+<td style="text-align: left;">1500</td>
+<td style="text-align: left;">1480/8 = <strong>185</strong></td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">9</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">1020</td>
+<td style="text-align: left;">1040</td>
+<td style="text-align: left;">2960/8 = <strong>370</strong></td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">9</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<p><strong>Extension 4.2.</strong> A datagram has Total Length 1500
+bytes and a 20-byte header. It enters a link with MTU 600. Build the
+fragment table. Why can a fragment not carry 580 bytes?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 4.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Data
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>1480</mn></mrow><annotation encoding="application/x-tex">= 1480</annotation></semantics></math>.
+Space
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>600</mn><mo>−</mo><mn>20</mn><mo>=</mo><mn>580</mn></mrow><annotation encoding="application/x-tex">= 600 - 20 = 580</annotation></semantics></math>.
+But
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>580</mn><mi>/</mi><mn>8</mn><mo>=</mo><mn>72.5</mn></mrow><annotation encoding="application/x-tex">580 / 8 = 72.5</annotation></semantics></math>,
+so a fragment of 580 bytes would be followed by a fragment whose offset
+is not a whole number. Round down: max data
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>8</mn><mo>×</mo><mn>72</mn><mo>=</mo><mn>576</mn></mrow><annotation encoding="application/x-tex">= 8 \times 72 = 576</annotation></semantics></math>.</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mn>1480</mn><mi>/</mi><mn>576</mn><mo stretchy="false" form="postfix">⌉</mo><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\lceil 1480 / 576 \rceil = 3</annotation></semantics></math>
+fragments: 576, 576 and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1480</mn><mo>−</mo><mn>1152</mn><mo>=</mo><mn>328</mn></mrow><annotation encoding="application/x-tex">1480 - 1152 = 328</annotation></semantics></math>
+bytes.</p>
+<div class="table-wrap">
+<table style="width: 53%;">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 13%" />
+<col style="width: 28%" />
+<col style="width: 28%" />
+<col style="width: 9%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Fragment</th>
+<th style="text-align: left;">Data</th>
+<th style="text-align: left;">Total Length</th>
+<th style="text-align: left;">Offset</th>
+<th style="text-align: left;">MF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">576</td>
+<td style="text-align: left;">596</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">576</td>
+<td style="text-align: left;">596</td>
+<td style="text-align: left;">576/8 = <strong>72</strong></td>
+<td style="text-align: left;">1</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">328</td>
+<td style="text-align: left;">348</td>
+<td style="text-align: left;">1152/8 = <strong>144</strong></td>
+<td style="text-align: left;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><em>Check:</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>576</mn><mo>+</mo><mn>576</mn><mo>+</mo><mn>328</mn><mo>=</mo><mn>1480</mn></mrow><annotation encoding="application/x-tex">576 + 576 + 328 = 1480</annotation></semantics></math>,
+and every length is at most 600. ✓</p>
+</div>
+</details>
+<p><strong>Extension 4.3 (unofficial, not in the lecture).</strong> One
+of the fragments from Q4 (the 2nd: Total Length 500, 480 data bytes,
+offset 60, MF = 1, ID 422) now meets a link with MTU 300. What does the
+router send?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 4.3)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Not in the lecture.</strong> This is standard IPv4 behaviour:
+a router can fragment a fragment, using the same rules.</p>
+<p>Space
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>300</mn><mo>−</mo><mn>20</mn><mo>=</mo><mn>280</mn><mo>=</mo><mn>8</mn><mo>×</mo><mn>35</mn></mrow><annotation encoding="application/x-tex">= 300 - 20 = 280 = 8 \times 35</annotation></semantics></math>.
+The 480 data bytes split into 280 and 200.</p>
+<div class="table-wrap">
+<table style="width: 63%;">
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 11%" />
+<col style="width: 23%" />
+<col style="width: 23%" />
+<col style="width: 7%" />
+<col style="width: 9%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">New fragment</th>
+<th style="text-align: left;">Data</th>
+<th style="text-align: left;">Total Length</th>
+<th style="text-align: left;">Offset</th>
+<th style="text-align: left;">MF</th>
+<th style="text-align: left;">ID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">2a</td>
+<td style="text-align: left;">280</td>
+<td style="text-align: left;">300</td>
+<td style="text-align: left;">60</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">422</td>
+</tr>
+<tr>
+<td style="text-align: left;">2b</td>
+<td style="text-align: left;">200</td>
+<td style="text-align: left;">220</td>
+<td style="text-align: left;">60 + 35 = <strong>95</strong></td>
+<td style="text-align: left;"><strong>1</strong></td>
+<td style="text-align: left;">422</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The offset continues from the old offset. Fragment 2b keeps
+<strong>MF = 1</strong>, because the original fragment was not the last
+one: more data (fragments 3 to 7) still follows. Only if the original
+fragment had MF = 0 would 2b have MF = 0. The destination reassembles
+all pieces by the one ID and the offsets.</p>
+</div>
+</details>
+<h3 id="what-if-one-fragment-is-lost">4.6 What if one fragment is
+lost?</h3>
+<p>The destination needs <strong>every</strong> fragment. If one is
+missing when the reassembly timer runs out, it <strong>discards the
+whole datagram</strong>. IP does not ask for the missing piece. TCP or
+the application must recover the data.</p>
+<p>So the probability that the whole packet arrives is:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">packet OK</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">P(\text{packet OK}) = (1 - p)^{n}</annotation></semantics></math></p>
+<p>for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+fragments, each lost with probability
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>.</p>
+<ul>
+<li>5 fragments, each lost with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>0.05</mn></mrow><annotation encoding="application/x-tex">p = 0.05</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><msup><mn>0.95</mn><mn>5</mn></msup><mo>=</mo><mn>0.774</mn></mrow><annotation encoding="application/x-tex">P = 0.95^5 = 0.774</annotation></semantics></math>.
+More than one packet in five is lost, although each fragment is lost
+only one time in twenty.</li>
+<li>If the sender sends <strong>each fragment twice</strong>, a fragment
+is lost only if both copies are lost:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>p</mi><mo>′</mo></msup><mo>=</mo><msup><mi>p</mi><mn>2</mn></msup><mo>=</mo><mn>0.0025</mn></mrow><annotation encoding="application/x-tex">p&#39; = p^2 = 0.0025</annotation></semantics></math>.
+Then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><msup><mn>0.9975</mn><mn>5</mn></msup><mo>=</mo><mn>0.988</mn></mrow><annotation encoding="application/x-tex">P = 0.9975^5 = 0.988</annotation></semantics></math>.</li>
+</ul>
+<p><strong>Extension 4.4.</strong> A datagram becomes 6 fragments. Each
+fragment is lost with probability 0.1, independently. What is the
+probability that the datagram arrives? What if each fragment is sent
+twice?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 4.4)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>Sent once:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mn>0.1</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>6</mn></msup><mo>=</mo><msup><mn>0.9</mn><mn>6</mn></msup><mo>=</mo></mrow><annotation encoding="application/x-tex">P = (1 - 0.1)^6 = 0.9^6 =</annotation></semantics></math>
+<strong>0.531</strong>.</li>
+<li>Sent twice: a fragment is lost only if both copies are lost, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>p</mi><mo>′</mo></msup><mo>=</mo><msup><mn>0.1</mn><mn>2</mn></msup><mo>=</mo><mn>0.01</mn></mrow><annotation encoding="application/x-tex">p&#39; = 0.1^2 = 0.01</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><msup><mn>0.99</mn><mn>6</mn></msup><mo>=</mo></mrow><annotation encoding="application/x-tex">P = 0.99^6 =</annotation></semantics></math>
+<strong>0.941</strong>.</li>
+</ul>
+<p>Sending twice raises the chance from about 53% to about 94%, but it
+doubles the traffic.</p>
+</div>
+</details>
+<h3 id="packet-size-is-a-trade-off">4.7 Packet size is a trade-off</h3>
+<ul>
+<li><strong>Large packets:</strong> fewer headers and fewer packets to
+process. But one loss destroys more data.</li>
+<li><strong>Small packets:</strong> less data lost per loss, and a
+shorter time to send each packet. But more header overhead. (Lecture:
+5600 bytes as 4 × 1400 carries 80 header bytes; as 8 × 700 it carries
+160.)</li>
+</ul>
+<p>Fragmentation is <strong>not</strong> a way to make delivery more
+reliable.</p>
+<h3 id="df-and-path-mtu-discovery">4.8 DF and Path MTU Discovery</h3>
+<ul>
+<li><strong>DF = 0:</strong> the router may fragment. The destination
+must reassemble.</li>
+<li><strong>DF = 1:</strong> the router drops the oversized packet and
+normally reports ICMP “fragmentation needed”.</li>
+<li><strong>Path MTU Discovery</strong> uses that ICMP feedback, so the
+sender learns to send packets that fit. If the feedback is blocked,
+<strong>small pings work but large transfers fail.</strong></li>
+<li>A <strong>tunnel</strong> adds headers (for example 100 bytes). A
+1500-byte inner packet becomes 1600 bytes and does not fit an MTU of
+1500. The fix is to send 1400-byte inner packets.</li>
+</ul>
+<details class="qa box">
+<summary>
+Each router on the path reassembles the fragments before it forwards
+them. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> Only the final destination reassembles.
+Routers forward each fragment on its own.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+The fragment offset field counts bytes. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> It counts units of <strong>8 bytes</strong>.
+An offset of 60 means byte
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>60</mn><mo>×</mo><mn>8</mn><mo>=</mo><mn>480</mn></mrow><annotation encoding="application/x-tex">60 \times 8 = 480</annotation></semantics></math>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+Sending a packet as fragments makes delivery more reliable. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> The datagram arrives only if
+<strong>every</strong> fragment arrives, so more fragments mean a lower
+chance:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">(1-p)^n</annotation></semantics></math>.</p>
+</div>
+</details>
+<hr />
+<h2 id="icmp-ping-and-traceroute">5. ICMP, Ping and Traceroute</h2>
+<h3 id="icmp">5.1 ICMP</h3>
+<p><strong>ICMP (Internet Control Message Protocol)</strong> carries
+control and error messages <strong>inside IP packets</strong>. It
+<strong>reports</strong> problems. It does not repair them.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 35%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Message</th>
+<th style="text-align: left;">Meaning</th>
+<th style="text-align: left;">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Echo Request / Echo Reply</td>
+<td style="text-align: left;">Testing reachability</td>
+<td style="text-align: left;"><code>ping</code></td>
+</tr>
+<tr>
+<td style="text-align: left;">Destination Unreachable</td>
+<td style="text-align: left;">The packet could not be delivered</td>
+<td style="text-align: left;">No route; or fragmentation needed with DF
+= 1</td>
+</tr>
+<tr>
+<td style="text-align: left;">Time Exceeded</td>
+<td style="text-align: left;">TTL reached 0 at a router</td>
+<td style="text-align: left;"><code>traceroute</code> uses this</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="what-ping-tells-you">5.2 What ping tells you</h3>
+<ul>
+<li>A reply proves that ICMP worked <strong>for that probe</strong>. It
+does not prove that the application (for example the website)
+works.</li>
+<li>A timeout only says that no reply came in time. It does
+<strong>not</strong> tell you the cause. Possible causes: a wrong
+gateway, a missing route on a router, a firewall rule, a wrong address
+or gateway on the server, or a server that is set not to answer
+pings.</li>
+<li>DNS is not needed when you ping a numeric address.</li>
+<li>In the output, <code>time</code> = the round-trip time, and
+<code>TTL</code> = the TTL left in the reply.</li>
+</ul>
+<h3 id="ttl">5.3 TTL</h3>
+<p><strong>TTL (Time To Live)</strong> is an IPv4 header field that
+limits how many routers a packet can pass. <strong>Each router decreases
+TTL by 1.</strong> When TTL reaches 0, the router
+<strong>discards</strong> the packet and normally sends <strong>ICMP
+Time Exceeded</strong> back to the source. This stops a packet from
+going round a routing loop for ever.</p>
+<figure>
+<img width="1400" height="436" src="media/6-artifacts/ttl-expiry.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="TTL = 2 from A: R1 forwards with TTL = 1. R2 reduces it to 0, discards it, and sends Time Exceeded." />
+<figcaption aria-hidden="true">TTL = 2 from A: R1 forwards with TTL = 1.
+R2 reduces it to 0, discards it, and sends Time Exceeded.</figcaption>
+</figure>
+<h3 id="how-traceroute-works">5.4 How traceroute works</h3>
+<p><code>traceroute</code> (<code>tracert</code> on Windows) sends
+probes with TTL = 1, then 2, then 3, and so on.</p>
+<ul>
+<li>The TTL = 1 probe dies at the 1st router, which replies with Time
+Exceeded. Now we know router 1.</li>
+<li>The TTL = 2 probe dies at the 2nd router. Now we know router 2.</li>
+<li>This continues until a probe reaches the destination, which sends an
+Echo Reply.</li>
+</ul>
+<figure>
+<img width="1400" height="403" src="media/6-artifacts/traceroute.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="Traceroute: each probe has a larger starting TTL" />
+<figcaption aria-hidden="true">Traceroute: each probe has a larger
+starting TTL</figcaption>
+</figure>
+<p><strong>Reading the output:</strong> each row is one hop. The three
+times are the round-trip times of three probes. Then comes the address
+of the router interface that replied.</p>
+<ul>
+<li>A <code>*</code> means that no reply arrived before the timeout. The
+router may still forward traffic normally. (Many routers do not answer
+probes.)</li>
+<li>Traceroute combines the replies to <strong>different</strong>
+probes. It is not one packet that reports its whole journey. Different
+probes can take different paths.</li>
+</ul>
+<h3 id="why-the-reverse-trace-shows-different-addresses">5.5 Why the
+reverse trace shows different addresses</h3>
+<p>A router has <strong>several interfaces</strong>, each with its own
+IP address. In these questions, assume <strong>a router replies with the
+interface towards the source</strong>. So the same router shows a
+different address in the trace from A to B and in the trace from B to
+A.</p>
+<figure>
+<img width="1400" height="542" src="media/6-artifacts/reverse-trace.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="The same routers appear with different addresses in each direction" />
+<figcaption aria-hidden="true">The same routers appear with different
+addresses in each direction</figcaption>
+</figure>
+<div class="table-wrap">
+<table style="width: 72%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 83%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Direction</th>
+<th style="text-align: left;">Hops shown</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">A → B</td>
+<td style="text-align: left;">192.0.2.1 (R1) → 198.51.100.2 (R2) →
+203.0.113.10 (B)</td>
+</tr>
+<tr>
+<td style="text-align: left;">B → A</td>
+<td style="text-align: left;">203.0.113.1 (R2) → 198.51.100.1 (R1) →
+192.0.2.10 (A)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+A successful ping to a web server shows that the website works. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A reply shows only that the host answers
+ICMP. The web service on that host can still be down.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A <code>*</code> in a traceroute line means that the router is broken.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> It means that no reply came before the
+timeout. Many routers forward packets but do not answer probes.</p>
+</div>
+</details>
+<hr />
+<h2 id="rebuilding-a-topology-from-traceroutes">6. Rebuilding a Topology
+from Traceroutes</h2>
+<h3 id="method-1">6.1 Method</h3>
+<ol type="1">
+<li>For each trace, write the source, every hop in order, and the
+destination.</li>
+<li>The <strong>last</strong> line of a trace is the destination host.
+The <strong>first</strong> line is the source’s gateway (the interface
+on the source’s LAN).</li>
+<li>Group addresses by network (use the given masks). Two addresses on
+the same network are the two ends of one link, or two interfaces on one
+LAN.</li>
+<li>Find addresses that belong to the <strong>same router</strong>.
+Remember that a router replies with its interface <strong>towards the
+source</strong>, so the same router shows a different address in each
+direction.</li>
+<li>Draw one diagram that explains <strong>every</strong> trace. If
+masks are missing, state your assumption. Traces alone may not give one
+unique answer.</li>
+</ol>
+<p>If a question gives no masks and tells you to assume classful
+boundaries, use the first octet: 1–126 gives /8, 128–191 gives /16, and
+192–223 gives /24 (Chapter 5, Section 3). In modern classless
+addressing, always use the given prefix or mask instead.</p>
+<h3 id="tutorial-2.2-q3">6.2 Tutorial 2.2 Q3</h3>
+<p><strong>Tutorial 2.2 Q3.</strong> The following table shows the
+results of three trace-routes. Based on the information, draw the
+network topology. Show clearly the IP addresses of all networks.</p>
+<div class="table-wrap">
+<table style="width: 66%;">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">From Station A to B</th>
+<th style="text-align: left;">From Station C to A</th>
+<th style="text-align: left;">From Station B to C</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">155.69.8.10</td>
+<td style="text-align: left;">200.20.80.12</td>
+<td style="text-align: left;">196.19.5.104</td>
+</tr>
+<tr>
+<td style="text-align: left;">10.203.20.10</td>
+<td style="text-align: left;">170.105.10.21</td>
+<td style="text-align: left;">130.21.80.90</td>
+</tr>
+<tr>
+<td style="text-align: left;">130.21.10.30</td>
+<td style="text-align: left;">80.90.10.3</td>
+<td style="text-align: left;">90.80.120.10</td>
+</tr>
+<tr>
+<td style="text-align: left;">196.19.5.5</td>
+<td style="text-align: left;">155.69.8.12</td>
+<td style="text-align: left;">170.105.10.20</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">200.20.80.15</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The trace-route results do not give subnet masks. When identifying
+the network addresses, assume the historical classful boundaries
+below:</p>
+<div class="table-wrap">
+<table style="width: 76%;">
+<colgroup>
+<col style="width: 42%" />
+<col style="width: 25%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">First octet of the IP address</th>
+<th style="text-align: left;">Historical class</th>
+<th style="text-align: left;">Assumed network prefix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1 to 126</td>
+<td style="text-align: left;">A</td>
+<td style="text-align: left;">/8</td>
+</tr>
+<tr>
+<td style="text-align: left;">128 to 191</td>
+<td style="text-align: left;">B</td>
+<td style="text-align: left;">/16</td>
+</tr>
+<tr>
+<td style="text-align: left;">192 to 223</td>
+<td style="text-align: left;">C</td>
+<td style="text-align: left;">/24</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For example, 155.69.8.9 falls within Class B. Using the assumed /16
+prefix, its network address is 155.69.0.0/16. These assumptions apply
+only to this question. In modern classless addressing, use the specified
+prefix or subnet mask to find the network boundary.</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Step 1: networks.</strong> Apply the classful prefixes:
+155.69.0.0/16, 10.0.0.0/8, 130.21.0.0/16, 196.19.5.0/24, 80.0.0.0/8,
+90.0.0.0/8, 170.105.0.0/16 and 200.20.80.0/24.</p>
+<p><strong>Step 2: hosts and the first router.</strong> The last line of
+each trace is the host: <strong>A = 155.69.8.12</strong>, <strong>B =
+196.19.5.5</strong>, <strong>C = 200.20.80.15</strong>. The first line
+is that host’s gateway, on the host’s own network.</p>
+<p><strong>Step 3: read each trace.</strong> Each router shows its
+interface <strong>towards the source</strong>.</p>
+<div class="table-wrap">
+<table style="width: 70%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 8%" />
+<col style="width: 22%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Trace</th>
+<th style="text-align: left;">Hop</th>
+<th style="text-align: left;">Address</th>
+<th style="text-align: left;">Router and network</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">A → B</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">155.69.8.10</td>
+<td style="text-align: left;">R1, on A’s net 155.69/16</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">10.203.20.10</td>
+<td style="text-align: left;">R2, on net 10/8 (R1’s side)</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">130.21.10.30</td>
+<td style="text-align: left;">R3, on net 130.21/16 (R2’s side)</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">196.19.5.5</td>
+<td style="text-align: left;">B</td>
+</tr>
+<tr>
+<td style="text-align: left;">C → A</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">200.20.80.12</td>
+<td style="text-align: left;">R5, on C’s net 200.20.80/24</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">170.105.10.21</td>
+<td style="text-align: left;">R4, on net 170.105/16 (R5’s side)</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">80.90.10.3</td>
+<td style="text-align: left;">R1, on net 80/8 (R4’s side)</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">155.69.8.12</td>
+<td style="text-align: left;">A</td>
+</tr>
+<tr>
+<td style="text-align: left;">B → C</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">196.19.5.104</td>
+<td style="text-align: left;">R3, on B’s net 196.19.5/24</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">130.21.80.90</td>
+<td style="text-align: left;">R2, on net 130.21/16 (R3’s side)</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">90.80.120.10</td>
+<td style="text-align: left;">R4, on net 90/8 (R2’s side)</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">170.105.10.20</td>
+<td style="text-align: left;">R5, on net 170.105/16 (R4’s side)</td>
+</tr>
+<tr>
+<td style="text-align: left;"></td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">200.20.80.15</td>
+<td style="text-align: left;">C</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Step 4: join the routers.</strong> Two routers that show
+addresses on the same network share that link.</p>
+<ul>
+<li>R1 and R2 share net <strong>10/8</strong> (A → B, hop 2).</li>
+<li>R2 and R3 share net <strong>130.21/16</strong>, and R3 reaches B on
+<strong>196.19.5/24</strong>.</li>
+<li>R1 and R4 share net <strong>80/8</strong> (C → A, hop 3).</li>
+<li>R2 and R4 share net <strong>90/8</strong> (B → C, hop 3).</li>
+<li>R4 and R5 share net <strong>170.105/16</strong>, and R5 reaches C on
+<strong>200.20.80/24</strong>.</li>
+</ul>
+<figure>
+<img width="1400" height="803" src="media/6-artifacts/t22-q3-topology.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="The official topology: five routers and eight networks" />
+<figcaption aria-hidden="true">The official topology: five routers and
+eight networks</figcaption>
+</figure>
+<p><em>Check:</em> A → B goes R1, R2, R3. C → A goes R5, R4, R1. B → C
+goes R3, R2, R4, R5. Every address in each trace is on the network that
+the picture shows.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> a topology from traceroutes <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Find each network’s address from the given masks (or the assumed
+classful ones).</li>
+<li>Mark the host (last line) and its gateway (first line) for each
+trace.</li>
+<li>For every middle hop, say which router it is and which network its
+interface is on. That network lies <strong>between that router and the
+previous hop</strong>.</li>
+<li>Two routers whose replies are on the same network share a link on
+that network.</li>
+<li>Draw all routers and networks, then replay each trace on your
+drawing. Each hop must be on the network that it names.</li>
+<li>A trace shows only the links that it used. Say so if other links
+might exist.</li>
+</ol>
+</div>
+</details>
+<p><strong>Extension 3.1.</strong> Three hosts X, Y and Z run traceroute
+to each other. Every network is a /24. Draw the topology.</p>
+<div class="table-wrap">
+<table style="width: 45%;">
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">From X to Y</th>
+<th style="text-align: left;">From Y to Z</th>
+<th style="text-align: left;">From Z to X</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">192.168.1.1</td>
+<td style="text-align: left;">192.168.2.1</td>
+<td style="text-align: left;">192.168.3.1</td>
+</tr>
+<tr>
+<td style="text-align: left;">10.0.12.2</td>
+<td style="text-align: left;">10.0.23.2</td>
+<td style="text-align: left;">10.0.24.2</td>
+</tr>
+<tr>
+<td style="text-align: left;">10.0.23.3</td>
+<td style="text-align: left;">10.0.24.4</td>
+<td style="text-align: left;">10.0.12.1</td>
+</tr>
+<tr>
+<td style="text-align: left;">192.168.2.20</td>
+<td style="text-align: left;">192.168.3.30</td>
+<td style="text-align: left;">192.168.1.10</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Hosts and gateways.</strong> The last lines give the hosts:
+<strong>Y = 192.168.2.20</strong>, <strong>Z = 192.168.3.30</strong>,
+<strong>X = 192.168.1.10</strong>. The first lines give the gateways: R1
+(192.168.1.1, on X’s LAN), R3 (192.168.2.1, on Y’s LAN) and R4
+(192.168.3.1, on Z’s LAN).</p>
+<p><strong>The hop before each host</strong> is that host’s gateway,
+seen from the other side.</p>
+<ul>
+<li>In X → Y, the hop before Y is 10.0.23.3. So R3 also owns
+<strong>10.0.23.3</strong>.</li>
+<li>In Y → Z, the hop before Z is 10.0.24.4. So R4 also owns
+<strong>10.0.24.4</strong>.</li>
+<li>In Z → X, the hop before X is 10.0.12.1. So R1 also owns
+<strong>10.0.12.1</strong>.</li>
+</ul>
+<p><strong>The router in the middle.</strong> Each trace has one hop
+left: 10.0.12.2, 10.0.23.2 and 10.0.24.2. Each is on the same /24 as one
+gateway’s link address (10.0.12.1, 10.0.23.3, 10.0.24.4), so each is the
+far end of that link. One router, <strong>R2</strong>, with all three
+interfaces, explains all three traces.</p>
+<pre><code>LAN X 192.168.1.0/24 — R1 —(10.0.12.0/24)— R2 —(10.0.23.0/24)— R3 — LAN Y 192.168.2.0/24
+                                            |
+                                      (10.0.24.0/24)
+                                            |
+                                           R4 — LAN Z 192.168.3.0/24</code></pre>
+<p><em>Check:</em> X → Y goes R1, R2, R3. Y → Z goes R3, R2, R4. Z → X
+goes R4, R2, R1. Each reply address is that router’s interface on the
+network that the packet came in from. ✓</p>
+</div>
+</details>
+<p><strong>Extension 3.2.</strong> Traceroutes show these addresses
+inside two organisations. Organisation P: 150.40.66.9, 150.40.70.3 and
+150.40.79.200. Organisation Q: 120.8.130.5 and 120.8.131.77. Find the
+smallest CIDR block that holds each organisation’s addresses.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Take the <strong>longest common prefix</strong> of the addresses
+(Chapter 5, Section 7).</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 37%" />
+<col style="width: 14%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Organisation</th>
+<th style="text-align: left;">Changing octet in binary</th>
+<th style="text-align: left;">Shared bits</th>
+<th style="text-align: left;">Block</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">P</td>
+<td style="text-align: left;">66 = 0100 0010, 70 = 0100 0110, 79 = 0100
+1111</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">16 + 4 = /20, so
+<strong>150.40.64.0/20</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Q</td>
+<td style="text-align: left;">130 = 1000 0010, 131 = 1000 0011</td>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">16 + 7 = /23, so
+<strong>120.8.130.0/23</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><em>Check:</em> 150.40.64.0/20 covers 64–79 in the 3rd octet, and 66,
+70 and 79 are inside. 120.8.130.0/23 covers 130–131. ✓</p>
+</div>
+</details>
+<hr />
+<h2 id="exam-patterns">Exam patterns</h2>
+<p>Tutorial sources: Tutorial 2.2 Q1 (ping through a switch), Q2 (ping
+through a router), Q3 (topology from traceroutes); Tutorial 2.1 Q4
+(fragmentation). The other patterns come from the lecture’s own
+examples. Past-year papers are not in these notes.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 34%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th>Question type</th>
+<th>How to attack it</th>
+<th>Trap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frame table for a ping</td>
+<td>Local or remote first, then ARP target, then the four frames. Count
+only frames on the station’s own LAN.</td>
+<td>Putting the destination’s MAC in a frame for a remote host. Listing
+frames A cannot see.</td>
+</tr>
+<tr>
+<td>Switch actions</td>
+<td>Learn the source. Forward on the destination. Flood broadcast and
+unknown.</td>
+<td>Learning from the destination</td>
+</tr>
+<tr>
+<td>Router actions</td>
+<td>Update ARP cache, ARP on the far side if needed, new frame, TTL
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">-1</annotation></semantics></math></td>
+<td>Forgetting the router’s own ARP on the other LAN</td>
+</tr>
+<tr>
+<td>Wrong mask</td>
+<td>AND with the <strong>host’s</strong> mask. Local means ARP for the
+target, which nobody answers.</td>
+<td>Using the correct mask in your head</td>
+</tr>
+<tr>
+<td>Longest-prefix match</td>
+<td>List all matches, take the largest <code>/n</code></td>
+<td>Forgetting that the more specific entry must contain the
+address</td>
+</tr>
+<tr>
+<td>Fragmentation table</td>
+<td>Data, max data (round down to 8), count, offsets, MF</td>
+<td>Not rounding to a multiple of 8. Using bytes for the offset. MF = 1
+on the last.</td>
+</tr>
+<tr>
+<td>Loss with fragments</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">(1-p)^n</annotation></semantics></math>.
+Sent twice:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>p</mi><mo>′</mo></msup><mo>=</mo><msup><mi>p</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">p&#39; = p^2</annotation></semantics></math></td>
+<td>Using
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mi>n</mi><mi>p</mi></mrow><annotation encoding="application/x-tex">1 - np</annotation></semantics></math></td>
+</tr>
+<tr>
+<td>Topology from traceroutes</td>
+<td>Last line = host, first line = gateway, routers reply with the
+interface towards the source</td>
+<td>Treating two addresses of one router as two routers</td>
+</tr>
+<tr>
+<td>True/false</td>
+<td>ARP request is broadcast. Switch learns the source. Only the
+destination reassembles. Ping reply is not application proof.</td>
+<td>See Common Traps</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="common-traps">Common Traps</h2>
+<ul>
+<li><strong>Host decision:</strong> AND the destination with <strong>its
+own</strong> mask. Local: ARP the destination. Remote: ARP the
+<strong>gateway</strong>.</li>
+<li><strong>Remote frames:</strong> the Ethernet destination is the
+gateway’s MAC, but the IP destination is still the final host.</li>
+<li><strong>What changes per hop:</strong> the MAC addresses change on
+every hop, and TTL decreases by 1 with a new checksum. IP addresses stay
+the same (no NAT).</li>
+<li><strong>ARP:</strong> the request is an Ethernet broadcast and the
+reply is a unicast. Routers never forward ARP.</li>
+<li><strong>Switch:</strong> it learns from the <strong>source</strong>
+MAC, forwards on the <strong>destination</strong> MAC, and floods
+broadcasts and unknown destinations.</li>
+<li><strong>One LAN at a time:</strong> a station sees only the frames
+on its <strong>own</strong> LAN.</li>
+<li><strong>Longest-prefix match:</strong> check that the entry matches
+first, then take the largest /n. The default route /0 is the last
+choice.</li>
+<li><strong>MTU</strong> counts the IP header and data, not the Ethernet
+header.</li>
+<li><strong>Fragments:</strong> data per fragment is a multiple of 8
+(except the last). Offset = start byte / 8. Last MF = 0. Same ID in all.
+A fragment can be fragmented again. Reassembly happens only at the
+destination.</li>
+<li><strong>Read the size:</strong> check whether a size is the Total
+Length or the data length before you subtract the header.</li>
+<li><strong>Loss:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">all fragments arrive</mtext><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><msup><mo stretchy="false" form="postfix">)</mo><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">P(\text{all fragments arrive}) = (1-p)^n</annotation></semantics></math>.
+One lost fragment loses the whole datagram.</li>
+<li><strong>Ping:</strong> a reply proves ICMP works, not that the
+application works. A timeout does not tell you the cause.</li>
+<li><strong>Traceroute:</strong> a router replies with the interface
+towards the source. <code>*</code> does not mean the router is
+broken.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/5-ip-addressing/5.html">← 5.
+Network Layer: IP Addressing</a>
+  <a class="next-page" href="../../notes/7-routing/7.html">7. Network
+Layer: Routing (RIP, OSPF, BGP) →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

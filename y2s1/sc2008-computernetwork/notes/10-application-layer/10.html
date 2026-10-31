@@ -1,0 +1,2768 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>10. Application Layer: HTTP and DNS · SC2008 Computer
+Network</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">10. Application
+Layer: HTTP and DNS</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2008</p>
+  <p class="site-title">Computer Network</p>
+  <h1 class="page-title">10. Application Layer: HTTP and DNS</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 1</h2>
+          <ul>
+            <li><a href="../../notes/1-networklayers/1.html"
+                   data-nav="notes/1-networklayers/1.html">1. Network
+Layers and Physical Resilience</a></li>
+            <li><a href="../../notes/2-dll-flow-error-control/2.html"
+                   data-nav="notes/2-dll-flow-error-control/2.html">2.
+Data Link Layer (DLL): Flow &amp; Error Control</a></li>
+            <li><a href="../../notes/3-dll-mac-lan/3.html"
+                   data-nav="notes/3-dll-mac-lan/3.html">3. Data Link
+Layer (DLL): Medium Access Control &amp; LANs</a></li>
+            <li><a href="../../notes/4-network-paradigms/4.html"
+                   data-nav="notes/4-network-paradigms/4.html">4.
+Network Paradigms</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 2</h2>
+          <ul>
+            <li><a href="../../notes/5-ip-addressing/5.html"
+                   data-nav="notes/5-ip-addressing/5.html">5. Network
+Layer: IP Addressing</a></li>
+            <li><a href="../../notes/6-ip-forwarding/6.html"
+                   data-nav="notes/6-ip-forwarding/6.html">6. Network
+Layer: Forwarding, ARP, Fragmentation &amp; ICMP</a></li>
+            <li><a href="../../notes/7-routing/7.html"
+                   data-nav="notes/7-routing/7.html">7. Network Layer:
+Routing (RIP, OSPF, BGP)</a></li>
+            <li><a href="../../notes/8-routing-practice/8.html"
+                   data-nav="notes/8-routing-practice/8.html">8. Routing
+in Practice</a></li>
+            <li><a href="../../notes/9-transport/9.html"
+                   data-nav="notes/9-transport/9.html">9. Transport
+Layer: Ports, UDP and TCP</a></li>
+            <li><a href="../../notes/10-application-layer/10.html"
+                   data-nav="notes/10-application-layer/10.html">10.
+Application Layer: HTTP and DNS</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#application-layer-http-and-dns"
+id="toc-application-layer-http-and-dns">10. Application Layer: HTTP and
+DNS</a>
+<ul>
+<li><a href="#quick-reference" id="toc-quick-reference">Quick
+reference</a></li>
+<li><a href="#what-the-application-layer-adds"
+id="toc-what-the-application-layer-adds">1. What the Application Layer
+Adds</a>
+<ul>
+<li><a href="#the-problem-right-bytes-no-meaning"
+id="toc-the-problem-right-bytes-no-meaning">1.1 The problem: right
+bytes, no meaning</a></li>
+<li><a href="#who-talks-to-whom" id="toc-who-talks-to-whom">1.2 Who
+talks to whom</a></li>
+<li><a href="#sockets-ports-and-the-transport-choice"
+id="toc-sockets-ports-and-the-transport-choice">1.3 Sockets, ports and
+the transport choice</a></li>
+<li><a
+href="#delivered-is-not-understood-from-live-lecture-4.5-background"
+id="toc-delivered-is-not-understood-from-live-lecture-4.5-background">1.4
+Delivered is not understood (from Live Lecture 4.5, background)</a></li>
+</ul></li>
+<li><a href="#http-asking-for-a-web-resource"
+id="toc-http-asking-for-a-web-resource">2. HTTP: Asking for a Web
+Resource</a>
+<ul>
+<li><a href="#resources-objects-and-urls"
+id="toc-resources-objects-and-urls">2.1 Resources, objects and
+URLs</a></li>
+<li><a href="#the-request" id="toc-the-request">2.2 The request</a></li>
+<li><a href="#the-response-and-the-status-code"
+id="toc-the-response-and-the-status-code">2.3 The response and the
+status code</a></li>
+<li><a href="#where-does-a-message-end"
+id="toc-where-does-a-message-end">2.4 Where does a message end?</a></li>
+<li><a href="#https" id="toc-https">2.5 HTTPS</a></li>
+</ul></li>
+<li><a href="#connections-and-state" id="toc-connections-and-state">3.
+Connections and State</a>
+<ul>
+<li><a href="#how-many-tcp-connections"
+id="toc-how-many-tcp-connections">3.1 How many TCP connections?</a></li>
+<li><a href="#counting-round-trips" id="toc-counting-round-trips">3.2
+Counting round trips</a></li>
+<li><a href="#remembering-a-user-cookies-and-sessions"
+id="toc-remembering-a-user-cookies-and-sessions">3.3 Remembering a user:
+cookies and sessions</a></li>
+</ul></li>
+<li><a href="#caching-and-modern-http"
+id="toc-caching-and-modern-http">4. Caching and Modern HTTP</a>
+<ul>
+<li><a href="#freshness-may-i-reuse-my-copy"
+id="toc-freshness-may-i-reuse-my-copy">4.1 Freshness: may I reuse my
+copy?</a></li>
+<li><a href="#validation-is-my-stale-copy-still-current"
+id="toc-validation-is-my-stale-copy-still-current">4.2 Validation: is my
+stale copy still current?</a></li>
+<li><a href="#where-can-copies-be-stored"
+id="toc-where-can-copies-be-stored">4.3 Where can copies be
+stored?</a></li>
+<li><a href="#http2-and-http3" id="toc-http2-and-http3">4.4 HTTP/2 and
+HTTP/3</a></li>
+</ul></li>
+<li><a href="#dns-names-to-addresses" id="toc-dns-names-to-addresses">5.
+DNS: Names to Addresses</a>
+<ul>
+<li><a href="#the-problem-and-the-people-in-a-lookup"
+id="toc-the-problem-and-the-people-in-a-lookup">5.1 The problem and the
+people in a lookup</a></li>
+<li><a href="#names-and-records" id="toc-names-and-records">5.2 Names
+and records</a></li>
+<li><a href="#publishing-a-name" id="toc-publishing-a-name">5.3
+Publishing a name</a></li>
+<li><a href="#following-a-lookup" id="toc-following-a-lookup">5.4
+Following a lookup</a></li>
+<li><a href="#caching-and-ttl-why-a-change-takes-time"
+id="toc-caching-and-ttl-why-a-change-takes-time">5.5 Caching and TTL:
+why a change takes time</a></li>
+<li><a href="#dns-messages-travel-in-udp-or-tcp"
+id="toc-dns-messages-travel-in-udp-or-tcp">5.6 DNS messages travel in
+UDP or TCP</a></li>
+</ul></li>
+<li><a href="#a-complete-web-request" id="toc-a-complete-web-request">6.
+A Complete Web Request</a>
+<ul>
+<li><a href="#the-first-request-frame-by-frame"
+id="toc-the-first-request-frame-by-frame">6.1 The first request, frame
+by frame</a></li>
+<li><a href="#what-if-the-resolver-is-outside-the-subnet"
+id="toc-what-if-the-resolver-is-outside-the-subnet">6.2 What if the
+resolver is outside the subnet?</a></li>
+<li><a href="#tutorial-2.3-q3b" id="toc-tutorial-2.3-q3b">6.3 Tutorial
+2.3 Q3b</a></li>
+<li><a href="#is-it-dns-test-the-name-and-the-address-separately"
+id="toc-is-it-dns-test-the-name-and-the-address-separately">6.4 Is it
+DNS? Test the name and the address separately</a></li>
+</ul></li>
+<li><a href="#exam-patterns" id="toc-exam-patterns">Exam
+patterns</a></li>
+<li><a href="#common-traps" id="toc-common-traps">Common Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="application-layer-http-and-dns">10. Application Layer: HTTP and
+DNS</h1>
+<p>This chapter covers Part II Lecture 5, Parts I and II (HTTP, then
+DNS). Chapter 9 showed how TCP and UDP deliver bytes to the right
+program. This chapter asks what those bytes mean. It follows one web
+page from the name you type to the page on the screen. The live lectures
+(Lectures 0, 3.5 and 4.5) are not tested. This chapter uses them only as
+background, and says so where it does.</p>
+<p>The exam asks you to read an HTTP message, say what a status code or
+a timeout proves, count the round trips (RTT) to load a page, decide
+whether a cache must contact the server, follow a DNS lookup, work out
+which address a DNS cache returns after a change, and list every frame a
+laptop sends and receives before the first page content arrives (ARP,
+DNS, TCP, HTTP).</p>
+<p>The questions sit in drawers after the concept they test. The
+lecture’s own examples are written as questions. Tutorial 2.3 Q3b is
+here. <strong>No solutions were released for Tutorial 2.3, so its answer
+is unofficial.</strong> Concept checks and extensions are unofficial.
+Past-year papers are not copied into these notes, but the Exam patterns
+table says where each pattern appeared.</p>
+<hr />
+<h2 id="quick-reference">Quick reference</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 73%" />
+</colgroup>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Application protocol</td>
+<td>Defines message types, syntax (format), semantics (meaning) and
+behaviour (who sends what, when). TCP delivers bytes. It does not give
+them meaning.</td>
+</tr>
+<tr>
+<td>Ports</td>
+<td>HTTP 80, HTTPS 443, DNS 53 (UDP, or TCP for a truncated reply), SMTP
+25, IMAP 143, SSH 22, DHCP 67 (server) and 68 (client), both UDP</td>
+</tr>
+<tr>
+<td>URL</td>
+<td><code>scheme://hostname/path?query</code>. DNS resolves
+<strong>only</strong> the hostname.</td>
+</tr>
+<tr>
+<td>HTTP request</td>
+<td>Request line (method, target, version), header fields, empty line,
+optional body</td>
+</tr>
+<tr>
+<td>HTTP response</td>
+<td>Status line (version, code, text), header fields, empty line,
+optional body</td>
+</tr>
+<tr>
+<td>Status codes</td>
+<td>2xx success. 3xx redirect (301, 302) or reuse your copy (304). 4xx
+client side (401, 403, 404). 5xx server side (500, 503). <strong>Timeout
+= no HTTP response at all.</strong></td>
+</tr>
+<tr>
+<td>GET and POST</td>
+<td>GET reads (data in the URL). POST sends data in the body. Neither
+encrypts. HTTPS encrypts.</td>
+</tr>
+<tr>
+<td>HTTPS</td>
+<td>HTTP over TLS over TCP, port 443. TLS encrypts, detects tampering,
+authenticates the server.</td>
+</tr>
+<tr>
+<td>Page delay</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+objects, one at a time. New connection each:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">2n</annotation></semantics></math>
+RTT. One persistent connection:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">1 + n</annotation></semantics></math>
+RTT.</td>
+</tr>
+<tr>
+<td>Stateless</td>
+<td>The server need not remember earlier requests. A
+<strong>cookie</strong> (browser) plus a <strong>session</strong>
+(server) link them.</td>
+</tr>
+<tr>
+<td>Cache</td>
+<td><strong>Fresh</strong> (age &lt; max-age): reuse, no request.
+<strong>Stale</strong>: conditional GET with <code>If-None-Match</code>.
+<code>304</code> = reuse, no body. <code>200</code> = new body.</td>
+</tr>
+<tr>
+<td>HTTP/2 and HTTP/3</td>
+<td>HTTP/2: many streams, one TCP connection, so one lost segment delays
+all. HTTP/3: streams over QUIC (UDP), so a loss delays only its own
+stream.</td>
+</tr>
+<tr>
+<td>DNS</td>
+<td>Name to IP address. Device asks its <strong>resolver</strong>. The
+resolver asks root, then TLD, then the authoritative server.</td>
+</tr>
+<tr>
+<td>Resource record</td>
+<td>Name, type, data, TTL. A = IPv4, AAAA = IPv6, CNAME = alias, NS =
+nameserver, MX = mail.</td>
+</tr>
+<tr>
+<td>TTL</td>
+<td>A cache may reuse a record until its TTL runs out. A change reaches
+every cache within one TTL, and not before.</td>
+</tr>
+<tr>
+<td>Web request frames</td>
+<td>ARP (next hop), DNS query and reply, TCP SYN, SYN+ACK, ACK, HTTP
+GET, first reply. <strong>Ethernet destination = next hop. IP
+destination = final host.</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="what-the-application-layer-adds">1. What the Application Layer
+Adds</h2>
+<h3 id="the-problem-right-bytes-no-meaning">1.1 The problem: right
+bytes, no meaning</h3>
+<p>IP gets a packet to the right host. TCP or UDP gets the data to the
+right program. The bytes then arrive in the program. The program still
+does not know what they mean.</p>
+<p>Example: TCP can deliver the characters <code>MOVE 1</code>. It
+cannot say whether <code>1</code> is a step, a metre or a speed, or what
+reply to send. Two programs must agree on this first. The agreement is
+an <strong>application protocol</strong>. It states four things:</p>
+<div class="table-wrap">
+<table style="width: 86%;">
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 72%" />
+</colgroup>
+<thead>
+<tr>
+<th>Part of the agreement</th>
+<th>Question it answers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Message types</td>
+<td>Is this a request, a reply or an error?</td>
+</tr>
+<tr>
+<td>Syntax</td>
+<td>Where are the operation, the resource and the data written?</td>
+</tr>
+<tr>
+<td>Semantics</td>
+<td>What does each field or operation mean?</td>
+</tr>
+<tr>
+<td>Behaviour</td>
+<td>When is a message sent, and what happens next?</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The web uses these terms: the <strong>network application</strong> is
+the World Wide Web, the <strong>application processes</strong> are a
+browser and a web server, and the <strong>application protocol</strong>
+is HTTP. Two different programs can talk if both follow the same
+protocol.</p>
+<p>The lecture’s teaching protocol is a score service. The client sends
+<code>SCORE ROBOTS</code> plus a newline. The server replies
+<code>RESULT 3</code>. The newline marks the end of a message, and one
+request gets one result or one error. TCP carries these bytes but
+defines none of the rules.</p>
+<p><strong>Encapsulation</strong> puts the application’s bytes inside
+the lower layers. The client writes <code>SCORE ROBOTS</code> to a TCP
+socket. TCP adds its header. IP adds its header. Ethernet adds its
+header and trailer. The receiver unpacks each layer in turn, and the
+application reads the bytes using its own rules.</p>
+<figure>
+<img width="1320" height="266" src="media/10-artifacts/encapsulation-score.webp"
+style="width:70.0%" loading="lazy" decoding="async"
+alt="The application data (green) sits inside a TCP segment (orange), inside an IP packet (blue), inside an Ethernet frame (grey)" />
+<figcaption aria-hidden="true">The application data (green) sits inside
+a TCP segment (orange), inside an IP packet (blue), inside an Ethernet
+frame (grey)</figcaption>
+</figure>
+<p>The OSI model has three upper layers (application, presentation,
+session). The Internet model groups them into one <strong>application
+layer</strong>. The functions are still needed. Only the grouping
+differs.</p>
+<h3 id="who-talks-to-whom">1.2 Who talks to whom</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 39%" />
+<col style="width: 39%" />
+</colgroup>
+<thead>
+<tr>
+<th>Architecture</th>
+<th>Rule</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Client-server</strong></td>
+<td>Clients start requests. Server processes supply the service.</td>
+<td>Browser and web server</td>
+</tr>
+<tr>
+<td><strong>Peer-to-peer (P2P)</strong></td>
+<td>Every participant both requests and supplies data.</td>
+<td>BitTorrent: peers swap file pieces. A separate service may still
+help peers find each other.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>One machine can play both roles. A web server can be a client of a
+database service.</p>
+<h3 id="sockets-ports-and-the-transport-choice">1.3 Sockets, ports and
+the transport choice</h3>
+<p>A <strong>socket</strong> is the endpoint through which a program
+uses a transport service. IP addresses and ports name the two endpoints.
+Example: the browser’s socket is <code>192.0.2.10:51000</code>, and the
+web server’s socket is <code>198.51.100.80:80</code>. The server uses
+the well-known port. The browser’s operating system picks the temporary
+port (Chapter 9, section 2).</p>
+<p>A TCP server needs two kinds of socket. The OS performs the
+handshake. No call is itself a TCP packet.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr>
+<th>Call</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Server: <code>bind(address, port)</code></td>
+<td>Attach the socket to the server’s address and service port.</td>
+</tr>
+<tr>
+<td>Server: <code>listen()</code></td>
+<td>Make it a listening socket that waits for clients.</td>
+</tr>
+<tr>
+<td>Client: <code>connect(server)</code></td>
+<td>Ask the OS to set up a TCP connection.</td>
+</tr>
+<tr>
+<td>Server: <code>accept()</code></td>
+<td>Return a <strong>new connected socket</strong> for this one client.
+The listening socket stays free for the next client.</td>
+</tr>
+<tr>
+<td><code>send</code> / <code>recv</code> (TCP)</td>
+<td>Write bytes. Read bytes. A <code>recv</code> can return only
+<strong>part</strong> of a message.</td>
+</tr>
+<tr>
+<td><code>sendto</code> / <code>recvfrom</code> (UDP)</td>
+<td>Send or receive <strong>one whole datagram</strong>. No handshake. A
+successful <code>sendto</code> does not mean delivery.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Which transport does the application need?</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Application need</th>
+<th>Transport</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Correct, ordered contents (a file, a web page, email)</td>
+<td>TCP</td>
+</tr>
+<tr>
+<td>Fresh data matters more than complete data (a game position, a voice
+call)</td>
+<td>UDP. The application chooses its own recovery.</td>
+</tr>
+<tr>
+<td>Messages kept separate</td>
+<td>UDP keeps datagram boundaries. Over TCP, <strong>the
+application</strong> must mark the boundaries.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3
+id="delivered-is-not-understood-from-live-lecture-4.5-background">1.4
+Delivered is not understood (from Live Lecture 4.5, background)</h3>
+<ul>
+<li><strong>A TCP ACK is not an application reply.</strong> The ACK says
+the bytes reached the receiver’s TCP buffer. The application may not
+have read them yet, and a disk-full error can still follow. So the
+upload protocol needs its own reply (“Saved” or “Storage error”). TCP
+carries that reply as ordinary data in the other direction.</li>
+<li><strong>TCP has no message boundaries.</strong> One
+<code>send</code> need not match one <code>recv</code>. The application
+marks the end of a message: a length field first (“Length: 5000, then
+5000 bytes”), a fixed size, or a delimiter such as the newline
+above.</li>
+<li><strong>End of the file is not end of the connection.</strong> The
+application’s own framing marks the end of the file. A FIN only means “I
+send no more bytes”. The other side may still reply (a half-close,
+Chapter 9, section 6).</li>
+</ul>
+<details class="qa box">
+<summary>
+The server’s TCP sends an ACK for all the upload bytes, so the file is
+saved. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> The ACK only says the bytes reached the
+receiver’s TCP buffer. The server program may not have read them, and
+the save can still fail. The upload protocol must send its own
+reply.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+One <code>send</code> of 5000 bytes at the client is always one
+<code>recv</code> of 5000 bytes at the server. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> TCP is a byte stream. It keeps the order but
+not the write boundaries. A <code>recv</code> can return part of the
+5000 bytes, so the server keeps reading until the agreed length has
+arrived.</p>
+</div>
+</details>
+<hr />
+<h2 id="http-asking-for-a-web-resource">2. HTTP: Asking for a Web
+Resource</h2>
+<h3 id="resources-objects-and-urls">2.1 Resources, objects and URLs</h3>
+<p><strong>HTTP</strong> (Hypertext Transfer Protocol) is a
+<strong>request-response</strong> protocol. The client sends a request.
+The server sends one response. A <strong>resource</strong> is the thing
+requested (a page, a score). A <strong>representation</strong> is data
+about it that comes back (an HTML document, or JSON for a web API).</p>
+<p>One displayed page needs <strong>several objects</strong>. The
+browser first gets the HTML file. It reads the HTML, finds the other
+objects (a style sheet <code>site.css</code>, an image
+<code>team.png</code>), and requests each one. So one page means several
+request-response exchanges. The browser learns the image URLs only after
+it has the HTML.</p>
+<p>A <strong>URL</strong> names a resource:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 48%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr>
+<th>Part</th>
+<th>In <code>https://www.example.com/scores?team=robots</code></th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scheme</td>
+<td><code>https</code></td>
+<td>HTTP with encryption and authentication</td>
+</tr>
+<tr>
+<td>Hostname</td>
+<td><code>www.example.com</code></td>
+<td>The name that DNS resolves to an address</td>
+</tr>
+<tr>
+<td>Path</td>
+<td><code>/scores</code></td>
+<td>The resource on that server</td>
+</tr>
+<tr>
+<td>Query</td>
+<td><code>team=robots</code></td>
+<td>A parameter given to that resource</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>DNS resolves <strong>only the hostname</strong>. The path and query
+go to the server inside the HTTP request.</p>
+<h3 id="the-request">2.2 The request</h3>
+<p>HTTP/1.1 messages are text. A request has a request line, header
+fields, an empty line, and an optional body.</p>
+<pre><code>GET /scores?team=robots HTTP/1.1
+Host: www.example.com
+Accept: application/json
+</code></pre>
+<ul>
+<li><code>GET</code> is the <strong>method</strong>: read the resource.
+<code>/scores?team=robots</code> is the target. <code>HTTP/1.1</code> is
+the version.</li>
+<li><code>Host</code> names the website. It lets one server (one IP
+address) host many sites.</li>
+<li><code>Accept</code> lists the formats the client prefers.</li>
+<li>The <strong>empty line</strong> ends the headers. This request has
+no body.</li>
+</ul>
+<p>A <code>POST</code> carries data in the body:</p>
+<pre><code>POST /join HTTP/1.1
+Host: www.example.com
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 8
+
+name=Mei</code></pre>
+<p><code>Content-Type</code> gives the body’s format.
+<code>Content-Length: 8</code> gives its size in bytes
+(<code>name=Mei</code> is 8 bytes).</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 42%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>GET</th>
+<th>POST</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Purpose</td>
+<td>Read a representation</td>
+<td>Ask the server to process the data</td>
+</tr>
+<tr>
+<td>Where the form data goes</td>
+<td>In the URL (<code>/scores?team=robots</code>)</td>
+<td>In the body</td>
+</tr>
+<tr>
+<td>Side effects</td>
+<td>None intended</td>
+<td>May change server state. Repeating may submit twice.</td>
+</tr>
+<tr>
+<td>Privacy</td>
+<td>The URL can appear in history and logs</td>
+<td>The body stays out of the URL, but may still be logged</td>
+</tr>
+<tr>
+<td>Encryption</td>
+<td><strong>Neither one encrypts.</strong> HTTPS protects both.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Use POST for password forms and changes, <strong>with
+HTTPS</strong>.</p>
+<h3 id="the-response-and-the-status-code">2.3 The response and the
+status code</h3>
+<pre><code>HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 11
+
+{&quot;score&quot;:3}</code></pre>
+<p>The status line holds the version, the code and a reason. The headers
+describe the body. <code>Content-Type</code> says <strong>what</strong>
+the body is (<code>text/html</code>, <code>image/png</code>,
+<code>application/json</code>). <code>Content-Length</code> says
+<strong>how many bytes</strong> it has (<code>{"score":3}</code> is 11
+bytes).</p>
+<div class="table-wrap">
+<table style="width: 70%;">
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 72%" />
+</colgroup>
+<thead>
+<tr>
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200 OK</td>
+<td>Success</td>
+</tr>
+<tr>
+<td>301, 302</td>
+<td>Redirect: ask another URL</td>
+</tr>
+<tr>
+<td>304 Not Modified</td>
+<td>Your cached copy is still good. No body follows.</td>
+</tr>
+<tr>
+<td>401, 403, 404</td>
+<td>Login needed, access refused, not found</td>
+</tr>
+<tr>
+<td>500, 503</td>
+<td>Server error, service unavailable</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A status code is an <strong>HTTP-level</strong> result. A
+<strong>timeout</strong> is different: no HTTP response came at all, so
+the cause is unknown (connection, filter, server). Do not call a timeout
+a 404.</p>
+<h3 id="where-does-a-message-end">2.4 Where does a message end?</h3>
+<p>TCP gives one stream of bytes. HTTP/1.1 supplies the boundaries:
+<code>Content-Length</code> gives the body size (the headers end at the
+empty line). Other cases exist: <strong>chunked</strong> transfer sends
+the length of each chunk, and some responses (such as 304) have no body.
+An HTTP message and a TCP segment are different units. One body can span
+several segments.</p>
+<h3 id="https">2.5 HTTPS</h3>
+<p><strong>HTTPS</strong> is HTTP over a protected connection.
+<strong>TLS</strong> (Transport Layer Security) sits between HTTP and
+TCP. It encrypts the messages, detects tampering and normally
+authenticates the server. The stack is HTTP, TLS, TCP, IP. HTTPS uses
+TCP port 443. A server’s HTTP and HTTPS ports are different, so the
+browser picks the port from the scheme.</p>
+<p><strong>Example Question (lecture): one page, three different
+outcomes.</strong> A browser loads the club page. Its requests give
+these results:</p>
+<div class="table-wrap">
+<table style="width: 51%;">
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 64%" />
+</colgroup>
+<thead>
+<tr>
+<th>Resource</th>
+<th>Observed result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/index.html</code></td>
+<td>200 OK, with an HTML body</td>
+</tr>
+<tr>
+<td><code>/team-photo.png</code></td>
+<td>404 Not Found</td>
+</tr>
+<tr>
+<td><code>/api/scores</code></td>
+<td>Timeout, with no HTTP response</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ol type="a">
+<li>What does the 404 establish? (b) What does the timeout establish?
+(c) Would POST fix the timeout or encrypt the request?</li>
+</ol>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="a">
+<li><p>The server <strong>answered</strong>, and said it has no such
+resource at that path. Check the requested path and the server’s
+configuration. A 404 is an application-level result, so the connection
+works.</p></li>
+<li><p>Nothing, except that <strong>no HTTP response arrived</strong>
+before the timer ran out. The cause is still unknown. Check the
+connection, any filtering, and the service itself.</p></li>
+<li><p><strong>No.</strong> POST only changes the request’s meaning. It
+does not repair a connection and does not encrypt. HTTPS protects HTTP
+in transit.</p></li>
+</ol>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A POST request is encrypted, so a password form is safe without HTTPS.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> POST puts the data in the body, out of the
+URL, but it is still plain text on the wire. Only HTTPS encrypts it.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A 404 response means the web server is down. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A 404 is an HTTP response, so the server is
+up and answering. It says that one resource was not found. A server that
+is down gives a timeout or a connection error, not an HTTP status.</p>
+</div>
+</details>
+<hr />
+<h2 id="connections-and-state">3. Connections and State</h2>
+<h3 id="how-many-tcp-connections">3.1 How many TCP connections?</h3>
+<p>HTTP needs a TCP connection (Chapter 9, section 6). The question is
+how many to open.</p>
+<ul>
+<li><strong>Non-persistent HTTP:</strong> a <strong>new</strong> TCP
+connection for each request-response exchange. Close it after the
+response.</li>
+<li><strong>Persistent HTTP:</strong> <strong>reuse</strong> one TCP
+connection for several exchanges. HTTP/1.1 does this by default.</li>
+</ul>
+<h3 id="counting-round-trips">3.2 Counting round trips</h3>
+<p>The <strong>round-trip time (RTT)</strong> is the time for a small
+packet to go to the server and back. The lecture’s model ignores DNS,
+TLS, processing, loss and the time to transmit an object, and allows no
+pipelining or parallel connections. Under this model:</p>
+<figure>
+<img width="1216" height="514" src="media/10-artifacts/rtt-new-connection.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="A small object on a new connection takes about 2 RTT: 1 for TCP setup, 1 for the request and its response" />
+<figcaption aria-hidden="true">A small object on a new connection takes
+about 2 RTT: 1 for TCP setup, 1 for the request and its
+response</figcaption>
+</figure>
+<ul>
+<li>The SYN and SYN+ACK take <strong>1 RTT</strong>. The last ACK of the
+handshake carries the HTTP request, so it adds no extra RTT.</li>
+<li>The request and its response take <strong>1 RTT</strong>.</li>
+</ul>
+<p>So a small object on a new connection costs about <strong>2
+RTT</strong>.</p>
+<p><strong>Example Question (lecture): a page and two images.</strong>
+One HTML document refers to two images on the same server. RTT = 40 ms.
+The browser learns the image URLs only after it receives the HTML. Fetch
+all three objects one at a time. No content or connection is cached.
+Compare a new TCP connection per object with one persistent connection.
+How many RTT, and how many milliseconds, does each need? Ignore DNS,
+TLS, processing, loss and object transmission time. No pipelining or
+parallelism.</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<div class="table-wrap">
+<table style="width: 85%;">
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 44%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th>Arrangement</th>
+<th>RTT calculation</th>
+<th>Delay</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New connection per object</td>
+<td>3 × (1 setup + 1 exchange) = <strong>6 RTT</strong></td>
+<td>6 × 40 = <strong>240 ms</strong></td>
+</tr>
+<tr>
+<td>One persistent connection</td>
+<td>1 setup + 3 exchanges = <strong>4 RTT</strong></td>
+<td>4 × 40 = <strong>160 ms</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Saving = 2 RTT = 80 ms. It comes from skipping two TCP
+handshakes.</p>
+<p><em>Check:</em> the saving is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(n - 1)</annotation></semantics></math>
+RTT with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">n = 3</annotation></semantics></math>
+objects, so 2 RTT. ✓</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> delay of a page,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+objects, one at a time <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Count the objects
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>:
+the HTML file plus every object it names.</li>
+<li>Non-persistent:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">2n</annotation></semantics></math>
+RTT. Persistent:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">1 + n</annotation></semantics></math>
+RTT. The saving is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - 1</annotation></semantics></math>
+RTT.</li>
+<li>Multiply by the RTT.</li>
+<li>If the question gives a DNS lookup time, add it
+<strong>once</strong>, before the first TCP setup. If it gives the
+transmission time of each object, add that to each exchange.</li>
+<li>The objects after the HTML can start only when the HTML has arrived,
+because the browser reads the URLs from it.</li>
+</ol>
+</div>
+</details>
+<p><strong>Extension 3.1.</strong> A page has one HTML file and five
+images, all on one server. RTT = 50 ms. Compare non-persistent and
+persistent HTTP, one object at a time. Ignore everything the lecture
+ignores.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1</mn><mo>+</mo><mn>5</mn><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">n = 1 + 5 = 6</annotation></semantics></math>
+objects.</p>
+<ul>
+<li>Non-persistent:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>×</mo><mn>6</mn><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">2 \times 6 = 12</annotation></semantics></math>
+RTT = 12 × 50 = <strong>600 ms</strong>.</li>
+<li>Persistent:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mn>6</mn><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">1 + 6 = 7</annotation></semantics></math>
+RTT = 7 × 50 = <strong>350 ms</strong>.</li>
+<li>Saving:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mo>−</mo><mn>1</mn><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">6 - 1 = 5</annotation></semantics></math>
+RTT = <strong>250 ms</strong>. ✓</li>
+</ul>
+</div>
+</details>
+<p><strong>Extension 3.2 (not in the lecture).</strong> Same page as
+Extension 3.1, but now the browser may open <strong>parallel</strong>
+connections. Many textbooks (for example Kurose and Ross) count
+parallelism and pipelining like this. The lecture rules both out for its
+examples, so use this only if a question allows them. Give the RTT count
+for (a) non-persistent HTTP with the five images fetched on five
+parallel connections, and (b) persistent HTTP with the five image
+requests <strong>pipelined</strong> (sent back to back, without waiting
+for each reply).</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="a">
+<li><p>The HTML file needs 2 RTT (setup and exchange). The five images
+then run <strong>at the same time</strong>, each on its own connection,
+so together they need 2 RTT. Total <strong>4 RTT</strong> = 200
+ms.</p></li>
+<li><p>1 RTT for setup, 1 RTT for the HTML file, and 1 RTT for all five
+images (the requests leave back to back and the replies come back
+together). Total <strong>3 RTT</strong> = 150 ms.</p></li>
+</ol>
+<p>The images can start only after the HTML has arrived, so the HTML
+always costs its own round trip.</p>
+</div>
+</details>
+<h3 id="remembering-a-user-cookies-and-sessions">3.3 Remembering a user:
+cookies and sessions</h3>
+<p>HTTP is <strong>stateless</strong>: the protocol does not require the
+server to remember earlier requests. A login must still work across many
+requests. A website adds a mechanism:</p>
+<ul>
+<li>A <strong>cookie</strong> is data that the <strong>browser</strong>
+stores and sends back with matching requests.</li>
+<li>A <strong>session</strong> is state that the <strong>server</strong>
+keeps for one continuing interaction (here, one logged-in user).</li>
+</ul>
+<p>The cookie carries only an <strong>identifier</strong>. The server
+uses it to find the session.</p>
+<figure>
+<img width="1347" height="467" src="media/10-artifacts/cookie-login.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="After a login, the server sets the cookie sid=s7k9 and stores the session s7k9 for Joel" />
+<figcaption aria-hidden="true">After a login, the server sets the cookie
+sid=s7k9 and stores the session s7k9 for Joel</figcaption>
+</figure>
+<ol type="1">
+<li>The browser sends <code>POST /login</code> with the
+credentials.</li>
+<li>The server creates a session record (<code>s7k9</code> belongs to
+Joel). It replies with the header
+<code>Set-Cookie: sid=s7k9</code>.</li>
+<li>The browser stores the cookie. On every later request it sends
+<code>Cookie: sid=s7k9</code>.</li>
+<li>The server looks up <code>s7k9</code>, finds Joel’s session, checks
+access, and replies (for example <code>GET /account</code> gets
+<code>200 OK</code> and the account page).</li>
+</ol>
+<p>Two mechanisms, two jobs: <strong>cookie plus session</strong>
+remembers the <em>user</em>. <strong>Persistent connection</strong>
+reuses the <em>TCP connection</em>. Neither one needs the other.</p>
+<details class="qa box">
+<summary>
+HTTP is stateless, so every request must open a new TCP connection.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> “Stateless” is about what the <strong>server
+remembers</strong>. Connection reuse is about <strong>TCP</strong>.
+HTTP/1.1 keeps one TCP connection for many requests, and the server
+still does not have to remember the user.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+The cookie stores the user’s account details, so the server needs no
+session. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False</strong> in the lecture’s model. The cookie carries an
+<strong>identifier</strong> (<code>sid=s7k9</code>). The account details
+sit in the server’s session record, and the server uses the identifier
+to find them.</p>
+</div>
+</details>
+<hr />
+<h2 id="caching-and-modern-http">4. Caching and Modern HTTP</h2>
+<h3 id="freshness-may-i-reuse-my-copy">4.1 Freshness: may I reuse my
+copy?</h3>
+<p>An <strong>HTTP cache</strong> stores responses for reuse. A hit
+saves a transfer, and sometimes a whole round trip. The risk: the server
+may have changed the content. Two questions follow.</p>
+<p>A response is <strong>fresh</strong> while its age is below its
+freshness lifetime. A fresh response is reused with <strong>no request
+at all</strong>. After the lifetime it is <strong>stale</strong>: check
+before reuse. Stale does not mean the content changed.</p>
+<p><code>Cache-Control: max-age=60</code> gives a 60-second lifetime.
+Stored at 0 s, the copy is fresh at 20 s, expires at 60 s, and is stale
+at 70 s. The lecture assumes age 0 at storage, no other directives, and
+no permission to serve stale content.</p>
+<h3 id="validation-is-my-stale-copy-still-current">4.2 Validation: is my
+stale copy still current?</h3>
+<p>The server also sends an <strong>ETag</strong>, an identifier for one
+version of the content. To check a stale copy, the browser sends a
+<strong>conditional GET</strong>:</p>
+<pre><code>GET /team.png HTTP/1.1
+If-None-Match: &quot;v1&quot;</code></pre>
+<ul>
+<li>Unchanged: the server replies <code>304 Not Modified</code> with
+<strong>no body</strong>. The browser reuses its stored copy.</li>
+<li>Changed: the server replies <code>200 OK</code> with the <strong>new
+body</strong> and a new ETag.</li>
+</ul>
+<p>Fresh reuse saves an exchange. Validation can save a body
+transfer.</p>
+<p><strong>Example Question (lecture): which response needs the image
+body?</strong> At t = 0, the browser stores <code>/logo.png</code> with
+<code>max-age=60</code> and ETag <code>"logo-v1"</code>. Assume no
+forced refresh, no other cache restrictions and negligible age at t =
+0.</p>
+<div class="table-wrap">
+<table style="width: 87%;">
+<colgroup>
+<col style="width: 40%" />
+<col style="width: 59%" />
+</colgroup>
+<thead>
+<tr>
+<th>Later request</th>
+<th>Question</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>t = 20 s; same resource</td>
+<td>Does the browser need an HTTP request?</td>
+</tr>
+<tr>
+<td>t = 70 s; still <code>logo-v1</code></td>
+<td>What request and response can validate the cache?</td>
+</tr>
+<tr>
+<td>Alternative at t = 70 s: <code>logo-v2</code></td>
+<td>What must the server send instead?</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 56%" />
+<col style="width: 19%" />
+</colgroup>
+<thead>
+<tr>
+<th>Case</th>
+<th>Network work</th>
+<th>Image body sent?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>20 s, fresh (20 &lt; 60)</td>
+<td><strong>No</strong> HTTP request. Use the stored copy.</td>
+<td>No</td>
+</tr>
+<tr>
+<td>70 s, stale, unchanged</td>
+<td>Conditional GET with <code>If-None-Match: "logo-v1"</code>, then
+<strong>304</strong></td>
+<td>No</td>
+</tr>
+<tr>
+<td>70 s, stale, changed</td>
+<td>Conditional GET, then <strong>200</strong> with the new image and
+ETag <code>"logo-v2"</code></td>
+<td><strong>Yes</strong>, the new one</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> what does a browser do on a repeated
+request? <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Is the stored copy <strong>fresh</strong>? (age &lt; max-age) Yes:
+no request.</li>
+<li>No: send a <strong>conditional GET</strong> with the stored
+ETag.</li>
+<li>The server compares versions. Same: <strong>304</strong>, no body.
+Different: <strong>200</strong>, new body.</li>
+</ol>
+</div>
+</details>
+<p><strong>Extension 4.1 (not in the lecture).</strong> In the example
+above, the 304 arrives at t = 70 s. The browser needs
+<code>/logo.png</code> again at t = 100 s. Does it send a request?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 4.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>No.</strong> Standard HTTP caching (RFC 9111) says a 304
+<strong>refreshes</strong> the stored response, so its freshness
+lifetime starts again at 70 s. At 100 s its age is 30 s, which is below
+60 s. The copy is fresh, so no request is sent. The lecture does not
+discuss this case.</p>
+</div>
+</details>
+<h3 id="where-can-copies-be-stored">4.3 Where can copies be stored?</h3>
+<ul>
+<li>A <strong>browser cache</strong> sits at the client.</li>
+<li>A <strong>proxy</strong> is an intermediary in the HTTP exchange. A
+<strong>forward proxy</strong> acts for clients. A <strong>reverse
+proxy</strong> sits in front of the <strong>origin server</strong>, the
+service responsible for the resource.</li>
+<li>A <strong>content delivery network (CDN)</strong> is a set of
+distributed servers that cache reusable content near users. A request to
+a nearby <strong>edge</strong> server that holds a copy (a <strong>cache
+hit</strong>) never reaches the origin. The cache policy decides what
+the edge may reuse. For HTTPS, the edge is an authorised endpoint of the
+encrypted connection.</li>
+</ul>
+<h3 id="http2-and-http3">4.4 HTTP/2 and HTTP/3</h3>
+<p>What about the resources that still need transferring? Example: a
+visitor needs a large photograph and a small live score, and neither is
+cached. On <strong>one HTTP/1.1 connection</strong>, used one exchange
+at a time, the score waits for the photograph. (Browsers also open
+several connections to get round this.)</p>
+<ul>
+<li><strong>HTTP/2</strong> divides messages into labelled
+<strong>frames</strong> and sends frames of different
+<strong>streams</strong> one after another on <strong>one TCP
+connection</strong>. One <strong>stream</strong> carries one
+request-response exchange. This is <strong>multiplexing</strong>. An
+HTTP/2 frame is not an Ethernet frame or a TCP segment.</li>
+<li>The limit: TCP delivers one ordered byte stream. If one TCP segment
+is lost, <strong>later bytes of every stream wait behind the
+gap</strong> (head-of-line blocking, Chapter 9, section 7).</li>
+<li><strong>HTTP/3</strong> runs the same request-response ideas over
+<strong>QUIC</strong>, a secure transport built on <strong>UDP</strong>.
+QUIC keeps <strong>separate ordering for each stream</strong>. A loss in
+stream A holds up only stream A. Stream B delivers at once. Streams
+still share congestion control.</li>
+</ul>
+<figure>
+<img width="1279" height="493" src="media/10-artifacts/http2-vs-http3-loss.webp"
+style="width:65.0%" loading="lazy" decoding="async"
+alt="A lost A2 blocks B1 and B2 over TCP (HTTP/2). Over QUIC (HTTP/3), only stream A waits" />
+<figcaption aria-hidden="true">A lost A2 blocks B1 and B2 over TCP
+(HTTP/2). Over QUIC (HTTP/3), only stream A waits</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 85%" />
+</colgroup>
+<thead>
+<tr>
+<th>Version</th>
+<th>How it carries concurrent work</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTTP/1.1</td>
+<td>Persistent TCP connections. Browsers often use several.</td>
+</tr>
+<tr>
+<td>HTTP/2</td>
+<td>Many streams share one TCP connection. A TCP gap delays them
+all.</td>
+</tr>
+<tr>
+<td>HTTP/3</td>
+<td>Many QUIC streams over UDP. Ordering is separate per stream.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Methods, status codes and headers mean the same in all three.</p>
+<p><strong>Why QUIC exists (Live Lecture 4.5, not tested, background
+only).</strong> TCP has costs for the modern web. QUIC answers each
+one:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 49%" />
+</colgroup>
+<thead>
+<tr>
+<th>TCP’s cost</th>
+<th>QUIC’s answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One lost segment stalls unrelated files</td>
+<td>Separate streams</td>
+</tr>
+<tr>
+<td>TCP handshake, then TLS handshake (about 2 RTT before the first
+request)</td>
+<td>Transport and TLS 1.3 setup combined (about 1 RTT)</td>
+</tr>
+<tr>
+<td>A new IP address (Wi-Fi to mobile data) breaks the connection,
+because TCP names a connection by both addresses and both ports</td>
+<td>A <strong>connection ID</strong> identifies the connection on the
+new address</td>
+</tr>
+<tr>
+<td>TCP is built into the OS and read by middleboxes, so it is very hard
+to change</td>
+<td>QUIC runs inside the application over UDP, with its details
+encrypted</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>QUIC must still rebuild reliability, flow control and congestion
+control above UDP.</p>
+<details class="qa box">
+<summary>
+HTTP/2 over TCP lets the score stream finish while the photograph stream
+waits for a lost segment. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> HTTP/2 puts all streams into
+<strong>one</strong> TCP byte stream. TCP holds back every byte after
+the gap, including the score’s bytes. HTTP/3 over QUIC lets the score
+stream go ahead.</p>
+</div>
+</details>
+<hr />
+<h2 id="dns-names-to-addresses">5. DNS: Names to Addresses</h2>
+<h3 id="the-problem-and-the-people-in-a-lookup">5.1 The problem and the
+people in a lookup</h3>
+<p>People type names. Packets need IP addresses. <strong>DNS</strong>
+(Domain Name System) turns a name into an address. It can also store
+other facts about a name, such as where its email goes.</p>
+<p>One giant table would fail for three reasons: <strong>too many
+names</strong> (hundreds of millions), <strong>too many owners</strong>
+(each organisation must change its own entries, and only its own), and
+<strong>too many questions</strong> (billions of lookups a day). So DNS
+is <strong>split up</strong>. Each owner keeps the entries for its own
+names, and signposts say where each part is kept.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 66%" />
+</colgroup>
+<thead>
+<tr>
+<th>Who</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Your device</td>
+<td>Asks the question. It asks <strong>only the resolver</strong>.</td>
+</tr>
+<tr>
+<td><strong>Resolver</strong> (recursive resolver)</td>
+<td>The DNS helper that your network gives you (campus, ISP, home
+router, or a public one such as 8.8.8.8). Its address usually arrives by
+DHCP, or you set it by hand. It does the legwork, <strong>asks everyone
+else</strong>, and remembers answers.</td>
+</tr>
+<tr>
+<td><strong>Root</strong> and <strong>TLD</strong> servers</td>
+<td>Signposts. They do <strong>not</strong> know the final address. They
+reply with a <strong>referral</strong>: where to ask next. A
+<strong>TLD</strong> is a top-level domain such as <code>.com</code> or
+<code>.sg</code>.</td>
+</tr>
+<tr>
+<td><strong>Authoritative nameserver</strong></td>
+<td>Holds the owner’s <strong>official</strong> records. Its answer
+comes from the source, not from a stored copy.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img width="1350" height="484" src="media/10-artifacts/dns-lookup-overview.webp"
+style="width:80.0%" loading="lazy" decoding="async"
+alt="The lookup at a glance: steps 1 and 8 are the device and its resolver. Steps 2 to 7 are the resolver asking root, .com and example.com’s nameserver" />
+<figcaption aria-hidden="true">The lookup at a glance: steps 1 and 8 are
+the device and its resolver. Steps 2 to 7 are the resolver asking root,
+.com and example.com’s nameserver</figcaption>
+</figure>
+<p>A <strong>cache</strong> is a stored copy of a recent answer, so the
+same question need not be asked again. <strong>TTL</strong> (Time To
+Live) says how many seconds a copy may be reused. The owner of the name
+sets it. Your browser, your computer and the resolver can each keep
+their own cached copy.</p>
+<h3 id="names-and-records">5.2 Names and records</h3>
+<p>A <strong>domain name</strong> is a sequence of
+<strong>labels</strong> separated by dots. Read the hierarchy
+<strong>from right to left</strong>: <code>www.example.com.</code> is
+the name <code>www</code> inside <code>example</code>, inside the TLD
+<code>com</code>, inside the root <code>.</code>. The complete name
+through the root is the <strong>fully qualified domain name
+(FQDN)</strong>. The final dot is usually left out when typing.
+<code>www</code> is only a convention. DNS uses the hostname. HTTP uses
+the path, such as <code>/team.html</code>.</p>
+<figure>
+<img width="922" height="513" src="media/10-artifacts/dns-name-tree.webp" style="width:45.0%"
+loading="lazy" decoding="async"
+alt="The names form a tree: the blue branch is root, com, example.com, www.example.com. The branches show relationships between names, not network links" />
+<figcaption aria-hidden="true">The names form a tree: the blue branch is
+root, com, example.com, www.example.com. The branches show relationships
+between names, not network links</figcaption>
+</figure>
+<p>DNS stores <strong>resource records (RR)</strong>. A record has four
+parts:</p>
+<div class="table-wrap">
+<table style="width: 48%;">
+<colgroup>
+<col style="width: 37%" />
+<col style="width: 14%" />
+<col style="width: 31%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Data</th>
+<th>TTL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>www.example.com</code></td>
+<td>A</td>
+<td><code>203.0.113.10</code></td>
+<td>300 s</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The type tells the client how to read the data. A query gives a
+<strong>name and a type</strong>. The same name can have several
+records.</p>
+<div class="table-wrap">
+<table style="width: 88%;">
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 39%" />
+<col style="width: 51%" />
+</colgroup>
+<thead>
+<tr>
+<th>Type</th>
+<th>Data</th>
+<th>Question it answers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>IPv4 address</td>
+<td>Which IPv4 endpoint can I contact?</td>
+</tr>
+<tr>
+<td>AAAA</td>
+<td>IPv6 address</td>
+<td>Which IPv6 endpoint can I contact?</td>
+</tr>
+<tr>
+<td>CNAME</td>
+<td>Canonical (real) name</td>
+<td>Which other name should resolution follow?</td>
+</tr>
+<tr>
+<td>NS</td>
+<td>Nameserver name</td>
+<td>Which servers are authoritative?</td>
+</tr>
+<tr>
+<td>MX</td>
+<td>Preference plus mail server name</td>
+<td>Where should mail for this domain go?</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A <strong>CNAME</strong> is an <strong>alias</strong>. Example:
+<code>www.example.com CNAME site.example.net</code>, and
+<code>site.example.net A 203.0.113.10</code>. The resolver follows the
+alias and returns the address. The browser’s URL and the HTTP
+<code>Host</code> stay <code>www.example.com</code>. This is
+<strong>not</strong> an HTTP redirect, where the web server tells the
+browser to request a different URL.</p>
+<details class="qa box">
+<summary>
+DNS resolves an IP address to a MAC address. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> DNS turns a <strong>name</strong> into an
+<strong>IP address</strong>. <strong>ARP</strong> turns an IP address
+into a MAC address on the local link. (AY25/26 S2 Q1(13) used this
+statement.)</p>
+</div>
+</details>
+<h3 id="publishing-a-name">5.3 Publishing a name</h3>
+<p>Before anyone can look up <code>www.example.com</code>, its owner
+must put the right entries in the right places. Three steps:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 85%" />
+</colgroup>
+<thead>
+<tr>
+<th>Step</th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Register</strong></td>
+<td>Buy the name from a registrar. The registrar records it with the
+registry that runs <code>.com</code>.</td>
+</tr>
+<tr>
+<td><strong>Delegate</strong></td>
+<td>Tell the registrar which nameservers answer for the name. The
+<code>.com</code> servers then point visitors there.</td>
+</tr>
+<tr>
+<td><strong>Publish</strong></td>
+<td>Add the records (for example
+<code>www.example.com A 203.0.113.10</code>) on those nameservers.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Three roles buy and hold a name:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 82%" />
+</colgroup>
+<thead>
+<tr>
+<th>Role</th>
+<th>Job</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Registrant</strong></td>
+<td>Owns the name and pays to keep it (the student team)</td>
+</tr>
+<tr>
+<td><strong>Registrar</strong></td>
+<td>Sells names and holds the owner’s settings for the name (a shop, for
+example Namecheap)</td>
+</tr>
+<tr>
+<td><strong>Registry</strong></td>
+<td>Keeps the official list of every name in its TLD and runs the TLD’s
+nameservers (Verisign for <code>.com</code>, SGNIC for
+<code>.sg</code>)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The website owner needs <strong>three services</strong>. One company
+may supply several: a <strong>registrar</strong>, <strong>DNS
+hosting</strong> (publishes the records through authoritative
+nameservers), and <strong>web hosting</strong> (runs the site).
+<strong>Registering a domain does not upload the website and does not
+create its A record.</strong></p>
+<p><strong>Delegation</strong> puts one new entry in the
+<strong>parent</strong> zone. The owner picks the nameservers at the
+registrar, the registrar passes the choice to the registry, and the
+registry updates the <code>.com</code> zone with
+<code>example.com. NS ns1.provider.net.</code>. Nothing is copied to
+every DNS server. A <strong>zone</strong> is the part of DNS that one
+organisation manages and serves. The entry is a
+<strong>delegation</strong>: the parent zone points to the child’s
+nameservers. The nameserver setting holds <strong>nameserver
+names</strong>, not the website’s IP address.</p>
+<figure>
+<img width="923" height="462" src="media/10-artifacts/dns-zones.webp" style="width:50.0%"
+loading="lazy" decoding="async"
+alt="Delegation: the root zone points to the com zone, and the com zone points to the example.com zone. The child zone publishes the website records. The boxes show responsibility, not network links" />
+<figcaption aria-hidden="true">Delegation: the root zone points to the
+com zone, and the com zone points to the example.com zone. The child
+zone publishes the website records. The boxes show responsibility, not
+network links</figcaption>
+</figure>
+<p>Why can nobody else publish records for <code>example.com</code>? The
+<strong>registrar account</strong> decides <strong>which</strong>
+nameservers answer. The <strong>DNS hosting account</strong> edits the
+records <strong>on</strong> those nameservers. Anyone can run a server
+that <em>claims</em> to know <code>example.com</code>, but normal
+lookups never reach it, because resolvers follow the <code>.com</code>
+zone, and the <code>.com</code> zone points only to the nameservers the
+owner chose. <strong>Authority comes from delegation.</strong></p>
+<p>In a DNS editor, the host <code>@</code> means
+<code>example.com</code> itself, and the host <code>www</code> means
+<code>www.example.com</code>.</p>
+<h3 id="following-a-lookup">5.4 Following a lookup</h3>
+<p>The lecture’s example is a <strong>cold cache</strong> (nothing
+stored), with no alias and no retry, and the nameserver addresses are
+known.</p>
+<ul>
+<li>The device sends a <strong>recursive request</strong> to its
+resolver: “get me the answer.”</li>
+<li>The resolver does the work <strong>iteratively</strong>: it follows
+the referrals itself. Every referral comes <strong>back to the
+resolver</strong>, and the resolver sends the next query.</li>
+</ul>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 49%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th>Step</th>
+<th>Who asks whom</th>
+<th>What comes back</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Device asks resolver: <code>www.example.com A?</code></td>
+<td></td>
+</tr>
+<tr>
+<td>2, 3</td>
+<td>Resolver asks a <strong>root</strong> server</td>
+<td>Referral: ask the <code>.com</code> servers</td>
+</tr>
+<tr>
+<td>4, 5</td>
+<td>Resolver asks a <strong>.com</strong> server</td>
+<td>Referral: ask <code>example.com</code>’s nameservers</td>
+</tr>
+<tr>
+<td>6, 7</td>
+<td>Resolver asks <code>example.com</code>’s
+<strong>authoritative</strong> server</td>
+<td><code>203.0.113.10</code>, TTL 300 s</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Resolver answers the device</td>
+<td><code>203.0.113.10</code>. The resolver <strong>keeps a
+copy</strong>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Caching is local work at the resolver, not another DNS message. The
+address is now known. <strong>The web page comes later</strong>, over
+HTTP.</p>
+<p><strong>Real dig output.</strong> <code>dig</code> is a DNS query
+tool, and <code>@server</code> picks the server to ask. These captures
+are historical, not current NTU infrastructure. The lookup is
+<code>www.ntu.edu.sg A</code>.</p>
+<figure>
+<img width="1006" height="492" src="media/10-artifacts/dig-root-referral.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="The root server’s reply: ANSWER 0, so no address yet. The AUTHORITY section lists NS records for the sg servers, including dsany.sgnic.sg" />
+<figcaption aria-hidden="true">The root server’s reply: ANSWER 0, so no
+address yet. The AUTHORITY section lists NS records for the sg servers,
+including dsany.sgnic.sg</figcaption>
+</figure>
+<figure>
+<img width="1006" height="492" src="media/10-artifacts/dig-tld-referral.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="The TLD server’s reply: still ANSWER 0. It names dnstex.ntu.edu.sg as a nameserver and adds that server’s address 155.69.254.5 (an ADDITIONAL A record). That address belongs to a nameserver, not to the website" />
+<figcaption aria-hidden="true">The TLD server’s reply: still ANSWER 0.
+It names dnstex.ntu.edu.sg as a nameserver and adds that server’s
+address 155.69.254.5 (an ADDITIONAL A record). That address belongs to a
+nameserver, not to the website</figcaption>
+</figure>
+<figure>
+<img width="1017" height="586" src="media/10-artifacts/dig-authoritative-answer.webp"
+style="width:70.0%" loading="lazy" decoding="async"
+alt="The authoritative reply: flag aa (authoritative answer), ANSWER 1, www.ntu.edu.sg A 155.69.6.163, TTL 28800 s" />
+<figcaption aria-hidden="true">The authoritative reply: flag aa
+(authoritative answer), ANSWER 1, www.ntu.edu.sg A 155.69.6.163, TTL
+28800 s</figcaption>
+</figure>
+<p>How to read a <code>dig</code> reply:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 41%" />
+<col style="width: 59%" />
+</colgroup>
+<thead>
+<tr>
+<th>Field</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ANSWER: 0</code> plus NS records in AUTHORITY</td>
+<td>A <strong>referral</strong>. Ask the server named there. A DNS reply
+can succeed without giving the final address.</td>
+</tr>
+<tr>
+<td>ADDITIONAL, an A record</td>
+<td>The address of the nameserver just named. It saves one more
+lookup.</td>
+</tr>
+<tr>
+<td><code>ANSWER: 1</code> and the flag <code>aa</code></td>
+<td>The <strong>final answer</strong>, from the authoritative
+server.</td>
+</tr>
+<tr>
+<td>A number before <code>IN A</code> or <code>IN NS</code></td>
+<td>The record’s TTL in seconds</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+The root server replies with the website’s IP address. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> The root server replies with a
+<strong>referral</strong> (the NS records of the TLD servers). Only the
+<strong>authoritative</strong> server for the name gives the final
+address.</p>
+</div>
+</details>
+<p><strong>Extension 5.1.</strong> A resolver with an <strong>empty
+cache</strong> looks up <code>www.example.com</code> for one device. How
+many DNS messages are sent in total? Then the device looks up
+<code>mail.example.com</code> right afterwards. Which messages can the
+resolver skip?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 5.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Steps 1 to 8 are <strong>8 messages</strong>: the device’s query (1),
+three query-and-reply pairs to root, <code>.com</code> and the authority
+(2 to 7, which is 6 messages), and the answer to the device (8).</p>
+<p>A resolver does not cache <code>mail.example.com</code>’s
+<strong>address</strong> yet. A real resolver also <strong>caches the
+referrals</strong> it received (the NS records of <code>.com</code> and
+<code>example.com</code>, each with its own TTL). It can then ask the
+authority directly and skip steps 2 to 5, so it needs 4 messages (device
+query, resolver query, authority reply, answer). This caching of
+referrals is standard behaviour, <strong>not in the lecture</strong>.
+The lecture shows only the cold-cache case.</p>
+</div>
+</details>
+<h3 id="caching-and-ttl-why-a-change-takes-time">5.5 Caching and TTL:
+why a change takes time</h3>
+<p>A <strong>DNS cache</strong> keeps records from earlier replies.
+While a record is usable, the resolver answers from its copy and does
+not ask the root, the TLD or the authority again. That means less work
+and less delay.</p>
+<p>An update at the authority does <strong>not</strong> replace the
+copies already stored. The old copy stays valid until its TTL runs
+out.</p>
+<figure>
+<img width="1320" height="392" src="media/10-artifacts/dns-ttl-timeline.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="At 120 s the owner changes the A record from .10 to .20. The resolver cached .10 at 0 s with TTL 300 s. It may keep returning .10 until 300 s" />
+<figcaption aria-hidden="true">At 120 s the owner changes the A record
+from .10 to .20. The resolver cached .10 at 0 s with TTL 300 s. It may
+keep returning .10 until 300 s</figcaption>
+</figure>
+<p>Short TTL: changes reach visitors sooner, but the authority gets more
+lookups. Long TTL: fewer lookups, but changes take longer to appear.</p>
+<p><strong>Example Question (lecture): moving a website to a new
+address.</strong></p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 88%" />
+</colgroup>
+<thead>
+<tr>
+<th>Time</th>
+<th>Event</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>10:00</td>
+<td>The resolver caches 203.0.113.10 with TTL = 600 s.</td>
+</tr>
+<tr>
+<td>10:02</td>
+<td>The administrator changes the authoritative A record to
+203.0.113.20.</td>
+</tr>
+<tr>
+<td>10:05</td>
+<td>A client asks the same resolver for
+<code>www.example.com</code>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ol type="a">
+<li>Which address may the resolver return at 10:05? (b) When does its
+original cached record expire? (c) Why might another visitor get the new
+address sooner? Assume ordinary TTL-based caching, no forced refresh and
+no serve-stale extension.</li>
+</ol>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="a">
+<li><p><strong>203.0.113.10</strong>, the old address. The copy was
+stored at 10:00 and is good until 10:10. At 10:05 it has 600 − 300 =
+<strong>300 s</strong> left. The change at 10:02 does not reach this
+cache.</p></li>
+<li><p>At <strong>10:10</strong>: 10:00 plus 600 s.</p></li>
+<li><p>Another <strong>resolver</strong> has its own cache. If it holds
+no old copy, or its old copy expired, it asks the authority and gets
+203.0.113.20. The same name can have different cached answers in
+different places for a while.</p></li>
+</ol>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> which address does a cache return at
+time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>?
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Find the time the record was cached,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>c</mi></msub><annotation encoding="application/x-tex">t_c</annotation></semantics></math>,
+and its TTL.</li>
+<li>Expiry =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mi>c</mi></msub><annotation encoding="application/x-tex">t_c</annotation></semantics></math>
++ TTL. Remaining TTL at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+= expiry −
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.</li>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+is before expiry: the cache returns the <strong>old</strong> record,
+whatever the authority holds now. After expiry: it asks again and gets
+the <strong>current</strong> record.</li>
+<li>The longest a change can stay hidden from a cache is the TTL it
+holds (it cached the old record just before the change).</li>
+<li>Different resolvers cached at different times, so they expire at
+different times.</li>
+</ol>
+</div>
+</details>
+<p><strong>Planning an address change.</strong> The lecture gives this
+order:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 77%" />
+</colgroup>
+<thead>
+<tr>
+<th>When</th>
+<th>What to do</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Before the move</td>
+<td><strong>Lower the TTL</strong> if needed. Wait for the <strong>old,
+longer TTL</strong> to run out first, so no cache still holds a long
+lifetime.</td>
+</tr>
+<tr>
+<td>During the move</td>
+<td>Publish the new address. <strong>Keep the old server
+running</strong> for a suitable overlap, because visitors with an old
+cached answer still arrive there.</td>
+</tr>
+<tr>
+<td>After</td>
+<td>Check <strong>both views</strong>: what the authority publishes and
+what a resolver currently returns. They can differ for a while.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A DNS change does not move a connection that is already established
+to a different server.</p>
+<p><strong>Extension 5.2.</strong> The site’s A record has TTL = 3600 s.
+The owner wants to move it to a new server at 12:00 with at most 60 s of
+mixed answers. When must the owner lower the TTL to 60 s, and when can
+the old server be switched off?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 5.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A cache can hold the 3600 s record until one hour after it fetched
+it. So lower the TTL <strong>at least 3600 s (1 hour) before the move:
+at or before 11:00</strong>. By 12:00, every cache holds either the 60 s
+version or nothing.</p>
+<p>At 12:00 publish the new address. The longest any cache can still
+return the old address is now <strong>60 s</strong>. Keep the old server
+up for at least those 60 s (the lecture says “a suitable overlap”), then
+switch it off. Established connections are not affected by DNS.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+After the owner changes the A record, every visitor reaches the new
+server at once. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> Resolvers that cached the old record keep
+returning it until its TTL runs out. Visitors reach the new or the old
+server depending on their resolver’s cache.</p>
+</div>
+</details>
+<h3 id="dns-messages-travel-in-udp-or-tcp">5.6 DNS messages travel in
+UDP or TCP</h3>
+<p>Conventional DNS uses <strong>server port 53</strong>. A DNS query is
+application data inside UDP or TCP.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 72%" />
+</colgroup>
+<thead>
+<tr>
+<th>Transport</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>UDP 53</strong></td>
+<td>Common. One small query, one small reply.</td>
+</tr>
+<tr>
+<td><strong>TCP 53</strong></td>
+<td>When a UDP reply is marked <strong>truncated</strong> (too big), the
+client asks again over TCP and gets the complete answer.</td>
+</tr>
+<tr>
+<td>DNS over TLS or HTTPS</td>
+<td>Protects the exchange between the client and its chosen
+resolver.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="a-complete-web-request">6. A Complete Web Request</h2>
+<p>DNS gives an address. This section joins everything from Chapters 5
+to 10 for one page: <strong>ARP</strong> finds the local next hop,
+<strong>DNS</strong> supplies the server’s address, <strong>TCP</strong>
+sets up the connection, <strong>HTTP</strong> asks for the page. Keep
+the MAC and IP addresses apart at every step.</p>
+<h3 id="the-first-request-frame-by-frame">6.1 The first request, frame
+by frame</h3>
+<p><strong>Example Question (lecture): the first request for a web
+page.</strong> A laptop opens <code>http://www.example.com/</code>. The
+DNS answer will be 198.51.100.80. The laptop is 192.168.40.10/24 (MAC
+L). The gateway, which is also the DNS resolver, is 192.168.40.1 (MAC
+G). The web server is 198.51.100.80. Which frames does the laptop
+exchange before the first page content arrives? Assume /24, empty ARP
+and DNS caches, no TCP connection, working routing and NAT, UDP DNS,
+plain HTTP, no loss and no proxy. Watch the laptop’s LAN frames: before
+outbound NAT and after inbound NAT.</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<div class="table-wrap">
+<table style="width: 94%;">
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 39%" />
+<col style="width: 20%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr>
+<th>#</th>
+<th>Frame and purpose</th>
+<th>MAC: from → to</th>
+<th>IP: from → to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>ARP request: who has 192.168.40.1?</td>
+<td>L → broadcast</td>
+<td>no IP header</td>
+</tr>
+<tr>
+<td>2</td>
+<td>ARP reply: .1 is at G</td>
+<td>G → L</td>
+<td>no IP header</td>
+</tr>
+<tr>
+<td>3</td>
+<td>DNS query: <code>www.example.com</code> A</td>
+<td>L → G</td>
+<td>192.168.40.10 → 192.168.40.1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>DNS answer: 198.51.100.80</td>
+<td>G → L</td>
+<td>192.168.40.1 → 192.168.40.10</td>
+</tr>
+<tr>
+<td>5</td>
+<td>TCP SYN to port 80</td>
+<td>L → G</td>
+<td>192.168.40.10 → 198.51.100.80</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TCP SYN+ACK</td>
+<td>G → L</td>
+<td>198.51.100.80 → 192.168.40.10</td>
+</tr>
+<tr>
+<td>7</td>
+<td>TCP ACK</td>
+<td>L → G</td>
+<td>192.168.40.10 → 198.51.100.80</td>
+</tr>
+<tr>
+<td>8</td>
+<td>HTTP GET, carried by TCP</td>
+<td>L → G</td>
+<td>192.168.40.10 → 198.51.100.80</td>
+</tr>
+<tr>
+<td>9</td>
+<td>First response content</td>
+<td>G → L</td>
+<td>198.51.100.80 → 192.168.40.10</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>Frames 1 to 4:</strong> the resolver is local, so ARP
+supplies its MAC first. DNS then supplies the web server’s IP
+address.</li>
+<li><strong>Frames 5 to 9:</strong> the IP destination is the remote web
+server, but the <strong>Ethernet destination is the local
+gateway</strong>, because the server is outside the /24. MAC G is
+already cached (from frame 2). DNS did <strong>not</strong> give the
+laptop the server’s MAC.</li>
+<li>This is one teaching trace. An ACK and data may combine, and a
+request or response may span several segments.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> list the frames of a web request <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li><strong>DNS server on my subnet?</strong> (Compare it with my
+address and mask.) Yes: ARP for the DNS server. No: ARP for the
+<strong>default gateway</strong>. If the ARP cache already has that MAC,
+skip ARP. Two frames: request (broadcast) and reply.</li>
+<li><strong>DNS query and reply</strong> (UDP 53). Skip both if the DNS
+cache already has the name. The reply gives the web server’s IP
+address.</li>
+<li><strong>Is the web server on my subnet?</strong> Almost always no.
+Every frame to it has <strong>Ethernet destination = gateway
+MAC</strong> and <strong>IP destination = server</strong>. (The gateway
+is already in the ARP cache from step 1, or needs its own ARP.)</li>
+<li><strong>TCP handshake:</strong> SYN, SYN+ACK, ACK (3 frames).</li>
+<li><strong>HTTP:</strong> GET, then the first reply with page content
+(2 frames).</li>
+<li>Count only the frames the <strong>laptop sends or receives</strong>.
+Frames beyond the gateway are not on its LAN.</li>
+<li>With nothing cached and everything on the first LAN, the total is 4
++ 3 + 2 = <strong>9 frames</strong>.</li>
+</ol>
+</div>
+</details>
+<h3 id="what-if-the-resolver-is-outside-the-subnet">6.2 What if the
+resolver is outside the subnet?</h3>
+<p><strong>Variation (lecture).</strong> Change only the DNS resolver:
+it is now <strong>203.0.113.53</strong>, outside the laptop’s /24. Which
+address does the laptop ARP for?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The laptop ARPs for <strong>192.168.40.1, the local gateway</strong>.
+The DNS query’s <strong>IP destination</strong> stays 203.0.113.53, and
+its <strong>first Ethernet destination is MAC G</strong>. ARP resolves
+the local next hop only. The laptop never ARPs for a DNS resolver that
+is beyond its subnet. Everything after that works as in the table
+above.</p>
+</div>
+</details>
+<h3 id="tutorial-2.3-q3b">6.3 Tutorial 2.3 Q3b</h3>
+<p><strong>Tutorial 2.3 Q3.</strong> <em>(Question 3 and the ipconfig
+output are in Chapter 5, Section 9. The figure gives the computer
+192.168.1.68 with MAC 00-23-26-AA-AA-AA, the ADSL modem 192.168.1.254
+with MAC 00-24-17-BB-BB-BB, and the web server 155.69.6.163.)</em></p>
+<ol start="2" type="a">
+<li>The user launches his web browser and requests for the default web
+page at http://www.ntu.edu.sg without the use of web proxy. Assume that
+all the caches of the computer are initially empty. Using a table
+similar to Table Q3, list the sequence of frames being sent and received
+by the computer until the first frame containing the requested web page
+is received.</li>
+</ol>
+<details class="qa box">
+<summary>
+<strong>Answer (b), unofficial: no solution was released</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The computer’s address and mask are 192.168.1.68 and 255.255.255.0.
+The modem is the default gateway <strong>and</strong> the DNS server
+(both 192.168.1.254), and it is on the same subnet. So one ARP for the
+modem serves both DNS and the web server. The web server (155.69.6.163)
+is not on the subnet.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Frame</th>
+<th>MAC source</th>
+<th>MAC destination</th>
+<th>IP source</th>
+<th>IP destination</th>
+<th>Purpose of frame</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>FF-FF-FF-FF-FF-FF</td>
+<td>(ARP)</td>
+<td>(ARP)</td>
+<td>ARP request: who has 192.168.1.254?</td>
+</tr>
+<tr>
+<td>2</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>(ARP)</td>
+<td>(ARP)</td>
+<td>ARP reply: 192.168.1.254 is at 00-24-17-BB-BB-BB</td>
+</tr>
+<tr>
+<td>3</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>192.168.1.68</td>
+<td>192.168.1.254</td>
+<td>DNS query: <code>www.ntu.edu.sg</code> A</td>
+</tr>
+<tr>
+<td>4</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>192.168.1.254</td>
+<td>192.168.1.68</td>
+<td>DNS reply: 155.69.6.163</td>
+</tr>
+<tr>
+<td>5</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>192.168.1.68</td>
+<td>155.69.6.163</td>
+<td>TCP SYN, port 80</td>
+</tr>
+<tr>
+<td>6</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>155.69.6.163</td>
+<td>192.168.1.68</td>
+<td>TCP SYN+ACK</td>
+</tr>
+<tr>
+<td>7</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>192.168.1.68</td>
+<td>155.69.6.163</td>
+<td>TCP ACK</td>
+</tr>
+<tr>
+<td>8</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>192.168.1.68</td>
+<td>155.69.6.163</td>
+<td>HTTP GET request for the default page</td>
+</tr>
+<tr>
+<td>Last (9)</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>155.69.6.163</td>
+<td>192.168.1.68</td>
+<td><strong>HTTP reply</strong>: the first frame with the web page</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>An ARP message has no IP header. Some posted answers put the ARP
+sender’s and target’s IP addresses in these columns (AY15/16 S2 Q4c
+does). Either is fine if you say which you mean.</li>
+<li>The frames show the computer’s <strong>LAN side</strong>. The modem
+does NAT: it changes the private source 192.168.1.68 to its public
+address on the way out, and back on the way in. The computer sees only
+its own private address.</li>
+<li>The modem also answers the DNS query itself or asks the ISP’s DNS
+server. The computer does not see that exchange.</li>
+<li>Frames 5 to 9 have the <strong>server’s IP</strong> but the
+<strong>modem’s MAC</strong>: the server is off the subnet, so the next
+hop is the gateway.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> same table when something is already
+cached <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Start from the nine frames and cross out what the caches already
+hold.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 66%" />
+</colgroup>
+<thead>
+<tr>
+<th>Already cached</th>
+<th>Frames that disappear</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The modem’s MAC (ARP cache)</td>
+<td>1 and 2</td>
+</tr>
+<tr>
+<td><code>www.ntu.edu.sg</code> (DNS cache)</td>
+<td>3 and 4. ARP (1 and 2) stays, because the laptop still needs the
+gateway’s MAC for frame 5.</td>
+</tr>
+<tr>
+<td>An open TCP connection</td>
+<td>5, 6 and 7</td>
+</tr>
+<tr>
+<td>Both ARP and DNS</td>
+<td>1 to 4. Five frames remain: 5 to 9.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<p><strong>Extension 6.1.</strong> In Tutorial 2.3 Q3b, the ARP cache
+already holds the modem’s MAC, but the DNS cache is empty. How many
+frames does the computer send and receive until the first page frame
+arrives? Name the first and the last.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 6.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Frames 1 and 2 (ARP) disappear. The computer sends the DNS query
+first, so frames 3 to 9 remain: <strong>7 frames</strong>. The first is
+the DNS query. The last is the HTTP reply. ✓ (9 − 2 = 7)</p>
+</div>
+</details>
+<p><strong>Extension 6.2.</strong> The same page is now
+<code>https://www.ntu.edu.sg</code> (port 443). Between the TCP ACK and
+the first page frame, what new frames appear? How is the count of 9
+affected?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 6.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The browser and server must run the <strong>TLS handshake</strong>
+first (agree keys, check the server’s identity). TLS 1.3 needs about 1
+RTT (Live Lecture 4.5), so a few more frames appear between frame 7 and
+the GET. They are encrypted from then on, so the GET and the reply are
+TLS data, not readable HTTP. The destination port is 443. The exact
+number of TLS frames is not in the lecture, so a question must give it.
+The frames before frame 5 do not change.</p>
+</div>
+</details>
+<h3 id="is-it-dns-test-the-name-and-the-address-separately">6.4 Is it
+DNS? Test the name and the address separately</h3>
+<p>A website will not load. What does each test establish?</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 24%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr>
+<th>What you try</th>
+<th>What happens</th>
+<th>What it suggests</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open <code>http://www.example.com/</code></td>
+<td>Name-resolution error</td>
+<td>Check DNS. The browser’s wording alone is not a full diagnosis.</td>
+</tr>
+<tr>
+<td><code>ping 203.0.113.10</code></td>
+<td>Replies arrive</td>
+<td>The <strong>IP address is reachable for ICMP</strong>. The HTTP
+service is still <strong>untested</strong>.</td>
+</tr>
+<tr>
+<td><code>nslookup www.example.com</code></td>
+<td>DNS request timed out</td>
+<td>No DNS reply before the timer. Check the resolver and the path to
+it.</td>
+</tr>
+<tr>
+<td><code>nslookup www.example.com</code></td>
+<td>Non-existent domain</td>
+<td>The resolver says no such name. Check spelling and the DNS
+setup.</td>
+</tr>
+<tr>
+<td>Compare DNS answers</td>
+<td>Old address returned</td>
+<td>A usable cached copy, or outdated authoritative data</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Name fails, but a ping to the address works? <strong>Suspect DNS
+first.</strong> A ping reply does <strong>not</strong> prove the website
+works.</p>
+<details class="qa box">
+<summary>
+The ping to the server’s IP address succeeds, so the website is working.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A ping tests IP reachability only (ICMP). The
+web server program, its port 80 or 443, and HTTP could all be
+broken.</p>
+</div>
+</details>
+<hr />
+<h2 id="exam-patterns">Exam patterns</h2>
+<p>Where each pattern appeared: the frame-trace table came in
+<strong>Tutorial 2.3 Q3b</strong>, <strong>AY15/16 S2 Q4c</strong> (ARP,
+DNS, then a ping to <code>www.ntu.edu.sg</code>, with the DNS server and
+the target both outside the subnet), and <strong>AY19/20 S1 Q4c</strong>
+(ARP, DNS, ARP again, ping). <strong>AY25/26 S2 Q1(13)</strong> (the
+newest paper) had one multiple-choice statement, “DNS resolves IP
+address to MAC”. I found no HTTP, caching, cookie or TTL question in the
+posted solutions (AY15/16 to AY23/24) or in the two newest papers,
+AY24/25 S2 and AY25/26 S2 (read in full). Those patterns come from the
+<strong>lecture’s own examples</strong>. The lecture is new this
+semester, so expect its examples to be tested.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 37%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Question type</th>
+<th>How to attack it</th>
+<th>Trap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frame table: ARP, DNS, TCP, HTTP (or ping)</td>
+<td>Gateway or DNS on subnet? ARP. DNS. SYN, SYN+ACK, ACK. GET. Reply.
+Skip what is cached.</td>
+<td>Putting the server’s MAC in the table. <strong>Ethernet destination
+= next hop</strong> (gateway), IP destination = server.</td>
+</tr>
+<tr>
+<td>Status code or timeout</td>
+<td>A code is an HTTP answer. A timeout has no answer.</td>
+<td>Calling a timeout a 404. Treating POST as a fix.</td>
+</tr>
+<tr>
+<td>Page delay in RTT</td>
+<td>Persistent:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">1 + n</annotation></semantics></math>.
+Non-persistent:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">2n</annotation></semantics></math>.
+The HTML comes first.</td>
+<td>Counting 1 RTT for setup of <strong>each</strong> object under
+persistent HTTP. Forgetting the HTML object.</td>
+</tr>
+<tr>
+<td>Cache decision</td>
+<td>Fresh? Nothing. Stale? Conditional GET: 304 (no body) or 200.</td>
+<td>Saying every stale copy needs a full download</td>
+</tr>
+<tr>
+<td>Cookie and session</td>
+<td>Cookie = identifier in the browser. Session = data on the
+server.</td>
+<td>Mixing cookies with persistent connections</td>
+</tr>
+<tr>
+<td>DNS lookup steps</td>
+<td>Device, resolver, root, TLD, authority, back to the resolver. The
+resolver keeps a copy.</td>
+<td>Saying the <strong>device</strong> contacts the root. Saying the
+root gives the address.</td>
+</tr>
+<tr>
+<td>TTL after a change</td>
+<td>Expiry = cached time + TTL. Before expiry: old address.</td>
+<td>Using the change time instead of the caching time</td>
+</tr>
+<tr>
+<td>Which role does DNS play</td>
+<td>Name to IP. ARP: IP to MAC. DHCP: gives a host its settings.</td>
+<td>Saying DNS finds MAC addresses</td>
+</tr>
+<tr>
+<td>HTTP/2 against HTTP/3</td>
+<td>One TCP stream: a gap blocks all. QUIC streams: only the stream with
+the loss.</td>
+<td>Saying HTTP/2 streams are independent in loss</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="common-traps">Common Traps</h2>
+<ul>
+<li><strong>TCP delivery is not the application’s result.</strong> An
+ACK means “bytes received”, not “file saved”. The application sends its
+own reply.</li>
+<li><strong>TCP has no message boundaries.</strong> The application
+marks them (length, fixed size, delimiter).</li>
+<li><strong>A status code is an HTTP answer. A timeout is no
+answer.</strong> 404 means the server replied. A timeout proves only
+that nothing came back in time.</li>
+<li><strong>Neither GET nor POST encrypts.</strong> Only HTTPS (HTTP
+over TLS) does.</li>
+<li><strong>DNS resolves only the hostname.</strong> The path and query
+go to the web server.</li>
+<li><strong>Persistent connection and cookie are different
+tools.</strong> One reuses TCP. The other recognises the user.</li>
+<li><strong>Under persistent HTTP the TCP setup happens once.</strong>
+The count is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">1 + n</annotation></semantics></math>
+RTT, not
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">2n</annotation></semantics></math>.
+The lecture’s model ignores DNS and TLS.</li>
+<li><strong>A cache hit is not always a request.</strong> A fresh copy
+needs <strong>no</strong> request. A stale copy needs a
+<strong>conditional</strong> GET, and a 304 sends no body.</li>
+<li><strong>Stale does not mean changed.</strong> It means “check before
+reuse”.</li>
+<li><strong>The device asks only its resolver.</strong> The resolver
+asks the root, the TLD and the authority. Each referral comes back to
+the resolver.</li>
+<li><strong>Root and TLD servers give referrals, not addresses.</strong>
+<code>ANSWER: 0</code> with NS records is a referral. The
+<code>aa</code> flag marks the authoritative answer.</li>
+<li><strong>A nameserver’s address is not the website’s
+address.</strong> The ADDITIONAL A record in a referral belongs to a
+nameserver.</li>
+<li><strong>Registering a domain does not create a website or an A
+record.</strong> Delegate, then publish.</li>
+<li><strong>A DNS change takes up to one TTL, counted from when each
+cache stored the old record.</strong> Keep the old server up during the
+overlap.</li>
+<li><strong>A CNAME is not an HTTP redirect.</strong> A CNAME is
+followed inside DNS. A redirect makes the browser ask a new URL.</li>
+<li><strong>DNS does not find MAC addresses.</strong> ARP does, and only
+on the local link.</li>
+<li><strong>In a frame table, MAC and IP differ.</strong> The IP
+destination is the final host. The Ethernet destination is the next hop.
+DNS does not give the server’s MAC.</li>
+<li><strong>A ping reply proves only IP reachability.</strong> It does
+not prove HTTP works.</li>
+<li><strong>HTTP/2 shares one TCP byte stream, so one loss blocks every
+stream.</strong> HTTP/3 over QUIC blocks only the stream that lost data.
+QUIC, CUBIC and BBR are background, not tested.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/9-transport/9.html">← 9.
+Transport Layer: Ports, UDP and TCP</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

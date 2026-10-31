@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>12. NP-Completeness · SC2301 Algorithm Design &amp;
+Analysis</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">12.
+NP-Completeness</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">12. NP-Completeness</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-foundations/1.html"
+                   data-nav="notes/1-foundations/1.html">1. Foundations:
+Asymptotic Notation and Insertion Sort</a></li>
+            <li><a href="../../notes/2-mergesort/2.html"
+                   data-nav="notes/2-mergesort/2.html">2. Divide and
+Conquer: Mergesort</a></li>
+            <li><a href="../../notes/3-heapsort/3.html"
+                   data-nav="notes/3-heapsort/3.html">3. Heaps and
+Heapsort</a></li>
+            <li><a href="../../notes/4-quicksort-linear-sorts/4.html"
+                   data-nav="notes/4-quicksort-linear-sorts/4.html">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a></li>
+            <li><a href="../../notes/5-graph-traversal/5.html"
+                   data-nav="notes/5-graph-traversal/5.html">5. Graphs:
+Representations, BFS, DFS and Topological Sort</a></li>
+            <li><a href="../../notes/6-dijkstra-prim/6.html"
+                   data-nav="notes/6-dijkstra-prim/6.html">6. Greedy
+Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</a></li>
+            <li><a href="../../notes/7-union-find-kruskal/7.html"
+                   data-nav="notes/7-union-find-kruskal/7.html">7.
+Union-Find and Kruskal’s Algorithm</a></li>
+            <li><a href="../../notes/8-recurrences/8.html"
+                   data-nav="notes/8-recurrences/8.html">8. Analysis
+Techniques: Solving Recurrences</a></li>
+            <li><a href="../../notes/9-amortized-analysis/9.html"
+                   data-nav="notes/9-amortized-analysis/9.html">9.
+Amortized Analysis</a></li>
+            <li><a href="../../notes/10-dynamic-programming/10.html"
+                   data-nav="notes/10-dynamic-programming/10.html">10.
+Dynamic Programming</a></li>
+            <li><a href="../../notes/11-string-matching/11.html"
+                   data-nav="notes/11-string-matching/11.html">11.
+String Matching</a></li>
+            <li><a href="../../notes/12-np-completeness/12.html"
+                   data-nav="notes/12-np-completeness/12.html">12.
+NP-Completeness</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Cheatsheet</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#decision-problems-vs.-optimization-problems"
+id="toc-decision-problems-vs.-optimization-problems">1. Decision
+Problems vs. Optimization Problems</a></li>
+<li><a href="#the-complexity-classes-p-and-np"
+id="toc-the-complexity-classes-p-and-np">2. The Complexity Classes P and
+NP</a>
+<ul>
+<li><a href="#class-p-polynomial-time"
+id="toc-class-p-polynomial-time">Class P (Polynomial Time)</a></li>
+<li><a href="#class-np-nondeterministic-polynomial-time"
+id="toc-class-np-nondeterministic-polynomial-time">Class NP
+(Nondeterministic Polynomial Time)</a></li>
+<li><a href="#the-p-subseteq-np-relation-and-the-p-stackrel-np-question"
+id="toc-the-p-subseteq-np-relation-and-the-p-stackrel-np-question">The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>⊆</mo><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">P \subseteq NP</annotation></semantics></math>
+Relation and the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mover><mo>=</mo><mo accent="false">?</mo></mover><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">P \stackrel{?}{=} NP</annotation></semantics></math>
+Question</a></li>
+</ul></li>
+<li><a href="#polynomial-time-reductions-a-le_p-b"
+id="toc-polynomial-time-reductions-a-le_p-b">3. Polynomial-Time
+Reductions
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msub><mo>≤</mo><mi>p</mi></msub><mi>B</mi></mrow><annotation encoding="application/x-tex">A \le_p B</annotation></semantics></math>)</a>
+<ul>
+<li><a href="#core-implications-of-reductions"
+id="toc-core-implications-of-reductions">Core Implications of
+Reductions</a></li>
+</ul></li>
+<li><a href="#np-completeness-and-the-cook-levin-theorem"
+id="toc-np-completeness-and-the-cook-levin-theorem">4. NP-Completeness
+and the Cook-Levin Theorem</a>
+<ul>
+<li><a href="#step-by-step-method-proving-a-problem-b-is-np-complete"
+id="toc-step-by-step-method-proving-a-problem-b-is-np-complete">Step-by-Step
+Method: Proving a Problem
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+is NP-Complete</a></li>
+</ul></li>
+<li><a href="#canonical-np-complete-problems"
+id="toc-canonical-np-complete-problems">5. Canonical NP-Complete
+Problems</a></li>
+<li><a href="#coping-with-np-completeness-in-practice"
+id="toc-coping-with-np-completeness-in-practice">6. Coping with
+NP-Completeness in Practice</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>Not all algorithmic problems admit polynomial-time solutions. When
+computational problems resist efficient algorithms, establishing that a
+problem is <strong>NP-complete</strong> provides a mathematical
+guarantee that no polynomial-time algorithm exists unless
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">P = NP</annotation></semantics></math>.
+Recognizing computational intractability prevents wasting engineering
+effort searching for non-existent optimal algorithms and directs focus
+toward approximation heuristics, special-case topologies, and
+parameterized algorithms.</p>
+<p>This chapter covers decision vs. optimization problems, the formal
+definitions of complexity classes <strong>P</strong>,
+<strong>NP</strong>, and <strong>NP-Complete</strong>, polynomial-time
+reductions
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msub><mo>≤</mo><mi>p</mi></msub><mi>B</mi></mrow><annotation encoding="application/x-tex">A \le_p B</annotation></semantics></math>),
+Cook-Levin’s theorem, and formal NP-completeness proofs for canonical
+problems (SAT, 3-SAT, Clique, TSP, and Knapsack).</p>
+<hr />
+<h2 id="decision-problems-vs.-optimization-problems">1. Decision
+Problems vs. Optimization Problems</h2>
+<p>Algorithms address two primary categories of computational
+problems:</p>
+<ul>
+<li><strong>Optimization Problem:</strong> Finds the <em>optimal</em>
+(minimum or maximum) feasible solution according to a cost objective
+(e.g. finding the absolute shortest path, or the minimum-cost travelling
+salesperson tour).</li>
+<li><strong>Decision Problem:</strong> Has a binary <strong>YES</strong>
+or <strong>NO</strong> answer (e.g. “Is there a simple path between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+with total weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\le k</annotation></semantics></math>?”).</li>
+</ul>
+<p>Every optimization problem can be cast as an equivalent decision
+problem by introducing an explicit threshold bound
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 49%" />
+</colgroup>
+<thead>
+<tr>
+<th>Optimization Problem</th>
+<th>Equivalent Decision Formulation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Shortest Path:</strong> Find minimum distance from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.</td>
+<td>Is there a path from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+of weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\le k</annotation></semantics></math>?</td>
+</tr>
+<tr>
+<td><strong>0/1 Knapsack:</strong> Find maximum profit within capacity
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>.</td>
+<td>Is there a subset of weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mi>W</mi></mrow><annotation encoding="application/x-tex">\le W</annotation></semantics></math>
+with profit
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">\ge P</annotation></semantics></math>?</td>
+</tr>
+<tr>
+<td><strong>CLIQUE:</strong> Find maximum size complete subgraph in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>.</td>
+<td>Does
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+contain a clique of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\ge k</annotation></semantics></math>?</td>
+</tr>
+<tr>
+<td><strong>TSP:</strong> Find minimum weight tour visiting all
+cities.</td>
+<td>Does
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+have a tour visiting every city with weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\le k</annotation></semantics></math>?</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>[!NOTE] <strong>Equivalence of Difficulty:</strong> If an
+optimization problem can be solved in polynomial time, its decision
+counterpart is trivially solvable in polynomial time (compute the
+optimum and compare against
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>).
+Conversely, binary searching over the threshold
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+solves the optimization problem using
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">Range</mtext><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log(\text{Range}))</annotation></semantics></math>
+calls to the decision procedure.</p>
+</blockquote>
+<hr />
+<h2 id="the-complexity-classes-p-and-np">2. The Complexity Classes P and
+NP</h2>
+<p>Complexity theory classifies decision problems based on the
+computational resources required to <strong>solve</strong> them versus
+<strong>verify</strong> candidate solutions:</p>
+<pre class="mermaid"><code>flowchart TD
+    subgraph Classes [&quot;Computational Complexity Classes&quot;]
+        P[&quot;Class P&lt;br/&gt;Solvable in polynomial time O(n^k)&quot;]
+        NP[&quot;Class NP&lt;br/&gt;Verifiable in polynomial time O(n^k)&quot;]
+        NPC[&quot;Class NP-Complete&lt;br/&gt;Hardest problems in NP&quot;]
+    end</code></pre>
+<h3 id="class-p-polynomial-time">Class P (Polynomial Time)</h3>
+<p><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math></strong>
+is the class of decision problems that can be <strong>solved by a
+deterministic algorithm in polynomial time</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mi>k</mi></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n^k)</annotation></semantics></math>
+for some constant
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.</p>
+<ul>
+<li>Examples: Shortest paths (Dijkstra
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|E| + |V| \log |V|)</annotation></semantics></math>),
+Minimum Spanning Tree (Prim/Kruskal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|E| \log |V|)</annotation></semantics></math>),
+Connectivity (BFS/DFS
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V| + |E|)</annotation></semantics></math>),
+Sorting, Linear Programming.</li>
+</ul>
+<hr />
+<h3 id="class-np-nondeterministic-polynomial-time">Class NP
+(Nondeterministic Polynomial Time)</h3>
+<p><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">NP</annotation></semantics></math></strong>
+is the class of decision problems for which a proposed solution (“YES”
+instance certificate / witness) can be <strong>verified in polynomial
+time by a deterministic algorithm</strong>.</p>
+<p>Alternatively, an NP problem is solvable in polynomial time by an
+idealized <strong>nondeterministic algorithm</strong> executing two
+phases:</p>
+<ol type="1">
+<li><strong>Guess Phase:</strong> A non-deterministic guessing machine
+magically generates an arbitrary string
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+(the candidate certificate).</li>
+<li><strong>Verify Phase:</strong> A standard deterministic algorithm
+inspects
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+and instance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>,
+outputting <strong>YES</strong> in polynomial time if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+is a valid certificate.</li>
+</ol>
+<figure>
+<img width="1350" height="754" src="media/12-artifacts/nondeterministic-algorithm.webp"
+style="width:70.0%" loading="lazy" decoding="async"
+alt="A nondeterministic algorithm decomposes problem solving into an unconstrained guess phase followed by a deterministic polynomial-time verification phase." />
+<figcaption aria-hidden="true">A nondeterministic algorithm decomposes
+problem solving into an unconstrained guess phase followed by a
+deterministic polynomial-time verification phase.</figcaption>
+</figure>
+<h3 id="the-p-subseteq-np-relation-and-the-p-stackrel-np-question">The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>⊆</mo><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">P \subseteq NP</annotation></semantics></math>
+Relation and the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mover><mo>=</mo><mo accent="false">?</mo></mover><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">P \stackrel{?}{=} NP</annotation></semantics></math>
+Question</h3>
+<ul>
+<li>Every problem in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+is also in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">NP</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>⊆</mo><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">P \subseteq NP</annotation></semantics></math>):
+If a problem can be solved from scratch in polynomial time, a
+certificate can simply be ignored and the problem solved directly in
+polynomial time.</li>
+<li><strong>The Millennium Open Question
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mover><mo>=</mo><mo accent="false">?</mo></mover><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">P \stackrel{?}{=} NP</annotation></semantics></math>):</strong>
+Does the ability to verify a solution quickly imply the ability to find
+it quickly? Most computer scientists conjecture that
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>≠</mo><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">P \ne NP</annotation></semantics></math></strong>.</li>
+</ul>
+<figure>
+<img width="1350" height="822" src="media/12-artifacts/complexity-classes-venn.webp"
+style="width:75.0%" loading="lazy" decoding="async"
+alt="Venn diagram of complexity classes under the prevailing conjecture P \ne NP. NP-complete problems represent the hardest problems in NP." />
+<figcaption aria-hidden="true">Venn diagram of complexity classes under
+the prevailing conjecture
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>≠</mo><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">P \ne NP</annotation></semantics></math>.
+NP-complete problems represent the hardest problems in NP.</figcaption>
+</figure>
+<details class="qa box">
+<summary>
+<strong>Tutorial 12 Q1:</strong> Classification of Decision Problem into
+P vs. NP <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Is the following problem in the class P or
+NP? Justify your answer: &gt; <em>Given a network of cities
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+with non-negative edge weights and a positive integer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.
+Are the shortest paths between all pairs of cities not longer than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>?</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Classification: The problem is in P</strong> (and
+consequently in NP).</li>
+<li><strong>Justification:</strong>
+<ol type="1">
+<li>Dijkstra’s algorithm computes the shortest paths from a single
+source vertex to all other vertices in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|^2)</annotation></semantics></math>
+time (using an adjacency matrix) or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>E</mi><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|E| + |V| \log |V|)</annotation></semantics></math>
+time (using a min-heap).</li>
+<li>Running Dijkstra’s algorithm from every vertex
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>∈</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">u \in V</annotation></semantics></math>
+computes all-pairs shortest paths in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mi>×</mi><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>3</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">|V| \times O(|V|^2) = O(|V|^3)</annotation></semantics></math>
+time. <em>(Alternatively, the Floyd-Warshall dynamic programming
+algorithm solves all-pairs shortest paths directly in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>3</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(|V|^3)</annotation></semantics></math>
+time).</em></li>
+<li>Once all-pairs shortest path distances
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>i</mi><mi>s</mi><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>u</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">dist[u][v]</annotation></semantics></math>
+are computed, checking whether every pairwise distance satisfies
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>i</mi><mi>s</mi><mi>t</mi><mo stretchy="false" form="prefix">[</mo><mi>u</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">[</mo><mi>v</mi><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">dist[u][v] \le k</annotation></semantics></math>
+takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|^2)</annotation></semantics></math>
+comparisons.</li>
+<li>Total execution time is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>3</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|^3)</annotation></semantics></math>,
+which is strictly bounded by a polynomial in the input size.</li>
+<li>Because a deterministic algorithm can solve this decision problem in
+polynomial time, the problem belongs to <strong>Class P</strong>.</li>
+</ol></li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 12 Q2:</strong> Proving the CLIQUE Problem is in NP
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Given a graph
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G = (V, E)</annotation></semantics></math>
+and positive integer
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>≤</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">k \le |V|</annotation></semantics></math>.
+The <strong>CLIQUE</strong> problem asks whether
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+contains a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-clique
+(a subset
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>V</mi><mo>′</mo></msup><mo>⊆</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">V&#39; \subseteq V</annotation></semantics></math>
+of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><msup><mi>V</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">|</mo><mo>≥</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">|V&#39;| \ge k</annotation></semantics></math>
+such that every pair of vertices in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>V</mi><mo>′</mo></msup><annotation encoding="application/x-tex">V&#39;</annotation></semantics></math>
+is connected by an edge in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>).
+Show that the CLIQUE problem is in NP.</p>
+<p><strong>Solution:</strong></p>
+<p>To prove CLIQUE
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∈</mo><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">\in NP</annotation></semantics></math>,
+we specify a polynomial-time verification algorithm:</p>
+<ol type="1">
+<li><strong>Certificate (Witness):</strong> The candidate subset of
+vertices
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>V</mi><mo>′</mo></msup><mo>⊆</mo><mi>V</mi></mrow><annotation encoding="application/x-tex">V&#39; \subseteq V</annotation></semantics></math>.</li>
+<li><strong>Verification Protocol:</strong>
+<ul>
+<li>Step 1: Verify that every vertex in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>V</mi><mo>′</mo></msup><annotation encoding="application/x-tex">V&#39;</annotation></semantics></math>
+belongs to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>V</mi><annotation encoding="application/x-tex">V</annotation></semantics></math>.
+Time:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><msup><mi>V</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V&#39;|) \le O(|V|)</annotation></semantics></math>.</li>
+<li>Step 2: Verify that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><msup><mi>V</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">|</mo><mo>≥</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">|V&#39;| \ge k</annotation></semantics></math>.
+Time:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+(or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|)</annotation></semantics></math>).</li>
+<li>Step 3: For every distinct pair of vertices
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>u</mi><mo>,</mo><mi>v</mi><mo>∈</mo><msup><mi>V</mi><mo>′</mo></msup></mrow><annotation encoding="application/x-tex">u, v \in V&#39;</annotation></semantics></math>,
+verify that edge
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>v</mi><mo stretchy="false" form="postfix">)</mo><mo>∈</mo><mi>E</mi></mrow><annotation encoding="application/x-tex">(u, v) \in E</annotation></semantics></math>.
+<ul>
+<li>Number of pairs checked:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mfrac linethickness="0"><mrow><mo stretchy="false" form="prefix">|</mo><msup><mi>V</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">|</mo></mrow><mn>2</mn></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><mfrac><mrow><mo stretchy="false" form="prefix">|</mo><msup><mi>V</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><msup><mi>V</mi><mo>′</mo></msup><mo stretchy="false" form="prefix">|</mo><mi>−</mi><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><mn>2</mn></mfrac><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\binom{|V&#39;|}{2} = \frac{|V&#39;|(|V&#39;| - 1)}{2} = O(|V|^2)</annotation></semantics></math>.</li>
+<li>Checking edge existence takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+in an adjacency matrix, or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|)</annotation></semantics></math>
+in an adjacency list.</li>
+<li>Total edge verification time:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|^2)</annotation></semantics></math>.</li>
+</ul></li>
+</ul></li>
+<li><strong>Conclusion:</strong> The verification algorithm runs in
+deterministic
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>V</mi><msup><mo stretchy="false" form="prefix">|</mo><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|V|^2)</annotation></semantics></math>
+polynomial time</strong>. If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+contains a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-clique,
+the verifier outputs YES given
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>V</mi><mo>′</mo></msup><annotation encoding="application/x-tex">V&#39;</annotation></semantics></math>.
+Thus, <strong>CLIQUE
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∈</mo><annotation encoding="application/x-tex">\in</annotation></semantics></math>
+NP</strong>.</li>
+</ol>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 12 Q3:</strong> Proving 3-CNF-SAT is in NP <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> In the 3-CNF-SAT problem, we are given a
+set of boolean variables
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>U</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>u</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>u</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">U = \{u_1, \dots, u_n\}</annotation></semantics></math>
+and a collection of clauses
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>c</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>c</mi><mi>m</mi></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">C = \{c_1, \dots, c_m\}</annotation></semantics></math>
+where each clause
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>c</mi><mi>j</mi></msub><annotation encoding="application/x-tex">c_j</annotation></semantics></math>
+is a disjunction
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>∨</mi><annotation encoding="application/x-tex">\lor</annotation></semantics></math>)
+of exactly 3 literals. The problem asks if there exists a truth
+assignment satisfying all clauses simultaneously. Show that 3-CNF-SAT is
+in NP.</p>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li><strong>Certificate:</strong> An assignment of boolean truth values
+to the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+variables:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>u</mi><mn>1</mn></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mi>T</mi><mo>,</mo><mi>F</mi><mo stretchy="false" form="postfix">}</mo><mo>,</mo><msub><mi>u</mi><mn>2</mn></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mi>T</mi><mo>,</mo><mi>F</mi><mo stretchy="false" form="postfix">}</mo><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>u</mi><mi>n</mi></msub><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mi>T</mi><mo>,</mo><mi>F</mi><mo stretchy="false" form="postfix">}</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">A = (u_1 \in \{T, F\}, u_2 \in \{T, F\}, \dots, u_n \in \{T, F\})</annotation></semantics></math>.</li>
+<li><strong>Verification Protocol:</strong>
+<ul>
+<li>For each of the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+clauses
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mi>j</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>l</mi><mrow><mi>j</mi><mo>,</mo><mn>1</mn></mrow></msub><mo>∨</mo><msub><mi>l</mi><mrow><mi>j</mi><mo>,</mo><mn>2</mn></mrow></msub><mo>∨</mo><msub><mi>l</mi><mrow><mi>j</mi><mo>,</mo><mn>3</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">c_j = (l_{j,1} \lor l_{j,2} \lor l_{j,3})</annotation></semantics></math>:
+<ul>
+<li>Evaluate the truth value of the 3 literals under assignment
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>.</li>
+<li>The clause evaluates to <code>True</code> if at least one literal is
+<code>True</code>. This requires at most 3 lookups:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+time per clause.</li>
+</ul></li>
+<li>Total verification time across all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+clauses:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>×</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="bold-italic">𝑶</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒎</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">m \times O(1) = \mathbf{O(m)}.</annotation></semantics></math></li>
+</ul></li>
+<li><strong>Conclusion:</strong> The verifier validates the certificate
+in deterministic linear time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">Input Size</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(m) = O(\text{Input Size})</annotation></semantics></math>.
+Therefore, <strong>3-CNF-SAT
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∈</mo><annotation encoding="application/x-tex">\in</annotation></semantics></math>
+NP</strong>.</li>
+</ol>
+</div>
+</details>
+<hr />
+<h2 id="polynomial-time-reductions-a-le_p-b">3. Polynomial-Time
+Reductions
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msub><mo>≤</mo><mi>p</mi></msub><mi>B</mi></mrow><annotation encoding="application/x-tex">A \le_p B</annotation></semantics></math>)</h2>
+<p>To establish the relative hardness of problems, we use
+<strong>polynomial-time reductions</strong>:</p>
+<p>A decision problem
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+is <strong>polynomial-time reducible</strong> to decision problem
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+(written
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msub><mo>≤</mo><mi>p</mi></msub><mi>B</mi></mrow><annotation encoding="application/x-tex">A \le_p B</annotation></semantics></math>)
+if there exists a polynomial-time computable transformation function
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>
+mapping instances of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+to instances of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+such that:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> is a YES-instance of </mtext><mspace width="0.333em"></mspace></mrow><mi>A</mi><mo>⇔</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> is a YES-instance of </mtext><mspace width="0.333em"></mspace></mrow><mi>B</mi></mrow><annotation encoding="application/x-tex">x \text{ is a YES-instance of } A \iff f(x) \text{ is a YES-instance of } B</annotation></semantics></math></p>
+<figure>
+<img width="1350" height="597" src="media/12-artifacts/polynomial-reduction.webp"
+style="width:75.0%" loading="lazy" decoding="async"
+alt="A polynomial-time reduction transforms an instance x of problem A into an instance f(x) of problem B in polynomial time, piping the decision output back unmodified." />
+<figcaption aria-hidden="true">A polynomial-time reduction transforms an
+instance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+of problem
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+into an instance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x)</annotation></semantics></math>
+of problem
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+in polynomial time, piping the decision output back
+unmodified.</figcaption>
+</figure>
+<h3 id="core-implications-of-reductions">Core Implications of
+Reductions</h3>
+<ul>
+<li><strong>Solvability:</strong> If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msub><mo>≤</mo><mi>p</mi></msub><mi>B</mi></mrow><annotation encoding="application/x-tex">A \le_p B</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>∈</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">B \in P</annotation></semantics></math>,
+then
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>∈</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">A \in P</annotation></semantics></math></strong>.
+(If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+is easy,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+is easy).</li>
+<li><strong>Hardness:</strong> If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msub><mo>≤</mo><mi>p</mi></msub><mi>B</mi></mrow><annotation encoding="application/x-tex">A \le_p B</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>∉</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">A \notin P</annotation></semantics></math>,
+then
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>∉</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">B \notin P</annotation></semantics></math></strong>.
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+is at least as hard as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>).</li>
+<li><strong>Transitivity:</strong> If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msub><mo>≤</mo><mi>p</mi></msub><mi>B</mi></mrow><annotation encoding="application/x-tex">A \le_p B</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><msub><mo>≤</mo><mi>p</mi></msub><mi>C</mi></mrow><annotation encoding="application/x-tex">B \le_p C</annotation></semantics></math>,
+then
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><msub><mo>≤</mo><mi>p</mi></msub><mi>C</mi></mrow><annotation encoding="application/x-tex">A \le_p C</annotation></semantics></math></strong>.</li>
+</ul>
+<hr />
+<h2 id="np-completeness-and-the-cook-levin-theorem">4. NP-Completeness
+and the Cook-Levin Theorem</h2>
+<p>A decision problem
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+is <strong>NP-Complete (NPC)</strong> if:</p>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>X</mi><mo>∈</mo><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">X \in NP</annotation></semantics></math>
+(membership: verifiable in polynomial time).</li>
+<li>For every problem
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><mo>∈</mo><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">Y \in NP</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Y</mi><msub><mo>≤</mo><mi>p</mi></msub><mi>X</mi></mrow><annotation encoding="application/x-tex">Y \le_p X</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>X</mi><annotation encoding="application/x-tex">X</annotation></semantics></math>
+is <strong>NP-hard</strong>).</li>
+</ol>
+<blockquote>
+<p>[!IMPORTANT] <strong>The Cook-Levin Theorem (1971):</strong> Stephen
+Cook and Leonid Levin independently proved that the <strong>Boolean
+Satisfiability Problem (SAT)</strong> is NP-Complete. They proved
+directly from first principles that <em>any</em> polynomial-time
+verification computation of a nondeterministic Turing machine can be
+encoded as a polynomial-sized boolean formula in Conjunctive Normal
+Form.</p>
+</blockquote>
+<hr />
+<h3
+id="step-by-step-method-proving-a-problem-b-is-np-complete">Step-by-Step
+Method: Proving a Problem
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+is NP-Complete</h3>
+<p>Once SAT was established as the initial NP-complete anchor, proving
+that any subsequent problem
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+is NP-complete does not require reducing all problems in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">NP</annotation></semantics></math>
+from scratch. By transitivity:</p>
+<pre class="mermaid"><code>flowchart LR
+    K[&quot;1. Select known NP-Complete problem A (e.g. SAT, 3-SAT, Clique)&quot;] --&gt; Red[&quot;2. Design polynomial reduction f mapping A -&gt; B&quot;]
+    Red --&gt; Equiv[&quot;3. Prove equivalence: x in A &lt;=&gt; f(x) in B&quot;]
+    Equiv --&gt; Ver[&quot;4. Prove B in NP (polynomial verifier)&quot;]
+    Ver --&gt; Done[&quot;Conclusion: B is NP-Complete&quot;]</code></pre>
+<ol type="1">
+<li><strong>Prove
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>∈</mo><mi>N</mi><mi>P</mi></mrow><annotation encoding="application/x-tex">B \in NP</annotation></semantics></math>:</strong>
+Define a candidate certificate and verify it in deterministic polynomial
+time.</li>
+<li><strong>Select a Known NP-Complete Problem
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>:</strong>
+(e.g. SAT, 3-CNF-SAT, CLIQUE, VERTEX-COVER).</li>
+<li><strong>Formulate Transformation
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>:</strong>
+Define an algorithm that maps any instance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+to an instance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x)</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+in polynomial time
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mi>c</mi></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n^c)</annotation></semantics></math>).</li>
+<li><strong>Prove Bidirectional Equivalence:</strong>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mo>⟹</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\implies)</annotation></semantics></math>
+If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+is a YES-instance of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>,
+then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x)</annotation></semantics></math>
+is a YES-instance of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mo>⟸</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(\impliedby)</annotation></semantics></math>
+If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(x)</annotation></semantics></math>
+is a YES-instance of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>,
+then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>x</mi><annotation encoding="application/x-tex">x</annotation></semantics></math>
+is a YES-instance of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+(or contrapositive:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>∉</mo><mi>A</mi><mo>⟹</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="postfix">)</mo><mo>∉</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">x \notin A \implies f(x) \notin B</annotation></semantics></math>).</li>
+</ul></li>
+</ol>
+<details class="qa box">
+<summary>
+<strong>Tutorial 12 Q4:</strong> Proving 3-CNF-SAT is NP-Complete via
+Reduction from SAT <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Given that SAT (satisfiability of
+arbitrary CNF formulas) is NP-complete, prove that
+<strong>3-CNF-SAT</strong> is also NP-complete.</p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><p><strong>1. Membership in NP:</strong> From Tutorial 12 Q3, a
+truth assignment certificate can be verified across all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+clauses in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(m)</annotation></semantics></math>
+linear time. Thus 3-CNF-SAT
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>∈</mo><annotation encoding="application/x-tex">\in</annotation></semantics></math>
+NP.</p></li>
+<li><p><strong>2. Reduction:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">SAT</mtext><msub><mo>≤</mo><mi>p</mi></msub><mtext mathvariant="normal">3-CNF-SAT</mtext></mrow><annotation encoding="application/x-tex">\text{SAT} \le_p \text{3-CNF-SAT}</annotation></semantics></math>:</strong>
+We must transform an arbitrary CNF formula
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϕ</mi><mo>=</mo><msub><mi>C</mi><mn>1</mn></msub><mo>∧</mo><msub><mi>C</mi><mn>2</mn></msub><mo>∧</mo><mi>…</mi><mo>∧</mo><msub><mi>C</mi><mi>m</mi></msub></mrow><annotation encoding="application/x-tex">\phi = C_1 \land C_2 \land \dots \land C_m</annotation></semantics></math>
+where clauses have arbitrary length into a 3-CNF formula
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>ϕ</mi><mo>′</mo></msup><annotation encoding="application/x-tex">\phi&#39;</annotation></semantics></math>
+where every clause has exactly 3 literals. Transform each clause
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>x</mi><mn>2</mn></msub><mo>∨</mo><mi>…</mi><mo>∨</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">C = (x_1 \lor x_2 \lor \dots \lor x_k)</annotation></semantics></math>
+independently:</p>
+<ul>
+<li><strong>Case 1
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k = 1</annotation></semantics></math>
+literal,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">C = (x_1)</annotation></semantics></math>):</strong>
+Introduce two new dummy variables
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><msub><mi>y</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">y_1, y_2</annotation></semantics></math>
+and expand into 4 clauses of 3 literals:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>C</mi><mo>′</mo></msup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>y</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>∧</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>∨</mo><mo>¬</mo><msub><mi>y</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>∧</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>y</mi><mn>1</mn></msub><mo>∨</mo><mo>¬</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>∧</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>∨</mo><mo>¬</mo><msub><mi>y</mi><mn>1</mn></msub><mo>∨</mo><mo>¬</mo><msub><mi>y</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">C&#39; = (x_1 \lor y_1 \lor y_2) \land (x_1 \lor \neg y_1 \lor y_2) \land (x_1 \lor y_1 \lor \neg y_2) \land (x_1 \lor \neg y_1 \lor \neg y_2)</annotation></semantics></math>
+<em>(For all 4 clauses to be true simultaneously,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mn>1</mn></msub><annotation encoding="application/x-tex">x_1</annotation></semantics></math>
+must evaluate to True).</em></li>
+<li><strong>Case 2
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">k = 2</annotation></semantics></math>
+literals,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>x</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">C = (x_1 \lor x_2)</annotation></semantics></math>):</strong>
+Introduce one dummy variable
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mn>1</mn></msub><annotation encoding="application/x-tex">z_1</annotation></semantics></math>
+and expand into 2 clauses:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>C</mi><mo>′</mo></msup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>x</mi><mn>2</mn></msub><mo>∨</mo><msub><mi>z</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>∧</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>x</mi><mn>2</mn></msub><mo>∨</mo><mo>¬</mo><msub><mi>z</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">C&#39; = (x_1 \lor x_2 \lor z_1) \land (x_1 \lor x_2 \lor \neg z_1)</annotation></semantics></math>
+<em>(Independent of whether
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mn>1</mn></msub><annotation encoding="application/x-tex">z_1</annotation></semantics></math>
+is True or False,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>x</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">x_1 \lor x_2</annotation></semantics></math>
+must be True).</em></li>
+<li><strong>Case 3
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">k = 3</annotation></semantics></math>
+literals):</strong> Retain clause unmodified:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>C</mi><mo>′</mo></msup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>x</mi><mn>2</mn></msub><mo>∨</mo><msub><mi>x</mi><mn>3</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">C&#39; = (x_1 \lor x_2 \lor x_3)</annotation></semantics></math>.</li>
+<li><strong>Case 4
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>&gt;</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">k &gt; 3</annotation></semantics></math>
+literals,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>C</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>x</mi><mn>2</mn></msub><mo>∨</mo><mi>…</mi><mo>∨</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">C = (x_1 \lor x_2 \lor \dots \lor x_k)</annotation></semantics></math>):</strong>
+Introduce
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>−</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">k - 3</annotation></semantics></math>
+auxiliary variables
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mn>1</mn></msub><mo>,</mo><msub><mi>w</mi><mn>2</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>w</mi><mrow><mi>k</mi><mo>−</mo><mn>3</mn></mrow></msub></mrow><annotation encoding="application/x-tex">w_1, w_2, \dots, w_{k-3}</annotation></semantics></math>
+and construct a chain of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">k - 2</annotation></semantics></math>
+clauses:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>C</mi><mo>′</mo></msup><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>x</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>x</mi><mn>2</mn></msub><mo>∨</mo><msub><mi>w</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>∧</mo><mo stretchy="false" form="prefix">(</mo><mo>¬</mo><msub><mi>w</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>x</mi><mn>3</mn></msub><mo>∨</mo><msub><mi>w</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>∧</mo><mo stretchy="false" form="prefix">(</mo><mo>¬</mo><msub><mi>w</mi><mn>2</mn></msub><mo>∨</mo><msub><mi>x</mi><mn>4</mn></msub><mo>∨</mo><msub><mi>w</mi><mn>3</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>∧</mo><mi>…</mi><mo>∧</mo><mo stretchy="false" form="prefix">(</mo><mo>¬</mo><msub><mi>w</mi><mrow><mi>k</mi><mo>−</mo><mn>3</mn></mrow></msub><mo>∨</mo><msub><mi>x</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>∨</mo><msub><mi>x</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">C&#39; = (x_1 \lor x_2 \lor w_1) \land (\neg w_1 \lor x_3 \lor w_2) \land (\neg w_2 \lor x_4 \lor w_3) \land \dots \land (\neg w_{k-3} \lor x_{k-1} \lor x_k)</annotation></semantics></math></li>
+</ul></li>
+<li><p><strong>3. Correctness &amp; Equivalence Proof:</strong></p>
+<ul>
+<li>If original clause
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>C</mi><annotation encoding="application/x-tex">C</annotation></semantics></math>
+is satisfied: At least one literal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>i</mi></msub><mo>=</mo><mtext mathvariant="normal">True</mtext></mrow><annotation encoding="application/x-tex">x_i = \text{True}</annotation></semantics></math>.
+<ul>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">i \in \{1, 2\}</annotation></semantics></math>,
+setting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mn>1</mn></msub><mo>=</mo><msub><mi>w</mi><mn>2</mn></msub><mo>=</mo><mi>…</mi><mo>=</mo><msub><mi>w</mi><mrow><mi>k</mi><mo>−</mo><mn>3</mn></mrow></msub><mo>=</mo><mtext mathvariant="normal">False</mtext></mrow><annotation encoding="application/x-tex">w_1 = w_2 = \dots = w_{k-3} = \text{False}</annotation></semantics></math>
+satisfies all subsequent clauses.</li>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>∈</mo><mo stretchy="false" form="prefix">{</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>k</mi><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">i \in \{k-1, k\}</annotation></semantics></math>,
+setting all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mi>j</mi></msub><mo>=</mo><mtext mathvariant="normal">True</mtext></mrow><annotation encoding="application/x-tex">w_j = \text{True}</annotation></semantics></math>
+satisfies all preceding clauses.</li>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>&lt;</mo><mi>i</mi><mo>&lt;</mo><mi>k</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">2 &lt; i &lt; k-1</annotation></semantics></math>,
+set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mn>1</mn></msub><mi>…</mi><msub><mi>w</mi><mrow><mi>i</mi><mo>−</mo><mn>2</mn></mrow></msub><mo>=</mo><mtext mathvariant="normal">True</mtext></mrow><annotation encoding="application/x-tex">w_1 \dots w_{i-2} = \text{True}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mrow><mi>i</mi><mo>−</mo><mn>1</mn></mrow></msub><mi>…</mi><msub><mi>w</mi><mrow><mi>k</mi><mo>−</mo><mn>3</mn></mrow></msub><mo>=</mo><mtext mathvariant="normal">False</mtext></mrow><annotation encoding="application/x-tex">w_{i-1} \dots w_{k-3} = \text{False}</annotation></semantics></math>,
+satisfying every clause in the chain.</li>
+</ul></li>
+<li>If all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>i</mi></msub><mo>=</mo><mtext mathvariant="normal">False</mtext></mrow><annotation encoding="application/x-tex">x_i = \text{False}</annotation></semantics></math>:
+The chain collapses to:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>w</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>∧</mo><mo stretchy="false" form="prefix">(</mo><mo>¬</mo><msub><mi>w</mi><mn>1</mn></msub><mo>∨</mo><msub><mi>w</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>∧</mo><mi>…</mi><mo>∧</mo><mo stretchy="false" form="prefix">(</mo><mo>¬</mo><msub><mi>w</mi><mrow><mi>k</mi><mo>−</mo><mn>3</mn></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">(w_1) \land (\neg w_1 \lor w_2) \land \dots \land (\neg w_{k-3}),</annotation></semantics></math>
+which requires
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>w</mi><mn>1</mn></msub><mo>⟹</mo><msub><mi>w</mi><mn>2</mn></msub><mo>⟹</mo><mi>…</mi><mo>⟹</mo><msub><mi>w</mi><mrow><mi>k</mi><mo>−</mo><mn>3</mn></mrow></msub><mo>⟹</mo><mtext mathvariant="normal">False</mtext></mrow><annotation encoding="application/x-tex">w_1 \implies w_2 \implies \dots \implies w_{k-3} \implies \text{False}</annotation></semantics></math>,
+making simultaneous satisfaction impossible.</li>
+</ul></li>
+<li><p><strong>4. Complexity:</strong> A clause of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+literals yields at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">k - 2</annotation></semantics></math>
+new 3-literal clauses and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>−</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">k - 3</annotation></semantics></math>
+variables. The reduction runs in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi>ϕ</mi><mo stretchy="false" form="prefix">|</mo><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|\phi|)</annotation></semantics></math>
+linear time. Therefore,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">SAT</mtext><msub><mo>≤</mo><mi>p</mi></msub><mtext mathvariant="normal">3-CNF-SAT</mtext></mrow><annotation encoding="application/x-tex">\text{SAT} \le_p \text{3-CNF-SAT}</annotation></semantics></math>,
+establishing that <strong>3-CNF-SAT is NP-Complete</strong>.</p></li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="canonical-np-complete-problems">5. Canonical NP-Complete
+Problems</h2>
+<figure>
+<img width="1350" height="754" src="media/12-artifacts/tsp-graph.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Travelling Salesperson Problem: Finding whether a tour of weight \le k visiting all cities exists." />
+<figcaption aria-hidden="true">Travelling Salesperson Problem: Finding
+whether a tour of weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\le k</annotation></semantics></math>
+visiting all cities exists.</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 16%" />
+<col style="width: 30%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Domain</th>
+<th>Decision Formulation</th>
+<th>NP-Complete Ancestor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>SAT</strong></td>
+<td>Logic</td>
+<td>Satisfiability of arbitrary boolean CNF formula</td>
+<td>Root (Cook-Levin)</td>
+</tr>
+<tr>
+<td><strong>3-CNF-SAT</strong></td>
+<td>Logic</td>
+<td>Satisfiability of 3-literal CNF formula</td>
+<td>SAT
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mo>≤</mo><mi>p</mi></msub><annotation encoding="application/x-tex">\le_p</annotation></semantics></math>
+3-SAT</td>
+</tr>
+<tr>
+<td><strong>CLIQUE</strong></td>
+<td>Graphs</td>
+<td>Does
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+have a complete subgraph of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\ge k</annotation></semantics></math>?</td>
+<td>3-SAT
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mo>≤</mo><mi>p</mi></msub><annotation encoding="application/x-tex">\le_p</annotation></semantics></math>
+CLIQUE</td>
+</tr>
+<tr>
+<td><strong>VERTEX COVER</strong></td>
+<td>Graphs</td>
+<td>Does
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+have
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\le k</annotation></semantics></math>
+vertices touching every edge?</td>
+<td>3-SAT
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mo>≤</mo><mi>p</mi></msub><annotation encoding="application/x-tex">\le_p</annotation></semantics></math>
+VERTEX-COVER</td>
+</tr>
+<tr>
+<td><strong>HAMILTONIAN CYCLE</strong></td>
+<td>Graphs</td>
+<td>Is there a closed cycle visiting every vertex once?</td>
+<td>VERTEX-COVER
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mo>≤</mo><mi>p</mi></msub><annotation encoding="application/x-tex">\le_p</annotation></semantics></math>
+HAM-CYCLE</td>
+</tr>
+<tr>
+<td><strong>TSP (Decision)</strong></td>
+<td>Graphs</td>
+<td>Does
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+contain a tour visiting all vertices with cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\le k</annotation></semantics></math>?</td>
+<td>HAM-CYCLE
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mo>≤</mo><mi>p</mi></msub><annotation encoding="application/x-tex">\le_p</annotation></semantics></math>
+TSP</td>
+</tr>
+<tr>
+<td><strong>0/1 KNAPSACK (Decision)</strong></td>
+<td>Combinatorics</td>
+<td>Can profit
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">\ge P</annotation></semantics></math>
+be achieved within capacity
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>?</td>
+<td>SUBSET-SUM
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mo>≤</mo><mi>p</mi></msub><annotation encoding="application/x-tex">\le_p</annotation></semantics></math>
+KNAPSACK</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="coping-with-np-completeness-in-practice">6. Coping with
+NP-Completeness in Practice</h2>
+<p>When a real-world problem is proven NP-complete, engineers deploy
+four practical alternatives:</p>
+<ol type="1">
+<li><strong>Small Input Sizes
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>≤</mo><mn>25</mn></mrow><annotation encoding="application/x-tex">N \le 25</annotation></semantics></math>):</strong>
+Exact branch-and-bound or exhaustive search algorithms
+(e.g. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mi>n</mi></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(2^n)</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>!</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n!)</annotation></semantics></math>)
+run within acceptable seconds on modern CPUs.</li>
+<li><strong>Pseudo-Polynomial Algorithms:</strong> If parameters are
+bounded by small integers, dynamic programming provides fast practical
+runtimes (e.g. 0/1 Knapsack in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>W</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(nW)</annotation></semantics></math>).</li>
+<li><strong>Special Topological Cases:</strong> Restricting problem
+domains often yields polynomial algorithms (e.g. 2-SAT in linear
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n + m)</annotation></semantics></math>
+time; Maximum Independent Set on trees in linear time via DP).</li>
+<li><strong>Approximation Algorithms &amp; Greedy Heuristics:</strong>
+Accept a solution with a provable guarantee of being within a bounded
+factor of the optimum (e.g. 2-approximation for Vertex Cover;
+Christofides 1.5-approximation for Metric TSP).</li>
+</ol>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/11-string-matching/11.html">← 11.
+String Matching</a>
+  <a class="next-page" href="../../notes/cheatsheet.html">Cheatsheet →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>10. I/O Systems and Disk · SC2005 Operating Systems</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">10. I/O Systems
+and Disk</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">10. I/O Systems and Disk</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-overview/1.html"
+                   data-nav="notes/1-overview/1.html">1. Overview of
+Operating Systems</a></li>
+            <li><a href="../../notes/2-processes-threads/2.html"
+                   data-nav="notes/2-processes-threads/2.html">2.
+Processes and Threads</a></li>
+            <li><a href="../../notes/3-cpu-scheduling/3.html"
+                   data-nav="notes/3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../../notes/4-synchronization/4.html"
+                   data-nav="notes/4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../../notes/5-deadlocks/5.html"
+                   data-nav="notes/5-deadlocks/5.html">5.
+Deadlocks</a></li>
+            <li><a href="../../notes/6a-rtos/6a.html"
+                   data-nav="notes/6a-rtos/6a.html">6a. Real-Time
+Operating Systems</a></li>
+            <li><a href="../../notes/6b-virtualization/6b.html"
+                   data-nav="notes/6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../../notes/7-memory-organization/7.html"
+                   data-nav="notes/7-memory-organization/7.html">7.
+Memory Organization</a></li>
+            <li><a href="../../notes/8-virtual-memory/8.html"
+                   data-nav="notes/8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../../notes/9-file-systems/9.html"
+                   data-nav="notes/9-file-systems/9.html">9. File
+Systems</a></li>
+            <li><a href="../../notes/10-io-disk/10.html"
+                   data-nav="notes/10-io-disk/10.html">10. I/O Systems
+and Disk</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Course
+Cheatsheet</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../../notes/labs/lab-1.html"
+                   data-nav="notes/labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../../notes/labs/lab-2.html"
+                   data-nav="notes/labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3.html"
+                   data-nav="notes/labs/lab-3/lab-3.html">Lab 3
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4.html"
+                   data-nav="notes/labs/lab-4/lab-4.html">Lab 4
+Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#io-system-architecture" id="toc-io-system-architecture">1.
+I/O System Architecture</a>
+<ul>
+<li><a href="#layered-structure" id="toc-layered-structure">Layered
+Structure</a></li>
+</ul></li>
+<li><a href="#kernel-io-subsystem-services"
+id="toc-kernel-io-subsystem-services">2. Kernel I/O Subsystem
+Services</a></li>
+<li><a href="#synchronous-asynchronous-and-non-blocking-io"
+id="toc-synchronous-asynchronous-and-non-blocking-io">3. Synchronous,
+Asynchronous, and Non-blocking I/O</a>
+<ul>
+<li><a href="#double-buffering-mechanics"
+id="toc-double-buffering-mechanics">Double Buffering Mechanics</a></li>
+</ul></li>
+<li><a href="#life-cycle-of-an-io-request"
+id="toc-life-cycle-of-an-io-request">4. Life Cycle of an I/O
+Request</a></li>
+<li><a href="#hard-disk-geometry-and-latency-model"
+id="toc-hard-disk-geometry-and-latency-model">5. Hard Disk Geometry and
+Latency Model</a>
+<ul>
+<li><a href="#access-time-formula" id="toc-access-time-formula">Access
+Time Formula</a></li>
+</ul></li>
+<li><a href="#disk-scheduling-algorithms"
+id="toc-disk-scheduling-algorithms">6. Disk Scheduling Algorithms</a>
+<ul>
+<li><a href="#first-come-first-served-fcfs"
+id="toc-first-come-first-served-fcfs">First-Come, First-Served
+(FCFS)</a></li>
+<li><a href="#shortest-seek-time-first-sstf"
+id="toc-shortest-seek-time-first-sstf">Shortest Seek Time First
+(SSTF)</a></li>
+<li><a href="#scan-elevator-algorithm"
+id="toc-scan-elevator-algorithm">SCAN (Elevator Algorithm)</a></li>
+<li><a href="#c-scan-circular-scan" id="toc-c-scan-circular-scan">C-SCAN
+(Circular SCAN)</a></li>
+<li><a href="#look-c-look" id="toc-look-c-look">LOOK &amp;
+C-LOOK</a></li>
+</ul></li>
+<li><a href="#disk-management-raid-systems"
+id="toc-disk-management-raid-systems">7. Disk Management &amp; RAID
+Systems</a>
+<ul>
+<li><a href="#disk-striping-mirroring"
+id="toc-disk-striping-mirroring">Disk Striping &amp; Mirroring</a></li>
+<li><a href="#raid-architecture-levels"
+id="toc-raid-architecture-levels">RAID Architecture Levels</a></li>
+</ul></li>
+<li><a href="#comprehensive-disk-scheduling-problems"
+id="toc-comprehensive-disk-scheduling-problems">8. Comprehensive Disk
+Scheduling Problems</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>I/O systems bridge the orders-of-magnitude speed disparity between
+the CPU/memory hierarchy and peripheral storage devices. The operating
+system structures I/O management around two core objectives:
+<strong>generality</strong> (presenting a uniform device abstraction
+across heterogeneous hardware) and <strong>efficiency</strong>
+(maximizing throughput and overlapping CPU computation with device
+latency).</p>
+<hr />
+<h2 id="io-system-architecture">1. I/O System Architecture</h2>
+<p>Peripherals vary across data transfer modes (character vs. block
+streams), access semantics (sequential vs. random), synchronization
+behaviors (synchronous vs. asynchronous), and sharing constraints
+(dedicated vs. shared).</p>
+<figure>
+<img width="1140" height="845" src="media/10-artifacts/kernel-io-structure.webp"
+style="width:80.0%" loading="lazy" decoding="async"
+alt="Kernel I/O subsystem layered architecture (Lecture 10, slide 10.5)" />
+<figcaption aria-hidden="true">Kernel I/O subsystem layered architecture
+(Lecture 10, slide 10.5)</figcaption>
+</figure>
+<h3 id="layered-structure">Layered Structure</h3>
+<ol type="1">
+<li><strong>Kernel I/O Subsystem:</strong> Provides shared,
+device-independent abstractions: scheduling request queues, buffering,
+caching, spooling, device reservation, and error handling.</li>
+<li><strong>Device Drivers:</strong> Device-specific kernel modules that
+translate standard abstract I/O commands (read, write, seek) into
+low-level device controller registers and instructions.</li>
+<li><strong>Device Controllers:</strong> Hardware interfaces on the
+system bus containing command/status registers and internal data buffers
+that manage the physical device.</li>
+<li><strong>Physical Devices:</strong> Mechanical or electronic hardware
+(magnetic platters, optical media, flash chips, keyboards).</li>
+</ol>
+<hr />
+<h2 id="kernel-io-subsystem-services">2. Kernel I/O Subsystem
+Services</h2>
+<p>The kernel I/O subsystem employs three distinct memory management
+techniques:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 29%" />
+<col style="width: 27%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>Primary Function</th>
+<th>Data Resident in Memory</th>
+<th>Representative Use Case</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Buffering</strong></td>
+<td>Bridges <strong>speed disparities</strong> and <strong>transfer size
+mismatches</strong></td>
+<td>Data <strong>in transit</strong> (may hold the <em>only</em>
+copy)</td>
+<td>Assembling streaming network packets into full disk blocks</td>
+</tr>
+<tr>
+<td><strong>Caching</strong></td>
+<td>Accelerates <strong>repeated access</strong> to slow secondary
+storage</td>
+<td>High-speed <strong>duplicate copy</strong> of persistent data</td>
+<td>Retaining frequently referenced directory and file blocks</td>
+</tr>
+<tr>
+<td><strong>Spooling</strong></td>
+<td>Coordinates concurrent access to <strong>dedicated, non-sharable
+devices</strong></td>
+<td>Complete output data streams queued for sequential playback</td>
+<td>Print spooler daemon (<code>lpd</code>) collecting concurrent print
+jobs</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+AY17/18 S2 Q4a(iii): Appropriate usage of buffering vs. caching <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>(1) Downloading a file from the Internet and saving to hard
+disk
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Buffering:</strong> The network operates on unpredictable packet arrival
+rates with small MTU transfer sizes, while the disk transfers fixed
+multi-kilobyte blocks. Buffering accommodates transfer size mismatches
+and decouples transmission speed differences.</li>
+<li><strong>(2) Reading a file block repeatedly from the hard disk
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Caching:</strong> Because the exact same block is referenced repeatedly,
+keeping a high-speed copy resident in main memory eliminates repeated
+mechanical disk access latency.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY16/17 S1 Q4a(iii) &amp; AY18/19 S1 Q4a(iv): Buffer vs. cache
+definitions <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY16/17 S1 Q4a(iii):</strong> <em>“Caching is used to store
+data temporarily in memory when they are transferred between devices
+with different transfer sizes.”</em> — <strong>False.</strong> Bridging
+transfer size and speed mismatches during transit is the role of
+<strong>buffering</strong>. Caching stores copies of data to accelerate
+subsequent re-access.</li>
+<li><strong>AY18/19 S1 Q4a(iv):</strong> <em>“Buffer holds a copy of the
+data that resides elsewhere.”</em> — <strong>False.</strong> A buffer
+holds data in transit and frequently holds the <strong>sole active
+copy</strong> of data before it is persisted. A cache holds a replica of
+data residing elsewhere.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY15/16 S2 Q4a(vi): Buffering rapidly written and re-read files <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>True.</strong> (Accepted in exam solution): Buffering
+intermediate writes in main memory prevents continuous physical disk I/O
+when files are rapidly updated and re-read. In formal course taxonomy,
+retaining copies for repeated access is classified as
+<strong>caching</strong>, but write buffers similarly absorb
+high-frequency I/O bursts.</p>
+</div>
+</details>
+<hr />
+<h2 id="synchronous-asynchronous-and-non-blocking-io">3. Synchronous,
+Asynchronous, and Non-blocking I/O</h2>
+<figure>
+<img width="1400" height="685" src="media/10-artifacts/blocking-vs-asynchronous-io.webp"
+style="width:95.0%" loading="lazy" decoding="async"
+alt="(a) Blocking I/O vs. (b) Asynchronous I/O execution timelines (Lecture 10, slide 10.9)" />
+<figcaption aria-hidden="true">(a) Blocking I/O vs. (b) Asynchronous I/O
+execution timelines (Lecture 10, slide 10.9)</figcaption>
+</figure>
+<ul>
+<li><strong>Blocking (Synchronous) I/O:</strong> The issuing thread
+halts execution and enters the <code>Waiting</code> state until the
+physical transfer completes, returning data directly to user space.</li>
+<li><strong>Non-blocking I/O:</strong> The system call returns
+immediately with whatever data is currently ready (or an indicator that
+data is unavailable). The process never enters the <code>Waiting</code>
+state and continues executing.</li>
+<li><strong>Asynchronous I/O:</strong> The system call initiates the I/O
+transfer and returns immediately, allowing the process to continue
+running concurrent computation. When the hardware transfer completes,
+the kernel signals the process (via signal or callback).</li>
+</ul>
+<details class="qa box">
+<summary>
+AY15/16 S2 Q4a(iv) &amp; AY18/19 S1 Q4a(iii): Process states under
+non-blocking I/O <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY15/16 S2 Q4a(iv):</strong> <em>“A process will be in
+either running or ready state after performing an I/O system call if
+non-blocking I/O is used.”</em> — <strong>True.</strong> Non-blocking
+calls return immediately without suspending execution, keeping the
+thread in the <code>Running</code> or <code>Ready</code> state.</li>
+<li><strong>AY18/19 S1 Q4a(iii):</strong> <em>“A process will be in
+waiting state after performing an I/O system call if non-blocking I/O is
+used.”</em> — <strong>False.</strong> Only <strong>blocking</strong>
+system calls place a process into the <code>Waiting</code> state.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY16/17 S1 Q4a(v): Asynchronous I/O in Graphical User Interfaces (GUIs)
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>True.</strong> GUI frameworks rely on asynchronous I/O (or
+worker threads) to handle background disk and network transfers so the
+primary event-dispatch thread remains responsive to user mouse clicks,
+keystrokes, and window redraws without freezing.</p>
+</div>
+</details>
+<h3 id="double-buffering-mechanics">Double Buffering Mechanics</h3>
+<p>Sequential block processing under a single buffer serializes read
+latency
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+and CPU compute time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Single Buffer Time</mtext><mo>=</mo><mi>n</mi><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>+</mo><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Single Buffer Time} = n(R + P)</annotation></semantics></math></p>
+<p>With <strong>double buffering</strong>, the device controller
+transfers data into buffer 2 via DMA while the CPU simultaneously
+processes data in buffer 1:</p>
+<figure>
+<img width="1400" height="415" src="media/10-artifacts/double-buffer.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Double buffering decoupling CPU compute and I/O transfers (Lecture 10, slide 10.10)" />
+<figcaption aria-hidden="true">Double buffering decoupling CPU compute
+and I/O transfers (Lecture 10, slide 10.10)</figcaption>
+</figure>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Double Buffer Time</mtext><mo>=</mo><mi>R</mi><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>,</mo><mi>P</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">\text{Double Buffer Time} = R + (n - 1) \cdot \max(R, P) + P</annotation></semantics></math></p>
+<p>Double buffering achieves pipeline concurrency: per-block throughput
+is constrained by the bottleneck phase
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>R</mi><mo>,</mo><mi>P</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\max(R, P)</annotation></semantics></math>
+rather than their sum.</p>
+<hr />
+<h2 id="life-cycle-of-an-io-request">4. Life Cycle of an I/O
+Request</h2>
+<p>Servicing a storage read traverses ten discrete stages across user,
+kernel, and hardware layers:</p>
+<figure>
+<img width="1245" height="833" src="media/10-artifacts/io-request-lifecycle.webp"
+style="width:65.0%" loading="lazy" decoding="async"
+alt="Ten-stage life cycle of an I/O request (Lecture 10, slide 10.11)" />
+<figcaption aria-hidden="true">Ten-stage life cycle of an I/O request
+(Lecture 10, slide 10.11)</figcaption>
+</figure>
+<pre><code>[User Process]           1. Issues read() system call
+       │
+[Kernel I/O Subsystem]   2. Checks cache/buffer. (HIT -&gt; copies to user space, returns immediately!)
+       │                 3. MISS: Allocates buffer, enqueues request, transitions process to Waiting state
+       │
+[Device Driver]          4. Converts request into device commands; programs controller registers
+       │
+[Device Controller]      5. Issues commands to drive hardware; transfers data into controller buffer
+       │                 6. Data transfer complete: Asserts hardware INTERRUPT line
+       │
+[Interrupt Handler]      7. Identifies interrupt source; copies controller data into driver buffer
+       │                 8. Signals device driver that transfer has concluded
+       │
+[Kernel I/O Subsystem]   9. Transfers data from kernel buffer to process address space;
+                            transitions process from Waiting -&gt; Ready queue
+       │
+[User Process]          10. Process scheduled: read() call returns; user execution resumes</code></pre>
+<hr />
+<h2 id="hard-disk-geometry-and-latency-model">5. Hard Disk Geometry and
+Latency Model</h2>
+<p>A hard disk drive (HDD) consists of stacked rigid platters spinning
+on a central spindle, read/written by heads mounted on a shared actuator
+arm.</p>
+<figure>
+<img width="810" height="788" src="media/10-artifacts/disk-structure.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="Hard disk physical geometry: platters, tracks, sectors, and cylinders (Lecture 10, slide 10.15)" />
+<figcaption aria-hidden="true">Hard disk physical geometry: platters,
+tracks, sectors, and cylinders (Lecture 10, slide 10.15)</figcaption>
+</figure>
+<ul>
+<li><strong>Track:</strong> Concentric circular ring on a platter
+surface.</li>
+<li><strong>Sector:</strong> Fixed-size arc of a track (standard: 512
+bytes or 4096 bytes).</li>
+<li><strong>Cylinder:</strong> The collection of identical circular
+tracks across all platter surfaces located at a given actuator radial
+distance. Switching heads within the same cylinder requires no
+mechanical arm movement.</li>
+</ul>
+<h3 id="access-time-formula">Access Time Formula</h3>
+<p>Disk transfer latency is dominated by mechanical physical
+positioning:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Total Access Time</mtext><mo>=</mo><mtext mathvariant="normal">Seek Time</mtext><mo>+</mo><mtext mathvariant="normal">Rotational Latency</mtext><mo>+</mo><mtext mathvariant="normal">Transfer Time</mtext></mrow><annotation encoding="application/x-tex">\text{Total Access Time} = \text{Seek Time} + \text{Rotational Latency} + \text{Transfer Time}</annotation></semantics></math></p>
+<ol type="1">
+<li><strong>Seek Time
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mtext mathvariant="normal">seek</mtext></msub><annotation encoding="application/x-tex">T_{\text{seek}}</annotation></semantics></math>):</strong>
+Mechanical time to position the actuator arm over the destination
+cylinder
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>5</mn><mtext mathvariant="normal">–</mtext><mn>25</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ms</mtext></mrow></mrow><annotation encoding="application/x-tex">5\text{–}25\text{ ms}</annotation></semantics></math>).
+<strong>This is the only component minimized by disk
+scheduling.</strong></li>
+<li><strong>Rotational Latency
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mtext mathvariant="normal">rot</mtext></msub><annotation encoding="application/x-tex">T_{\text{rot}}</annotation></semantics></math>):</strong>
+Time for the target sector to spin under the read/write head. Average
+latency equals half a rotation:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">rot_avg</mtext></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>⋅</mo><mfrac><mn>60</mn><mtext mathvariant="normal">RPM</mtext></mfrac><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mrow><mtext mathvariant="normal">e.g., </mtext><mspace width="0.333em"></mspace></mrow><mn>7200</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> RPM</mtext></mrow><mo>⟹</mo><mn>4.17</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ms</mtext></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T_{\text{rot\_avg}} = \frac{1}{2} \cdot \frac{60}{\text{RPM}} \quad (\text{e.g., } 7200\text{ RPM} \implies 4.17\text{ ms})</annotation></semantics></math></li>
+<li><strong>Transfer Time
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mtext mathvariant="normal">transfer</mtext></msub><annotation encoding="application/x-tex">T_{\text{transfer}}</annotation></semantics></math>):</strong>
+Time to stream contiguous data sectors:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mtext mathvariant="normal">transfer</mtext></msub><mo>=</mo><mfrac><mi>b</mi><mi>N</mi></mfrac><mo>⋅</mo><mfrac><mn>60</mn><mtext mathvariant="normal">RPM</mtext></mfrac><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>b</mi><mo>=</mo><mtext mathvariant="normal">sectors requested</mtext><mo>,</mo><mi>N</mi><mo>=</mo><mtext mathvariant="normal">sectors per track</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T_{\text{transfer}} = \frac{b}{N} \cdot \frac{60}{\text{RPM}} \quad (b = \text{sectors requested}, N = \text{sectors per track})</annotation></semantics></math></li>
+</ol>
+<blockquote>
+<p><strong>Sequential vs. Random Throughput:</strong> Random I/O incurs
+a full seek and rotational latency penalty on <em>every single
+sector</em>. Sequential I/O incurs mechanical positioning <em>once</em>,
+streaming subsequent sectors at peak bus bandwidth.</p>
+</blockquote>
+<hr />
+<h2 id="disk-scheduling-algorithms">6. Disk Scheduling Algorithms</h2>
+<p>Disk scheduling algorithms reorder pending I/O requests in the device
+queue to minimize total actuator arm displacement (<strong>Total Head
+Movement</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>∑</mo><mo stretchy="false" form="prefix">|</mo><msub><mtext mathvariant="normal">cyl</mtext><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow></msub><mo>−</mo><msub><mtext mathvariant="normal">cyl</mtext><mi>i</mi></msub><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">\sum |\text{cyl}_{i+1} - \text{cyl}_i|</annotation></semantics></math>).</p>
+<p>Consider a 200-cylinder drive
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mtext mathvariant="normal">–</mtext><mn>199</mn></mrow><annotation encoding="application/x-tex">0\text{–}199</annotation></semantics></math>),
+head starting at cylinder <strong>53</strong>, pending queue:
+<code>98, 183, 37, 122, 14, 124, 65, 67</code>.</p>
+<h3 id="first-come-first-served-fcfs">First-Come, First-Served
+(FCFS)</h3>
+<p>Processes requests strictly by arrival order. Intrinsically fair with
+zero starvation risk, but suffers severe arm thrashing across wide
+cylinder spans.</p>
+<figure>
+<img width="1290" height="788" src="media/10-artifacts/fcfs-schedule.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="FCFS disk scheduling path (Lecture 10, slide 10.22)" />
+<figcaption aria-hidden="true">FCFS disk scheduling path (Lecture 10,
+slide 10.22)</figcaption>
+</figure>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Path: </mtext><mspace width="0.333em"></mspace></mrow><mn>53</mn><mo>→</mo><mn>98</mn><mo>→</mo><mn>183</mn><mo>→</mo><mn>37</mn><mo>→</mo><mn>122</mn><mo>→</mo><mn>14</mn><mo>→</mo><mn>124</mn><mo>→</mo><mn>65</mn><mo>→</mo><mn>67</mn></mrow><annotation encoding="application/x-tex">\text{Path: } 53 \to 98 \to 183 \to 37 \to 122 \to 14 \to 124 \to 65 \to 67</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Total Movement</mtext><mo>=</mo><mn>45</mn><mo>+</mo><mn>85</mn><mo>+</mo><mn>146</mn><mo>+</mo><mn>85</mn><mo>+</mo><mn>108</mn><mo>+</mo><mn>110</mn><mo>+</mo><mn>59</mn><mo>+</mo><mn>2</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟔𝟒𝟎</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Total Movement} = 45 + 85 + 146 + 85 + 108 + 110 + 59 + 2 = \mathbf{640\text{ cylinders}}</annotation></semantics></math></p>
+<h3 id="shortest-seek-time-first-sstf">Shortest Seek Time First
+(SSTF)</h3>
+<p>Always selects the pending request with the minimum seek distance
+from the current head position (analogous to SJF scheduling).</p>
+<figure>
+<img width="1365" height="843" src="media/10-artifacts/sstf-schedule.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="SSTF disk scheduling path (Lecture 10, slide 10.25)" />
+<figcaption aria-hidden="true">SSTF disk scheduling path (Lecture 10,
+slide 10.25)</figcaption>
+</figure>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Path: </mtext><mspace width="0.333em"></mspace></mrow><mn>53</mn><mo>→</mo><mn>65</mn><mo>→</mo><mn>67</mn><mo>→</mo><mn>37</mn><mo>→</mo><mn>14</mn><mo>→</mo><mn>98</mn><mo>→</mo><mn>122</mn><mo>→</mo><mn>124</mn><mo>→</mo><mn>183</mn></mrow><annotation encoding="application/x-tex">\text{Path: } 53 \to 65 \to 67 \to 37 \to 14 \to 98 \to 122 \to 124 \to 183</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Total Movement</mtext><mo>=</mo><mn>12</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>30</mn><mo>+</mo><mn>23</mn><mo>+</mo><mn>84</mn><mo>+</mo><mn>24</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>59</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟐𝟑𝟔</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Total Movement} = 12 + 2 + 30 + 23 + 84 + 24 + 2 + 59 = \mathbf{236\text{ cylinders}}</annotation></semantics></math></p>
+<ul>
+<li><strong>Limitation:</strong> Susceptible to
+<strong>starvation</strong>. Continuous arrivals of requests clustered
+near the current head position will permanently postpone distant
+requests.</li>
+</ul>
+<h3 id="scan-elevator-algorithm">SCAN (Elevator Algorithm)</h3>
+<p>The actuator sweeps unidirectionally toward one boundary of the disk,
+servicing all requests along its path. Upon reaching the physical edge
+(cylinder
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>199</mn><annotation encoding="application/x-tex">199</annotation></semantics></math>),
+it reverses direction and services requests on the return sweep.</p>
+<figure>
+<img width="1275" height="844" src="media/10-artifacts/scan-schedule.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="SCAN disk scheduling path (Lecture 10, slide 10.28)" />
+<figcaption aria-hidden="true">SCAN disk scheduling path (Lecture 10,
+slide 10.28)</figcaption>
+</figure>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Path (moving inward toward 0): </mtext><mspace width="0.333em"></mspace></mrow><mn>53</mn><mo>→</mo><mn>37</mn><mo>→</mo><mn>14</mn><mo>→</mo><mn mathvariant="bold">𝟎</mn><mo>→</mo><mn>65</mn><mo>→</mo><mn>67</mn><mo>→</mo><mn>98</mn><mo>→</mo><mn>122</mn><mo>→</mo><mn>124</mn><mo>→</mo><mn>183</mn></mrow><annotation encoding="application/x-tex">\text{Path (moving inward toward 0): } 53 \to 37 \to 14 \to \mathbf{0} \to 65 \to 67 \to 98 \to 122 \to 124 \to 183</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Total Movement</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>53</mn><mo>−</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>183</mn><mo>−</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>53</mn><mo>+</mo><mn>183</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟐𝟑𝟔</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Total Movement} = (53 - 0) + (183 - 0) = 53 + 183 = \mathbf{236\text{ cylinders}}</annotation></semantics></math></p>
+<h3 id="c-scan-circular-scan">C-SCAN (Circular SCAN)</h3>
+<p>Sweeps in a single direction servicing requests until reaching the
+physical boundary
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>199</mn><annotation encoding="application/x-tex">199</annotation></semantics></math>).
+It then immediately <strong>returns to cylinder 0 without servicing
+requests</strong>, and resumes sweeping forward. Provides uniform
+waiting time distribution.</p>
+<figure>
+<img width="1230" height="810" src="media/10-artifacts/c-scan-schedule.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="C-SCAN disk scheduling path (Lecture 10, slide 10.31)" />
+<figcaption aria-hidden="true">C-SCAN disk scheduling path (Lecture 10,
+slide 10.31)</figcaption>
+</figure>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Path (moving outward): </mtext><mspace width="0.333em"></mspace></mrow><mn>53</mn><mo>→</mo><mn>65</mn><mo>→</mo><mn>67</mn><mo>→</mo><mn>98</mn><mo>→</mo><mn>122</mn><mo>→</mo><mn>124</mn><mo>→</mo><mn>183</mn><mo>→</mo><mn mathvariant="bold">𝟏𝟗𝟗</mn><mo>→</mo><mn mathvariant="bold">𝟎</mn><mo>→</mo><mn>14</mn><mo>→</mo><mn>37</mn></mrow><annotation encoding="application/x-tex">\text{Path (moving outward): } 53 \to 65 \to 67 \to 98 \to 122 \to 124 \to 183 \to \mathbf{199} \to \mathbf{0} \to 14 \to 37</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Total Movement</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>199</mn><mo>−</mo><mn>53</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>199</mn><mo>−</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>37</mn><mo>−</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>146</mn><mo>+</mo><mn>199</mn><mo>+</mo><mn>37</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟑𝟖𝟐</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Total Movement} = (199 - 53) + (199 - 0) + (37 - 0) = 146 + 199 + 37 = \mathbf{382\text{ cylinders}}</annotation></semantics></math>
+<em>(Note: By course convention, the return boundary jump
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>199</mn><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">199 \to 0</annotation></semantics></math>
+is included in total movement).</em></p>
+<h3 id="look-c-look">LOOK &amp; C-LOOK</h3>
+<p>Practical optimizations of SCAN and C-SCAN. The arm inspects
+(“looks”) ahead for remaining requests in the current trajectory. It
+<strong>reverses immediately at the final pending request</strong>
+rather than traveling uselessly to the physical platter boundary
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>199</mn><annotation encoding="application/x-tex">199</annotation></semantics></math>).</p>
+<figure>
+<img width="1275" height="821" src="media/10-artifacts/c-look-schedule.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="C-LOOK disk scheduling path (Lecture 10, slide 10.34)" />
+<figcaption aria-hidden="true">C-LOOK disk scheduling path (Lecture 10,
+slide 10.34)</figcaption>
+</figure>
+<ul>
+<li><strong>C-LOOK Path:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>53</mn><mo>→</mo><mn>65</mn><mo>→</mo><mn>67</mn><mo>→</mo><mn>98</mn><mo>→</mo><mn>122</mn><mo>→</mo><mn>124</mn><mo>→</mo><mn>183</mn><mo>→</mo><mn mathvariant="bold">𝟏𝟒</mn><mo>→</mo><mn>37</mn></mrow><annotation encoding="application/x-tex">53 \to 65 \to 67 \to 98 \to 122 \to 124 \to 183 \to \mathbf{14} \to 37</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Total Movement</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>183</mn><mo>−</mo><mn>53</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>183</mn><mo>−</mo><mn>14</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>37</mn><mo>−</mo><mn>14</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>130</mn><mo>+</mo><mn>169</mn><mo>+</mo><mn>23</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟑𝟐𝟐</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Total Movement} = (183 - 53) + (183 - 14) + (37 - 14) = 130 + 169 + 23 = \mathbf{322\text{ cylinders}}</annotation></semantics></math></li>
+<li><strong>LOOK Path (inward first):</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>53</mn><mo>→</mo><mn>37</mn><mo>→</mo><mn mathvariant="bold">𝟏𝟒</mn><mo>→</mo><mn>65</mn><mo>→</mo><mn>67</mn><mo>→</mo><mn>98</mn><mo>→</mo><mn>122</mn><mo>→</mo><mn>124</mn><mo>→</mo><mn>183</mn></mrow><annotation encoding="application/x-tex">53 \to 37 \to \mathbf{14} \to 65 \to 67 \to 98 \to 122 \to 124 \to 183</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Total Movement</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>53</mn><mo>−</mo><mn>14</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>183</mn><mo>−</mo><mn>14</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>39</mn><mo>+</mo><mn>169</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟐𝟎𝟖</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Total Movement} = (53 - 14) + (183 - 14) = 39 + 169 = \mathbf{208\text{ cylinders}}</annotation></semantics></math></li>
+</ul>
+<hr />
+<h2 id="disk-management-raid-systems">7. Disk Management &amp; RAID
+Systems</h2>
+<p>Disk preparation requires three progressive operations:</p>
+<ol type="1">
+<li><strong>Low-level (Physical) Formatting:</strong> Writes sector
+headers, trailers, and Error Correcting Codes (ECC) onto blank magnetic
+tracks.</li>
+<li><strong>Partitioning:</strong> Segments disk platters into
+contiguous groups of cylinders treated by the OS as distinct logical
+volumes.</li>
+<li><strong>Logical Formatting:</strong> Allocates OS filesystem data
+structures (inodes, superblock, root directory, free allocation
+tables).</li>
+</ol>
+<h3 id="disk-striping-mirroring">Disk Striping &amp; Mirroring</h3>
+<ul>
+<li><strong>Data Striping:</strong> Distributes consecutive blocks
+across an array of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+independent drives.
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Drive for block </mtext><mspace width="0.333em"></mspace></mrow><mi>i</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>i</mi><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>n</mi></mrow><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\text{Drive for block } i = (i \bmod n) + 1</annotation></semantics></math>
+Permits simultaneous parallel I/O streaming, drastically improving
+throughput.</li>
+<li><strong>Disk Mirroring:</strong> Writes duplicate copies of all data
+blocks to a shadow drive, ensuring fault tolerance at the cost of double
+drive hardware.</li>
+</ul>
+<figure>
+<img width="1050" height="866" src="media/10-artifacts/disk-striping.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="Data striping across four independent disk drives (Lecture 10, slide 10.41)" />
+<figcaption aria-hidden="true">Data striping across four independent
+disk drives (Lecture 10, slide 10.41)</figcaption>
+</figure>
+<h3 id="raid-architecture-levels">RAID Architecture Levels</h3>
+<figure>
+<img width="1200" height="849" src="media/10-artifacts/raid-0-1-and-1-0.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="(a) RAID 0+1 (Mirror of Stripes) vs. (b) RAID 1+0 (Stripe of Mirrors) fault recovery (Lecture 10, slide 10.44)" />
+<figcaption aria-hidden="true">(a) RAID 0+1 (Mirror of Stripes) vs. (b)
+RAID 1+0 (Stripe of Mirrors) fault recovery (Lecture 10, slide
+10.44)</figcaption>
+</figure>
+<ul>
+<li><strong>RAID 0 (Striping):</strong> Pure data striping without
+redundancy. Maximum throughput, zero fault tolerance (a single drive
+failure destroys the entire array).</li>
+<li><strong>RAID 1 (Mirroring):</strong> Full drive duplication. 100%
+capacity redundancy overhead.</li>
+<li><strong>RAID 0+1 (Mirror of Stripes):</strong> Disks are divided
+into two striped sets (RAID 0), and one set is mirrored onto the other.
+<ul>
+<li><em>Failure mode:</em> If one disk fails, its entire stripe set
+becomes unavailable; the system degrades to a single striped set. A
+second disk failure in the surviving set causes catastrophic data
+loss.</li>
+</ul></li>
+<li><strong>RAID 1+0 (Stripe of Mirrors):</strong> Disks are paired into
+mirrored sets (RAID 1), and data is striped across the mirrored pairs.
+<ul>
+<li><em>Failure mode:</em> If one disk fails, only its individual mirror
+partner is degraded. The array remains operational and can tolerate
+multiple concurrent drive failures, provided no two failed drives share
+the same mirrored pair. <strong>RAID 1+0 provides vastly superior
+reliability over RAID 0+1.</strong></li>
+</ul></li>
+</ul>
+<details class="qa box">
+<summary>
+AY18/19 S2 Q4a(iv): Storage capacity under RAID 1+0 <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Four 200 GB hard disks configured under RAID 1+0 form two mirrored
+pairs of 200 GB each, striped together. Because half the total storage
+is dedicated to mirror replicas:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Usable Capacity</mtext><mo>=</mo><mfrac><mrow><mn>4</mn><mo>×</mo><mn>200</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> GB</mtext></mrow></mrow><mn>2</mn></mfrac><mo>=</mo><mrow><mn mathvariant="bold">𝟒𝟎𝟎</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐆𝐁</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Usable Capacity} = \frac{4 \times 200\text{ GB}}{2} = \mathbf{400\text{ GB}}</annotation></semantics></math></p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY16/17 S1 Q4a(vi): Reliability comparison between RAID 0+1 and RAID 1+0
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>“Mirror of stripes (RAID 0+1) has better reliability than
+stripes of mirrors (RAID 1+0).” — False.</strong> RAID 1+0 provides
+superior fault tolerance. In RAID 1+0, an isolated disk failure only
+impacts its paired mirror partner, allowing the array to survive
+additional disk failures across other mirrored pairs. In RAID 0+1, a
+single failure invalidates an entire striped half, leaving the array
+completely vulnerable to any subsequent disk crash.</p>
+</div>
+</details>
+<hr />
+<h2 id="comprehensive-disk-scheduling-problems">8. Comprehensive Disk
+Scheduling Problems</h2>
+<details class="qa box">
+<summary>
+AY15/16 S2 Q4c: Service time and head movement for FCFS, SSTF, and SCAN
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Given:</strong> 200 cylinders
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mtext mathvariant="normal">–</mtext><mn>199</mn></mrow><annotation encoding="application/x-tex">0\text{–}199</annotation></semantics></math>),
+head initially at 60. Queue: <code>120, 30, 130, 40, 180, 190</code>.
+Arm movement rate =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ms/cylinder</mtext></mrow></mrow><annotation encoding="application/x-tex">2\text{ ms/cylinder}</annotation></semantics></math>.
+Service time per request =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ms</mtext></mrow></mrow><annotation encoding="application/x-tex">10\text{ ms}</annotation></semantics></math>.
+Fixed service time for 6 requests
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>6</mn><mo>×</mo><mn>10</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ms</mtext></mrow><mo>=</mo><mrow><mn mathvariant="bold">𝟔𝟎</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐦𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">= 6 \times 10\text{ ms} = \mathbf{60\text{ ms}}</annotation></semantics></math>.</p>
+<ul>
+<li><strong>FCFS:</strong>
+<ul>
+<li>Order:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>60</mn><mo>→</mo><mn>120</mn><mo>→</mo><mn>30</mn><mo>→</mo><mn>130</mn><mo>→</mo><mn>40</mn><mo>→</mo><mn>180</mn><mo>→</mo><mn>190</mn></mrow><annotation encoding="application/x-tex">60 \to 120 \to 30 \to 130 \to 40 \to 180 \to 190</annotation></semantics></math></li>
+<li>Cylinders
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>60</mn><mo>+</mo><mn>90</mn><mo>+</mo><mn>100</mn><mo>+</mo><mn>90</mn><mo>+</mo><mn>140</mn><mo>+</mo><mn>10</mn><mo>=</mo><mn>490</mn></mrow><annotation encoding="application/x-tex">= 60 + 90 + 100 + 90 + 140 + 10 = 490</annotation></semantics></math></li>
+<li>Total Time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>490</mn><mo>×</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>60</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟏𝟎𝟒𝟎</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐦𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">= (490 \times 2) + 60 = \mathbf{1040\text{ ms}}</annotation></semantics></math></li>
+</ul></li>
+<li><strong>SSTF:</strong>
+<ul>
+<li>Order:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>60</mn><mo>→</mo><mn>40</mn><mo>→</mo><mn>30</mn><mo>→</mo><mn>120</mn><mo>→</mo><mn>130</mn><mo>→</mo><mn>180</mn><mo>→</mo><mn>190</mn></mrow><annotation encoding="application/x-tex">60 \to 40 \to 30 \to 120 \to 130 \to 180 \to 190</annotation></semantics></math></li>
+<li>Cylinders
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>20</mn><mo>+</mo><mn>10</mn><mo>+</mo><mn>90</mn><mo>+</mo><mn>10</mn><mo>+</mo><mn>50</mn><mo>+</mo><mn>10</mn><mo>=</mo><mn>190</mn></mrow><annotation encoding="application/x-tex">= 20 + 10 + 90 + 10 + 50 + 10 = 190</annotation></semantics></math></li>
+<li>Total Time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>190</mn><mo>×</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>60</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟒𝟒𝟎</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐦𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">= (190 \times 2) + 60 = \mathbf{440\text{ ms}}</annotation></semantics></math></li>
+</ul></li>
+<li><strong>SCAN (outward first toward 199):</strong>
+<ul>
+<li>Order:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>60</mn><mo>→</mo><mn>120</mn><mo>→</mo><mn>130</mn><mo>→</mo><mn>180</mn><mo>→</mo><mn>190</mn><mo>→</mo><mn mathvariant="bold">𝟏𝟗𝟗</mn><mo>→</mo><mn>40</mn><mo>→</mo><mn>30</mn></mrow><annotation encoding="application/x-tex">60 \to 120 \to 130 \to 180 \to 190 \to \mathbf{199} \to 40 \to 30</annotation></semantics></math></li>
+<li>Cylinders
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>199</mn><mo>−</mo><mn>60</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>199</mn><mo>−</mo><mn>30</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>139</mn><mo>+</mo><mn>169</mn><mo>=</mo><mn>308</mn></mrow><annotation encoding="application/x-tex">= (199 - 60) + (199 - 30) = 139 + 169 = 308</annotation></semantics></math></li>
+<li>Total Time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>308</mn><mo>×</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>60</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟔𝟕𝟔</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐦𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">= (308 \times 2) + 60 = \mathbf{676\text{ ms}}</annotation></semantics></math></li>
+</ul></li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY16/17 S1 Q4c: SSTF vs. SCAN head movement comparison <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Given:</strong> 200 cylinders
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mtext mathvariant="normal">–</mtext><mn>199</mn></mrow><annotation encoding="application/x-tex">0\text{–}199</annotation></semantics></math>),
+head at 160. Queue: <code>30, 60, 150, 180, 190</code>. <strong>(i)
+Movement Calculations:</strong></p>
+<ul>
+<li><strong>SSTF:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>160</mn><mo>→</mo><mn>150</mn><mo>→</mo><mn>180</mn><mo>→</mo><mn>190</mn><mo>→</mo><mn>60</mn><mo>→</mo><mn>30</mn></mrow><annotation encoding="application/x-tex">160 \to 150 \to 180 \to 190 \to 60 \to 30</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Movement</mtext><mo>=</mo><mn>10</mn><mo>+</mo><mn>30</mn><mo>+</mo><mn>10</mn><mo>+</mo><mn>130</mn><mo>+</mo><mn>30</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟐𝟏𝟎</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Movement} = 10 + 30 + 10 + 130 + 30 = \mathbf{210\text{ cylinders}}</annotation></semantics></math></li>
+<li><strong>SCAN (moving outward toward 199):</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>160</mn><mo>→</mo><mn>180</mn><mo>→</mo><mn>190</mn><mo>→</mo><mn mathvariant="bold">𝟏𝟗𝟗</mn><mo>→</mo><mn>150</mn><mo>→</mo><mn>60</mn><mo>→</mo><mn>30</mn></mrow><annotation encoding="application/x-tex">160 \to 180 \to 190 \to \mathbf{199} \to 150 \to 60 \to 30</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Movement</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>199</mn><mo>−</mo><mn>160</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>199</mn><mo>−</mo><mn>30</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>39</mn><mo>+</mo><mn>169</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟐𝟎𝟖</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Movement} = (199 - 160) + (199 - 30) = 39 + 169 = \mathbf{208\text{ cylinders}}</annotation></semantics></math>
+<strong>SCAN yields less head movement (208 vs. 210
+cylinders).</strong></li>
+</ul>
+<p><strong>(ii) Advantage of SCAN over SSTF:</strong> SCAN guarantees an
+upper bound on waiting latency and completely <strong>prevents
+starvation</strong>. SSTF prioritizes localized requests and can
+permanently starve distant requests if nearby I/O requests arrive
+continuously.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY17/18 S1 Q4c: SCAN vs. C-SCAN head movement and advantages <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Given:</strong> 200 cylinders
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mtext mathvariant="normal">–</mtext><mn>199</mn></mrow><annotation encoding="application/x-tex">0\text{–}199</annotation></semantics></math>),
+head at 100 moving toward 199. Queue:
+<code>63, 102, 85, 150, 105, 89</code>.</p>
+<p><strong>(i) Total Head Movement:</strong></p>
+<ul>
+<li><strong>SCAN:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Path: </mtext><mspace width="0.333em"></mspace></mrow><mn>100</mn><mo>→</mo><mn>102</mn><mo>→</mo><mn>105</mn><mo>→</mo><mn>150</mn><mo>→</mo><mn mathvariant="bold">𝟏𝟗𝟗</mn><mo>→</mo><mn>89</mn><mo>→</mo><mn>85</mn><mo>→</mo><mn>63</mn></mrow><annotation encoding="application/x-tex">\text{Path: } 100 \to 102 \to 105 \to 150 \to \mathbf{199} \to 89 \to 85 \to 63</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Movement</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>199</mn><mo>−</mo><mn>100</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>199</mn><mo>−</mo><mn>63</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>99</mn><mo>+</mo><mn>136</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟐𝟑𝟓</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Movement} = (199 - 100) + (199 - 63) = 99 + 136 = \mathbf{235\text{ cylinders}}</annotation></semantics></math></li>
+<li><strong>C-SCAN:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Path: </mtext><mspace width="0.333em"></mspace></mrow><mn>100</mn><mo>→</mo><mn>102</mn><mo>→</mo><mn>105</mn><mo>→</mo><mn>150</mn><mo>→</mo><mn mathvariant="bold">𝟏𝟗𝟗</mn><mo>→</mo><mn mathvariant="bold">𝟎</mn><mo>→</mo><mn>63</mn><mo>→</mo><mn>85</mn><mo>→</mo><mn>89</mn></mrow><annotation encoding="application/x-tex">\text{Path: } 100 \to 102 \to 105 \to 150 \to \mathbf{199} \to \mathbf{0} \to 63 \to 85 \to 89</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Movement</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>199</mn><mo>−</mo><mn>100</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>199</mn><mo>−</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>89</mn><mo>−</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>99</mn><mo>+</mo><mn>199</mn><mo>+</mo><mn>89</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟑𝟖𝟕</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Movement} = (199 - 100) + (199 - 0) + (89 - 0) = 99 + 199 + 89 = \mathbf{387\text{ cylinders}}</annotation></semantics></math></li>
+</ul>
+<p><strong>(ii) Advantage of C-SCAN over SCAN:</strong> C-SCAN provides
+<strong>more uniform waiting times</strong>. Under bidirectional SCAN,
+cylinders near the center are visited twice per complete cycle, whereas
+boundary cylinders are visited only once per cycle. C-SCAN sweeps in one
+direction only, ensuring all cylinder requests experience equalized
+maximum wait bounds.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY17/18 S2 Q4c: Dynamic request arrivals under LOOK and C-LOOK <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Given:</strong> Head starts at 150 at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mn>0</mn></msub><annotation encoding="application/x-tex">t_0</annotation></semantics></math>,
+moving outward (toward 199). Service time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mi>T</mi><mo>+</mo><mn>20</mn></mrow><annotation encoding="application/x-tex">= T + 20</annotation></semantics></math>
+(where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mo stretchy="false" form="prefix">|</mo><msub><mtext mathvariant="normal">cyl</mtext><mtext mathvariant="normal">next</mtext></msub><mo>−</mo><msub><mtext mathvariant="normal">cyl</mtext><mtext mathvariant="normal">curr</mtext></msub><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">T = |\text{cyl}_{\text{next}} - \text{cyl}_{\text{curr}}|</annotation></semantics></math>).
+Arrival timeline:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mn>0</mn></msub><annotation encoding="application/x-tex">t_0</annotation></semantics></math>:
+160;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mn>0</mn></msub><mo>+</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">t_0+10</annotation></semantics></math>:
+40;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mn>0</mn></msub><mo>+</mo><mn>15</mn></mrow><annotation encoding="application/x-tex">t_0+15</annotation></semantics></math>:
+170;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mn>0</mn></msub><mo>+</mo><mn>50</mn></mrow><annotation encoding="application/x-tex">t_0+50</annotation></semantics></math>:
+100;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mn>0</mn></msub><mo>+</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">t_0+100</annotation></semantics></math>:
+80;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mn>0</mn></msub><mo>+</mo><mn>180</mn></mrow><annotation encoding="application/x-tex">t_0+180</annotation></semantics></math>:
+60;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mn>0</mn></msub><mo>+</mo><mn>260</mn></mrow><annotation encoding="application/x-tex">t_0+260</annotation></semantics></math>:
+50.</p>
+<p><strong>LOOK Trace (services outward, reverses at highest arrived
+request):</strong></p>
+<ol type="1">
+<li>At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">t=0</annotation></semantics></math>,
+head at 150. Only request 160 has arrived. Service 160:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>10</mn><mo>⟹</mo><mtext mathvariant="normal">duration</mtext><mo>=</mo><mn>30</mn></mrow><annotation encoding="application/x-tex">T = 10 \implies \text{duration} = 30</annotation></semantics></math>.
+Finish at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>30</mn></mrow><annotation encoding="application/x-tex">t = 30</annotation></semantics></math>.</li>
+<li>At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>30</mn></mrow><annotation encoding="application/x-tex">t=30</annotation></semantics></math>,
+arrived queue: {40, 170}. Moving outward
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+service 170. Service 170:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>10</mn><mo>⟹</mo><mtext mathvariant="normal">duration</mtext><mo>=</mo><mn>30</mn></mrow><annotation encoding="application/x-tex">T = 10 \implies \text{duration} = 30</annotation></semantics></math>.
+Finish at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>60</mn></mrow><annotation encoding="application/x-tex">t = 60</annotation></semantics></math>.</li>
+<li>At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>60</mn></mrow><annotation encoding="application/x-tex">t=60</annotation></semantics></math>,
+arrived queue: {40, 100}. No requests further outward; <strong>reverse
+arm inward</strong>. Service 100:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>70</mn><mo>⟹</mo><mtext mathvariant="normal">duration</mtext><mo>=</mo><mn>90</mn></mrow><annotation encoding="application/x-tex">T = 70 \implies \text{duration} = 90</annotation></semantics></math>.
+Finish at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>150</mn></mrow><annotation encoding="application/x-tex">t = 150</annotation></semantics></math>.</li>
+<li>At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>150</mn></mrow><annotation encoding="application/x-tex">t=150</annotation></semantics></math>,
+arrived queue: {40, 80}. Service 80:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>20</mn><mo>⟹</mo><mtext mathvariant="normal">duration</mtext><mo>=</mo><mn>40</mn></mrow><annotation encoding="application/x-tex">T = 20 \implies \text{duration} = 40</annotation></semantics></math>.
+Finish at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>190</mn></mrow><annotation encoding="application/x-tex">t = 190</annotation></semantics></math>.</li>
+<li>At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>190</mn></mrow><annotation encoding="application/x-tex">t=190</annotation></semantics></math>,
+arrived queue: {40, 60}. Service 60:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>20</mn><mo>⟹</mo><mtext mathvariant="normal">duration</mtext><mo>=</mo><mn>40</mn></mrow><annotation encoding="application/x-tex">T = 20 \implies \text{duration} = 40</annotation></semantics></math>.
+Finish at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>230</mn></mrow><annotation encoding="application/x-tex">t = 230</annotation></semantics></math>.</li>
+<li>At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>230</mn></mrow><annotation encoding="application/x-tex">t=230</annotation></semantics></math>,
+arrived queue: {40}. Service 40:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>20</mn><mo>⟹</mo><mtext mathvariant="normal">duration</mtext><mo>=</mo><mn>40</mn></mrow><annotation encoding="application/x-tex">T = 20 \implies \text{duration} = 40</annotation></semantics></math>.
+Finish at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>270</mn></mrow><annotation encoding="application/x-tex">t = 270</annotation></semantics></math>.</li>
+<li>At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>270</mn></mrow><annotation encoding="application/x-tex">t=270</annotation></semantics></math>,
+request 50 arrived at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>260</mn></mrow><annotation encoding="application/x-tex">t=260</annotation></semantics></math>.
+Service 50:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>10</mn><mo>⟹</mo><mtext mathvariant="normal">duration</mtext><mo>=</mo><mn>30</mn></mrow><annotation encoding="application/x-tex">T = 10 \implies \text{duration} = 30</annotation></semantics></math>.
+Finish at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>300</mn></mrow><annotation encoding="application/x-tex">t = 300</annotation></semantics></math>.</li>
+</ol>
+<p><strong>LOOK Service Sequence: 160, 170, 100, 80, 60, 40,
+50.</strong></p>
+<p><strong>C-LOOK Service Sequence (outward service only):</strong>
+After servicing 170 at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>60</mn></mrow><annotation encoding="application/x-tex">t=60</annotation></semantics></math>,
+head jumps to lowest arrived request (40) and sweeps outward:
+<strong>C-LOOK Service Sequence: 160, 170, 40, 60, 80, 100,
+50.</strong></p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY18/19 S1 Q4c: SSTF servicing order and starvation mitigation <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Given:</strong> Head at 100. Pending queue:
+<code>150, 110, 80, 160, 5, 190</code>. <strong>(i) Servicing
+Order:</strong></p>
+<ul>
+<li>From 100: nearest is 110 (dist: 10)</li>
+<li>From 110: nearest is 80 (dist: 30 vs. 40 to 150)</li>
+<li>From 80: nearest is 150 (dist: 70 vs. 75 to 5)</li>
+<li>From 150: nearest is 160 (dist: 10)</li>
+<li>From 160: nearest is 190 (dist: 30)</li>
+<li>From 190: nearest is 5 (dist: 185) <strong>Servicing Order: 110, 80,
+150, 160, 190, 5.</strong></li>
+</ul>
+<p><strong>(ii) Starvation Cause &amp; Solutions:</strong></p>
+<ul>
+<li><strong>Cause:</strong> SSTF greedily prioritizes local requests.
+Under heavy incoming load, if new requests continuously arrive near
+current head locations, requests at distant cylinders (such as cylinder
+5) may be starved indefinitely.</li>
+<li><strong>Solutions:</strong> Implement <strong>aging</strong>
+(incrementing request priorities based on wait duration) or replace SSTF
+with <strong>SCAN / LOOK / C-SCAN</strong> which enforce directional
+bounded service intervals.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY18/19 S2 Q4d: Equivalence of SSTF and LOOK execution sequences <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Given:</strong> Head at 90 (previous cylinder was 85
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+moving outward). Queue: <code>20, 100, 40, 60, 75, 120, 160</code>.
+<strong>Result: SSTF and LOOK yield the IDENTICAL servicing
+sequence:</strong></p>
+<ul>
+<li><strong>LOOK:</strong> Continues outward servicing all higher
+cylinders: <code>100, 120, 160</code>. At 160 (the outward limit),
+reverses inward servicing remaining requests in decreasing order:
+<code>75, 60, 40, 20</code>.</li>
+<li><strong>SSTF:</strong>
+<ul>
+<li>At 90: nearest is 100 (dist 10 vs. 15 to 75).</li>
+<li>At 100: nearest is 120 (dist 20 vs. 25 to 75).</li>
+<li>At 120: nearest is 160 (dist 40 vs. 45 to 75).</li>
+<li>At 160: nearest remaining is 75, then sequentially down through 60,
+40, 20. Both algorithms execute the sequence: <strong>100, 120, 160, 75,
+60, 40, 20</strong>.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY19/20 S1 Q4c: SSTF vs. FCFS total movement and fairness evaluation
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Given:</strong> Head at 100. Arrival queue:
+<code>45, 134, 88, 110, 74, 150</code>. <strong>(i) SSTF Order &amp;
+Head Movement:</strong></p>
+<ul>
+<li>From 100
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+110 (10)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+88 (22)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+74 (14)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+45 (29)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+134 (89)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+150 (16).
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Total Movement</mtext><mo>=</mo><mn>10</mn><mo>+</mo><mn>22</mn><mo>+</mo><mn>14</mn><mo>+</mo><mn>29</mn><mo>+</mo><mn>89</mn><mo>+</mo><mn>16</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟏𝟖𝟎</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Total Movement} = 10 + 22 + 14 + 29 + 89 + 16 = \mathbf{180\text{ cylinders}}</annotation></semantics></math></li>
+</ul>
+<p><strong>(ii) FCFS Head Movement &amp; Improvement:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">FCFS Movement</mtext><mo>=</mo><mo stretchy="false" form="prefix">|</mo><mn>100</mn><mo>−</mo><mn>45</mn><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mn>45</mn><mo>−</mo><mn>134</mn><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mn>134</mn><mo>−</mo><mn>88</mn><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mn>88</mn><mo>−</mo><mn>110</mn><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mn>110</mn><mo>−</mo><mn>74</mn><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mo stretchy="false" form="prefix">|</mo><mn>74</mn><mo>−</mo><mn>150</mn><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">\text{FCFS Movement} = |100-45| + |45-134| + |134-88| + |88-110| + |110-74| + |74-150|</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>55</mn><mo>+</mo><mn>89</mn><mo>+</mo><mn>46</mn><mo>+</mo><mn>22</mn><mo>+</mo><mn>36</mn><mo>+</mo><mn>76</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟑𝟐𝟒</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">= 55 + 89 + 46 + 22 + 36 + 76 = \mathbf{324\text{ cylinders}}</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Improvement</mtext><mo>=</mo><mn>324</mn><mo>−</mo><mn>180</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟏𝟒𝟒</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐜𝐲𝐥𝐢𝐧𝐝𝐞𝐫𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Improvement} = 324 - 180 = \mathbf{144\text{ cylinders}}</annotation></semantics></math></p>
+<p><strong>(iii) Fairness Justification:</strong> FCFS is inherently
+fair because it processes requests strictly in chronological arrival
+order with zero bias toward cylinder location, guaranteeing an upper
+bound on wait times. SSTF is biased toward spatial proximity and permits
+starvation of requests located far from current clusters.</p>
+</div>
+</details>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/9-file-systems/9.html">← 9.
+File Systems</a>
+  <a class="next-page" href="../../notes/cheatsheet.html">Course
+Cheatsheet →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

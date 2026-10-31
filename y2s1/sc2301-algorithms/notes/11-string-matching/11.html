@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>11. String Matching · SC2301 Algorithm Design &amp;
+Analysis</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">11. String
+Matching</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">11. String Matching</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-foundations/1.html"
+                   data-nav="notes/1-foundations/1.html">1. Foundations:
+Asymptotic Notation and Insertion Sort</a></li>
+            <li><a href="../../notes/2-mergesort/2.html"
+                   data-nav="notes/2-mergesort/2.html">2. Divide and
+Conquer: Mergesort</a></li>
+            <li><a href="../../notes/3-heapsort/3.html"
+                   data-nav="notes/3-heapsort/3.html">3. Heaps and
+Heapsort</a></li>
+            <li><a href="../../notes/4-quicksort-linear-sorts/4.html"
+                   data-nav="notes/4-quicksort-linear-sorts/4.html">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a></li>
+            <li><a href="../../notes/5-graph-traversal/5.html"
+                   data-nav="notes/5-graph-traversal/5.html">5. Graphs:
+Representations, BFS, DFS and Topological Sort</a></li>
+            <li><a href="../../notes/6-dijkstra-prim/6.html"
+                   data-nav="notes/6-dijkstra-prim/6.html">6. Greedy
+Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</a></li>
+            <li><a href="../../notes/7-union-find-kruskal/7.html"
+                   data-nav="notes/7-union-find-kruskal/7.html">7.
+Union-Find and Kruskal’s Algorithm</a></li>
+            <li><a href="../../notes/8-recurrences/8.html"
+                   data-nav="notes/8-recurrences/8.html">8. Analysis
+Techniques: Solving Recurrences</a></li>
+            <li><a href="../../notes/9-amortized-analysis/9.html"
+                   data-nav="notes/9-amortized-analysis/9.html">9.
+Amortized Analysis</a></li>
+            <li><a href="../../notes/10-dynamic-programming/10.html"
+                   data-nav="notes/10-dynamic-programming/10.html">10.
+Dynamic Programming</a></li>
+            <li><a href="../../notes/11-string-matching/11.html"
+                   data-nav="notes/11-string-matching/11.html">11.
+String Matching</a></li>
+            <li><a href="../../notes/12-np-completeness/12.html"
+                   data-nav="notes/12-np-completeness/12.html">12.
+NP-Completeness</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Cheatsheet</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#string-matching" id="toc-string-matching">11. String
+Matching</a>
+<ul>
+<li><a href="#the-problem" id="toc-the-problem">1. The Problem</a></li>
+<li><a href="#the-simple-scan-brute-force"
+id="toc-the-simple-scan-brute-force">2. The Simple Scan (Brute
+Force)</a></li>
+<li><a href="#rabin-karp-compare-numbers-not-strings"
+id="toc-rabin-karp-compare-numbers-not-strings">3. Rabin-Karp: Compare
+Numbers, Not Strings</a>
+<ul>
+<li><a href="#strings-as-numbers-horners-rule"
+id="toc-strings-as-numbers-horners-rule">Strings as numbers: Horner’s
+rule</a></li>
+<li><a href="#sliding-the-window-in-theta1"
+id="toc-sliding-the-window-in-theta1">Sliding the window in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math></a></li>
+<li><a href="#hashing-keep-the-numbers-small"
+id="toc-hashing-keep-the-numbers-small">Hashing: keep the numbers
+small</a></li>
+<li><a href="#hash-and-rehash"
+id="toc-hash-and-rehash"><code>hash</code> and
+<code>rehash</code></a></li>
+<li><a href="#the-full-algorithm" id="toc-the-full-algorithm">The full
+algorithm</a></li>
+<li><a href="#running-example" id="toc-running-example">Running
+example</a></li>
+<li><a href="#cost" id="toc-cost">Cost</a></li>
+<li><a href="#a-good-hash" id="toc-a-good-hash">A good hash</a></li>
+</ul></li>
+<li><a href="#boyer-moore-skip-ahead-using-the-mismatch"
+id="toc-boyer-moore-skip-ahead-using-the-mismatch">4. Boyer-Moore: Skip
+Ahead Using the Mismatch</a>
+<ul>
+<li><a href="#shift-and-jump" id="toc-shift-and-jump">Shift and
+jump</a></li>
+<li><a href="#charjump-the-mismatched-text-character"
+id="toc-charjump-the-mismatched-text-character">charJump: the mismatched
+text character</a></li>
+<li><a href="#when-charjump-alone-fails"
+id="toc-when-charjump-alone-fails">When charJump alone fails</a></li>
+<li><a href="#matchjump-the-part-that-already-matched"
+id="toc-matchjump-the-part-that-already-matched">matchJump: the part
+that already matched</a></li>
+<li><a href="#putting-it-together" id="toc-putting-it-together">Putting
+it together</a></li>
+<li><a href="#cost-1" id="toc-cost-1">Cost</a></li>
+</ul></li>
+<li><a href="#which-algorithm-should-you-use"
+id="toc-which-algorithm-should-you-use">5. Which Algorithm Should You
+Use?</a></li>
+<li><a href="#common-traps" id="toc-common-traps">6. Common
+Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="string-matching">11. String Matching</h1>
+<p>This chapter covers Lecture 11. Chapter 10 compared two whole
+sequences. This chapter asks a narrower question: where does one short
+string appear <strong>inside</strong> a long one? Three algorithms
+answer it, and each avoids repeating work:</p>
+<ul>
+<li><strong>Simple scan</strong> (brute force): try every position. It
+repeats work.</li>
+<li><strong>Rabin-Karp:</strong> turn each piece of text into a number,
+and compare numbers instead of characters.</li>
+<li><strong>Boyer-Moore:</strong> compare from the right end of the
+pattern, and skip ahead after a mismatch.</li>
+</ul>
+<hr />
+<h2 id="the-problem">1. The Problem</h2>
+<p>Given a <strong>text</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+characters and a <strong>pattern</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+characters, return the position where the <strong>first
+occurrence</strong> of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+starts, or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">-1</annotation></semantics></math>
+if there is none.</p>
+<div class="table-wrap">
+<table style="width: 70%;">
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 78%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math></td>
+<td style="text-align: left;">the text (length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>)
+and the pattern (length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>≤</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">m \le n</annotation></semantics></math>)</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math></td>
+<td style="text-align: left;">the current position in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+and in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math></td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Σ</mi><annotation encoding="application/x-tex">\Sigma</annotation></semantics></math></td>
+<td style="text-align: left;">the <strong>alphabet</strong>: the set of
+possible characters</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mo stretchy="false" form="prefix">|</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">d = |\Sigma|</annotation></semantics></math></td>
+<td style="text-align: left;">the number of characters in the
+alphabet</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Cost</strong> is the number of <strong>character
+comparisons</strong>. The simple scan and Rabin-Karp count positions
+from <strong>0</strong>. Boyer-Moore counts from <strong>1</strong>, as
+the lecture does, so the same occurrence is one higher there.</p>
+<p><strong>Running example.</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mtext mathvariant="normal">ABABC</mtext></mrow><annotation encoding="application/x-tex">P = \text{ABABC}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mtext mathvariant="normal">ABABABCCAC</mtext></mrow><annotation encoding="application/x-tex">T = \text{ABABABCCAC}</annotation></semantics></math>,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">m = 5</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">n = 10</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Σ</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><mtext mathvariant="normal">A</mtext><mo>,</mo><mtext mathvariant="normal">B</mtext><mo>,</mo><mtext mathvariant="normal">C</mtext><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\Sigma = \{\text{A}, \text{B}, \text{C}\}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">d = 3</annotation></semantics></math>.</p>
+<div class="table-wrap">
+<table style="width: 65%;">
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Position in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+(from 0)</th>
+<th style="text-align: center;">0</th>
+<th style="text-align: center;">1</th>
+<th style="text-align: center;">2</th>
+<th style="text-align: center;">3</th>
+<th style="text-align: center;">4</th>
+<th style="text-align: center;">5</th>
+<th style="text-align: center;">6</th>
+<th style="text-align: center;">7</th>
+<th style="text-align: center;">8</th>
+<th style="text-align: center;">9</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Character</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">B</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">B</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">B</td>
+<td style="text-align: center;">C</td>
+<td style="text-align: center;">C</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">C</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+occurs once, at position 2.</p>
+<hr />
+<h2 id="the-simple-scan-brute-force">2. The Simple Scan (Brute
+Force)</h2>
+<p>Put the pattern at position 0 and compare left to right. On a full
+match, return the position. On the first mismatch, shift the pattern
+<strong>one</strong> place right and restart from the pattern’s
+<strong>first</strong> character. Stop when fewer than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+characters remain.</p>
+<pre><code>int SimpleScan(char[] P, char[] T, int m) {
+    int i, j, k;
+    // i: the current guess of where P begins in T
+    // j: the current character in T
+    // k: the current character in P
+    j = k = 0;
+    i = 0;
+    while (j &lt; n) {
+        if (T[j] == P[k]) {          // match: move both forward
+            j++;
+            k++;
+            if (k == m) return i;    // all m characters matched
+        }
+        else {                       // mismatch: shift P one place right
+            j = ++i;
+            k = 0;
+            if (j &gt; n - m) break;    // not enough text left
+        }
+    }
+    return -1;
+}</code></pre>
+<p>On a mismatch,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+goes back to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">i + 1</annotation></semantics></math>,
+so matched text is read <strong>again</strong>. The other two algorithms
+avoid this.</p>
+<p><strong>Running example:</strong></p>
+<div class="table-wrap">
+<table style="width: 73%;">
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 19%" />
+<col style="width: 53%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Pattern starts at</th>
+<th style="text-align: center;">Comparisons</th>
+<th style="text-align: left;">What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: left;">A, B, A, B match. C against A fails.</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: left;">B against A fails at once.</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: left;">All five match. Return 2.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Total: <strong>11 comparisons</strong>.</p>
+<p><strong>Worst case.</strong> Near matches everywhere: the first
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">m - 1</annotation></semantics></math>
+characters match and the last fails. For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+= AAAAC and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+= AAAAAAAAAAAA
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">n = 12</annotation></semantics></math>):
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">n - m + 1 = 8</annotation></semantics></math>
+positions at 5 comparisons each.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">m\,(n - m + 1) = O(mn).</annotation></semantics></math></p>
+<p><strong>Best cases.</strong> Found at once:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+comparisons. Not found, but the first character of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+never appears in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mi>m</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - m + 1</annotation></semantics></math>
+comparisons. Real text usually mismatches early, so the scan beats its
+worst case.</p>
+<hr />
+<h2 id="rabin-karp-compare-numbers-not-strings">3. Rabin-Karp: Compare
+Numbers, Not Strings</h2>
+<p>Comparing two numbers costs one step. So turn the pattern into a
+number
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+and each <strong>window</strong> (a block of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+text characters) into a number
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.
+If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mi>t</mi></mrow><annotation encoding="application/x-tex">p = t</annotation></semantics></math>,
+the pattern is found. Otherwise slide the window one place right. This
+pays off only if:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+and the first
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+cost
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(m)</annotation></semantics></math>,
+once;</li>
+<li>each <strong>next</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math>
+from the previous one.</li>
+</ul>
+<h3 id="strings-as-numbers-horners-rule">Strings as numbers: Horner’s
+rule</h3>
+<p>Read the string in <strong>base
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math></strong>,
+each character as a digit
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>…</mi><mi>d</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">0 \dots d-1</annotation></semantics></math>.
+For “36215” with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">d = 10</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>3</mn><mo>⋅</mo><msup><mn>10</mn><mn>4</mn></msup><mo>+</mo><mn>6</mn><mo>⋅</mo><msup><mn>10</mn><mn>3</mn></msup><mo>+</mo><mn>2</mn><mo>⋅</mo><msup><mn>10</mn><mn>2</mn></msup><mo>+</mo><mn>1</mn><mo>⋅</mo><mn>10</mn><mo>+</mo><mn>5</mn><mo>=</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>⋅</mo><mn>10</mn><mo>+</mo><mn>6</mn><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><mn>10</mn><mo>+</mo><mn>2</mn><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>⋅</mo><mn>10</mn><mo>+</mo><mn>1</mn><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>⋅</mo><mn>10</mn><mo>+</mo><mn>5</mn><mi>.</mi></mrow><annotation encoding="application/x-tex">p = 3 \cdot 10^4 + 6 \cdot 10^3 + 2 \cdot 10^2 + 1 \cdot 10 + 5 = \big(\big((3 \cdot 10 + 6) \cdot 10 + 2\big) \cdot 10 + 1\big) \cdot 10 + 5.</annotation></semantics></math></p>
+<p><strong>Horner’s rule</strong> (the right-hand form) multiplies by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>
+once per step:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>→</mo><mn>36</mn><mo>→</mo><mn>362</mn><mo>→</mo><mn>3621</mn><mo>→</mo><mn>36215</mn></mrow><annotation encoding="application/x-tex">3 \to 36 \to 362 \to 3621 \to 36215</annotation></semantics></math>.
+It needs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">m - 1</annotation></semantics></math>
+multiplications, not
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>m</mi><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(m^2)</annotation></semantics></math>
+for separate powers.</p>
+<pre><code>p = P[0];
+for j = 1 to m-1
+    p = p * d + P[j];</code></pre>
+<p>For letters, pick digits: A = 0, B = 1, C = 2,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">d = 3</annotation></semantics></math>.
+Then ABABC is digits 0, 1, 0, 1, 2 and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>32</mn></mrow><annotation encoding="application/x-tex">p = 32</annotation></semantics></math>.
+Check:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>⋅</mo><mn>81</mn><mo>+</mo><mn>1</mn><mo>⋅</mo><mn>27</mn><mo>+</mo><mn>0</mn><mo>⋅</mo><mn>9</mn><mo>+</mo><mn>1</mn><mo>⋅</mo><mn>3</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>32</mn></mrow><annotation encoding="application/x-tex">0\cdot81 + 1\cdot27 + 0\cdot9 + 1\cdot3 + 2 = 32</annotation></semantics></math>.</p>
+<h3 id="sliding-the-window-in-theta1">Sliding the window in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math></h3>
+<p>Moving the window right removes the leftmost digit (the <strong>most
+significant digit</strong>, MSD, with weight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>d</mi><mrow><mi>m</mi><mo>−</mo><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">d^{m-1}</annotation></semantics></math>)
+and adds a new digit on the right (the <strong>least significant
+digit</strong>, LSD, weight 1). For the text 3 6 4 1 5 2 with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">m = 5</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>36415</mn><mo>→</mo><mn>64152</mn></mrow><annotation encoding="application/x-tex">36415 \to 64152</annotation></semantics></math>.
+Subtract
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>⋅</mo><msup><mn>10</mn><mn>4</mn></msup></mrow><annotation encoding="application/x-tex">3 \cdot 10^4</annotation></semantics></math>,
+multiply by 10, add 2.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>t</mi><mtext mathvariant="normal">new</mtext></msub><mo>=</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">(</mo><msub><mi>t</mi><mtext mathvariant="normal">old</mtext></msub><mo>−</mo><mtext mathvariant="normal">MSD</mtext><mo>⋅</mo><msup><mi>d</mi><mrow><mspace width="0.167em"></mspace><mi>m</mi><mo>−</mo><mn>1</mn></mrow></msup><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">)</mo><mo>⋅</mo><mi>d</mi><mo>+</mo><mtext mathvariant="normal">LSD</mtext><mi>.</mi></mrow><annotation encoding="application/x-tex">t_{\text{new}} = \big(t_{\text{old}} - \text{MSD} \cdot d^{\,m-1}\big) \cdot d + \text{LSD}.</annotation></semantics></math></p>
+<pre><code>t = (t - T[i] * dM) * d + T[i+m];</code></pre>
+<p><code>dM</code> is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>d</mi><mrow><mspace width="0.167em"></mspace><mi>m</mi><mo>−</mo><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">d^{\,m-1}</annotation></semantics></math>
+(not
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>d</mi><mrow><mspace width="0.167em"></mspace><mi>m</mi></mrow></msup><annotation encoding="application/x-tex">d^{\,m}</annotation></semantics></math>),
+computed once:</p>
+<pre><code>dM = 1;
+for j = 1 to m-1
+    dM = dM * d;</code></pre>
+<p><strong>Binary example (lecture).</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+= 00101,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">m = 5</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">d = 2</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">p = 5</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>00110010000101110100</mn></mrow><annotation encoding="application/x-tex">T = 00110010000101110100</annotation></semantics></math>
+(20 bits).</p>
+<figure>
+<img width="1335" height="345" src="media/11-artifacts/rk-sliding-window.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Rabin-Karp on a binary text. Each brace is one 5-character window, with its number t below. The tenth window has t = 5 = p, so the pattern is found." />
+<figcaption aria-hidden="true">Rabin-Karp on a binary text. Each brace
+is one 5-character window, with its number t below. The tenth window has
+t = 5 = p, so the pattern is found.</figcaption>
+</figure>
+<div class="table-wrap">
+<table style="width: 30%;">
+<colgroup>
+<col style="width: 51%" />
+<col style="width: 31%" />
+<col style="width: 17%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Window start</th>
+<th style="text-align: center;">Window</th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">00110</td>
+<td style="text-align: center;">6</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">01100</td>
+<td style="text-align: center;">12</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">11001</td>
+<td style="text-align: center;">25</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">10010</td>
+<td style="text-align: center;">18</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">00100</td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">01000</td>
+<td style="text-align: center;">8</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">10000</td>
+<td style="text-align: center;">16</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">00001</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">00010</td>
+<td style="text-align: center;">2</td>
+</tr>
+<tr>
+<td style="text-align: center;">9</td>
+<td style="text-align: center;">00101</td>
+<td style="text-align: center;"><strong>5</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="hashing-keep-the-numbers-small">Hashing: keep the numbers
+small</h3>
+<p>A long pattern
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">m = 100</annotation></semantics></math>)
+gives a number too big for a machine word. Keep only the remainder mod a
+<strong>large prime</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>.
+The value
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mo>=</mo><mi>t</mi><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>q</mi></mrow></mrow><annotation encoding="application/x-tex">h = t \bmod q</annotation></semantics></math>
+is the <strong>hash</strong>. Hashing loses information:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mi>p</mi></msub><mo>≠</mo><msub><mi>h</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">h_p \ne h_t</annotation></semantics></math>:
+the window is <strong>definitely not</strong> the pattern.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mi>p</mi></msub><mo>=</mo><msub><mi>h</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">h_p = h_t</annotation></semantics></math>:
+it <strong>might</strong> be. Compare the characters to be sure.</li>
+</ul>
+<p>A hash match that is not a real match is a <strong>spurious
+hit</strong>. It wastes up to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+comparisons.</p>
+<p><strong>Binary example with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>13</mn></mrow><annotation encoding="application/x-tex">q = 13</annotation></semantics></math></strong>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mi>p</mi></msub><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">h_p = 5</annotation></semantics></math>):</p>
+<div class="table-wrap">
+<table style="width: 77%;">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 5%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 19%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 6%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Window start</th>
+<th style="text-align: center;">0</th>
+<th style="text-align: center;">1</th>
+<th style="text-align: center;">2</th>
+<th style="text-align: center;">3</th>
+<th style="text-align: center;">4</th>
+<th style="text-align: center;">5</th>
+<th style="text-align: center;">6</th>
+<th style="text-align: center;">7</th>
+<th style="text-align: center;">8</th>
+<th style="text-align: center;">9</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math></td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">12</td>
+<td style="text-align: center;">25</td>
+<td style="text-align: center;">18</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">16</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mi>t</mi></msub><mo>=</mo><mi>t</mi><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>13</mn></mrow></mrow><annotation encoding="application/x-tex">h_t = t \bmod 13</annotation></semantics></math></td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">12</td>
+<td style="text-align: center;">12</td>
+<td style="text-align: center;"><strong>5</strong></td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;"><strong>5</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">Result</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">spurious hit</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">found</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>At position 3,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>18</mn><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>13</mn></mrow><mo>=</mo><mn>5</mn><mo>=</mo><msub><mi>h</mi><mi>p</mi></msub></mrow><annotation encoding="application/x-tex">18 \bmod 13 = 5 = h_p</annotation></semantics></math>,
+but 10010
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\ne</annotation></semantics></math>
+00101. At position 9 the comparison succeeds.</p>
+<figure>
+<img width="1320" height="885" src="media/11-artifacts/rk-hash-spurious-hit.webp"
+style="width:80.0%" loading="lazy" decoding="async"
+alt="Rabin-Karp with hashing, q = 13. The window with value 18 hashes to 5, the same as the pattern, so the characters are compared but do not match. The window with value 5 is the real match." />
+<figcaption aria-hidden="true">Rabin-Karp with hashing, q = 13. The
+window with value 18 hashes to 5, the same as the pattern, so the
+characters are compared but do not match. The window with value 5 is the
+real match.</figcaption>
+</figure>
+<p>The real algorithm never builds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>.
+It reduces mod
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+at every step, using these rules:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>+</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>q</mi></mrow></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>q</mi></mrow><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>q</mi></mrow><mo stretchy="false" form="postfix">)</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">]</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>q</mi></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>q</mi></mrow><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>q</mi></mrow></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mi>x</mi><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>q</mi></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>⋅</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>q</mi></mrow></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="prefix">[</mo><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>q</mi></mrow><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>q</mi></mrow><mo stretchy="false" form="postfix">)</mo><mo minsize="120%" maxsize="120%" stretchy="true" form="postfix">]</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mi>q</mi></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned}
+(x + y) \bmod q &amp;= \big[(x \bmod q) + (y \bmod q)\big] \bmod q \\
+(x \bmod q) \bmod q &amp;= x \bmod q \\
+(x \cdot y) \bmod q &amp;= \big[(x \bmod q) \cdot (y \bmod q)\big] \bmod q
+\end{aligned}</annotation></semantics></math></p>
+<p>Example,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>13</mn></mrow><annotation encoding="application/x-tex">q = 13</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>⋅</mo><mn>10</mn><mo>+</mo><mn>6</mn><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>13</mn></mrow><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mo>+</mo><mn>6</mn><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>13</mn></mrow><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">(3 \cdot 10 + 6) \bmod 13 = (4 + 6) \bmod 13 = 10</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>36</mn><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>13</mn></mrow><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">36 \bmod 13 = 10</annotation></semantics></math>.</p>
+<h3 id="hash-and-rehash"><code>hash</code> and <code>rehash</code></h3>
+<p><code>hash</code> is Horner’s rule with mod
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+at each step. It runs in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(m)</annotation></semantics></math>.</p>
+<pre><code>int hash(Txt, m, d) {
+    int h = Txt[0] % q;
+    for (int i = 1; i &lt; m; i++)
+        h = (h * d + Txt[i]) % q;
+    return h;
+}</code></pre>
+<p>Example: <code>hash("36415", 5, 10)</code> with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">q = 7</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>→</mo><mn>36</mn><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>1</mn><mo>→</mo><mn>14</mn><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>0</mn><mo>→</mo><mn>1</mn><mo>→</mo><mn>15</mn><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">3 \to 36 \bmod 7 = 1 \to 14 \bmod 7 = 0 \to 1 \to 15 \bmod 7 = 1</annotation></semantics></math>.
+Check:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>36415</mn><mo>=</mo><mn>7</mn><mo>×</mo><mn>5202</mn><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">36415 = 7 \times 5202 + 1</annotation></semantics></math>.</p>
+<p><code>rehash</code> is the sliding formula with mod
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>.
+It runs in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math>.</p>
+<pre><code>int rehash(T, i, m, ht) {
+    oldest = (T[i] * dM) % q;                 // dM is d^(m-1) mod q
+    oldest_removed = ((ht + q) - oldest) % q;
+    return (oldest_removed * d + T[i+m]) % q;
+}</code></pre>
+<ul>
+<li><code>oldest</code> is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">MSD</mtext><mo>⋅</mo><msup><mi>d</mi><mrow><mi>m</mi><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">\text{MSD} \cdot d^{m-1}</annotation></semantics></math>
+mod
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>.
+<code>oldest_removed</code> subtracts it. The last line shifts left and
+adds the new digit.</li>
+<li><strong>Why <code>+ q</code>:</strong> <code>ht</code> can be
+smaller than <code>oldest</code>, and <code>%</code> of a negative
+number may be negative. Adding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+keeps the value mod
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+and makes it positive.</li>
+<li><code>dM = (dM * d) % q</code> inside the same loop as before.</li>
+</ul>
+<p>Example: text 3 6 4 1 5 2,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">m=5</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">d=10</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">q=7</annotation></semantics></math>,
+first hash 1. Here
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>M</mi><mo>=</mo><msup><mn>10</mn><mn>4</mn></msup><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">dM = 10^4 \bmod 7 = 4</annotation></semantics></math>.
+<code>oldest</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>3</mn><mo>⋅</mo><mn>4</mn><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">= 3\cdot4 \bmod 7 = 5</annotation></semantics></math>.
+<code>oldest_removed</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mn>7</mn><mo>−</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">= (1+7-5) \bmod 7 = 3</annotation></semantics></math>.
+Result
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>⋅</mo><mn>10</mn><mo>+</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">(3\cdot10 + 2) \bmod 7 = 4</annotation></semantics></math>.
+Check:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>64152</mn><mo>=</mo><mn>7</mn><mo>×</mo><mn>9164</mn><mo>+</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">64152 = 7 \times 9164 + 4</annotation></semantics></math>.</p>
+<h3 id="the-full-algorithm">The full algorithm</h3>
+<pre><code>int RKscan(P, T) {
+    m = Length(P);
+    n = Length(T);
+    dM = 1;
+    for j = 1 to m-1  dM = dM * d % q;       // d = |Sigma|
+    hp = hash(P, m, d);                      // Theta(m)
+    ht = hash(T, m, d);                      // Theta(m)
+    for (j = 0; j &lt;= n - m; j++) {           // at most n-m+1 windows
+        if (hp == ht &amp;&amp; equal_string(P, T, 0, j, m))
+            return j;
+        if (j &lt; n - m) ht = rehash(T, j, m, ht);
+    }
+    return -1;                               // pattern not found
+}</code></pre>
+<p><code>equal_string</code> runs only when the hashes are equal.</p>
+<h3 id="running-example">Running example</h3>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+= ABABC, A = 0, B = 1, C = 2,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">d = 3</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">q = 7</annotation></semantics></math>.</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mi>M</mi><mo>=</mo><msup><mn>3</mn><mn>4</mn></msup><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">dM = 3^4 \bmod 7 = 4</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mi>p</mi></msub><annotation encoding="application/x-tex">h_p</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>→</mo><mn>1</mn><mo>→</mo><mn>3</mn><mo>→</mo><mn>3</mn><mo>→</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">0 \to 1 \to 3 \to 3 \to 4</annotation></semantics></math>.
+So
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mi>p</mi></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">h_p = 4</annotation></semantics></math>
+(check:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>32</mn><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">32 \bmod 7 = 4</annotation></semantics></math>).</li>
+<li>First window ABABA:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>30</mn><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">30 \bmod 7 = 2</annotation></semantics></math>.</li>
+</ul>
+<div class="table-wrap">
+<table style="width: 81%;">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 11%" />
+<col style="width: 24%" />
+<col style="width: 7%" />
+<col style="width: 18%" />
+<col style="width: 19%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Window start</th>
+<th style="text-align: center;">Window</th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+(for reference)</th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>h</mi><mi>t</mi></msub><annotation encoding="application/x-tex">h_t</annotation></semantics></math></th>
+<th
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>h</mi><mi>t</mi></msub><mo>=</mo><msub><mi>h</mi><mi>p</mi></msub></mrow><annotation encoding="application/x-tex">h_t = h_p</annotation></semantics></math>?</th>
+<th style="text-align: center;">Comparisons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">ABABA</td>
+<td style="text-align: center;">30</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: left;">no</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">BABAB</td>
+<td style="text-align: center;">91</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: left;">no</td>
+<td style="text-align: center;">0</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">ABABC</td>
+<td style="text-align: center;">32</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: left;">yes: compare</td>
+<td style="text-align: center;">5 (all match)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Rehash 0 to 1: leaving
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">[</mo><mn>0</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">T[0] = 0</annotation></semantics></math>,
+entering
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">[</mo><mn>5</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T[5] = 1</annotation></semantics></math>.
+<code>oldest</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">= 0</annotation></semantics></math>,
+<code>oldest_removed</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>+</mo><mn>7</mn><mo>−</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">= (2+7-0) \bmod 7 = 2</annotation></semantics></math>,
+result
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>⋅</mo><mn>3</mn><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">(2\cdot3+1) \bmod 7 = 0</annotation></semantics></math>.
+Rehash 1 to 2: leaving
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T[1] = 1</annotation></semantics></math>,
+entering
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">[</mo><mn>6</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">T[6] = 2</annotation></semantics></math>.
+<code>oldest</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">= 4</annotation></semantics></math>,
+<code>oldest_removed</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>+</mo><mn>7</mn><mo>−</mo><mn>4</mn><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">= (0+7-4) \bmod 7 = 3</annotation></semantics></math>,
+result
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>⋅</mo><mn>3</mn><mo>+</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>7</mn></mrow><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">(3\cdot3+2) \bmod 7 = 4</annotation></semantics></math>.</p>
+<p><strong>5 character comparisons</strong>, against 11 for the simple
+scan, plus the hash arithmetic.</p>
+<h3 id="cost">Cost</h3>
+<ul>
+<li><strong>Preprocessing:</strong> two <code>hash</code> calls,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(m)</annotation></semantics></math>.</li>
+<li><strong>Scan:</strong> at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mi>m</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n-m+1</annotation></semantics></math>
+windows, each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math>
+plus up to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+comparisons on a hash hit.</li>
+<li><strong>Worst case:</strong> every window is a hit:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta((n-m+1)\,m)</annotation></semantics></math>,
+no better than the simple scan.</li>
+<li><strong>Expected:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n + m)</annotation></semantics></math>
+plus the time for spurious hits.</li>
+</ul>
+<p><em>(Not in the lecture; standard result.)</em> If hashes spread
+evenly over
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+values, a wrong window hits with chance about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mi>/</mi><mi>q</mi></mrow><annotation encoding="application/x-tex">1/q</annotation></semantics></math>.
+That gives about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mi>q</mi></mrow><annotation encoding="application/x-tex">(n-m+1)/q</annotation></semantics></math>
+spurious hits at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+comparisons each:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>m</mi><mo>+</mo><mfrac><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>m</mi></mrow><mi>q</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">O\!\left(n + m + \frac{(n - m + 1)\,m}{q}\right).</annotation></semantics></math></p>
+<p>With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>&gt;</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">q &gt; m</annotation></semantics></math>
+this is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n + m)</annotation></semantics></math>.
+So
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+should be a <strong>large prime</strong>.</p>
+<h3 id="a-good-hash">A good hash</h3>
+<ul>
+<li><strong>Large prime
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>.</strong>
+<em>(Not in the lecture.)</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+must share no factor with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>.
+With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mi>q</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">d = q = 10</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mrow><mspace width="0.222em"></mspace><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>10</mn></mrow></mrow><annotation encoding="application/x-tex">t \bmod 10</annotation></semantics></math>
+is only the last digit.</li>
+<li><strong>Position matters.</strong> Horner’s rule multiplies each
+digit by a different power of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>.
+A hash that just adds characters gives every rearrangement the same
+value.</li>
+<li><strong>Always check the characters.</strong> Equal hashes never
+prove a match.</li>
+</ul>
+<hr />
+<h2 id="boyer-moore-skip-ahead-using-the-mismatch">4. Boyer-Moore: Skip
+Ahead Using the Mismatch</h2>
+<p>At a mismatch the simple scan knows two things: <strong>which text
+character</strong> failed, and <strong>which part of the
+pattern</strong> matched just before. It shifts by one and forgets both.
+Boyer-Moore builds two tables from the pattern <strong>before</strong>
+the scan:</p>
+<ul>
+<li><strong>charJump</strong> uses the mismatched <strong>text
+character</strong>.</li>
+<li><strong>matchJump</strong> uses the <strong>part of the pattern that
+already matched</strong>.</li>
+</ul>
+<p>Both shifts are safe (they cannot skip an occurrence), so the
+algorithm takes the <strong>larger</strong>.</p>
+<p><strong>Compare right to left.</strong> The scan moves along
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mi>.</mi><mi>.</mi><mi>n</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">T[1..n]</annotation></semantics></math>
+left to right, but compares
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mi>.</mi><mi>.</mi><mi>m</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[1..m]</annotation></semantics></math>
+from its <strong>last</strong> character backwards. If the text
+character under the pattern’s end is not in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+at all, the whole pattern can move past it. Many text characters are
+never compared, so long patterns help.</p>
+<h3 id="shift-and-jump">Shift and jump</h3>
+<p>Say the mismatch is at text position
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+and pattern position
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.
+The pattern’s end is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>−</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">m - k</annotation></semantics></math>
+places to the right of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.</p>
+<ul>
+<li>The <strong>shift</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>
+is how far the <strong>pattern</strong> moves right.</li>
+<li>The <strong>jump</strong> is how far
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math></strong>
+moves right: catch up to the old end, then move with the pattern.</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">jump</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo>−</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>s</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">\text{jump} = (m - k) + s.</annotation></semantics></math></p>
+<p>The tables hold <strong>jumps</strong>, because the scan tracks
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.</p>
+<pre><code>int BMscan(char[] P, char[] T, int m, int[] charJump, int[] matchJump) {
+    int j, k;
+    j = m; k = m;                        // P[1] and T[1] are the first characters
+    while (j &lt;= n) {
+        if (k &lt; 1) return j + 1;         // match found
+        if (T[j] == P[k]) { j--; k--; }  // match: move both left
+        else {                           // mismatch: shift P right
+            j += max(charJump[T[j]], matchJump[k]);
+            k = m;
+        }
+    }
+    return -1;                           // match not found
+}</code></pre>
+<p>After a match,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+go left. When
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+reaches 0, the occurrence starts at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">j + 1</annotation></semantics></math>.
+After a mismatch,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+jumps right to the text position under the shifted pattern’s last
+character, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+resets to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>.</p>
+<h3 id="charjump-the-mismatched-text-character">charJump: the mismatched
+text character</h3>
+<p>Let the text character be “d”. After a shift, the pattern character
+under
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">T[j]</annotation></semantics></math>
+must be “d”, or no pattern character may sit under it.</p>
+<figure>
+<img width="1330" height="960" src="media/11-artifacts/charjump-cases.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="The two cases for charJump. Top: d does not appear in P, so P slides to start just after T[j]. Bottom: d appears in P, so P slides until its rightmost d is under T[j]." />
+<figcaption aria-hidden="true">The two cases for charJump. Top: d does
+not appear in P, so P slides to start just after T[j]. Bottom: d appears
+in P, so P slides until its rightmost d is under T[j].</figcaption>
+</figure>
+<ul>
+<li><strong>“d” not in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>:</strong>
+slide
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+to start just after
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">T[j]</annotation></semantics></math>.
+Shift
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">s = k</annotation></semantics></math>,
+jump
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo>−</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>k</mi><mo>=</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">(m-k) + k = m</annotation></semantics></math>.</li>
+<li><strong>“d” in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>:</strong>
+slide until the <strong>rightmost</strong> “d” of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>,
+at position
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+is under
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">T[j]</annotation></semantics></math>.
+The rightmost one gives the smallest safe shift. Shift
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><mi>k</mi><mo>−</mo><mi>i</mi></mrow><annotation encoding="application/x-tex">s = k - i</annotation></semantics></math>,
+jump
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>−</mo><mi>i</mi></mrow><annotation encoding="application/x-tex">m - i</annotation></semantics></math>.</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">charJump</mtext><mo stretchy="false" form="prefix">[</mo><mi>d</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mi>m</mi></mtd><mtd columnalign="left" style="text-align: left"><mi>d</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> is not in </mtext><mspace width="0.333em"></mspace></mrow><mi>P</mi><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mi>m</mi><mo>−</mo><mi>i</mi></mtd><mtd columnalign="left" style="text-align: left"><mrow><mtext mathvariant="normal">the rightmost </mtext><mspace width="0.333em"></mspace></mrow><mi>d</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> in </mtext><mspace width="0.333em"></mspace></mrow><mi>P</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> is at position </mtext><mspace width="0.333em"></mspace></mrow><mi>i</mi><mi>.</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\text{charJump}[d] = \begin{cases} m &amp; d \text{ is not in } P, \\ m - i &amp; \text{the rightmost } d \text{ in } P \text{ is at position } i. \end{cases}</annotation></semantics></math></p>
+<p>It is the distance from the rightmost “d” to the <strong>end</strong>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>,
+and does not depend on
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.</p>
+<p><strong>Lecture examples.</strong> For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+= crackers
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">m = 8</annotation></semantics></math>):
+a space is not in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mi>j</mi><mo>+</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">j = j + 8</annotation></semantics></math>.
+A “c” has its rightmost occurrence at position 4, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">charJump</mtext><mo stretchy="false" form="prefix">[</mo><mi>c</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>8</mn><mo>−</mo><mn>4</mn><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">\text{charJump}[c] = 8 - 4 = 4</annotation></semantics></math>.</p>
+<figure>
+<img width="1200" height="540" src="media/11-artifacts/charjump-not-in-pattern.webp"
+style="width:75.0%" loading="lazy" decoding="async"
+alt="The text character under the end of P is a space, which is not in “crackers”. P slides to start just after it: j = j + 8." />
+<figcaption aria-hidden="true">The text character under the end of P is
+a space, which is not in “crackers”. P slides to start just after it: j
+= j + 8.</figcaption>
+</figure>
+<figure>
+<img width="1215" height="570" src="media/11-artifacts/charjump-in-pattern.webp"
+style="width:75.0%" loading="lazy" decoding="async"
+alt="The text character is c. The rightmost c in “crackers” is at position 4, so P slides 4 places: j = j + 8 - 4." />
+<figcaption aria-hidden="true">The text character is c. The rightmost c
+in “crackers” is at position 4, so P slides 4 places: j = j + 8 -
+4.</figcaption>
+</figure>
+<pre><code>void computeJumps(char[] P, int m, int alpha, int[] charJump) {
+    char ch; int k;
+    for (ch = 0; ch &lt; alpha; ch++)      // alpha = |Sigma|
+        charJump[ch] = m;               // default: not in P
+    for (k = 1; k &lt;= m; k++)
+        charJump[P[k]] = m - k;         // distance from the end
+}</code></pre>
+<p>The loop runs left to right, so a later position overwrites an
+earlier one and the table keeps the <strong>rightmost</strong>
+occurrence. Cost:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|\Sigma| + m)</annotation></semantics></math>.</p>
+<p><strong>By hand:</strong> for each character of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>,
+find its rightmost position
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+and write
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>−</mo><mi>i</mi></mrow><annotation encoding="application/x-tex">m - i</annotation></semantics></math>.
+Every character not in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+gets
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>.
+The last character of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+gets 0.</p>
+<div class="table-wrap">
+<table style="width: 67%;">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 71%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Pattern
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>)</th>
+<th style="text-align: left;">Entries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">ABABC (5)</td>
+<td style="text-align: left;">A 2, B 1, C 0</td>
+</tr>
+<tr>
+<td style="text-align: left;">crackers (8)</td>
+<td style="text-align: left;">a 5, c 4, e 2, k 3, r 1, s 0; others
+8</td>
+</tr>
+<tr>
+<td style="text-align: left;">ratsandcats (11)</td>
+<td style="text-align: left;">a 2, c 3, d 4, n 5, r 10, s 0, t 1; others
+11</td>
+</tr>
+<tr>
+<td style="text-align: left;">WOWWOW (6)</td>
+<td style="text-align: left;">O 1, W 0; others 6</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Running example, charJump only</strong> (positions from
+1):</p>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">j = 5</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">k = 5</annotation></semantics></math>:
+A against C. Mismatch.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">charJump</mtext><mo stretchy="false" form="prefix">[</mo><mi>A</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">\text{charJump}[A] = 2</annotation></semantics></math>,
+so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">j = 7</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">k = 5</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>7</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">j = 7, 6, 5, 4, 3</annotation></semantics></math>:
+C/C, B/B, A/A, B/B, A/A all match. Now
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">k = 0</annotation></semantics></math>,
+so return
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>+</mo><mn>1</mn><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">j + 1 = 3</annotation></semantics></math>.</li>
+</ol>
+<p><strong>6 comparisons</strong>, against 11. Position 3 from 1 is
+position 2 from 0.</p>
+<h3 id="when-charjump-alone-fails">When charJump alone fails</h3>
+<p>If the rightmost copy of the text character lies to the
+<strong>right</strong> of the mismatch
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>&gt;</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">i &gt; k</annotation></semantics></math>),
+then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><mi>k</mi><mo>−</mo><mi>i</mi></mrow><annotation encoding="application/x-tex">s = k - i</annotation></semantics></math>
+is negative: the pattern would move <strong>left</strong>. For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+= crackers, “ckers” matches, then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mn>3</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[3]</annotation></semantics></math>
+= a fails against an e. The rightmost “e” is at position 6, to the right
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">k = 3</annotation></semantics></math>.</p>
+<figure>
+<img width="1200" height="510" src="media/11-artifacts/charjump-fails.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="charJump alone can fail. After matching “ckers”, the mismatch is at k = 3 against an e. Aligning the rightmost e in P with it would move P to the left." />
+<figcaption aria-hidden="true">charJump alone can fail. After matching
+“ckers”, the mismatch is at k = 3 against an e. Aligning the rightmost e
+in P with it would move P to the left.</figcaption>
+</figure>
+<p><strong>Simplified Boyer-Moore</strong> forces a shift of at least
+one: <code>j += max(charJump[T[j]], m - k + 1)</code>. Here
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>8</mn><mo>−</mo><mn>3</mn><mo>+</mo><mn>1</mn><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">8 - 3 + 1 = 6</annotation></semantics></math>
+instead of 2. The full algorithm uses matchJump in its place.</p>
+<h3 id="matchjump-the-part-that-already-matched">matchJump: the part
+that already matched</h3>
+<p>At a mismatch at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[k]</annotation></semantics></math>,
+the <strong>suffix</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo>+</mo><mn>1</mn><mi>.</mi><mi>.</mi><mi>m</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[k+1..m]</annotation></semantics></math>
+(length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>−</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">m - k</annotation></semantics></math>)
+has matched. We look for another copy of it in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+to slide into place.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">matchJump</mtext><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo>−</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mtext mathvariant="normal">Slide</mtext><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">\text{matchJump}[k] = (m - k) + \text{Slide}[k].</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Slide</mtext><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\text{Slide}[k]</annotation></semantics></math>
+is the pattern’s own shift. Three cases, all with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Slide</mtext><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>m</mi><mo>−</mo><mi>q</mi></mrow><annotation encoding="application/x-tex">\text{Slide}[k] = m - q</annotation></semantics></math>:</p>
+<ol type="1">
+<li><strong>The suffix appears earlier in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math></strong>,
+preceded by a character <strong>different from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[k]</annotation></semantics></math></strong>.
+Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+be where that copy <strong>ends</strong>. The preceding character must
+differ, or it would meet the same text character and fail again. A copy
+at the very start of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+has nothing before it and counts.</li>
+<li><strong>Only a prefix of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+matches the end of the suffix.</strong> Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+be the length of the <strong>longest</strong> such prefix.</li>
+<li><strong>Neither.</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">q = 0</annotation></semantics></math>:
+slide the pattern fully past,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Slide</mtext><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">\text{Slide}[k] = m</annotation></semantics></math>.</li>
+</ol>
+<figure>
+<img width="1380" height="975" src="media/11-artifacts/matchjump-case1.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Case 1 for P = ratsandcats, k = 8. The matched suffix “ats” also appears at positions 2 to 4, preceded by r, which differs from P[8] = c. That copy ends at q = 4, so Slide[8] = 11 - 4 = 7 and matchJump[8] = 3 + 7 = 10." />
+<figcaption aria-hidden="true">Case 1 for P = ratsandcats, k = 8. The
+matched suffix “ats” also appears at positions 2 to 4, preceded by r,
+which differs from P[8] = c. That copy ends at q = 4, so Slide[8] = 11 -
+4 = 7 and matchJump[8] = 3 + 7 = 10.</figcaption>
+</figure>
+<figure>
+<img width="1350" height="975" src="media/11-artifacts/matchjump-case2.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Case 2 for P = catsandcats, k = 5. The matched suffix is “ndcats”. It does not appear again, but the prefix “cats” (q = 4) equals its end. So Slide[5] = 11 - 4 = 7 and matchJump[5] = 6 + 7 = 13." />
+<figcaption aria-hidden="true">Case 2 for P = catsandcats, k = 5. The
+matched suffix is “ndcats”. It does not appear again, but the prefix
+“cats” (q = 4) equals its end. So Slide[5] = 11 - 4 = 7 and matchJump[5]
+= 6 + 7 = 13.</figcaption>
+</figure>
+<figure>
+<img width="1400" height="919" src="media/11-artifacts/matchjump-case3.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Case 3 for P = dogsandcats, k = 8. The matched suffix “ats” appears nowhere else, and no prefix matches its end. So Slide[8] = 11 and matchJump[8] = 3 + 11 = 14." />
+<figcaption aria-hidden="true">Case 3 for P = dogsandcats, k = 8. The
+matched suffix “ats” appears nowhere else, and no prefix matches its
+end. So Slide[8] = 11 and matchJump[8] = 3 + 11 = 14.</figcaption>
+</figure>
+<p><strong>Last position:</strong> at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">k = m</annotation></semantics></math>
+nothing has matched, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Slide</mtext><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\text{Slide}[m] = 1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">matchJump</mtext><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\text{matchJump}[m] = 1</annotation></semantics></math>.</p>
+<p><strong>By hand,</strong> for each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+down to 1: write the suffix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo>+</mo><mn>1</mn><mi>.</mi><mi>.</mi><mi>m</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[k+1..m]</annotation></semantics></math>.
+Try case 1 (take the <strong>rightmost</strong> valid copy), then case
+2, then case 3. Then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Slide</mtext><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>m</mi><mo>−</mo><mi>q</mi></mrow><annotation encoding="application/x-tex">\text{Slide}[k] = m - q</annotation></semantics></math>.</p>
+<p><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+= ABABC
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">m = 5</annotation></semantics></math>).</strong>
+C occurs once and no prefix ends in C, so every row is case 3.</p>
+<div class="table-wrap">
+<table style="width: 53%;">
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 13%" />
+<col style="width: 16%" />
+<col style="width: 13%" />
+<col style="width: 11%" />
+<col style="width: 15%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math></th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[k]</annotation></semantics></math></th>
+<th style="text-align: center;">Suffix</th>
+<th style="text-align: center;">Case</th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math></th>
+<th style="text-align: center;">Slide</th>
+<th style="text-align: center;">matchJump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">C</td>
+<td style="text-align: center;">none</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">B</td>
+<td style="text-align: center;">C</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">6</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">BC</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">7</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">B</td>
+<td style="text-align: center;">ABC</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">8</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">BABC</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">9</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">matchJump</mtext><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mspace width="0.167em"></mspace><mn>9</mn><mo>,</mo><mn>8</mn><mo>,</mo><mn>7</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>1</mn><mspace width="0.167em"></mspace><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\text{matchJump} = [\,9, 8, 7, 6, 1\,]</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>1</mn><mi>…</mi><mn>5</mn></mrow><annotation encoding="application/x-tex">k = 1 \dots 5</annotation></semantics></math>.
+In the running scan,
+matchJump<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>5</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">[5] = 1</annotation></semantics></math>
+is below charJump 2, so it added nothing.</p>
+<p><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+= WOWWOW
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">m = 6</annotation></semantics></math>),
+lecture.</strong></p>
+<div class="table-wrap">
+<table style="width: 53%;">
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 13%" />
+<col style="width: 16%" />
+<col style="width: 13%" />
+<col style="width: 11%" />
+<col style="width: 15%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math></th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[k]</annotation></semantics></math></th>
+<th style="text-align: center;">Suffix</th>
+<th style="text-align: center;">Case</th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math></th>
+<th style="text-align: center;">Slide</th>
+<th style="text-align: center;">matchJump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">W</td>
+<td style="text-align: center;">none</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">O</td>
+<td style="text-align: center;">W</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">3</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">W</td>
+<td style="text-align: center;">OW</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">7</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">W</td>
+<td style="text-align: center;">WOW</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">6</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">O</td>
+<td style="text-align: center;">WWOW</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">7</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">W</td>
+<td style="text-align: center;">OWWOW</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">8</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">k = 5</annotation></semantics></math>:
+“W” also ends at 4, preceded by W
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\ne</annotation></semantics></math>
+O. Case 1.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">k = 4</annotation></semantics></math>:
+“OW” also sits at 2–3, but preceded by W =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mn>4</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[4]</annotation></semantics></math>,
+so not case 1. The longest prefix ending “OW” is “W”: case 2,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">q = 1</annotation></semantics></math>.</li>
+</ul>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">matchJump</mtext><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mspace width="0.167em"></mspace><mn>8</mn><mo>,</mo><mn>7</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>7</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>1</mn><mspace width="0.167em"></mspace><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\text{matchJump} = [\,8, 7, 6, 7, 3, 1\,]</annotation></semantics></math>.</p>
+<p><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+= RATSCATS
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">m = 8</annotation></semantics></math>),
+lecture.</strong></p>
+<div class="table-wrap">
+<table style="width: 54%;">
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 12%" />
+<col style="width: 18%" />
+<col style="width: 12%" />
+<col style="width: 11%" />
+<col style="width: 14%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math></th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[k]</annotation></semantics></math></th>
+<th style="text-align: center;">Suffix</th>
+<th style="text-align: center;">Case</th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math></th>
+<th style="text-align: center;">Slide</th>
+<th style="text-align: center;">matchJump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">none</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">—</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">T</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">9</td>
+</tr>
+<tr>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">TS</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">10</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">C</td>
+<td style="text-align: center;">ATS</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">7</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">S</td>
+<td style="text-align: center;">CATS</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">12</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">T</td>
+<td style="text-align: center;">SCATS</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">13</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">A</td>
+<td style="text-align: center;">TSCATS</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">14</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">R</td>
+<td style="text-align: center;">ATSCATS</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">15</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>7</mn><mo>,</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">k = 7, 6</annotation></semantics></math>:
+the earlier copies (“S” at 4, “TS” at 3–4) have the same preceding
+character as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[k]</annotation></semantics></math>
+(T, A). That is why case 1 fails here.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">k = 5</annotation></semantics></math>:
+“ATS” at 2–4 is preceded by R
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>≠</mo><annotation encoding="application/x-tex">\ne</annotation></semantics></math>
+C. Case 1.</li>
+</ul>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">matchJump</mtext><mo>=</mo><mo stretchy="false" form="prefix">[</mo><mspace width="0.167em"></mspace><mn>15</mn><mo>,</mo><mn>14</mn><mo>,</mo><mn>13</mn><mo>,</mo><mn>12</mn><mo>,</mo><mn>7</mn><mo>,</mo><mn>10</mn><mo>,</mo><mn>9</mn><mo>,</mo><mn>1</mn><mspace width="0.167em"></mspace><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\text{matchJump} = [\,15, 14, 13, 12, 7, 10, 9, 1\,]</annotation></semantics></math>.</p>
+<h3 id="putting-it-together">Putting it together</h3>
+<pre><code>j += max(charJump[T[j]], matchJump[k]);</code></pre>
+<p>charJump is large when the text character is rare in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>.
+matchJump is large when the matched suffix is rare in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>.</p>
+<p><strong>Lecture example:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+= WOWWOW in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+= LOWOWNOWLWOWWOMMOWWOWWOW, with charJump (O 1, W 0, others 6) and
+matchJump
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mn>8</mn><mo>,</mo><mn>7</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>7</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[8,7,6,7,3,1]</annotation></semantics></math>:
+found after <strong>18</strong> comparisons.</p>
+<figure>
+<img width="1365" height="915" src="media/11-artifacts/bmscan-wowwow.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Boyer-Moore searching for WOWWOW. Each row is one position of the pattern. Red arrows are mismatches; black arrows are matches. The match is found after 18 comparisons." />
+<figcaption aria-hidden="true">Boyer-Moore searching for WOWWOW. Each
+row is one position of the pattern. Red arrows are mismatches; black
+arrows are matches. The match is found after 18
+comparisons.</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 14%" />
+<col style="width: 34%" />
+<col style="width: 11%" />
+<col style="width: 12%" />
+<col style="width: 18%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">End of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math></th>
+<th style="text-align: center;">Comparisons</th>
+<th style="text-align: left;">Mismatch</th>
+<th style="text-align: center;">charJump</th>
+<th style="text-align: center;">matchJump</th>
+<th style="text-align: center;">After the jump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">1</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">k=6</annotation></semantics></math>:
+N against W</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">1</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>12</mn></mrow><annotation encoding="application/x-tex">j = 12</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">12</td>
+<td style="text-align: center;">4</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">k=3</annotation></semantics></math>:
+L against W, after WOW matched</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">6</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>9</mn><mo>+</mo><mn>6</mn><mo>=</mo><mn>15</mn></mrow><annotation encoding="application/x-tex">j = 9+6 = 15</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">15</td>
+<td style="text-align: center;">1</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">k=6</annotation></semantics></math>:
+M against W</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">1</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>21</mn></mrow><annotation encoding="application/x-tex">j = 21</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">21</td>
+<td style="text-align: center;">6</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k=1</annotation></semantics></math>:
+M against W, after OWWOW matched</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">8</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mn>16</mn><mo>+</mo><mn>8</mn><mo>=</mo><mn>24</mn></mrow><annotation encoding="application/x-tex">j = 16+8 = 24</annotation></semantics></math></td>
+</tr>
+<tr>
+<td style="text-align: center;">24</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: left;">none: all six match</td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">return
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>+</mo><mn>1</mn><mo>=</mo><mn>19</mn></mrow><annotation encoding="application/x-tex">j+1 = 19</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mn>4</mn><mo>+</mo><mn>1</mn><mo>+</mo><mn>6</mn><mo>+</mo><mn>6</mn><mo>=</mo><mn>18</mn></mrow><annotation encoding="application/x-tex">1 + 4 + 1 + 6 + 6 = 18</annotation></semantics></math>.
+In row 4, matchJump (8) beats charJump (6).</p>
+<p><strong>Tracing by hand:</strong> build both tables, set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>=</mo><mi>k</mi><mo>=</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">j = k = m</annotation></semantics></math>,
+and compare
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">T[j]</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[k]</annotation></semantics></math>
+(one comparison each). On a match, decrease both. On a mismatch, add the
+maximum jump to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+and set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">k = m</annotation></semantics></math>.
+Stop with “not found” when
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>&gt;</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">j &gt; n</annotation></semantics></math>.
+After each shift,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+is under the pattern’s last character.</p>
+<h3 id="cost-1">Cost</h3>
+<p><strong>From the lecture:</strong> charJump takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="prefix">|</mo><mi>+</mi><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(|\Sigma| + m)</annotation></semantics></math>.
+Many text characters are never compared, so the scan is often
+<strong>sublinear</strong>, and longer patterns skip more.</p>
+<p><strong>Not in the lecture</strong> (standard results):</p>
+<ul>
+<li><strong>Best case:</strong> about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">n/m</annotation></semantics></math>
+comparisons, when no text character met is in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>.</li>
+<li><strong>matchJump</strong> can be built in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(m)</annotation></semantics></math>
+with a cleverer algorithm than the by-hand method.</li>
+<li><strong>charJump only is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(mn)</annotation></semantics></math>
+in the worst case.</strong> Take
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mtext mathvariant="normal">b</mtext><mspace width="0.167em"></mspace><msup><mtext mathvariant="normal">a</mtext><mrow><mi>m</mi><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">P = \text{b}\,\text{a}^{m-1}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><msup><mtext mathvariant="normal">a</mtext><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">T = \text{a}^n</annotation></semantics></math>.
+Each position matches
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">m-1</annotation></semantics></math>
+a’s, then b fails.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">charJump</mtext><mo stretchy="false" form="prefix">[</mo><mi>a</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\text{charJump}[a] = 0</annotation></semantics></math>,
+so the pattern moves only one place.</li>
+<li><strong>Full Boyer-Moore fixes that example.</strong> At
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k=1</annotation></semantics></math>
+the suffix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mtext mathvariant="normal">a</mtext><mrow><mi>m</mi><mo>−</mo><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">\text{a}^{m-1}</annotation></semantics></math>
+is case 3, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">matchJump</mtext><mo stretchy="false" form="prefix">[</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">\text{matchJump}[1] = (m-1)+m</annotation></semantics></math>.</li>
+<li><strong>First occurrence or none:</strong> at most about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">3n</annotation></semantics></math>
+comparisons (Cole, 1994), so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n+m)</annotation></semantics></math>.</li>
+<li><strong>Every occurrence:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(mn)</annotation></semantics></math>
+again (for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mi>T</mi><mo>=</mo><msup><mtext mathvariant="normal">a</mtext><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">P = T = \text{a}^n</annotation></semantics></math>).
+The Galil rule restores
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n+m)</annotation></semantics></math>.</li>
+</ul>
+<hr />
+<h2 id="which-algorithm-should-you-use">5. Which Algorithm Should You
+Use?</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 19%" />
+<col style="width: 27%" />
+<col style="width: 29%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Simple scan</th>
+<th style="text-align: left;">Rabin-Karp</th>
+<th style="text-align: left;">Boyer-Moore</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Comparisons on the running example</td>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">6</td>
+</tr>
+<tr>
+<td style="text-align: left;">Idea</td>
+<td style="text-align: left;">Try every position</td>
+<td style="text-align: left;">Compare hashes; check characters on a
+hit</td>
+<td style="text-align: left;">Right to left; jump with two tables</td>
+</tr>
+<tr>
+<td style="text-align: left;">Preprocessing</td>
+<td style="text-align: left;">None</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(m)</annotation></semantics></math></td>
+<td style="text-align: left;">charJump
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">|</mo><mi mathvariant="normal">Σ</mi><mo stretchy="false" form="postfix">|</mo><mo>+</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\lvert\Sigma\rvert + m)</annotation></semantics></math>;
+matchJump
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(m)</annotation></semantics></math>*</td>
+</tr>
+<tr>
+<td style="text-align: left;">Worst case</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(mn)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta((n-m+1)\,m)</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n+m)</annotation></semantics></math>
+first occurrence*;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(mn)</annotation></semantics></math>
+charJump only*</td>
+</tr>
+<tr>
+<td style="text-align: left;">Usual case</td>
+<td style="text-align: left;">Good: early mismatches</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n+m)</annotation></semantics></math>
++ spurious hits</td>
+<td style="text-align: left;">Sublinear</td>
+</tr>
+<tr>
+<td style="text-align: left;">Best case</td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math></td>
+<td
+style="text-align: left;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(n+m)</annotation></semantics></math></td>
+<td style="text-align: left;">about
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mi>m</mi></mrow><annotation encoding="application/x-tex">n/m</annotation></semantics></math>*</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>* Not in the lecture.</p>
+<p><strong>Experiments (lecture).</strong> Brute force did better than
+expected, because near matches are rare in real text. Rabin-Karp did
+much worse: function calls, slow <code>mod</code> divisions and
+character conversion cost time. Boyer-Moore is considered the most
+efficient for usual applications, such as a text editor. The lecture
+also tested KMP, which is not covered here.</p>
+<p><strong>Rules of thumb.</strong> Usual text and longer patterns:
+Boyer-Moore. Binary strings: KMP is recommended, since a two-letter
+alphabet gives tiny charJump values. Very short patterns: the
+brute-force scan, which has no preprocessing.</p>
+<hr />
+<h2 id="common-traps">6. Common Traps</h2>
+<ul>
+<li><strong>Simple scan.</strong> Worst case
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">m(n-m+1)</annotation></semantics></math>.
+After a mismatch it shifts by <strong>one</strong> and restarts at the
+pattern’s <strong>first</strong> character.</li>
+<li><strong>Equal hashes prove nothing.</strong> Always compare
+characters. Different hashes <strong>do</strong> prove no match.</li>
+<li><strong>Rabin-Karp worst case</strong> is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mi>m</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>m</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta((n-m+1)m)</annotation></semantics></math>.
+Its advantage is only the expected case.</li>
+<li><strong><code>rehash</code>.</strong> The <code>+ q</code> stops a
+negative result. <code>dM</code> is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>d</mi><mrow><mspace width="0.167em"></mspace><mi>m</mi><mo>−</mo><mn>1</mn></mrow></msup><annotation encoding="application/x-tex">d^{\,m-1}</annotation></semantics></math>,
+not
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>d</mi><mrow><mspace width="0.167em"></mspace><mi>m</mi></mrow></msup><annotation encoding="application/x-tex">d^{\,m}</annotation></semantics></math>.</li>
+<li><strong>Mod at every step.</strong> Never build the full number
+first.</li>
+<li><strong>Hash must use position.</strong> A hash that ignores it
+gives many spurious hits. Letters need digit values
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mi>…</mi><mi>d</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">0 \dots d-1</annotation></semantics></math>
+first.</li>
+<li><strong>Boyer-Moore directions.</strong> Compare the pattern
+<strong>right to left</strong>, move along the text <strong>left to
+right</strong>.</li>
+<li><strong>Numbering.</strong> Boyer-Moore counts from
+<strong>1</strong> (match at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">j + 1</annotation></semantics></math>
+when
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k &lt; 1</annotation></semantics></math>).
+The others count from 0.</li>
+<li><strong>Jumps, not shifts.</strong> The tables hold jumps: shift
+plus
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mo>−</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">m - k</annotation></semantics></math>.</li>
+<li><strong>charJump.</strong> Rightmost occurrence. The last character
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+gets 0. A character not in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+gets
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>.
+Alone it can shift <strong>left</strong>; simplified Boyer-Moore uses
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">charJump</mtext><mo>,</mo><mi>m</mi><mo>−</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\max(\text{charJump}, m-k+1)</annotation></semantics></math>.</li>
+<li><strong>matchJump.</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mo>−</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mtext mathvariant="normal">Slide</mtext><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">(m-k) + \text{Slide}[k]</annotation></semantics></math>,
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">matchJump</mtext><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\text{matchJump}[m] = 1</annotation></semantics></math>.
+In case 1 the earlier copy must be preceded by a character
+<strong>different</strong> from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">[</mo><mi>k</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">P[k]</annotation></semantics></math>.</li>
+<li><strong>Full shift is the maximum</strong> of charJump and
+matchJump.</li>
+<li><strong>charJump only</strong> can still be
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>m</mi><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(mn)</annotation></semantics></math>.
+matchJump protects the worst case.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/10-dynamic-programming/10.html">← 10.
+Dynamic Programming</a>
+  <a class="next-page" href="../../notes/12-np-completeness/12.html">12.
+NP-Completeness →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

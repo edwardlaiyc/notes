@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>5. Deadlocks · SC2005 Operating Systems</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">5.
+Deadlocks</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">5. Deadlocks</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-overview/1.html"
+                   data-nav="notes/1-overview/1.html">1. Overview of
+Operating Systems</a></li>
+            <li><a href="../../notes/2-processes-threads/2.html"
+                   data-nav="notes/2-processes-threads/2.html">2.
+Processes and Threads</a></li>
+            <li><a href="../../notes/3-cpu-scheduling/3.html"
+                   data-nav="notes/3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../../notes/4-synchronization/4.html"
+                   data-nav="notes/4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../../notes/5-deadlocks/5.html"
+                   data-nav="notes/5-deadlocks/5.html">5.
+Deadlocks</a></li>
+            <li><a href="../../notes/6a-rtos/6a.html"
+                   data-nav="notes/6a-rtos/6a.html">6a. Real-Time
+Operating Systems</a></li>
+            <li><a href="../../notes/6b-virtualization/6b.html"
+                   data-nav="notes/6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../../notes/7-memory-organization/7.html"
+                   data-nav="notes/7-memory-organization/7.html">7.
+Memory Organization</a></li>
+            <li><a href="../../notes/8-virtual-memory/8.html"
+                   data-nav="notes/8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../../notes/9-file-systems/9.html"
+                   data-nav="notes/9-file-systems/9.html">9. File
+Systems</a></li>
+            <li><a href="../../notes/10-io-disk/10.html"
+                   data-nav="notes/10-io-disk/10.html">10. I/O Systems
+and Disk</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Course
+Cheatsheet</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../../notes/labs/lab-1.html"
+                   data-nav="notes/labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../../notes/labs/lab-2.html"
+                   data-nav="notes/labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3.html"
+                   data-nav="notes/labs/lab-3/lab-3.html">Lab 3
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4.html"
+                   data-nav="notes/labs/lab-4/lab-4.html">Lab 4
+Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#deadlock-definition-and-the-bridge-analogy"
+id="toc-deadlock-definition-and-the-bridge-analogy">1. Deadlock
+Definition and The Bridge Analogy</a></li>
+<li><a href="#the-four-necessary-conditions-for-deadlock"
+id="toc-the-four-necessary-conditions-for-deadlock">2. The Four
+Necessary Conditions for Deadlock</a></li>
+<li><a href="#resource-allocation-graphs-rag"
+id="toc-resource-allocation-graphs-rag">3. Resource-Allocation Graphs
+(RAG)</a>
+<ul>
+<li><a href="#step-by-step-method-cycle-analysis-in-resource-graphs"
+id="toc-step-by-step-method-cycle-analysis-in-resource-graphs">Step-by-Step
+Method: Cycle Analysis in Resource Graphs</a></li>
+</ul></li>
+<li><a href="#handling-deadlocks-four-paradigms"
+id="toc-handling-deadlocks-four-paradigms">4. Handling Deadlocks: Four
+Paradigms</a></li>
+<li><a href="#deadlock-prevention" id="toc-deadlock-prevention">5.
+Deadlock Prevention</a></li>
+<li><a href="#deadlock-avoidance-safe-states-and-the-bankers-algorithm"
+id="toc-deadlock-avoidance-safe-states-and-the-bankers-algorithm">6.
+Deadlock Avoidance: Safe States and The Banker’s Algorithm</a>
+<ul>
+<li><a href="#safe-states" id="toc-safe-states">Safe States</a></li>
+<li><a href="#the-bankers-algorithm-data-structures"
+id="toc-the-bankers-algorithm-data-structures">The Banker’s Algorithm
+Data Structures</a></li>
+<li><a href="#step-by-step-method-1-the-safety-algorithm"
+id="toc-step-by-step-method-1-the-safety-algorithm">Step-by-Step Method
+1: The Safety Algorithm</a></li>
+<li><a
+href="#step-by-step-method-2-handling-a-resource-request-requestalgorithm"
+id="toc-step-by-step-method-2-handling-a-resource-request-requestalgorithm">Step-by-Step
+Method 2: Handling a Resource Request
+(<code>RequestAlgorithm</code>)</a></li>
+<li><a
+href="#step-by-step-method-3-finding-the-minimum-available-vector-for-safety"
+id="toc-step-by-step-method-3-finding-the-minimum-available-vector-for-safety">Step-by-Step
+Method 3: Finding the Minimum <code>Available</code> Vector for
+Safety</a></li>
+</ul></li>
+<li><a href="#worked-exam-problems-the-bankers-algorithm"
+id="toc-worked-exam-problems-the-bankers-algorithm">7. Worked Exam
+Problems: The Banker’s Algorithm</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>In a multiprogramming environment, concurrent processes compete for a
+finite set of shared system resources (printers, memory blocks, database
+locks, semaphore permits). If processes request resources held by other
+waiting processes, execution can grind to a halt.</p>
+<p>A <strong>deadlock</strong> occurs when a set of concurrent processes
+are permanently blocked because each process holds resources while
+waiting for other resources held by other processes in the set.</p>
+<hr />
+<h2 id="deadlock-definition-and-the-bridge-analogy">1. Deadlock
+Definition and The Bridge Analogy</h2>
+<p>A set of processes is deadlocked when every process in the set is
+waiting for an event that only another process in the same set can
+cause:</p>
+<figure>
+<img width="1400" height="418" src="media/5-artifacts/bridge-crossing.webp" style="width:60.0%"
+loading="lazy" decoding="async" alt="Deadlock on a Narrow Bridge" />
+<figcaption aria-hidden="true">Deadlock on a Narrow Bridge</figcaption>
+</figure>
+<ul>
+<li><strong>The Bridge Analogy:</strong> Traffic moves in both
+directions across a narrow, single-lane bridge. If two vehicles drive
+onto the bridge from opposite ends, neither can advance. Deadlock can be
+resolved only if one car preempts its claim, <strong>backs up (rolls
+back)</strong>, and releases the contested road segment.</li>
+<li><strong>Deadlock vs. Starvation:</strong>
+<ul>
+<li>In a <strong>deadlock</strong>, every process in the set is waiting
+for another blocked process; <strong>zero progress occurs
+system-wide</strong>.</li>
+<li>In <strong>starvation</strong>, a low-priority process waits
+indefinitely while other processes successfully execute and
+progress.</li>
+</ul></li>
+<li><strong>Minimum Size:</strong> A deadlock requires a minimum of
+<strong>two processes</strong> and two non-preemptible resource
+instances.</li>
+</ul>
+<hr />
+<h2 id="the-four-necessary-conditions-for-deadlock">2. The Four
+Necessary Conditions for Deadlock</h2>
+<p>Deadlock can arise if and only if all four <strong>Coffman
+conditions</strong> hold simultaneously in the system:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 38%" />
+<col style="width: 39%" />
+</colgroup>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Formal Meaning</th>
+<th>Physical Real-World Interpretation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Mutual Exclusion</strong></td>
+<td>At least one resource must be held in a non-shareable mode.</td>
+<td>Only one process at a time can use the resource. If another process
+requests it, that process must wait.</td>
+</tr>
+<tr>
+<td><strong>2. Hold and Wait</strong></td>
+<td>A process must be holding at least one resource and actively waiting
+to acquire additional resources held by others.</td>
+<td>Processes do not release currently held allocations while queued for
+pending ones.</td>
+</tr>
+<tr>
+<td><strong>3. No Preemption</strong></td>
+<td>Resources cannot be forcibly taken away from a process.</td>
+<td>A resource can be released only voluntarily by the holding process
+after completing its task.</td>
+</tr>
+<tr>
+<td><strong>4. Circular Wait</strong></td>
+<td>A closed directed chain of waiting processes exists:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><msub><mi>P</mi><mn>0</mn></msub><mo>,</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>P</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{P_0, P_1, \dots, P_n\}</annotation></semantics></math>
+such that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+waits for a resource held by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+waits for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>…</mi><annotation encoding="application/x-tex">\dots</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>n</mi></msub><annotation encoding="application/x-tex">P_n</annotation></semantics></math>
+waits for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>.</td>
+<td>Circular dependency of resource claims.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>[!IMPORTANT] <strong>Necessary vs. Sufficient:</strong></p>
+<ul>
+<li>All 4 conditions are <strong>strictly necessary</strong> for
+deadlock. If you break even <strong>one</strong> condition, deadlock is
+mathematically impossible.</li>
+<li>However, conditions 1, 2, and 3 alone are <strong>not
+sufficient</strong> to guarantee deadlock—deadlock occurs only when a
+<strong>circular wait</strong> forms.</li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="resource-allocation-graphs-rag">3. Resource-Allocation Graphs
+(RAG)</h2>
+<p>Deadlocks can be precisely modeled using a directed graph
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>V</mi><mo>,</mo><mi>E</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">G = (V, E)</annotation></semantics></math>
+consisting of processes (circles) and resource types (boxes containing
+dots representing instances):</p>
+<figure>
+<img width="1297" height="1037" src="media/5-artifacts/rag-notation.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Resource-Allocation Graph Notation" />
+<figcaption aria-hidden="true">Resource-Allocation Graph
+Notation</figcaption>
+</figure>
+<ul>
+<li><strong>Request Edge
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>i</mi></msub><mo>→</mo><msub><mi>R</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">P_i \to R_j</annotation></semantics></math>):</strong>
+Process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+has requested an instance of resource type
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math>
+and is currently waiting.</li>
+<li><strong>Assignment Edge
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mi>j</mi></msub><mo>→</mo><msub><mi>P</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">R_j \to P_i</annotation></semantics></math>):</strong>
+An instance of resource type
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math>
+has been allocated to process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>.</li>
+</ul>
+<h3
+id="step-by-step-method-cycle-analysis-in-resource-graphs">Step-by-Step
+Method: Cycle Analysis in Resource Graphs</h3>
+<pre><code>Is there a directed cycle in the graph?
+   ├── NO  ──&gt; System is NOT deadlocked.
+   └── YES ──&gt; Check instance counts per resource type:
+          ├── Exactly 1 instance per resource type ──&gt; DEADLOCK DEFINITELY EXISTS.
+          └── Multiple instances per resource type ──&gt; DEADLOCK IS POSSIBLE (Run Graph Reduction).</code></pre>
+<p><img width="844" height="1093" src="media/5-artifacts/rag-no-deadlock.webp" style="width:45.0%"
+loading="lazy" decoding="async"
+alt="No Deadlock: P3 Can Finish and Free Resources" /> <img width="843" height="1093"
+src="media/5-artifacts/rag-deadlock.webp" style="width:45.0%"
+loading="lazy" decoding="async"
+alt="Deadlock: Cycle with Single Instances" /> <img width="1006" height="1150"
+src="media/5-artifacts/rag-cycle-no-deadlock.webp" style="width:45.0%"
+loading="lazy" decoding="async"
+alt="Cycle Present but NO Deadlock (Multiple Instances)" /></p>
+<h4 id="graph-reduction-procedure-for-multiple-instances">Graph
+Reduction Procedure for Multiple Instances</h4>
+<ol type="1">
+<li>Find a process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+whose pending requests can be completely satisfied by currently
+available unallocated instances.</li>
+<li>If found, assume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+finishes: erase all its edges and return all its held allocations to the
+free pool.</li>
+<li>Repeat iteratively. If all processes can be erased, <strong>no
+deadlock exists</strong>. If unallocated resources cannot satisfy any
+remaining process, the unreduced processes are
+<strong>deadlocked</strong>.</li>
+</ol>
+<details class="qa box">
+<summary>
+<strong>AY19/20 S1 Q2b &amp; Past Checks:</strong> Resource-Allocation
+Graphs <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY19/20 S1 Q2b:</strong>
+<ul>
+<li><em>Request sequence (single instance each):</em> P1 requests R; P2
+requests S; P3 requests T; P1 requests S; P3 requests R.</li>
+<li><em>Analysis:</em>
+<ul>
+<li>Initial assignments:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>→</mo><msub><mi>P</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">R \to P_1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>→</mo><msub><mi>P</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">S \to P_2</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>→</mo><msub><mi>P</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">T \to P_3</annotation></semantics></math>.</li>
+<li>Request edges:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>1</mn></msub><mo>→</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">P_1 \to S</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>3</mn></msub><mo>→</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">P_3 \to R</annotation></semantics></math>.</li>
+<li>Graph paths:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>3</mn></msub><mo>→</mo><mi>R</mi><mo>→</mo><msub><mi>P</mi><mn>1</mn></msub><mo>→</mo><mi>S</mi><mo>→</mo><msub><mi>P</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">P_3 \to R \to P_1 \to S \to P_2</annotation></semantics></math>.</li>
+<li><strong>Verdict:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>
+holds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+but has zero outstanding requests.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>
+completes and releases
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+allowing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+to finish and release
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>,
+allowing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>3</mn></msub><annotation encoding="application/x-tex">P_3</annotation></semantics></math>
+to finish. <strong>There is no cycle, hence NO DEADLOCK.</strong></li>
+</ul></li>
+</ul></li>
+<li><strong>AY17/18 S1 Q1a(ii):</strong> <em>A graph with a cycle where
+R1 has 2 instances proves deadlock.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>False.</strong> If resources have multiple instances, a cycle
+indicates only the possibility of deadlock; external processes holding
+instances of the same resource can finish and break the cycle.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="handling-deadlocks-four-paradigms">4. Handling Deadlocks: Four
+Paradigms</h2>
+<ol type="1">
+<li><strong>Deadlock Prevention:</strong> Design structural protocols
+that ensure at least one of the four necessary conditions can
+<strong>never hold</strong>.</li>
+<li><strong>Deadlock Avoidance:</strong> The OS uses a priori knowledge
+of maximum resource demands to dynamically ensure the system remains in
+a <strong>safe state</strong>.</li>
+<li><strong>Deadlock Detection and Recovery:</strong> Allow deadlocks to
+occur, periodically execute graph-detection algorithms, and recover via
+process termination or preemption.</li>
+<li><strong>Deadlock Ignorance (The Ostrich Algorithm):</strong> Ignore
+the problem completely and assume deadlocks never occur. Used by Linux,
+Windows, and macOS because handling overhead outweighs the frequency of
+deadlocks.</li>
+</ol>
+<hr />
+<h2 id="deadlock-prevention">5. Deadlock Prevention</h2>
+<p>Deadlock prevention invalidates one of the four Coffman
+conditions:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 39%" />
+<col style="width: 42%" />
+</colgroup>
+<thead>
+<tr>
+<th>Target Condition</th>
+<th>Prevention Mechanism</th>
+<th>Practical Limitation / Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mutual Exclusion</strong></td>
+<td>Make all resources shareable (e.g. read-only files).</td>
+<td><strong>Impossible in practice</strong> for inherently dedicated
+hardware (printers, tape drives, mutex locks).</td>
+</tr>
+<tr>
+<td><strong>Hold and Wait</strong></td>
+<td><strong>Protocol A:</strong> A process must request and receive all
+required resources simultaneously before beginning
+execution.<br><strong>Protocol B:</strong> A process must release all
+currently held resources before requesting any new ones.</td>
+<td><strong>Severe resource underutilization:</strong> Resources held
+for long periods are used only briefly. Processes requiring popular
+resources suffer <strong>starvation</strong>.</td>
+</tr>
+<tr>
+<td><strong>No Preemption</strong></td>
+<td>If a process holding resources requests an unavailable resource,
+<strong>all its currently held resources are forcibly
+preempted</strong>.</td>
+<td>Applicable only to resources whose state can be easily saved and
+restored (CPU registers, RAM pages). Unworkable for disks or locks.</td>
+</tr>
+<tr>
+<td><strong>Circular Wait</strong></td>
+<td>Impose a global <strong>total ordering function</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo>:</mo><mi>R</mi><mo>→</mo><mi mathvariant="double-struck">ℕ</mi></mrow><annotation encoding="application/x-tex">F: R \to \mathbb{N}</annotation></semantics></math>
+on all resource types. A process can request a resource
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math>
+if and only if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(R_j) &gt; F(R_i)</annotation></semantics></math>
+for all currently held resources
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>i</mi></msub><annotation encoding="application/x-tex">R_i</annotation></semantics></math>.</td>
+<td><strong>Most practical prevention technique.</strong> (Used in OS
+kernels). Forces programmers to write resource requests in strict
+hierarchical order.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img width="1400" height="1081" src="media/5-artifacts/chopstick-ordering.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="Chopstick Total Ordering to Prevent Circular Wait" />
+<figcaption aria-hidden="true">Chopstick Total Ordering to Prevent
+Circular Wait</figcaption>
+</figure>
+<details class="qa box">
+<summary>
+<strong>Tutorial 6 Q1 &amp; Q2:</strong> Deadlock Conditions and
+Prevention Rules <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Tutorial 6 Q1 (Circular Wait via Total Ordering):</strong>
+<ul>
+<li><em>Question:</em> Why does global resource ordering prevent
+circular wait?</li>
+<li><em>Proof:</em> Suppose a circular wait exists:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>0</mn></msub><mo>→</mo><msub><mi>P</mi><mn>1</mn></msub><mo>→</mo><mi>…</mi><mo>→</mo><msub><mi>P</mi><mi>n</mi></msub><mo>→</mo><msub><mi>P</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">P_0 \to P_1 \to \dots \to P_n \to P_0</annotation></semantics></math>,
+where each process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>k</mi></msub><annotation encoding="application/x-tex">P_k</annotation></semantics></math>
+holds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mrow><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow></msub><annotation encoding="application/x-tex">R_{h(k)}</annotation></semantics></math>
+and waits for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow></msub><annotation encoding="application/x-tex">R_{w(k)}</annotation></semantics></math>.
+By the ordering rule,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>k</mi></msub><annotation encoding="application/x-tex">P_k</annotation></semantics></math>
+can only request
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow></msub><annotation encoding="application/x-tex">R_{w(k)}</annotation></semantics></math>
+if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mrow><mi>w</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow></msub><mo stretchy="false" form="postfix">)</mo><mo>&gt;</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mrow><mi>h</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(R_{w(k)}) &gt; F(R_{h(k)})</annotation></semantics></math>.
+Summing these inequalities around the cycle yields
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>…</mi><mo>&lt;</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(R_0) &lt; F(R_1) &lt; \dots &lt; F(R_n) &lt; F(R_0)</annotation></semantics></math>,
+which is a logical contradiction
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>&lt;</mo><mi>F</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>R</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">F(R_0) &lt; F(R_0)</annotation></semantics></math>).
+Thus, no cycle can form.</li>
+</ul></li>
+<li><strong>Tutorial 6 Q2 (Hold and Wait Protocols):</strong>
+<ul>
+<li>Requiring processes to hold all resources at once guarantees safety,
+but severely degrades throughput because idle resources cannot be
+borrowed by other ready processes.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="deadlock-avoidance-safe-states-and-the-bankers-algorithm">6.
+Deadlock Avoidance: Safe States and The Banker’s Algorithm</h2>
+<p>Instead of imposing rigid structural restrictions, <strong>deadlock
+avoidance</strong> dynamically inspects every resource request. If
+granting the request could lead to a deadlock, the request is
+deferred.</p>
+<h3 id="safe-states">Safe States</h3>
+<p>A state is <strong>safe</strong> if there exists at least one
+<strong>safe sequence</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>P</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_1, P_2, \dots, P_n \rangle</annotation></semantics></math>
+of processes such that for each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>,
+the maximum remaining resources
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+can still request can be satisfied by:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="bold">𝐂𝐮𝐫𝐫𝐞𝐧𝐭𝐥𝐲 𝐀𝐯𝐚𝐢𝐥𝐚𝐛𝐥𝐞 𝐑𝐞𝐬𝐨𝐮𝐫𝐜𝐞𝐬</mtext><mo>+</mo><munder><mo>∑</mo><mrow><mi>j</mi><mo>&lt;</mo><mi>i</mi></mrow></munder><mrow><mtext mathvariant="normal">Resources Allocated to </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>P</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">\mathbf{\text{Currently Available Resources}} + \sum_{j &lt; i} \text{Resources Allocated to } P_j</annotation></semantics></math></p>
+<figure>
+<img width="804" height="638" src="media/5-artifacts/safe-unsafe-deadlock.webp"
+style="width:50.0%" loading="lazy" decoding="async"
+alt="Safe, Unsafe, and Deadlocked State Relationships" />
+<figcaption aria-hidden="true">Safe, Unsafe, and Deadlocked State
+Relationships</figcaption>
+</figure>
+<ul>
+<li><strong>Safe State
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+NO DEADLOCK.</strong></li>
+<li><strong>Unsafe State
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+Deadlock is POSSIBLE.</strong> (An unsafe state is not automatically a
+deadlock; it simply means the OS can no longer prevent processes from
+deadlocking if they all suddenly demand their maximum claims).</li>
+<li><strong>Avoidance Rule:</strong> Never grant a request if doing so
+transitions the system from a Safe State to an Unsafe State.</li>
+</ul>
+<hr />
+<h3 id="the-bankers-algorithm-data-structures">The Banker’s Algorithm
+Data Structures</h3>
+<p>For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+processes and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+resource types:</p>
+<ul>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Available</mtext><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\text{Available}[m]</annotation></semantics></math>:</strong>
+Vector of length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Available</mtext><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\text{Available}[j] = k</annotation></semantics></math>
+means
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+instances of resource type
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math>
+are free.</li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Max</mtext><mo stretchy="false" form="prefix">[</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\text{Max}[n][m]</annotation></semantics></math>:</strong>
+Matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n \times m</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Max</mtext><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\text{Max}[i][j] = k</annotation></semantics></math>
+means process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+may request at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+instances of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math>.</li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Allocation</mtext><mo stretchy="false" form="prefix">[</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\text{Allocation}[n][m]</annotation></semantics></math>:</strong>
+Matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n \times m</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Allocation</mtext><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mi>k</mi></mrow><annotation encoding="application/x-tex">\text{Allocation}[i][j] = k</annotation></semantics></math>
+means
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+currently holds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+instances of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math>.</li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Need</mtext><mo stretchy="false" form="prefix">[</mo><mi>n</mi><mo stretchy="false" form="postfix">]</mo><mo stretchy="false" form="prefix">[</mo><mi>m</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">\text{Need}[n][m]</annotation></semantics></math>:</strong>
+Matrix
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n \times m</annotation></semantics></math>.
+Remaining claim of each process:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="bold">𝐍𝐞𝐞𝐝</mtext><mo stretchy="false" form="prefix" mathvariant="bold">[</mo><mi mathvariant="bold-italic">𝒊</mi><mo stretchy="false" form="postfix" mathvariant="bold">]</mo><mo stretchy="false" form="prefix" mathvariant="bold">[</mo><mi mathvariant="bold-italic">𝒋</mi><mo stretchy="false" form="postfix" mathvariant="bold">]</mo><mo mathvariant="bold">=</mo><mtext mathvariant="bold">𝐌𝐚𝐱</mtext><mo stretchy="false" form="prefix" mathvariant="bold">[</mo><mi mathvariant="bold-italic">𝒊</mi><mo stretchy="false" form="postfix" mathvariant="bold">]</mo><mo stretchy="false" form="prefix" mathvariant="bold">[</mo><mi mathvariant="bold-italic">𝒋</mi><mo stretchy="false" form="postfix" mathvariant="bold">]</mo><mo mathvariant="bold">−</mo><mtext mathvariant="bold">𝐀𝐥𝐥𝐨𝐜𝐚𝐭𝐢𝐨𝐧</mtext><mo stretchy="false" form="prefix" mathvariant="bold">[</mo><mi mathvariant="bold-italic">𝒊</mi><mo stretchy="false" form="postfix" mathvariant="bold">]</mo><mo stretchy="false" form="prefix" mathvariant="bold">[</mo><mi mathvariant="bold-italic">𝒋</mi><mo stretchy="false" form="postfix" mathvariant="bold">]</mo></mrow><annotation encoding="application/x-tex">\mathbf{\text{Need}[i][j] = \text{Max}[i][j] - \text{Allocation}[i][j]}</annotation></semantics></math></li>
+</ul>
+<hr />
+<h3 id="step-by-step-method-1-the-safety-algorithm">Step-by-Step Method
+1: The Safety Algorithm</h3>
+<p>To test if a state is safe and find a safe sequence:</p>
+<ol type="1">
+<li>Initialize:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Work</mtext><mo>=</mo><mtext mathvariant="normal">Available</mtext><mo>,</mo><mspace width="1.0em"></mspace><mtext mathvariant="normal">Finish</mtext><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mrow><mtext mathvariant="normal">false for </mtext><mspace width="0.333em"></mspace></mrow><mi>i</mi><mo>=</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\text{Work} = \text{Available}, \quad \text{Finish}[i] = \text{false for } i = 0, 1, \dots, n-1</annotation></semantics></math></li>
+<li>Find an index
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+such that:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Finish</mtext><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mo>=</mo><mtext mathvariant="normal">false</mtext><mspace width="1.0em"></mspace><mtext mathvariant="normal">and</mtext><mspace width="1.0em"></mspace><msub><mtext mathvariant="normal">Need</mtext><mi>i</mi></msub><mo>≤</mo><mtext mathvariant="normal">Work</mtext></mrow><annotation encoding="application/x-tex">\text{Finish}[i] == \text{false} \quad \text{and} \quad \text{Need}_i \le \text{Work}</annotation></semantics></math>
+<em>(If no such
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+exists, skip to Step 4).</em></li>
+<li>Process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+can safely finish:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Work</mtext><mo>=</mo><mtext mathvariant="normal">Work</mtext><mo>+</mo><msub><mtext mathvariant="normal">Allocation</mtext><mi>i</mi></msub><mo>,</mo><mspace width="1.0em"></mspace><mtext mathvariant="normal">Finish</mtext><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mtext mathvariant="normal">true</mtext></mrow><annotation encoding="application/x-tex">\text{Work} = \text{Work} + \text{Allocation}_i, \quad \text{Finish}[i] = \text{true}</annotation></semantics></math>
+Record
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+in the safe sequence. Return to <strong>Step 2</strong>.</li>
+<li><strong>Verdict:</strong>
+<ul>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Finish</mtext><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mo>=</mo><mtext mathvariant="normal">true</mtext></mrow><annotation encoding="application/x-tex">\text{Finish}[i] == \text{true}</annotation></semantics></math>
+for all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>⟹</mo></mrow><annotation encoding="application/x-tex">i \implies</annotation></semantics></math>
+<strong>The system is in a SAFE STATE</strong>. The list of recorded
+processes is a valid <strong>safe sequence</strong>.</li>
+<li>If any
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Finish</mtext><mo stretchy="false" form="prefix">[</mo><mi>i</mi><mo stretchy="false" form="postfix">]</mo><mo>=</mo><mo>=</mo><mtext mathvariant="normal">false</mtext><mo>⟹</mo></mrow><annotation encoding="application/x-tex">\text{Finish}[i] == \text{false} \implies</annotation></semantics></math>
+<strong>The system is in an UNSAFE STATE</strong>.</li>
+</ul></li>
+</ol>
+<hr />
+<h3
+id="step-by-step-method-2-handling-a-resource-request-requestalgorithm">Step-by-Step
+Method 2: Handling a Resource Request
+(<code>RequestAlgorithm</code>)</h3>
+<p>When process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+requests vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mtext mathvariant="normal">Request</mtext><mi>i</mi></msub><annotation encoding="application/x-tex">\text{Request}_i</annotation></semantics></math>:</p>
+<ol type="1">
+<li><strong>Sanity Check:</strong> If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Request</mtext><mi>i</mi></msub><mo>≤</mo><msub><mtext mathvariant="normal">Need</mtext><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\text{Request}_i \le \text{Need}_i</annotation></semantics></math>,
+proceed to Step 2. Otherwise, raise error (process exceeded maximum
+declared claim).</li>
+<li><strong>Availability Check:</strong> If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Request</mtext><mi>i</mi></msub><mo>≤</mo><mtext mathvariant="normal">Available</mtext></mrow><annotation encoding="application/x-tex">\text{Request}_i \le \text{Available}</annotation></semantics></math>,
+proceed to Step 3. Otherwise,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+must wait (insufficient resources).</li>
+<li><strong>Pretend to Allocate (Tentative State):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mtext mathvariant="normal">Available</mtext></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mtext mathvariant="normal">Available</mtext><mo>−</mo><msub><mtext mathvariant="normal">Request</mtext><mi>i</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mtext mathvariant="normal">Allocation</mtext><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mtext mathvariant="normal">Allocation</mtext><mi>i</mi></msub><mo>+</mo><msub><mtext mathvariant="normal">Request</mtext><mi>i</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><msub><mtext mathvariant="normal">Need</mtext><mi>i</mi></msub></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msub><mtext mathvariant="normal">Need</mtext><mi>i</mi></msub><mo>−</mo><msub><mtext mathvariant="normal">Request</mtext><mi>i</mi></msub></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned}
+\text{Available} &amp;= \text{Available} - \text{Request}_i \\
+\text{Allocation}_i &amp;= \text{Allocation}_i + \text{Request}_i \\
+\text{Need}_i &amp;= \text{Need}_i - \text{Request}_i
+\end{aligned}</annotation></semantics></math></li>
+<li>Run the <strong>Safety Algorithm</strong> on the tentative state:
+<ul>
+<li><strong>If Safe:</strong> Formally grant the request
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⟹</mo><msub><mi>P</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\implies P_i</annotation></semantics></math>
+receives resources.</li>
+<li><strong>If Unsafe:</strong> Deny the request
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+Roll back to original values;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+must wait.</li>
+</ul></li>
+</ol>
+<hr />
+<h3
+id="step-by-step-method-3-finding-the-minimum-available-vector-for-safety">Step-by-Step
+Method 3: Finding the Minimum <code>Available</code> Vector for
+Safety</h3>
+<p>When an exam asks: <em>“What is the minimum value of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Available</mtext><annotation encoding="application/x-tex">\text{Available}</annotation></semantics></math>
+for the state to be safe?”</em></p>
+<ol type="1">
+<li>For at least one process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>k</mi></msub><annotation encoding="application/x-tex">P_k</annotation></semantics></math>
+to complete first, the initial
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Available</mtext><annotation encoding="application/x-tex">\text{Available}</annotation></semantics></math>
+must satisfy:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Available</mtext><mo>≥</mo><msub><mtext mathvariant="normal">Need</mtext><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">\text{Available} \ge \text{Need}_k</annotation></semantics></math></li>
+<li>To minimize
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Available</mtext><annotation encoding="application/x-tex">\text{Available}</annotation></semantics></math>,
+pick the process with the smallest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Need</mtext><annotation encoding="application/x-tex">\text{Need}</annotation></semantics></math>
+vector across all components.</li>
+<li>Set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Available</mtext><mo>=</mo><msub><mtext mathvariant="normal">Need</mtext><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">\text{Available} = \text{Need}_k</annotation></semantics></math>
+(component-wise).</li>
+<li>Run the Safety Algorithm with this candidate vector to confirm that
+all subsequent processes can cascade to completion. If a downstream
+process gets stuck, increase
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Available</mtext><annotation encoding="application/x-tex">\text{Available}</annotation></semantics></math>
+component-wise by the deficit.</li>
+</ol>
+<hr />
+<h2 id="worked-exam-problems-the-bankers-algorithm">7. Worked Exam
+Problems: The Banker’s Algorithm</h2>
+<details class="qa box">
+<summary>
+<strong>Tutorial 6 Q3:</strong> Full Banker’s Algorithm Suite <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Problem Setup:</strong> 5 processes
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>–<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>4</mn></msub><annotation encoding="application/x-tex">P_4</annotation></semantics></math>),
+3 resource types (A: 10, B: 5, C: 7). Current snapshot:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Allocation</mtext><annotation encoding="application/x-tex">\text{Allocation}</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_0(0,1,0)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_1(2,0,0)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_2(3,0,2)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>3</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_3(2,1,1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>4</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_4(0,0,2)</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Max</mtext><annotation encoding="application/x-tex">\text{Max}</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_0(7,5,3)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_1(3,2,2)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>9</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_2(9,0,2)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>3</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_3(2,2,2)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>4</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_4(4,3,3)</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Available</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Available} = (3, 3, 2)</annotation></semantics></math>.</li>
+</ul>
+<p><strong>(a) Need Matrix
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Max</mtext><mo>−</mo><mtext mathvariant="normal">Allocation</mtext></mrow><annotation encoding="application/x-tex">\text{Max} - \text{Allocation}</annotation></semantics></math>):</strong></p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>0</mn></msub><mo>:</mo><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mn mathvariant="bold">𝟕</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟒</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟑</mn><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">P_0: (7, 5, 3) - (0, 1, 0) = \mathbf{(7, 4, 3)}</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>1</mn></msub><mo>:</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mn mathvariant="bold">𝟏</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟐</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟐</mn><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">P_1: (3, 2, 2) - (2, 0, 0) = \mathbf{(1, 2, 2)}</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>2</mn></msub><mo>:</mo><mo stretchy="false" form="prefix">(</mo><mn>9</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mn mathvariant="bold">𝟔</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟎</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟎</mn><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">P_2: (9, 0, 2) - (3, 0, 2) = \mathbf{(6, 0, 0)}</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>3</mn></msub><mo>:</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mn mathvariant="bold">𝟎</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟏</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">P_3: (2, 2, 2) - (2, 1, 1) = \mathbf{(0, 1, 1)}</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>4</mn></msub><mo>:</mo><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mn mathvariant="bold">𝟒</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟑</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟏</mn><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">P_4: (4, 3, 3) - (0, 0, 2) = \mathbf{(4, 3, 1)}</annotation></semantics></math></li>
+</ul>
+<p><strong>(b) Safe State Verification:</strong></p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Work</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Work} = (3, 3, 2)</annotation></semantics></math>.</li>
+<li>Check
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Need</mtext><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Need}_1 (1,2,2) \le (3,3,2)</annotation></semantics></math>?
+Yes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⟹</mo><mtext mathvariant="normal">Work</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\implies \text{Work} = (3,3,2) + (2,0,0) = (5,3,2)</annotation></semantics></math>.</li>
+<li>Check
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>3</mn></msub><annotation encoding="application/x-tex">P_3</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Need</mtext><mn>3</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Need}_3 (0,1,1) \le (5,3,2)</annotation></semantics></math>?
+Yes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⟹</mo><mtext mathvariant="normal">Work</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\implies \text{Work} = (5,3,2) + (2,1,1) = (7,4,3)</annotation></semantics></math>.</li>
+<li>Check
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>4</mn></msub><annotation encoding="application/x-tex">P_4</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Need</mtext><mn>4</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Need}_4 (4,3,1) \le (7,4,3)</annotation></semantics></math>?
+Yes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⟹</mo><mtext mathvariant="normal">Work</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\implies \text{Work} = (7,4,3) + (0,0,2) = (7,4,5)</annotation></semantics></math>.</li>
+<li>Check
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Need</mtext><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Need}_0 (7,4,3) \le (7,4,5)</annotation></semantics></math>?
+Yes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⟹</mo><mtext mathvariant="normal">Work</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>4</mn><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\implies \text{Work} = (7,4,5) + (0,1,0) = (7,5,5)</annotation></semantics></math>.</li>
+<li>Check
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Need</mtext><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>6</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Need}_2 (6,0,0) \le (7,5,5)</annotation></semantics></math>?
+Yes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⟹</mo><mtext mathvariant="normal">Work</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>7</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\implies \text{Work} = (7,5,5) + (3,0,2) = (10,5,7)</annotation></semantics></math>.</li>
+<li><strong>Verdict:</strong> System is in a <strong>Safe
+State</strong>. A valid safe sequence is
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><msub><mi>P</mi><mn>3</mn></msub><mo>,</mo><msub><mi>P</mi><mn>4</mn></msub><mo>,</mo><msub><mi>P</mi><mn>0</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_1, P_3, P_4, P_0, P_2 \rangle</annotation></semantics></math></strong>.</li>
+</ul>
+<p><strong>(c) Request Evaluation:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+requests
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(1, 0, 2)</annotation></semantics></math>.</p>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Request</mtext><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><msub><mtext mathvariant="normal">Need</mtext><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Request}_1 (1,0,2) \le \text{Need}_1 (1,2,2)</annotation></semantics></math>?
+Yes.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Request</mtext><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mtext mathvariant="normal">Available</mtext><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Request}_1 (1,0,2) \le \text{Available} (3,3,2)</annotation></semantics></math>?
+Yes.</li>
+<li>Tentative state:
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Available</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Available} = (3,3,2) - (1,0,2) = (2,3,0)</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Allocation</mtext><mn>1</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Allocation}_1 = (2,0,0) + (1,0,2) = (3,0,2)</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Need</mtext><mn>1</mn></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Need}_1 = (1,2,2) - (1,0,2) = (0,2,0)</annotation></semantics></math>.</li>
+</ul></li>
+<li>Run Safety algorithm:
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Need</mtext><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>⟹</mo><mtext mathvariant="normal">Work</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Need}_1 (0,2,0) \le (2,3,0) \implies \text{Work} = (2,3,0) + (3,0,2) = (5,3,2)</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>3</mn></msub><annotation encoding="application/x-tex">P_3</annotation></semantics></math>
+has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Need</mtext><mn>3</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>⟹</mo></mrow><annotation encoding="application/x-tex">\text{Need}_3 (0,1,1) \le (5,3,2) \implies</annotation></semantics></math>
+proceeds as before.</li>
+<li>Safe sequence
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><msub><mi>P</mi><mn>3</mn></msub><mo>,</mo><msub><mi>P</mi><mn>4</mn></msub><mo>,</mo><msub><mi>P</mi><mn>0</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_1, P_3, P_4, P_0, P_2 \rangle</annotation></semantics></math>
+remains valid.</li>
+</ul></li>
+</ol>
+<ul>
+<li><strong>Verdict:</strong> The request can be <strong>immediately
+granted</strong>.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY18/19 S1 Q1c &amp; AY19/20 S1 Q2c:</strong> Sizing Minimum
+Available Vectors <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY18/19 S1 Q1c:</strong>
+<ul>
+<li>Given 4 processes, 3 resource types. State:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_0(0,0,1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_1(1,0,0)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_2(1,3,5)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>3</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_3(0,6,3)</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Max</mtext><annotation encoding="application/x-tex">\text{Max}</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_0(0,0,1)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>7</mn><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_1(1,7,5)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>3</mn><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_2(2,3,5)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>3</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_3(0,6,5)</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Available</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Available} = (1, 5, 2)</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Need</mtext><annotation encoding="application/x-tex">\text{Need}</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>0</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_0(0,0,0)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>7</mn><mo>,</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_1(0,7,5)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_2(1,0,0)</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>3</mn></msub><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P_3(0,0,2)</annotation></semantics></math>.</li>
+<li>Safe Sequence:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+runs first
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Need</mtext><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\text{Need} = 0</annotation></semantics></math>)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo><mtext mathvariant="normal">Work</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\to \text{Work} = (1,5,3)</annotation></semantics></math>.
+Then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Need</mtext><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Need} (1,0,0) \le (1,5,3)</annotation></semantics></math>)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo><mtext mathvariant="normal">Work</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>8</mn><mo>,</mo><mn>8</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\to \text{Work} = (2,8,8)</annotation></semantics></math>.
+Then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>3</mn></msub><annotation encoding="application/x-tex">P_3</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Need</mtext><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mn>0</mn><mo>,</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>8</mn><mo>,</mo><mn>8</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Need} (0,0,2) \le (2,8,8)</annotation></semantics></math>)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>→</mo><mtext mathvariant="normal">Work</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>14</mn><mo>,</mo><mn>11</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\to \text{Work} = (2,14,11)</annotation></semantics></math>.
+Finally
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>.
+Valid safe sequence:
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>0</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo>,</mo><msub><mi>P</mi><mn>3</mn></msub><mo>,</mo><msub><mi>P</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_0, P_2, P_3, P_1 \rangle</annotation></semantics></math></strong>.</li>
+</ul></li>
+<li><strong>AY19/20 S1 Q2c (Minimum Available for Safety):</strong>
+<ul>
+<li>To guarantee safety,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Available</mtext><annotation encoding="application/x-tex">\text{Available}</annotation></semantics></math>
+must satisfy at least the smallest
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Need</mtext><annotation encoding="application/x-tex">\text{Need}</annotation></semantics></math>
+to bootstrap the sequence.</li>
+<li>Compare all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Need</mtext><annotation encoding="application/x-tex">\text{Need}</annotation></semantics></math>
+vectors. The smallest starting requirement is for process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>k</mi></msub><annotation encoding="application/x-tex">P_k</annotation></semantics></math>
+whose claims are smallest.</li>
+<li>Set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Available</mtext><mo>=</mo><msub><mtext mathvariant="normal">Need</mtext><mi>k</mi></msub></mrow><annotation encoding="application/x-tex">\text{Available} = \text{Need}_k</annotation></semantics></math>,
+trace the sequence, and increment by any downstream bottleneck
+deficits.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/4-synchronization/4.html">← 4.
+Process Synchronization</a>
+  <a class="next-page" href="../../notes/6a-rtos/6a.html">6a. Real-Time
+Operating Systems →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

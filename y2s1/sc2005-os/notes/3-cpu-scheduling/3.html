@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>3. CPU Scheduling · SC2005 Operating Systems</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">3. CPU
+Scheduling</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">3. CPU Scheduling</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-overview/1.html"
+                   data-nav="notes/1-overview/1.html">1. Overview of
+Operating Systems</a></li>
+            <li><a href="../../notes/2-processes-threads/2.html"
+                   data-nav="notes/2-processes-threads/2.html">2.
+Processes and Threads</a></li>
+            <li><a href="../../notes/3-cpu-scheduling/3.html"
+                   data-nav="notes/3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../../notes/4-synchronization/4.html"
+                   data-nav="notes/4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../../notes/5-deadlocks/5.html"
+                   data-nav="notes/5-deadlocks/5.html">5.
+Deadlocks</a></li>
+            <li><a href="../../notes/6a-rtos/6a.html"
+                   data-nav="notes/6a-rtos/6a.html">6a. Real-Time
+Operating Systems</a></li>
+            <li><a href="../../notes/6b-virtualization/6b.html"
+                   data-nav="notes/6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../../notes/7-memory-organization/7.html"
+                   data-nav="notes/7-memory-organization/7.html">7.
+Memory Organization</a></li>
+            <li><a href="../../notes/8-virtual-memory/8.html"
+                   data-nav="notes/8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../../notes/9-file-systems/9.html"
+                   data-nav="notes/9-file-systems/9.html">9. File
+Systems</a></li>
+            <li><a href="../../notes/10-io-disk/10.html"
+                   data-nav="notes/10-io-disk/10.html">10. I/O Systems
+and Disk</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Course
+Cheatsheet</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../../notes/labs/lab-1.html"
+                   data-nav="notes/labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../../notes/labs/lab-2.html"
+                   data-nav="notes/labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3.html"
+                   data-nav="notes/labs/lab-3/lab-3.html">Lab 3
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4.html"
+                   data-nav="notes/labs/lab-4/lab-4.html">Lab 4
+Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#when-the-scheduler-runs-preemption-and-triggers"
+id="toc-when-the-scheduler-runs-preemption-and-triggers">1. When the
+Scheduler Runs: Preemption and Triggers</a>
+<ul>
+<li><a href="#the-cpuio-burst-cycle" id="toc-the-cpuio-burst-cycle">The
+CPU–I/O Burst Cycle</a></li>
+<li><a href="#the-five-scheduling-invocation-points"
+id="toc-the-five-scheduling-invocation-points">The Five Scheduling
+Invocation Points</a></li>
+<li><a href="#preemptive-vs.-nonpreemptive-scheduling"
+id="toc-preemptive-vs.-nonpreemptive-scheduling">Preemptive
+vs. Nonpreemptive Scheduling</a></li>
+</ul></li>
+<li><a href="#scheduling-criteria-and-performance-metrics"
+id="toc-scheduling-criteria-and-performance-metrics">2. Scheduling
+Criteria and Performance Metrics</a></li>
+<li><a href="#uniprocessor-scheduling-algorithms"
+id="toc-uniprocessor-scheduling-algorithms">3. Uniprocessor Scheduling
+Algorithms</a>
+<ul>
+<li><a href="#first-come-first-served-fcfs"
+id="toc-first-come-first-served-fcfs">1. First-Come, First-Served
+(FCFS)</a></li>
+<li><a
+href="#shortest-job-first-sjf-and-shortest-remaining-time-first-srtf"
+id="toc-shortest-job-first-sjf-and-shortest-remaining-time-first-srtf">2.
+Shortest-Job-First (SJF) and Shortest-Remaining-Time-First
+(SRTF)</a></li>
+<li><a href="#priority-scheduling" id="toc-priority-scheduling">3.
+Priority Scheduling</a></li>
+<li><a href="#round-robin-rr-scheduling"
+id="toc-round-robin-rr-scheduling">4. Round-Robin (RR)
+Scheduling</a></li>
+<li><a href="#multilevel-queue-scheduling"
+id="toc-multilevel-queue-scheduling">5. Multilevel Queue
+Scheduling</a></li>
+<li><a href="#algorithm-comparison-summary"
+id="toc-algorithm-comparison-summary">Algorithm Comparison
+Summary</a></li>
+</ul></li>
+<li><a href="#multiprocessor-scheduling-partitioned-amp-vs.-global-smp"
+id="toc-multiprocessor-scheduling-partitioned-amp-vs.-global-smp">4.
+Multiprocessor Scheduling: Partitioned (AMP) vs. Global (SMP)</a></li>
+<li><a href="#calculation-toolkits-step-by-step-methods"
+id="toc-calculation-toolkits-step-by-step-methods">5. Calculation
+Toolkits &amp; Step-by-Step Methods</a>
+<ul>
+<li><a href="#toolkit-1-universal-tie-breaking-order-for-ready-queues"
+id="toc-toolkit-1-universal-tie-breaking-order-for-ready-queues">Toolkit
+1: Universal Tie-Breaking Order for Ready Queues</a></li>
+<li><a href="#toolkit-2-step-by-step-gantt-chart-construction"
+id="toc-toolkit-2-step-by-step-gantt-chart-construction">Toolkit 2:
+Step-by-Step Gantt Chart Construction</a></li>
+<li><a href="#toolkit-3-cpu-efficiency-under-round-robin-tutorial-3-q4"
+id="toc-toolkit-3-cpu-efficiency-under-round-robin-tutorial-3-q4">Toolkit
+3: CPU Efficiency Under Round Robin (Tutorial 3 Q4)</a></li>
+</ul></li>
+<li><a href="#worked-tutorial-exam-problems"
+id="toc-worked-tutorial-exam-problems">6. Worked Tutorial &amp; Exam
+Problems</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>In a multiprogrammed system, multiple processes reside in main memory
+simultaneously. Whenever the central processing unit becomes idle, the
+operating system must decide which ready process should be allocated the
+CPU core.</p>
+<p>This selection process is executed by the <strong>short-term
+scheduler (CPU scheduler)</strong>. This chapter covers the conditions
+under which scheduling decisions occur, the mathematical metrics used to
+evaluate scheduler performance, the classic scheduling algorithms on
+single and multi-core systems, and step-by-step methods for constructing
+Gantt charts.</p>
+<hr />
+<h2 id="when-the-scheduler-runs-preemption-and-triggers">1. When the
+Scheduler Runs: Preemption and Triggers</h2>
+<h3 id="the-cpuio-burst-cycle">The CPU–I/O Burst Cycle</h3>
+<p>Process execution consists of an alternating cycle of <strong>CPU
+bursts</strong> (active computation) and <strong>I/O bursts</strong>
+(waiting for data transfer completion):</p>
+<figure>
+<img width="875" height="1093" src="media/3-artifacts/cpu-io-bursts.webp" style="width:60.0%"
+loading="lazy" decoding="async" alt="CPU and I/O Burst Cycle" />
+<figcaption aria-hidden="true">CPU and I/O Burst Cycle</figcaption>
+</figure>
+<p>Processes typically alternate between these two phases until
+terminating. The fundamental objective of CPU scheduling is to overlap
+computation with I/O: while one process blocks on an I/O burst, the CPU
+scheduler allocates the processor to another ready process.</p>
+<hr />
+<h3 id="the-five-scheduling-invocation-points">The Five Scheduling
+Invocation Points</h3>
+<p>A CPU scheduling decision can occur under any of five process state
+transitions:</p>
+<figure>
+<img width="1400" height="695" src="media/3-artifacts/scheduler-transitions.webp"
+style="width:65.0%" loading="lazy" decoding="async"
+alt="The Five State Transitions for Scheduling" />
+<figcaption aria-hidden="true">The Five State Transitions for
+Scheduling</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 25%" />
+<col style="width: 38%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>#</th>
+<th>State Transition</th>
+<th>Trigger Event</th>
+<th>Does the CPU Core Become Idle?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1</strong></td>
+<td><strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Waiting</strong></td>
+<td>Process initiates an I/O request or waits for an event/signal.</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td><strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready</strong></td>
+<td>An external interrupt occurs (e.g. hardware timer quantum
+expired).</td>
+<td>No (current process can still run)</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td><strong>Waiting
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready</strong></td>
+<td>An I/O operation or external event completes.</td>
+<td>No (current process can still run)</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td><strong>New
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Ready</strong></td>
+<td>A newly instantiated process is admitted to the system.</td>
+<td>No (current process can still run)</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td><strong>Running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Terminated</strong></td>
+<td>The running process completes execution (<code>exit()</code>) or
+aborts.</td>
+<td><strong>Yes</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="preemptive-vs.-nonpreemptive-scheduling">Preemptive
+vs. Nonpreemptive Scheduling</h3>
+<p>Operating systems fall into two distinct scheduling paradigms based
+on when they invoke the scheduler:</p>
+<ul>
+<li><strong>Nonpreemptive (Cooperative) Scheduling:</strong>
+<ul>
+<li>The scheduler executes <strong>strictly under transitions 1 and
+5</strong>.</li>
+<li>Once a process is allocated the CPU, it keeps the processor until it
+voluntarily yields control—either by terminating or by blocking on an
+I/O operation.</li>
+<li>Transitions 2, 3, and 4 do <em>not</em> interrupt the currently
+running process.</li>
+</ul></li>
+<li><strong>Preemptive Scheduling:</strong>
+<ul>
+<li>The scheduler can intervene under <strong>all transitions (1, 2, 3,
+4, and 5)</strong>.</li>
+<li>The OS can forcibly take the CPU away from a running process when a
+higher-priority process arrives (transitions 3 or 4) or when its
+allocated time slice expires (transition 2).</li>
+</ul></li>
+</ul>
+<blockquote>
+<p>[!IMPORTANT] <strong>Only Transitions 1 and 5 Force
+Scheduling:</strong> The CPU scheduler <strong>must</strong> run only
+when a core becomes idle (transitions 1 and 5). Under transitions 2, 3,
+and 4, the currently executing process can continue running unless the
+scheduling policy is explicitly preemptive.</p>
+</blockquote>
+<details class="qa box">
+<summary>
+<strong>Tutorial 3 Q1:</strong> True/False Scheduling Triggers &amp;
+Multi-Core Overhead <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>State whether each statement is true
+or false with justification:</em> <em>(a) When a new process is admitted
+into the system, the short-term scheduler must execute in order to keep
+the CPU busy.</em> <em>(b) Partitioned multi-processor scheduling
+suffers from migration overheads due to data in private core-specific
+caches.</em></p>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>(a) False.</strong> To keep the CPU busy, the short-term
+scheduler is required to execute only when the running process
+<strong>terminates or blocks on I/O</strong>, because only then does the
+processor become idle. When a new process is admitted (transition 4),
+the scheduler only needs to execute if the CPU is currently idle; if a
+process is already running, execution continues without scheduling.</li>
+<li><strong>(b) False.</strong> Cache migration overhead occurs
+exclusively in <strong>global (SMP) scheduling</strong>, where a process
+can be preempted on one core and resumed on another core, invalidating
+the first core’s private L1/L2 caches. In <strong>partitioned (AMP)
+scheduling</strong>, each process is permanently assigned to a dedicated
+core and never migrates. Partitioned scheduling instead suffers from
+<strong>unbalanced loads</strong>.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY Past-Paper Checks:</strong> Preemption Scenarios <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY15/16 S2 Q1a(v):</strong> <em>If in a CPU scheduling
+policy a process can transit from running to waiting, the policy is
+preemptive.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>False.</strong> Transition from running to waiting occurs when a
+process voluntarily requests I/O; this occurs in both nonpreemptive and
+preemptive systems. Preemption specifically means the OS takes the CPU
+away while the process is still capable of computing.</li>
+<li><strong>AY18/19 S2 Q1a(iii):</strong> <em>CPU scheduling is
+non-preemptive if it only happens when all processes are ready.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>False.</strong> Nonpreemptive scheduling happens exclusively
+when the running process terminates or blocks on I/O.</li>
+<li><strong>AY17/18 S2 Q1a(iii):</strong> <em>CPU scheduling is
+preemptive if it happens only when a new process is admitted.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>False.</strong> Preemptive scheduling can occur at any interrupt
+(timer ticks, I/O completion, admission).</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="scheduling-criteria-and-performance-metrics">2. Scheduling
+Criteria and Performance Metrics</h2>
+<p>Operating systems evaluate and optimize CPU scheduling algorithms
+using five standard criteria:</p>
+<figure>
+<img width="1400" height="585" src="media/3-artifacts/time-terms.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Scheduling Time Metrics" />
+<figcaption aria-hidden="true">Scheduling Time Metrics</figcaption>
+</figure>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 41%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Definition</th>
+<th>Optimization Goal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CPU Utilization</strong></td>
+<td>The percentage of time that CPU cores are actively executing user or
+kernel processes.</td>
+<td><strong>Maximize</strong> (typically 40% to 90%).</td>
+</tr>
+<tr>
+<td><strong>Throughput</strong></td>
+<td>The number of completed processes per unit of time.</td>
+<td><strong>Maximize</strong>.</td>
+</tr>
+<tr>
+<td><strong>Turnaround Time
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>r</mi></msub><annotation encoding="application/x-tex">T_r</annotation></semantics></math>)</strong></td>
+<td>The total elapsed interval from the moment a process arrives to the
+moment it completes:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mi>r</mi></msub><mo>=</mo><mtext mathvariant="normal">Completion Time</mtext><mo>−</mo><mtext mathvariant="normal">Arrival Time</mtext></mrow><annotation encoding="application/x-tex">T_r = \text{Completion Time} - \text{Arrival Time}</annotation></semantics></math></td>
+<td><strong>Minimize</strong>.</td>
+</tr>
+<tr>
+<td><strong>Waiting Time
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>)</strong></td>
+<td>The total time a process spends sitting in the <strong>Ready
+Queue</strong> waiting for CPU allocation:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><msub><mi>T</mi><mi>r</mi></msub><mo>−</mo><mo>∑</mo><mtext mathvariant="normal">CPU Bursts</mtext><mo>−</mo><mo>∑</mo><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">I/O Bursts</mtext><mo>+</mo><mtext mathvariant="normal">Device-Queue Time</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">W = T_r - \sum \text{CPU Bursts} - \sum (\text{I/O Bursts} + \text{Device-Queue Time})</annotation></semantics></math></td>
+<td><strong>Minimize</strong>.</td>
+</tr>
+<tr>
+<td><strong>Response Time
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>)</strong></td>
+<td>The elapsed time from process arrival until the processor
+<strong>first begins executing</strong> it:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mtext mathvariant="normal">First CPU Execution Time</mtext><mo>−</mo><mtext mathvariant="normal">Arrival Time</mtext></mrow><annotation encoding="application/x-tex">R = \text{First CPU Execution Time} - \text{Arrival Time}</annotation></semantics></math></td>
+<td><strong>Minimize</strong> (crucial for interactive systems).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>[!WARNING] <strong>High-Yield Trap: Waiting Time Excludes
+I/O:</strong> Waiting time measures <strong>only time spent in the Ready
+Queue</strong>. Time spent actively performing I/O or waiting inside an
+I/O device queue does <strong>not</strong> count toward CPU waiting
+time!</p>
+</blockquote>
+<hr />
+<h2 id="uniprocessor-scheduling-algorithms">3. Uniprocessor Scheduling
+Algorithms</h2>
+<h3 id="first-come-first-served-fcfs">1. First-Come, First-Served
+(FCFS)</h3>
+<p>Processes are dispatched strictly in the order of their arrival in
+the ready queue. FCFS is completely <strong>nonpreemptive</strong>.</p>
+<p><img width="1400" height="307" src="media/3-artifacts/gantt-fcfs-p1-first.webp"
+style="width:50.0%" loading="lazy" decoding="async"
+alt="Convoy Effect: P1 First vs P2 First" /> <img width="1400" height="302"
+src="media/3-artifacts/gantt-fcfs-p2-first.webp" style="width:50.0%"
+loading="lazy" decoding="async" alt="Convoy Effect: P2, P3 First" /></p>
+<ul>
+<li><strong>The Convoy Effect:</strong> If a long CPU-bound process
+arrives first, all short I/O-bound processes queue behind it like cars
+behind a slow truck. This causes substantial drops in CPU and device
+utilization, resulting in high average waiting times.</li>
+</ul>
+<hr />
+<h3
+id="shortest-job-first-sjf-and-shortest-remaining-time-first-srtf">2.
+Shortest-Job-First (SJF) and Shortest-Remaining-Time-First (SRTF)</h3>
+<p>Associates each process with the length of its next CPU burst:</p>
+<ul>
+<li><strong>Nonpreemptive SJF:</strong> Once a process is dispatched, it
+runs to completion of its current CPU burst.</li>
+<li><strong>Preemptive SJF (SRTF):</strong> When a new process arrives,
+the scheduler compares its CPU burst against the <strong>remaining
+time</strong> of the currently executing process. If the new burst is
+strictly shorter, the running process is preempted.</li>
+</ul>
+<p><img width="1400" height="293" src="media/3-artifacts/gantt-sjf.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Nonpreemptive SJF Gantt Chart" />
+<img width="1400" height="363" src="media/3-artifacts/gantt-srtf.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Preemptive SRTF Gantt Chart" /></p>
+<ul>
+<li><strong>Optimality:</strong> SJF/SRTF is <strong>provably
+optimal</strong>—it delivers the minimum possible average waiting time
+for any given set of processes. Moving a shorter job ahead of a longer
+job decreases the shorter job’s wait time by more than it increases the
+longer job’s wait time.</li>
+<li><strong>Limitations:</strong> The OS cannot know the exact duration
+of future CPU bursts in advance (must predict using exponential
+smoothing). Long processes can suffer from <strong>starvation
+(indefinite blocking)</strong> if a steady stream of short jobs
+continues arriving.</li>
+</ul>
+<hr />
+<h3 id="priority-scheduling">3. Priority Scheduling</h3>
+<p>Each process is assigned a priority integer. The CPU core is
+allocated to the process with the highest priority (standard convention:
+<strong>smaller integer = higher priority</strong>). Can be preemptive
+or nonpreemptive.</p>
+<ul>
+<li><strong>Starvation &amp; Aging:</strong> A major vulnerability is
+that low-priority processes can starve indefinitely. The universal
+solution is <strong>Aging</strong>—gradually increasing the priority of
+processes that have waited in the ready queue for extended
+durations.</li>
+<li><em>(Note: FCFS is priority scheduling where priority = arrival
+order; SJF is priority scheduling where priority = burst
+length).</em></li>
+</ul>
+<hr />
+<h3 id="round-robin-rr-scheduling">4. Round-Robin (RR) Scheduling</h3>
+<p>Designed specifically for time-sharing and interactive systems. The
+scheduler defines a small unit of time called a <strong>time quantum
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>)</strong>
+(typically 10–100 ms). The ready queue is managed as a circular FIFO
+queue:</p>
+<figure>
+<img width="1400" height="232" src="media/3-artifacts/gantt-rr.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Round Robin with Quantum = 20" />
+<figcaption aria-hidden="true">Round Robin with Quantum =
+20</figcaption>
+</figure>
+<ul>
+<li>If a process finishes its burst within
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>,
+it voluntarily releases the CPU.</li>
+<li>If a process’s burst exceeds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>,
+a hardware timer interrupts the CPU, context-switches the process, and
+appends it to the tail of the ready queue.</li>
+<li><strong>Bounded Delay:</strong> With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+ready processes and quantum
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>,
+no process waits more than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>q</mi></mrow><annotation encoding="application/x-tex">(n - 1)q</annotation></semantics></math>
+time units for its next turn.</li>
+</ul>
+<p><img width="1400" height="798" src="media/3-artifacts/quantum-context-switches.webp"
+style="width:45.0%" loading="lazy" decoding="async"
+alt="Context Switches as a Function of Quantum Size" /> <img width="1400" height="799"
+src="media/3-artifacts/turnaround-vs-quantum.webp" style="width:50.0%"
+loading="lazy" decoding="async"
+alt="Turnaround Time Variation with Quantum Size" /></p>
+<ul>
+<li><strong>Quantum Sizing Trade-Off:</strong>
+<ul>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>→</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">q \to \infty</annotation></semantics></math>:</strong>
+Round Robin degenerates into <strong>FCFS</strong>.</li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">q \to 0</annotation></semantics></math>:</strong>
+Excessive context switching causes massive CPU overhead, degrading
+useful throughput.</li>
+<li>Rule of thumb:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>80</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">\approx 80\%</annotation></semantics></math>
+of CPU bursts should be shorter than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>.</li>
+</ul></li>
+</ul>
+<hr />
+<h3 id="multilevel-queue-scheduling">5. Multilevel Queue Scheduling</h3>
+<p>Partitions the ready queue into multiple distinct queues categorized
+by process type:</p>
+<ul>
+<li><strong>Foreground Queue (Interactive):</strong> Scheduled via
+<strong>Round-Robin</strong> for fast response.</li>
+<li><strong>Background Queue (Batch):</strong> Scheduled via
+<strong>FCFS</strong> for minimal switching overhead.</li>
+</ul>
+<p><strong>Inter-Queue Scheduling:</strong></p>
+<ol type="1">
+<li><strong>Fixed Priority:</strong> Serve foreground queue first;
+background queue runs only when foreground is empty. Vulnerable to
+<strong>starvation</strong>.</li>
+<li><strong>Time Slicing:</strong> Each queue receives a calibrated
+share of CPU time (e.g. 80% to foreground, 20% to background).
+Guarantees progress for all queues.</li>
+</ol>
+<hr />
+<h3 id="algorithm-comparison-summary">Algorithm Comparison Summary</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 14%" />
+<col style="width: 36%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Preemptive?</th>
+<th>Primary Advantage</th>
+<th>Major Weakness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>FCFS</strong></td>
+<td>No</td>
+<td>Simple, minimal scheduler overhead.</td>
+<td>Convoy effect; high average waiting time.</td>
+</tr>
+<tr>
+<td><strong>SJF</strong></td>
+<td>No</td>
+<td>Minimizes average waiting time for nonpreemptive systems.</td>
+<td>Requires future burst prediction; long jobs starve.</td>
+</tr>
+<tr>
+<td><strong>SRTF</strong></td>
+<td>Yes</td>
+<td>Absolute minimum average waiting time.</td>
+<td>High preemption overhead; starvation.</td>
+</tr>
+<tr>
+<td><strong>Priority</strong></td>
+<td>Either</td>
+<td>Reflects external importance/urgency.</td>
+<td>Starvation (mitigated by aging).</td>
+</tr>
+<tr>
+<td><strong>Round Robin</strong></td>
+<td>Yes</td>
+<td>Excellent interactive response; fair.</td>
+<td>Higher average waiting time; context-switch overhead if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>q</mi><annotation encoding="application/x-tex">q</annotation></semantics></math>
+is small.</td>
+</tr>
+<tr>
+<td><strong>Multilevel Queue</strong></td>
+<td>Per queue</td>
+<td>Matches scheduling policy to process characteristics.</td>
+<td>Lower-tier queues risk starvation under fixed priority.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="multiprocessor-scheduling-partitioned-amp-vs.-global-smp">4.
+Multiprocessor Scheduling: Partitioned (AMP) vs. Global (SMP)</h2>
+<p>When multiple CPU cores are available, scheduling policies divide
+into two architectures:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 36%" />
+<col style="width: 39%" />
+</colgroup>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Partitioned Scheduling (Asymmetric, AMP)</th>
+<th>Global Scheduling (Symmetric, SMP)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Ready Queue Structure</strong></td>
+<td><strong>One private ready queue per core.</strong></td>
+<td><strong>One unified, shared ready queue</strong> across all
+cores.</td>
+</tr>
+<tr>
+<td><strong>Core Assignment</strong></td>
+<td>Each process is permanently assigned to a specific core upon
+creation.</td>
+<td>Any idle core dispatches the next ready process from the shared
+queue.</td>
+</tr>
+<tr>
+<td><strong>Process Migration</strong></td>
+<td><strong>Zero migration:</strong> A process executes exclusively on
+its designated core.</td>
+<td><strong>Allowed:</strong> A process can be preempted on Core 1 and
+resume on Core 2.</td>
+</tr>
+<tr>
+<td><strong>Primary Drawback</strong></td>
+<td><strong>Unbalanced load:</strong> Core 1 can sit completely idle
+while Core 2 is overloaded. Optimal task partitioning is NP-hard.</td>
+<td><strong>Cache migration overhead:</strong> Moving across cores
+invalidates private L1/L2 caches. Synchronization bottlenecks on the
+shared queue.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><img width="1369" height="591" src="media/3-artifacts/gantt-srtf-dual-core.webp"
+style="width:65.0%" loading="lazy" decoding="async"
+alt="Dual-Core Global SRTF Scheduling" /> <img width="1400" height="523"
+src="media/3-artifacts/gantt-rr-dual-core.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Dual-Core Global Round Robin Scheduling" /></p>
+<hr />
+<h2 id="calculation-toolkits-step-by-step-methods">5. Calculation
+Toolkits &amp; Step-by-Step Methods</h2>
+<h3 id="toolkit-1-universal-tie-breaking-order-for-ready-queues">Toolkit
+1: Universal Tie-Breaking Order for Ready Queues</h3>
+<p>When multiple processes enter the ready queue at the exact same time
+instant, apply the <strong>standard course convention</strong>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="bold">𝟏. 𝐍𝐞𝐰𝐥𝐲 𝐀𝐫𝐫𝐢𝐯𝐞𝐝 𝐏𝐫𝐨𝐜𝐞𝐬𝐬</mtext><mspace width="1.0em"></mspace><mo>→</mo><mspace width="1.0em"></mspace><mtext mathvariant="bold">𝟐. 𝐏𝐫𝐞𝐞𝐦𝐩𝐭𝐞𝐝 𝐏𝐫𝐨𝐜𝐞𝐬𝐬</mtext><mspace width="1.0em"></mspace><mo>→</mo><mspace width="1.0em"></mspace><mtext mathvariant="bold">𝟑. 𝐏𝐫𝐨𝐜𝐞𝐬𝐬 𝐑𝐞𝐭𝐮𝐫𝐧𝐢𝐧𝐠 𝐟𝐫𝐨𝐦 𝐈/𝐎</mtext></mrow><annotation encoding="application/x-tex">\mathbf{\text{1. Newly Arrived Process}} \quad \longrightarrow \quad \mathbf{\text{2. Preempted Process}} \quad \longrightarrow \quad \mathbf{\text{3. Process Returning from I/O}}</annotation></semantics></math></p>
+<hr />
+<h3 id="toolkit-2-step-by-step-gantt-chart-construction">Toolkit 2:
+Step-by-Step Gantt Chart Construction</h3>
+<ol type="1">
+<li><strong>Step through Time Events:</strong> Advance time to the next
+critical event:
+<ul>
+<li>A process arrives.</li>
+<li>A running process completes its CPU burst.</li>
+<li>A Round-Robin time quantum expires.</li>
+<li>An I/O burst finishes.</li>
+</ul></li>
+<li><strong>Handle I/O &amp; Device Queues:</strong>
+<ul>
+<li>A process completing a CPU burst that requires I/O moves to the
+<strong>device queue</strong>.</li>
+<li>If the I/O device is currently busy, the process queues in FIFO
+order. Gaps waiting in the device queue are <em>device-queue time</em>,
+NOT CPU waiting time.</li>
+</ul></li>
+<li><strong>Dispatch to Available Cores:</strong>
+<ul>
+<li><strong>Single Core:</strong> Dispatch head of ready queue based on
+algorithm rule.</li>
+<li><strong>Multi-Core SRTF:</strong> When a new process arrives,
+compare its burst against the <strong>longest remaining burst</strong>
+among currently running processes across all cores. If shorter, preempt
+that core!</li>
+</ul></li>
+<li><strong>Calculate Times:</strong>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Turnaround </mtext><mspace width="0.333em"></mspace></mrow><msub><mi>T</mi><mi>r</mi></msub><mo>=</mo><mtext mathvariant="normal">Finish Time</mtext><mo>−</mo><mtext mathvariant="normal">Arrival Time</mtext></mrow><annotation encoding="application/x-tex">\text{Turnaround } T_r = \text{Finish Time} - \text{Arrival Time}</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Waiting </mtext><mspace width="0.333em"></mspace></mrow><mi>W</mi><mo>=</mo><msub><mi>T</mi><mi>r</mi></msub><mo>−</mo><mo>∑</mo><mtext mathvariant="normal">CPU Bursts</mtext><mo>−</mo><mo>∑</mo><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">I/O Bursts</mtext><mo>+</mo><mtext mathvariant="normal">Device-Queue Time</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{Waiting } W = T_r - \sum \text{CPU Bursts} - \sum (\text{I/O Bursts} + \text{Device-Queue Time})</annotation></semantics></math>.</li>
+<li><em>Sanity Check:</em> Verify that
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>
+equals the sum of idle durations spent in the ready queue.</li>
+</ul></li>
+</ol>
+<hr />
+<h3
+id="toolkit-3-cpu-efficiency-under-round-robin-tutorial-3-q4">Toolkit 3:
+CPU Efficiency Under Round Robin (Tutorial 3 Q4)</h3>
+<p>For a process running for average time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+before blocking, with context switch overhead
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+and quantum
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>:</p>
+<figure>
+<img width="1400" height="230" src="media/3-artifacts/t3-q4-efficiency-timeline.webp"
+style="width:75.0%" loading="lazy" decoding="async"
+alt="CPU Efficiency Timeline under Round Robin" />
+<figcaption aria-hidden="true">CPU Efficiency Timeline under Round
+Robin</figcaption>
+</figure>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="bold">𝐂𝐏𝐔 𝐄𝐟𝐟𝐢𝐜𝐢𝐞𝐧𝐜𝐲</mtext><mo>=</mo><mfrac><mtext mathvariant="normal">Useful Computation Time</mtext><mtext mathvariant="normal">Total Allocated CPU Time</mtext></mfrac><mo>=</mo><mfrac><mi>T</mi><mrow><mi>T</mi><mo>+</mo><mi>S</mi><mo>⋅</mo><mi>n</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\mathbf{\text{CPU Efficiency}} = \frac{\text{Useful Computation Time}}{\text{Total Allocated CPU Time}} = \frac{T}{T + S \cdot n}</annotation></semantics></math>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">where </mtext><mspace width="0.333em"></mspace></mrow><mi>n</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><mn>1</mn></mtd><mtd columnalign="left" style="text-align: left"><mrow><mtext mathvariant="normal">if </mtext><mspace width="0.333em"></mspace></mrow><mi>Q</mi><mo>≥</mo><mi>T</mi></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mo stretchy="false" form="prefix">⌈</mo><mi>T</mi><mi>/</mi><mi>Q</mi><mo stretchy="false" form="postfix">⌉</mo></mtd><mtd columnalign="left" style="text-align: left"><mrow><mtext mathvariant="normal">if </mtext><mspace width="0.333em"></mspace></mrow><mi>Q</mi><mo>&lt;</mo><mi>T</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">\text{where } n = \begin{cases} 1 &amp; \text{if } Q \ge T \\ \lceil T / Q \rceil &amp; \text{if } Q &lt; T \end{cases}</annotation></semantics></math></p>
+<ul>
+<li><strong>To find minimum quantum
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>
+for target efficiency
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>E</mi><annotation encoding="application/x-tex">E</annotation></semantics></math>:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≤</mo><mfrac><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>E</mi><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mi>E</mi><mo>⋅</mo><mi>S</mi></mrow></mfrac><mo>⟹</mo><msub><mi>Q</mi><mrow><mi>m</mi><mi>i</mi><mi>n</mi></mrow></msub><mo>=</mo><mfrac><mi>T</mi><mrow><mo stretchy="false" form="prefix">⌊</mo><mi>n</mi><mo stretchy="false" form="postfix">⌋</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">n \le \frac{T(1 - E)}{E \cdot S} \implies Q_{min} = \frac{T}{\lfloor n \rfloor}</annotation></semantics></math></li>
+</ul>
+<hr />
+<h2 id="worked-tutorial-exam-problems">6. Worked Tutorial &amp; Exam
+Problems</h2>
+<details class="qa box">
+<summary>
+<strong>Tutorial 3 Q2:</strong> Gantt Charts with Interleaved I/O (RR
+vs. Dual-Core SRTF) <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Problem Setup:</strong> Processes share a single I/O
+device.</p>
+<ul>
+<li>P1: CPU 2, I/O 2, CPU 8 (arr: 0, order 1)</li>
+<li>P2: CPU 1, I/O 0 (arr: 0, order 2)</li>
+<li>P3: CPU 1, I/O 1, CPU 1 (arr: 2, order 1)</li>
+<li>P4: CPU 1, I/O 0 (arr: 2, order 2)</li>
+<li>P5: CPU 2, I/O 2, CPU 3 (arr: 4)</li>
+</ul>
+<p><strong>(a)(i) Round-Robin
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">q = 2</annotation></semantics></math>,
+Uniprocessor):</strong></p>
+<figure>
+<img width="1400" height="363" src="media/3-artifacts/t3-q2-rr-gantt.webp" loading="lazy"
+decoding="async" alt="RR Schedule Gantt Chart" />
+<figcaption aria-hidden="true">RR Schedule Gantt Chart</figcaption>
+</figure>
+<ul>
+<li>Time 0: P1 runs (0–2)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+enters I/O (2–4). P2 arrives.</li>
+<li>Time 2: P3, P4 arrive. Queue: P2, P3, P4. P2 runs (2–3)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+terminates.</li>
+<li>Time 3: P3 runs (3–4)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+enters I/O. (Device busy until 4, so I/O runs 4–5).</li>
+<li>Time 4: P5 arrives (new), P1 returns from I/O. Applying tie rule
+(new before return): Queue: P4, P5, P1. P4 runs (4–5)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+terminates.</li>
+<li>Time 5: P3 returns from I/O. Queue: P5, P1, P3. P5 runs (5–7)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+enters I/O (7–9).</li>
+<li>Time 7: P1 runs (7–9, 6 left).</li>
+<li>Time 9: P1 preempted, P5 returns from I/O. Tie rule: Queue: P3, P1,
+P5. P3 runs (9–10)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+terminates.</li>
+<li>Execution interleaves between P1 and P5 until completion at time
+19.</li>
+</ul>
+<p><strong>(a)(ii) Global SRTF (2 Cores):</strong></p>
+<figure>
+<img width="1400" height="467" src="media/3-artifacts/t3-q2-srtf-global-gantt.webp" loading="lazy"
+decoding="async" alt="Dual-Core SRTF Schedule" />
+<figcaption aria-hidden="true">Dual-Core SRTF Schedule</figcaption>
+</figure>
+<ul>
+<li>Time 0: Core 1 runs P1 (burst 2), Core 2 runs P2 (burst 1). P2
+terminates at 1 (Core 2 idle 1–2).</li>
+<li>Time 2: P1 enters I/O (2–4). P3 (burst 1) and P4 (burst 1) arrive;
+dispatched to Core 1 and Core 2.</li>
+<li>Time 3: P3 finishes CPU burst. Device busy with P1 until 4, so P3
+waits in device queue (3–4), then runs I/O (4–5).</li>
+<li>Time 4: P1 returns from I/O (burst 8). P5 arrives (burst 2). Both
+cores free
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+Core 1 runs P1, Core 2 runs P5.</li>
+<li>Time 5: P3 returns from I/O (burst 1). P1 has 7 remaining, P5 has 1
+remaining. P3 preempts P1 (longest remaining) on Core 1
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+P3 runs (5–6) and terminates.</li>
+<li>Time 6: P5 enters I/O (6–8). Core 1 resumes P1 (runs 6–13).</li>
+<li>Time 8: P5 returns from I/O (burst 3)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+Core 2 runs P5 (8–11).</li>
+</ul>
+<p><strong>(b) Turnaround &amp; Waiting Times:</strong></p>
+<figure>
+<img width="1400" height="491" src="media/3-artifacts/t3-q2-rr-turnaround.webp" loading="lazy"
+decoding="async" alt="RR Turnaround Time Vectors" />
+<figcaption aria-hidden="true">RR Turnaround Time Vectors</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 22%" />
+<col style="width: 21%" />
+<col style="width: 22%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th>Process</th>
+<th>RR Turnaround
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>r</mi></msub><annotation encoding="application/x-tex">T_r</annotation></semantics></math>)</th>
+<th>RR Waiting
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>)</th>
+<th>SRTF Turnaround
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>T</mi><mi>r</mi></msub><annotation encoding="application/x-tex">T_r</annotation></semantics></math>)</th>
+<th>SRTF Waiting
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P1</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>19</mn><mo>−</mo><mn>0</mn><mo>=</mo><mn mathvariant="bold">𝟏𝟗</mn></mrow><annotation encoding="application/x-tex">19 - 0 = \mathbf{19}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>19</mn><mo>−</mo><mn>10</mn><mo>−</mo><mn>2</mn><mo>=</mo><mn mathvariant="bold">𝟕</mn></mrow><annotation encoding="application/x-tex">19 - 10 - 2 = \mathbf{7}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>13</mn><mo>−</mo><mn>0</mn><mo>=</mo><mn mathvariant="bold">𝟏𝟑</mn></mrow><annotation encoding="application/x-tex">13 - 0 = \mathbf{13}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>13</mn><mo>−</mo><mn>10</mn><mo>−</mo><mn>2</mn><mo>=</mo><mn mathvariant="bold">𝟏</mn></mrow><annotation encoding="application/x-tex">13 - 10 - 2 = \mathbf{1}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>P2</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>−</mo><mn>0</mn><mo>=</mo><mn mathvariant="bold">𝟑</mn></mrow><annotation encoding="application/x-tex">3 - 0 = \mathbf{3}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>−</mo><mn>1</mn><mo>−</mo><mn>0</mn><mo>=</mo><mn mathvariant="bold">𝟐</mn></mrow><annotation encoding="application/x-tex">3 - 1 - 0 = \mathbf{2}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mn>0</mn><mo>=</mo><mn mathvariant="bold">𝟏</mn></mrow><annotation encoding="application/x-tex">1 - 0 = \mathbf{1}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mn>1</mn><mo>−</mo><mn>0</mn><mo>=</mo><mn mathvariant="bold">𝟎</mn></mrow><annotation encoding="application/x-tex">1 - 1 - 0 = \mathbf{0}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>P3</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mo>−</mo><mn>2</mn><mo>=</mo><mn mathvariant="bold">𝟖</mn></mrow><annotation encoding="application/x-tex">10 - 2 = \mathbf{8}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>8</mn><mo>−</mo><mn>2</mn><mo>−</mo><mn>1</mn><mo>=</mo><mn mathvariant="bold">𝟓</mn></mrow><annotation encoding="application/x-tex">8 - 2 - 1 = \mathbf{5}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>6</mn><mo>−</mo><mn>2</mn><mo>=</mo><mn mathvariant="bold">𝟒</mn></mrow><annotation encoding="application/x-tex">6 - 2 = \mathbf{4}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mo>−</mo><mn>2</mn><mo>−</mo><mn>2</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> (I/O+queue)</mtext></mrow><mo>=</mo><mn mathvariant="bold">𝟎</mn></mrow><annotation encoding="application/x-tex">4 - 2 - 2\text{ (I/O+queue)} = \mathbf{0}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>P4</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>5</mn><mo>−</mo><mn>2</mn><mo>=</mo><mn mathvariant="bold">𝟑</mn></mrow><annotation encoding="application/x-tex">5 - 2 = \mathbf{3}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>−</mo><mn>1</mn><mo>−</mo><mn>0</mn><mo>=</mo><mn mathvariant="bold">𝟐</mn></mrow><annotation encoding="application/x-tex">3 - 1 - 0 = \mathbf{2}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>−</mo><mn>2</mn><mo>=</mo><mn mathvariant="bold">𝟏</mn></mrow><annotation encoding="application/x-tex">3 - 2 = \mathbf{1}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>−</mo><mn>1</mn><mo>−</mo><mn>0</mn><mo>=</mo><mn mathvariant="bold">𝟎</mn></mrow><annotation encoding="application/x-tex">1 - 1 - 0 = \mathbf{0}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>P5</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>17</mn><mo>−</mo><mn>4</mn><mo>=</mo><mn mathvariant="bold">𝟏𝟑</mn></mrow><annotation encoding="application/x-tex">17 - 4 = \mathbf{13}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>13</mn><mo>−</mo><mn>5</mn><mo>−</mo><mn>2</mn><mo>=</mo><mn mathvariant="bold">𝟔</mn></mrow><annotation encoding="application/x-tex">13 - 5 - 2 = \mathbf{6}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>11</mn><mo>−</mo><mn>4</mn><mo>=</mo><mn mathvariant="bold">𝟕</mn></mrow><annotation encoding="application/x-tex">11 - 4 = \mathbf{7}</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7</mn><mo>−</mo><mn>5</mn><mo>−</mo><mn>2</mn><mo>=</mo><mn mathvariant="bold">𝟎</mn></mrow><annotation encoding="application/x-tex">7 - 5 - 2 = \mathbf{0}</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 3 Q3:</strong> Reverse-Engineering Dual-Core Schedules
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Problem Setup:</strong> Arrivals: P0, P1, P4, P5, P6 at 0; P2
+at 3; P3 at 9.</p>
+<figure>
+<img width="1091" height="440" src="media/3-artifacts/t3-q3-dual-core-schedule.webp"
+style="width:70.0%" loading="lazy" decoding="async"
+alt="Dual Core Schedule" />
+<figcaption aria-hidden="true">Dual Core Schedule</figcaption>
+</figure>
+<p><strong>(a) CPU and I/O Burst Durations:</strong></p>
+<ul>
+<li><strong>P0:</strong> CPU 1, I/O 2, CPU 2</li>
+<li><strong>P1:</strong> CPU 6</li>
+<li><strong>P2:</strong> CPU 1, I/O 2, CPU 1 <em>(Note: P2 finishes CPU
+at 5, but waits in device queue until 7 because P4 uses I/O
+4–7)</em></li>
+<li><strong>P3:</strong> CPU 2</li>
+<li><strong>P4:</strong> CPU 3, I/O 3, CPU 2</li>
+<li><strong>P5:</strong> CPU 2</li>
+<li><strong>P6:</strong> CPU 4</li>
+</ul>
+<p><strong>(b) Architecture and Algorithm Identification:</strong></p>
+<ul>
+<li><strong>Partitioned Scheduling is consistent:</strong>
+<ul>
+<li>Core 2 executes only P5, P6, P1 (never runs P0, P2, P3, P4). It
+executes shortest bursts first
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>SJF or SRTF</strong>.</li>
+<li>Core 1 executes P0, P4, P2, P3. FCFS is ruled out (at time 4, ready
+P0 does not run ahead of P4). Both <strong>SJF and SRTF</strong> match
+execution.</li>
+</ul></li>
+<li><strong>Global Scheduling is inconsistent with SRTF:</strong> At
+time 3, P2 (burst 1) arrives but does not preempt P6 (remaining burst 3)
+on Core 2. However, <strong>Global SJF</strong> is valid if ordered by
+current burst duration.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 3 Q4:</strong> CPU Efficiency Formula Derivation <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Average process runs for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+before blocking; context switch overhead is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.
+Give CPU efficiency for: (a)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">Q = \infty</annotation></semantics></math>,
+(b)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>&gt;</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">Q &gt; T</annotation></semantics></math>,
+(c)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>&lt;</mo><mi>Q</mi><mo>&lt;</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">S &lt; Q &lt; T</annotation></semantics></math>,
+(d)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">Q = S</annotation></semantics></math>,
+(e)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">Q = 0</annotation></semantics></math>.</em></p>
+<p><strong>Derivation:</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">CPU Efficiency</mtext><mo>=</mo><mfrac><mi>T</mi><mrow><mi>T</mi><mo>+</mo><mi>S</mi><mo>⋅</mo><mi>n</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\text{CPU Efficiency} = \frac{T}{T + S \cdot n}</annotation></semantics></math></p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 25%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr>
+<th>Case</th>
+<th>Number of Switches
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>)</th>
+<th>Efficiency Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>(a)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mi>∞</mi></mrow><annotation encoding="application/x-tex">Q = \infty</annotation></semantics></math></strong></td>
+<td>1</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mstyle displaystyle="true"><mfrac><mi>T</mi><mrow><mi>T</mi><mo>+</mo><mi>S</mi></mrow></mfrac></mstyle><annotation encoding="application/x-tex">\dfrac{T}{T + S}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>(b)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>&gt;</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">Q &gt; T</annotation></semantics></math></strong></td>
+<td>1</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mstyle displaystyle="true"><mfrac><mi>T</mi><mrow><mi>T</mi><mo>+</mo><mi>S</mi></mrow></mfrac></mstyle><annotation encoding="application/x-tex">\dfrac{T}{T + S}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>(c)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>&lt;</mo><mi>Q</mi><mo>&lt;</mo><mi>T</mi></mrow><annotation encoding="application/x-tex">S &lt; Q &lt; T</annotation></semantics></math></strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mi>T</mi><mi>/</mi><mi>Q</mi><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">\lceil T / Q \rceil</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mstyle displaystyle="true"><mfrac><mi>T</mi><mrow><mi>T</mi><mo>+</mo><mi>S</mi><mo stretchy="false" form="prefix">⌈</mo><mi>T</mi><mi>/</mi><mi>Q</mi><mo stretchy="false" form="postfix">⌉</mo></mrow></mfrac></mstyle><annotation encoding="application/x-tex">\dfrac{T}{T + S \lceil T / Q \rceil}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>(d)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">Q = S</annotation></semantics></math></strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mi>T</mi><mi>/</mi><mi>S</mi><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">\lceil T / S \rceil</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mstyle displaystyle="true"><mfrac><mi>T</mi><mrow><mi>T</mi><mo>+</mo><mi>S</mi><mo stretchy="false" form="prefix">⌈</mo><mi>T</mi><mi>/</mi><mi>S</mi><mo stretchy="false" form="postfix">⌉</mo></mrow></mfrac></mstyle><mo>≈</mo><mrow><mn mathvariant="bold">𝟓𝟎</mn><mi mathvariant="bold-italic">%</mi></mrow></mrow><annotation encoding="application/x-tex">\dfrac{T}{T + S \lceil T / S \rceil} \approx \mathbf{50\%}</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>(e)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">Q = 0</annotation></semantics></math></strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>∞</mi><annotation encoding="application/x-tex">\infty</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn mathvariant="bold">𝟎</mn><annotation encoding="application/x-tex">\mathbf{0}</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY Past-Paper Problems:</strong> Gantt Charts &amp; Time Metrics
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY16/17 S2 Q1b (SJF vs. SRTF):</strong>
+<ul>
+<li>P1(arr 0, b 5), P2(arr 2, b 4), P3(arr 4, b 4), P4(arr 5, b 3),
+P5(arr 2, b 2).</li>
+<li><strong>SJF:</strong> P1(0–5), P5(5–7), P4(7–10), P2(10–14),
+P3(14–18).
+<ul>
+<li>Waits: P1:0, P2:8, P3:10, P4:2, P5:3
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>Average Wait = 4.6</strong>.</li>
+</ul></li>
+<li><strong>SRTF:</strong> P1(0–2), P5(2–4), P1(4–7), P4(7–10),
+P2(10–14), P3(14–18).
+<ul>
+<li>Waits: P1:2, P2:8, P3:10, P4:2, P5:0
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>Average Wait = 4.4</strong>.</li>
+</ul></li>
+</ul></li>
+<li><strong>AY18/19 S1 Q1b (SRTF with Interleaved I/O):</strong>
+<ul>
+<li>P1(arr 0, CPU 1, I/O 2, CPU 4); P2(arr 1, CPU 1, I/O 2, CPU 3);
+P3(arr 2, CPU 3); P4(arr 3, CPU 2).</li>
+<li>Chart: P1(0–1), P2(1–2), P3(2–5), P4(5–7), P2(7–10), P1(10–14).</li>
+<li>Turnaround: P1 = 14, P2 = 9, P3 = 3, P4 = 4.</li>
+<li>Waiting
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>T</mi><mi>r</mi></msub><mo>−</mo><mtext mathvariant="normal">CPU</mtext><mo>−</mo><mtext mathvariant="normal">I/O</mtext></mrow><annotation encoding="application/x-tex">T_r - \text{CPU} - \text{I/O}</annotation></semantics></math>):
+P1 = 7, P2 = 3, P3 = 0, P4 = 2.</li>
+</ul></li>
+<li><strong>AY19/20 S1 Q1b (Minimizing Maximum Waiting Time in
+RR):</strong>
+<ul>
+<li>P1(arr 0, b 4), P2(arr 0, b 4), P3(arr 3, b 2), P4(arr 5, b 2).</li>
+<li>For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mn>1</mn><mo>⟹</mo><mtext mathvariant="normal">Max Wait</mtext><mo>=</mo><mn>7</mn></mrow><annotation encoding="application/x-tex">Q = 1 \implies \text{Max Wait} = 7</annotation></semantics></math>;
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mn>2</mn><mo>⟹</mo><mtext mathvariant="normal">Max Wait</mtext><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">Q = 2 \implies \text{Max Wait} = 6</annotation></semantics></math>;
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mn>3</mn><mo>⟹</mo><mtext mathvariant="normal">Max Wait</mtext><mo>=</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">Q = 3 \implies \text{Max Wait} = 8</annotation></semantics></math>;
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="bold-italic">𝑸</mi><mo mathvariant="bold">≥</mo><mn mathvariant="bold">𝟒</mn></mrow><mo>⟹</mo><mrow><mtext mathvariant="bold">𝐌𝐚𝐱 𝐖𝐚𝐢𝐭</mtext><mo mathvariant="bold">=</mo><mn mathvariant="bold">𝟓</mn></mrow></mrow><annotation encoding="application/x-tex">\mathbf{Q \ge 4} \implies \mathbf{\text{Max Wait} = 5}</annotation></semantics></math>.</li>
+<li>Choosing
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">Q = 4</annotation></semantics></math></strong>
+minimizes maximum waiting time while eliminating redundant context
+switches.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/2-processes-threads/2.html">← 2.
+Processes and Threads</a>
+  <a class="next-page" href="../../notes/4-synchronization/4.html">4.
+Process Synchronization →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

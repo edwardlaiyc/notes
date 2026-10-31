@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>8. Virtual Memory · SC2005 Operating Systems</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">8. Virtual
+Memory</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">8. Virtual Memory</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-overview/1.html"
+                   data-nav="notes/1-overview/1.html">1. Overview of
+Operating Systems</a></li>
+            <li><a href="../../notes/2-processes-threads/2.html"
+                   data-nav="notes/2-processes-threads/2.html">2.
+Processes and Threads</a></li>
+            <li><a href="../../notes/3-cpu-scheduling/3.html"
+                   data-nav="notes/3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../../notes/4-synchronization/4.html"
+                   data-nav="notes/4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../../notes/5-deadlocks/5.html"
+                   data-nav="notes/5-deadlocks/5.html">5.
+Deadlocks</a></li>
+            <li><a href="../../notes/6a-rtos/6a.html"
+                   data-nav="notes/6a-rtos/6a.html">6a. Real-Time
+Operating Systems</a></li>
+            <li><a href="../../notes/6b-virtualization/6b.html"
+                   data-nav="notes/6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../../notes/7-memory-organization/7.html"
+                   data-nav="notes/7-memory-organization/7.html">7.
+Memory Organization</a></li>
+            <li><a href="../../notes/8-virtual-memory/8.html"
+                   data-nav="notes/8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../../notes/9-file-systems/9.html"
+                   data-nav="notes/9-file-systems/9.html">9. File
+Systems</a></li>
+            <li><a href="../../notes/10-io-disk/10.html"
+                   data-nav="notes/10-io-disk/10.html">10. I/O Systems
+and Disk</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Course
+Cheatsheet</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../../notes/labs/lab-1.html"
+                   data-nav="notes/labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../../notes/labs/lab-2.html"
+                   data-nav="notes/labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3.html"
+                   data-nav="notes/labs/lab-3/lab-3.html">Lab 3
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4.html"
+                   data-nav="notes/labs/lab-4/lab-4.html">Lab 4
+Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#demand-paging" id="toc-demand-paging">1. Demand Paging</a>
+<ul>
+<li><a href="#valid-invalid-bit-page-fault-handling"
+id="toc-valid-invalid-bit-page-fault-handling">Valid-Invalid Bit &amp;
+Page Fault Handling</a></li>
+<li><a href="#effective-access-time-eat"
+id="toc-effective-access-time-eat">Effective Access Time (EAT)</a></li>
+</ul></li>
+<li><a href="#page-replacement" id="toc-page-replacement">2. Page
+Replacement</a>
+<ul>
+<li><a href="#the-dirty-modify-bit-vs.-reference-bit"
+id="toc-the-dirty-modify-bit-vs.-reference-bit">The Dirty (Modify) Bit
+vs. Reference Bit</a></li>
+</ul></li>
+<li><a href="#page-replacement-algorithms"
+id="toc-page-replacement-algorithms">3. Page Replacement Algorithms</a>
+<ul>
+<li><a href="#first-in-first-out-fifo"
+id="toc-first-in-first-out-fifo">First-In, First-Out (FIFO)</a></li>
+<li><a href="#optimal-algorithm-opt-min"
+id="toc-optimal-algorithm-opt-min">Optimal Algorithm (OPT /
+MIN)</a></li>
+<li><a href="#least-recently-used-lru"
+id="toc-least-recently-used-lru">Least Recently Used (LRU)</a></li>
+<li><a href="#clock-second-chance-algorithm"
+id="toc-clock-second-chance-algorithm">Clock (Second-Chance)
+Algorithm</a></li>
+</ul></li>
+<li><a href="#beladys-anomaly-stack-algorithms"
+id="toc-beladys-anomaly-stack-algorithms">4. Belady’s Anomaly &amp;
+Stack Algorithms</a>
+<ul>
+<li><a href="#the-inclusion-property"
+id="toc-the-inclusion-property">The Inclusion Property</a></li>
+</ul></li>
+<li><a href="#frame-allocation-replacement-scope"
+id="toc-frame-allocation-replacement-scope">5. Frame Allocation &amp;
+Replacement Scope</a>
+<ul>
+<li><a href="#replacement-scope" id="toc-replacement-scope">Replacement
+Scope</a></li>
+</ul></li>
+<li><a href="#thrashing" id="toc-thrashing">6. Thrashing</a>
+<ul>
+<li><a href="#the-vicious-feedback-loop"
+id="toc-the-vicious-feedback-loop">The Vicious Feedback Loop</a></li>
+<li><a href="#remediation-strategies"
+id="toc-remediation-strategies">Remediation Strategies</a></li>
+</ul></li>
+<li><a href="#locality-and-memory-access-patterns"
+id="toc-locality-and-memory-access-patterns">7. Locality and Memory
+Access Patterns</a>
+<ul>
+<li><a href="#data-structure-loop-traversal-impact"
+id="toc-data-structure-loop-traversal-impact">Data Structure &amp; Loop
+Traversal Impact</a></li>
+</ul></li>
+<li><a href="#working-set-model-page-fault-frequency"
+id="toc-working-set-model-page-fault-frequency">8. Working Set Model
+&amp; Page Fault Frequency</a>
+<ul>
+<li><a href="#working-set-model" id="toc-working-set-model">Working Set
+Model</a></li>
+<li><a href="#page-fault-frequency-pff-strategy"
+id="toc-page-fault-frequency-pff-strategy">Page Fault Frequency (PFF)
+Strategy</a></li>
+</ul></li>
+<li><a href="#comprehensive-address-translation-replacement-problems"
+id="toc-comprehensive-address-translation-replacement-problems">9.
+Comprehensive Address Translation &amp; Replacement Problems</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>Virtual memory separates logical memory from physical memory. Under
+demand paging, only the active pages of a process reside in physical
+frames, allowing processes to exceed the size of physical RAM,
+increasing the degree of multiprogramming, and minimizing I/O latency
+during process startup.</p>
+<figure>
+<img width="1400" height="873" src="media/8-artifacts/virtual-memory-concept.webp"
+style="width:75.0%" loading="lazy" decoding="async"
+alt="Virtual memory: logical pages mapping to non-contiguous physical frames with disk backing store (Lecture 8, slide 8.5)" />
+<figcaption aria-hidden="true">Virtual memory: logical pages mapping to
+non-contiguous physical frames with disk backing store (Lecture 8, slide
+8.5)</figcaption>
+</figure>
+<hr />
+<h2 id="demand-paging">1. Demand Paging</h2>
+<p>In a demand-paging architecture, pages are loaded lazily: a page is
+brought into physical memory only when an executing instruction
+references it.</p>
+<figure>
+<img width="1360" height="1189" src="media/8-artifacts/swapping.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="Swapping: moving entire process images between physical memory and backing store (Lecture 8, slide 8.3)" />
+<figcaption aria-hidden="true">Swapping: moving entire process images
+between physical memory and backing store (Lecture 8, slide
+8.3)</figcaption>
+</figure>
+<h3 id="valid-invalid-bit-page-fault-handling">Valid-Invalid Bit &amp;
+Page Fault Handling</h3>
+<p>Each page table entry includes a <strong>valid-invalid
+bit</strong>:</p>
+<ul>
+<li><strong>Valid (<code>v</code>):</strong> The page is legal and
+currently resident in physical memory (the entry holds its frame
+number).</li>
+<li><strong>Invalid (<code>i</code>):</strong> The page is either
+illegal or currently resides on the backing store. Initial page table
+entries are set to <code>i</code>.</li>
+</ul>
+<figure>
+<img width="1400" height="856" src="media/8-artifacts/demand-paging.webp" loading="lazy"
+decoding="async"
+alt="Demand paging page table structure (Lecture 8, slide 8.8)" />
+<figcaption aria-hidden="true">Demand paging page table structure
+(Lecture 8, slide 8.8)</figcaption>
+</figure>
+<p>When a process references an invalid entry, the hardware memory
+management unit (MMU) triggers an internal CPU trap known as a
+<strong>page fault</strong>.</p>
+<figure>
+<img width="1400" height="866" src="media/8-artifacts/page-fault-steps.webp" loading="lazy"
+decoding="async"
+alt="Hardware and OS steps for servicing a page fault (Lecture 8, slide 8.9)" />
+<figcaption aria-hidden="true">Hardware and OS steps for servicing a
+page fault (Lecture 8, slide 8.9)</figcaption>
+</figure>
+<pre><code>[Instruction Access] ──&gt; MMU checks Page Table ──&gt; Entry marked invalid (&#39;i&#39;)
+                                                           │
+┌────────────────────── Page Fault Trap Handled by OS ─────┘
+│
+├─ 1. Trap to kernel; save user process state and registers.
+├─ 2. Validate memory address against internal process PCB metadata.
+├─ 3. Locate requested page block on secondary storage (backing store).
+├─ 4. Allocate a free physical frame (via free-frame list or page replacement).
+├─ 5. Issue disk I/O to read page into allocated frame (process placed in Wait state).
+├─ 6. On I/O interrupt, update page table: assign frame number, set bit to valid (&#39;v&#39;).
+└─ 7. Restore process state and RESTART the faulting instruction.</code></pre>
+<blockquote>
+<p><strong>Key Invariant:</strong> A <strong>TLB hit</strong> guarantees
+the page is resident in memory (<code>valid</code>), because eviction
+always flushes matching TLB entries. A <strong>TLB miss</strong> can
+resolve in two ways: either a valid page table hit (page in RAM, TLB
+updated), or a page fault (page on disk).</p>
+</blockquote>
+<h3 id="effective-access-time-eat">Effective Access Time (EAT)</h3>
+<p>Secondary storage transfers operate on millisecond timescales,
+whereas main memory operates in nanoseconds. The performance penalty of
+page faults dominates memory hierarchy latency:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">EAT</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><mi>m</mi><mi>a</mi><mo>+</mo><mi>p</mi><mo>⋅</mo><mtext mathvariant="normal">Page Fault Service Time</mtext></mrow><annotation encoding="application/x-tex">\text{EAT} = (1 - p) \cdot ma + p \cdot \text{Page Fault Service Time}</annotation></semantics></math></p>
+<p>Where:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>a</mi></mrow><annotation encoding="application/x-tex">ma</annotation></semantics></math>:
+Memory access time
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>10</mn><mtext mathvariant="normal">–</mtext><mn>100</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ns</mtext></mrow></mrow><annotation encoding="application/x-tex">\approx 10\text{–}100\text{ ns}</annotation></semantics></math>).</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>:
+Page fault probability
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>≤</mo><mi>p</mi><mo>≤</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">0 \le p \le 1</annotation></semantics></math>).</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtext mathvariant="normal">Page Fault Service Time</mtext><annotation encoding="application/x-tex">\text{Page Fault Service Time}</annotation></semantics></math>:
+Includes trap overhead, disk read latency, and instruction restart
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>5</mn><mtext mathvariant="normal">–</mtext><mn>10</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ms</mtext></mrow><mo>=</mo><mn>5</mn><mtext mathvariant="normal">–</mtext><mn>10</mn><mo>×</mo><msup><mn>10</mn><mn>6</mn></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> ns</mtext></mrow></mrow><annotation encoding="application/x-tex">\approx 5\text{–}10\text{ ms} = 5\text{–}10 \times 10^6\text{ ns}</annotation></semantics></math>).</li>
+</ul>
+<p>To maintain memory degradation below
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mi>%</mi></mrow><annotation encoding="application/x-tex">10\%</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+must remain strictly below
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mrow><mi>−</mi><mn>5</mn></mrow></msup><annotation encoding="application/x-tex">10^{-5}</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">&lt; 1</annotation></semantics></math>
+fault per 100,000 memory references).</p>
+<hr />
+<h2 id="page-replacement">2. Page Replacement</h2>
+<p>When a page fault occurs and physical memory contains no free frames,
+the OS must evict an existing resident page (<strong>victim
+frame</strong>) to the backing store.</p>
+<figure>
+<img width="1400" height="859" src="media/8-artifacts/need-for-replacement.webp" loading="lazy"
+decoding="async"
+alt="Memory over-allocation requiring page replacement (Lecture 8, slide 8.13)" />
+<figcaption aria-hidden="true">Memory over-allocation requiring page
+replacement (Lecture 8, slide 8.13)</figcaption>
+</figure>
+<figure>
+<img width="1172" height="1062" src="media/8-artifacts/page-replacement-steps.webp"
+style="width:80.0%" loading="lazy" decoding="async"
+alt="Four steps of page replacement (Lecture 8, slide 8.15)" />
+<figcaption aria-hidden="true">Four steps of page replacement (Lecture
+8, slide 8.15)</figcaption>
+</figure>
+<h3 id="the-dirty-modify-bit-vs.-reference-bit">The Dirty (Modify) Bit
+vs. Reference Bit</h3>
+<p>To prevent redundant disk write cycles, hardware page tables track
+page modifications:</p>
+<ul>
+<li><strong>Dirty (Modify) Bit:</strong> Set to <code>1</code> by
+hardware whenever a memory write occurs within the page.
+<ul>
+<li>If victim is <strong>clean</strong> (<code>0</code>): It matches its
+backing store copy and is discarded immediately without I/O.</li>
+<li>If victim is <strong>dirty</strong> (<code>1</code>): It must be
+written back to disk (<strong>page-out</strong>) before allocating the
+frame (<strong>page-in</strong>), doubling fault transfer overhead.</li>
+</ul></li>
+<li><strong>Reference (Use) Bit:</strong> Set to <code>1</code> by
+hardware whenever the page is read or written. Used strictly by
+replacement algorithms to estimate recency of use.</li>
+</ul>
+<details class="qa box">
+<summary>
+AY18/19 S1 Q3a(ii): If a page fault occurs and there is no free frame
+available, two page transfers, one in and one out, must be performed.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A two-page transfer (page-out followed by
+page-in) is required <strong>only if the victim page is dirty</strong>.
+If the victim is clean, its contents are discarded immediately and
+overwritten, requiring only a single page-in transfer.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY17/18 S2 Q3a(v): If its reference bit is set, a page needs not to be
+written back to the backing store when being replaced. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> The <strong>reference bit</strong> tracks
+whether a page was accessed to assist replacement policies. Write-back
+decisions depend exclusively on the <strong>dirty (modify) bit</strong>.
+A referenced page can be dirty, necessitating write-back.</p>
+</div>
+</details>
+<hr />
+<h2 id="page-replacement-algorithms">3. Page Replacement Algorithms</h2>
+<p>Algorithms are evaluated on reference strings across fixed
+allocations of frames. For a reference string of length
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>
+containing
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+unique pages, total faults are bounded by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>≤</mo><mtext mathvariant="normal">Faults</mtext><mo>≤</mo><mi>L</mi></mrow><annotation encoding="application/x-tex">N \le \text{Faults} \le L</annotation></semantics></math>.
+With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≥</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">\ge N</annotation></semantics></math>
+frames, faults equal
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>.</p>
+<figure>
+<img width="1266" height="734" src="media/8-artifacts/faults-vs-frames.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="Page faults generally decline as frame allocation increases (Lecture 8, slide 8.18)" />
+<figcaption aria-hidden="true">Page faults generally decline as frame
+allocation increases (Lecture 8, slide 8.18)</figcaption>
+</figure>
+<p>Consider the reference string:
+<code>1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5</code>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>L</mi><mo>=</mo><mn>12</mn><mo>,</mo><mi>N</mi><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">L=12, N=5</annotation></semantics></math>).</p>
+<h3 id="first-in-first-out-fifo">First-In, First-Out (FIFO)</h3>
+<p>Evicts the page residing in physical memory for the longest time
+based purely on its <strong>load timestamp</strong>. Memory access hits
+do not alter queue positions.</p>
+<ul>
+<li><p><strong>3 Frames (9 Faults):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">Ref</mtext></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F1</mtext></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F2</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F3</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">Fault</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{array}{l|cccccccccccc}
+\text{Ref} &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 1 &amp; 2 &amp; 5 &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 5 \\
+\hline
+\text{F1} &amp; 1 &amp; 1 &amp; 1 &amp; 4 &amp; 4 &amp; 4 &amp; 5 &amp; 5 &amp; 5 &amp; 5 &amp; 5 &amp; 5 \\
+\text{F2} &amp;   &amp; 2 &amp; 2 &amp; 2 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 3 &amp; 3 &amp; 3 \\
+\text{F3} &amp;   &amp;   &amp; 3 &amp; 3 &amp; 3 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 4 &amp; 4 \\
+\hline
+\text{Fault} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; &amp; &amp; \text{P} &amp; \text{P} &amp;
+\end{array}</annotation></semantics></math></p></li>
+<li><p><strong>4 Frames (10 Faults):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">Ref</mtext></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F1</mtext></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F2</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F3</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F4</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">Fault</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{array}{l|cccccccccccc}
+\text{Ref} &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 1 &amp; 2 &amp; 5 &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 5 \\
+\hline
+\text{F1} &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 5 &amp; 5 &amp; 5 &amp; 5 &amp; 4 &amp; 4 \\
+\text{F2} &amp;   &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 5 \\
+\text{F3} &amp;   &amp;   &amp; 3 &amp; 3 &amp; 3 &amp; 3 &amp; 3 &amp; 3 &amp; 2 &amp; 2 &amp; 2 &amp; 2 \\
+\text{F4} &amp;   &amp;   &amp;   &amp; 4 &amp; 4 &amp; 4 &amp; 4 &amp; 4 &amp; 4 &amp; 3 &amp; 3 &amp; 3 \\
+\hline
+\text{Fault} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; &amp; &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; \text{P}
+\end{array}</annotation></semantics></math></p></li>
+</ul>
+<p>Allocating 4 frames yields <strong>more</strong> faults than 3 frames
+(10 vs 9). This is <strong>Belady’s Anomaly</strong>.</p>
+<h3 id="optimal-algorithm-opt-min">Optimal Algorithm (OPT / MIN)</h3>
+<p>Replaces the page that will not be used for the longest future
+period. Serves as an unrealizable theoretical lower bound on page
+faults.</p>
+<ul>
+<li><strong>4 Frames (6 Faults):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">Ref</mtext></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F1</mtext></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F2</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F3</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F4</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">Fault</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{array}{l|cccccccccccc}
+\text{Ref} &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 1 &amp; 2 &amp; 5 &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 5 \\
+\hline
+\text{F1} &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 4 &amp; 4 \\
+\text{F2} &amp;   &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 \\
+\text{F3} &amp;   &amp;   &amp; 3 &amp; 3 &amp; 3 &amp; 3 &amp; 3 &amp; 3 &amp; 3 &amp; 3 &amp; 3 &amp; 3 \\
+\text{F4} &amp;   &amp;   &amp;   &amp; 4 &amp; 4 &amp; 4 &amp; 5 &amp; 5 &amp; 5 &amp; 5 &amp; 5 &amp; 5 \\
+\hline
+\text{Fault} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; &amp; &amp; \text{P} &amp; &amp; &amp; &amp; \text{P} &amp;
+\end{array}</annotation></semantics></math></li>
+</ul>
+<h3 id="least-recently-used-lru">Least Recently Used (LRU)</h3>
+<p>Replaces the page that has not been referenced for the longest
+period. Uses past behavior as an approximation of future behavior.
+Access hits update the recency timestamp of the referenced page.</p>
+<ul>
+<li><strong>4 Frames (8 Faults):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">Ref</mtext></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F1</mtext></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>1</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F2</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>2</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F3</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>5</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">F4</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>4</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd><mtd columnalign="center" style="text-align: center"><mn>3</mn></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><mtext mathvariant="normal">Fault</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd><mtd columnalign="center" style="text-align: center"><mtext mathvariant="normal">P</mtext></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{array}{l|cccccccccccc}
+\text{Ref} &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 1 &amp; 2 &amp; 5 &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 5 \\
+\hline
+\text{F1} &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 1 &amp; 5 \\
+\text{F2} &amp;   &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 &amp; 2 \\
+\text{F3} &amp;   &amp;   &amp; 3 &amp; 3 &amp; 3 &amp; 3 &amp; 5 &amp; 5 &amp; 5 &amp; 5 &amp; 4 &amp; 4 \\
+\text{F4} &amp;   &amp;   &amp;   &amp; 4 &amp; 4 &amp; 4 &amp; 4 &amp; 4 &amp; 4 &amp; 3 &amp; 3 &amp; 3 \\
+\hline
+\text{Fault} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; \text{P} &amp; &amp; &amp; \text{P} &amp; &amp; &amp; \text{P} &amp; \text{P} &amp; \text{P}
+\end{array}</annotation></semantics></math></li>
+</ul>
+<p>LRU implementation mechanisms:</p>
+<ol type="1">
+<li><strong>Counters / Logical Clock:</strong> CPU writes the
+incrementing clock register into the page table entry on every access.
+Eviction requires an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+search for the minimum timestamp.</li>
+<li><strong>Stack (Doubly Linked List):</strong> On access, the
+referenced page entry is detached and moved to the stack top. The stack
+bottom always holds the LRU victim. No searching is required, but
+pointers must be updated on every single memory reference.</li>
+</ol>
+<h3 id="clock-second-chance-algorithm">Clock (Second-Chance)
+Algorithm</h3>
+<p>A hardware-assisted approximation of LRU. Frames are organized in a
+circular queue managed by a traversing pointer (“hand”).</p>
+<figure>
+<img width="1400" height="968" src="media/8-artifacts/clock-algorithm.webp" style="width:55.0%"
+loading="lazy" decoding="async"
+alt="Clock replacement algorithm with circular frame buffer (Lecture 8, slide 8.31)" />
+<figcaption aria-hidden="true">Clock replacement algorithm with circular
+frame buffer (Lecture 8, slide 8.31)</figcaption>
+</figure>
+<ol type="1">
+<li><strong>On Hit:</strong> Hardware sets the page’s reference bit
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R = 1</annotation></semantics></math>.
+Pointer does <strong>not</strong> move.</li>
+<li><strong>On Fault:</strong>
+<ul>
+<li>If page under pointer has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R = 0</annotation></semantics></math>:
+Select as victim, load new page, advance pointer by 1.</li>
+<li>If page under pointer has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R = 1</annotation></semantics></math>:
+Clear bit
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>←</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R \leftarrow 0</annotation></semantics></math>),
+give it a “second chance”, advance pointer to inspect next frame.</li>
+</ul></li>
+<li><strong>Course Convention:</strong> Newly loaded pages initialize
+with
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R = 0</annotation></semantics></math></strong>.</li>
+<li><strong>Degeneracy:</strong> If all resident pages have
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R = 1</annotation></semantics></math>,
+the pointer completes a full cycle clearing all bits to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn>0</mn><annotation encoding="application/x-tex">0</annotation></semantics></math>
+and evicts the original starting frame. In this worst-case scenario,
+Clock degrades to <strong>FIFO</strong>.</li>
+</ol>
+<details class="qa box">
+<summary>
+AY18/19 S2 Q3d(ii): Under what situation will the clock algorithm behave
+like the First-In-First-Out (FIFO) algorithm? <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>When <strong>all resident frames have their reference bits set to
+1</strong>. The clock pointer traverses all frames, clearing every
+reference bit to 0 without finding an eviction candidate, and ultimately
+evicts the frame where the traversal began (the oldest loaded
+frame).</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY15/16 S2 Q3d: Cyclic reference string under FIFO, LRU, and alternative
+algorithms <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Given 4 empty frames and cyclic reference string
+<code>0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5</code>:</p>
+<p><strong>(i) FIFO Faults: 12.</strong> There are 6 distinct pages
+cycling across 4 frames. After the initial 4 compulsory faults
+(<code>0, 1, 2, 3</code>), reference <code>4</code> evicts
+<code>0</code>, <code>5</code> evicts <code>1</code>, <code>0</code>
+evicts <code>2</code>, and so forth. Every single reference accesses the
+exact page that was just evicted.</p>
+<p><strong>(ii) LRU Faults: 12.</strong> In a strict cyclic access
+sequence where distinct pages exceed frame capacity
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>N</mi><mo>&gt;</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">N &gt; m</annotation></semantics></math>),
+the least recently used page is always the immediately requested next
+page.</p>
+<p><strong>(iii) Realistic alternative design:</strong> Most Recently
+Used (<strong>MRU</strong>). By evicting the most recently used frame,
+MRU preserves the first 3 resident frames (<code>0, 1, 2</code>) and
+cycles the 4th frame for incoming pages (<code>3, 4, 5</code>), yielding
+only <strong>8 faults</strong> (matching OPT).</p>
+</div>
+</details>
+<hr />
+<h2 id="beladys-anomaly-stack-algorithms">4. Belady’s Anomaly &amp;
+Stack Algorithms</h2>
+<p><strong>Belady’s Anomaly:</strong> For certain page replacement
+algorithms, increasing the number of physical frames increases the total
+number of page faults.</p>
+<h3 id="the-inclusion-property">The Inclusion Property</h3>
+<p>An algorithm belongs to the class of <strong>stack
+algorithms</strong> if the set of pages resident in an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>-frame
+allocation is always a strict subset of pages resident in an
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(n+1)</annotation></semantics></math>-frame
+allocation:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>⊆</mo><msub><mi>S</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">S_t(n) \subseteq S_t(n+1)</annotation></semantics></math></p>
+<ul>
+<li><strong>OPT and LRU satisfy inclusion:</strong> The set of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+most recently used pages is inherently contained within the set of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n+1</annotation></semantics></math>
+most recently used pages. Stack algorithms <strong>can never exhibit
+Belady’s anomaly</strong>.</li>
+<li><strong>FIFO violates inclusion:</strong> Queue residency depends on
+load time rather than reference recency, causing divergent residency
+sets when frame counts change.</li>
+<li><strong>Clock violates inclusion:</strong> Hand position and bit
+reset patterns diverge across different buffer sizes, allowing Clock to
+suffer from Belady’s anomaly.</li>
+</ul>
+<details class="qa box">
+<summary>
+AY18/19 S1 Q3d: Belady’s anomaly definition and LRU immunity <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) Definition:</strong> Belady’s anomaly occurs when
+increasing the number of allocated physical frames results in an
+increased number of page faults for a given reference string.</p>
+<p><strong>(ii) LRU Immunity:</strong> LRU <strong>does not
+suffer</strong> from Belady’s anomaly because it is a <strong>stack
+algorithm</strong> satisfying the inclusion property. The
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+frames allocated under LRU always contain the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+most recently referenced pages, which are guaranteed to be a subset of
+the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n+1</annotation></semantics></math>
+most recently referenced pages.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY16/17 S1 Q3a(iv): As the number of available page frames increases,
+the number of page faults will always decrease no matter which page
+replacement algorithm is used. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> Due to Belady’s anomaly, algorithms that do
+not satisfy the inclusion property (such as FIFO) can experience an
+increase in page faults when more frames are allocated.</p>
+</div>
+</details>
+<hr />
+<h2 id="frame-allocation-replacement-scope">5. Frame Allocation &amp;
+Replacement Scope</h2>
+<p>Physical frames can be allocated to processes via two baseline
+policies:</p>
+<ul>
+<li><strong>Equal Allocation:</strong> Memory of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+frames distributed across
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+processes:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>m</mi><mi>/</mi><mi>n</mi></mrow><annotation encoding="application/x-tex">m / n</annotation></semantics></math>
+frames per process.</li>
+<li><strong>Proportional Allocation:</strong> Memory allocated based on
+process virtual memory size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>s</mi><mi>i</mi></msub><annotation encoding="application/x-tex">s_i</annotation></semantics></math>:</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>i</mi></msub><mo>=</mo><mfrac><msub><mi>s</mi><mi>i</mi></msub><mrow><mo>∑</mo><msub><mi>s</mi><mi>i</mi></msub></mrow></mfrac><mo>⋅</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">a_i = \frac{s_i}{\sum s_i} \cdot m</annotation></semantics></math></p>
+<figure>
+<img width="1400" height="862" src="media/8-artifacts/local-vs-global.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="Local vs global replacement mechanics under LRU (Lecture 8, slide 8.36)" />
+<figcaption aria-hidden="true">Local vs global replacement mechanics
+under LRU (Lecture 8, slide 8.36)</figcaption>
+</figure>
+<h3 id="replacement-scope">Replacement Scope</h3>
+<ul>
+<li><strong>Local Replacement:</strong> When process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+faults, it selects a victim strictly from its own allocated frames.
+Process frame counts remain constant.</li>
+<li><strong>Global Replacement:</strong> The victim frame can be
+selected from any process in memory. Frame counts dynamically drift
+based on execution demand.</li>
+</ul>
+<figure>
+<img width="1400" height="793" src="media/8-artifacts/frame-allocation-summary.webp"
+style="width:85.0%" loading="lazy" decoding="async"
+alt="Compatibility matrix between allocation schemes and replacement policies (Lecture 8, slide 8.37)" />
+<figcaption aria-hidden="true">Compatibility matrix between allocation
+schemes and replacement policies (Lecture 8, slide 8.37)</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 20%" />
+<col style="width: 54%" />
+</colgroup>
+<thead>
+<tr>
+<th>Frame Allocation Policy</th>
+<th>Local Replacement</th>
+<th>Global Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fixed Allocation</strong></td>
+<td><strong>Permitted</strong></td>
+<td><strong>Impossible</strong> (evicting another process’s frame alters
+fixed allocations)</td>
+</tr>
+<tr>
+<td><strong>Variable Allocation</strong></td>
+<td><strong>Permitted</strong></td>
+<td><strong>Permitted</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>Universal Rule:</strong> Fixed frame allocation
+<strong>requires</strong> local replacement. Variable frame allocation
+can use <strong>either</strong> local or global replacement.</p>
+</blockquote>
+<details class="qa box">
+<summary>
+AY16/17 S1 Q3a(vi) &amp; AY18/19 S1 Q3a(iii): Replacement scope under
+variable frame allocation <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>“Both local and global page replacement policies can be used
+under variable frame allocation.” — True.</strong> Variable frame
+allocation does not dictate the replacement scope: an OS can dynamically
+adjust allocations based on working set boundaries (local) or permit
+processes to evict frames across process boundaries (global).</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY17/18 S1 Q3a(v): The fixed frame allocation policy can only use the
+local replacement policy. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>True.</strong> If a fixed allocation scheme adopted global
+replacement, evicting another process’s frame would mutate both
+processes’ frame counts, violating fixed allocation.</p>
+</div>
+</details>
+<hr />
+<h2 id="thrashing">6. Thrashing</h2>
+<p><strong>Thrashing</strong> occurs when a process spends more time
+paging (swapping pages into and out of memory) than executing
+instructions.</p>
+<figure>
+<img width="1344" height="862" src="media/8-artifacts/thrashing.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="CPU utilization collapses during thrashing (Lecture 8, slide 8.39)" />
+<figcaption aria-hidden="true">CPU utilization collapses during
+thrashing (Lecture 8, slide 8.39)</figcaption>
+</figure>
+<h3 id="the-vicious-feedback-loop">The Vicious Feedback Loop</h3>
+<ol type="1">
+<li>Active processes do not hold enough frames to satisfy their current
+working localities.</li>
+<li>Page fault rates surge; processes enter the I/O wait queue waiting
+on the paging device.</li>
+<li>CPU utilization drops because all processes are blocked waiting for
+disk transfers.</li>
+<li>The OS scheduler mistakes low CPU utilization for system
+under-utilization and <strong>increases the degree of
+multiprogramming</strong>.</li>
+<li>New processes steal frames from existing processes, causing further
+page faults. CPU utilization plummets to near zero.</li>
+</ol>
+<pre><code>Insufficient Frames ──&gt; Page Fault Rate Surges ──&gt; Processes Blocked on Disk
+        ▲                                                      │
+        │                                                      ▼
+CPU Utilization Drops &lt;── OS Adds More Processes &lt;── CPU Scheduler Misinterprets</code></pre>
+<h3 id="remediation-strategies">Remediation Strategies</h3>
+<ul>
+<li><strong>Effective Remedies:</strong>
+<ul>
+<li><strong>Decrease the degree of multiprogramming:</strong> Swap out
+entire processes from memory to free frames for remaining
+processes.</li>
+<li><strong>Add physical memory (RAM):</strong> Expands total available
+frames
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>Ineffective / Detrimental Actions:</strong>
+<ul>
+<li><strong>Faster CPU:</strong> Completely ineffective; the CPU is
+already idle waiting on disk transfers.</li>
+<li><strong>Increasing multiprogramming:</strong> Directly accelerates
+thrashing collapse.</li>
+</ul></li>
+</ul>
+<details class="qa box">
+<summary>
+AY16/17 S1 Q3a(v) &amp; AY17/18 S2 Q3a(vi): Thrashing detection and
+mitigation <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY16/17 S1 Q3a(v):</strong> <em>“Thrashing can be
+temporarily alleviated by swapping out some processes.”</em> —
+<strong>True.</strong> Swapping out processes frees their frame pools,
+providing sufficient frames for remaining processes to satisfy their
+localities without faulting.</li>
+<li><strong>AY17/18 S2 Q3a(vi):</strong> <em>“Thrashing can be detected
+by evaluating the level of CPU utilization as compared to the level of
+multiprogramming.”</em> — <strong>True.</strong> A drop in CPU
+utilization concurrent with high multiprogramming and continuous disk
+paging queues indicates thrashing.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY19/20 S1 Q3a(v): Using demand-paging increases the degree of
+multiprogramming and hence always improves CPU utilization. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> While demand paging enables higher
+multiprogramming initially, raising it past physical memory capacity
+starves processes of their localities, triggering thrashing where CPU
+utilization collapses.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY15/16 S2 Q3c: Thrashing definition, causes, and prevention strategies
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Meaning:</strong> A condition where processes spend
+virtually all of their time paging (transferring pages between memory
+and backing store) rather than executing productive CPU
+instructions.</li>
+<li><strong>Root Cause:</strong> A process is allocated fewer frames
+than required by its current locality of reference. As a result, page
+faults occur continuously, forcing CPU utilization to collapse and
+inducing the OS to inject even more processes.</li>
+<li><strong>Prevention Strategies:</strong>
+<ol type="1">
+<li><strong>Working Set Model:</strong> Allocate each process sufficient
+frames to house its working set size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>S</mi><msub><mi>S</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">WSS_i</annotation></semantics></math>.
+If total demand
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>=</mo><mo>∑</mo><mi>W</mi><mi>S</mi><msub><mi>S</mi><mi>i</mi></msub><mo>&gt;</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">D = \sum WSS_i &gt; m</annotation></semantics></math>,
+suspend (swap out) a process.</li>
+<li><strong>Page Fault Frequency (PFF):</strong> Establish upper and
+lower page fault thresholds per process, dynamically allocating frames
+when rates exceed the ceiling and reclaiming frames when rates fall
+below the floor.</li>
+</ol></li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY18/19 S2 Q3e: Impact of physical memory, multiprogramming, and
+secondary storage latency <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Physical Memory Size:</strong> Expanding physical RAM
+directly increases the total frame pool, allowing more pages of active
+localities to reside in memory, drastically reducing page faults.</li>
+<li><strong>Degree of Multiprogramming:</strong> Increasing
+multiprogramming raises CPU utilization up to the system’s memory
+capacity. Beyond this tipping point, processes starve for frames,
+triggering thrashing and collapsing utilization.</li>
+<li><strong>Secondary Storage Latency:</strong> Page fault service time
+is dominated by disk transfer latency. Increasing disk latency escalates
+page fault penalty by orders of magnitude, catastrophically increasing
+Effective Access Time (EAT).</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="locality-and-memory-access-patterns">7. Locality and Memory
+Access Patterns</h2>
+<p>Programs execute according to the <strong>locality model</strong>:
+execution moves through a sequence of shifting localities over time.</p>
+<ul>
+<li><strong>Temporal Locality:</strong> Memory referenced currently will
+likely be referenced again soon (e.g., loop counter, accumulator).</li>
+<li><strong>Spatial Locality:</strong> Memory adjacent to current
+references will likely be referenced soon (e.g., array scans, sequential
+code blocks).</li>
+</ul>
+<h3 id="data-structure-loop-traversal-impact">Data Structure &amp; Loop
+Traversal Impact</h3>
+<p>C arrays are laid out in memory in <strong>row-major order</strong>
+(row by row). Consider <code>int a[1024][1024]</code> (each row is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1024</mn><mo>×</mo><mn>4</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bytes</mtext></mrow><mo>=</mo><mn>4096</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bytes</mtext></mrow><mo>=</mo><mtext mathvariant="normal">1 page</mtext></mrow><annotation encoding="application/x-tex">1024 \times 4\text{ bytes} = 4096\text{ bytes} = \text{1 page}</annotation></semantics></math>):</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Code Fragment A (Row-major: Optimal Spatial Locality)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">1024</span><span class="op">;</span> i<span class="op">++)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> j <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> j <span class="op">&lt;</span> <span class="dv">1024</span><span class="op">;</span> j<span class="op">++)</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        a<span class="op">[</span>i<span class="op">][</span>j<span class="op">]++;</span> <span class="co">// Stays within one 4KB page for 1024 consecutive iterations</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co">// Total faults: &lt;= 1024 compulsory page faults.</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co">// Code Fragment B (Column-major: Destroys Locality)</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> j <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> j <span class="op">&lt;</span> <span class="dv">1024</span><span class="op">;</span> j<span class="op">++)</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">1024</span><span class="op">;</span> i<span class="op">++)</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        a<span class="op">[</span>i<span class="op">][</span>j<span class="op">]++;</span> <span class="co">// Jumps to a new row (new page) on EVERY single inner access</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="co">// Total faults: Up to 1,024 * 1024 = 1,048,576 faults if frames &lt; 1024!</span></span></code></pre></div>
+<p>Similarly, <strong>arrays</strong> exhibit high spatial locality
+because elements reside contiguously within pages. <strong>Linked
+lists</strong> exhibit poor spatial locality because dynamically
+allocated heap nodes can be scattered across non-contiguous pages.</p>
+<details class="qa box">
+<summary>
+AY16/17 S1 Q3c: Impact of arrays vs. linked lists in demand paging <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>An <strong>array</strong> occupies a contiguous block of memory.
+Consecutive element accesses benefit from strong spatial locality,
+traversing entire pages with minimal compulsory faults. A <strong>linked
+list</strong> allocates nodes dynamically in heap storage, scattering
+them across arbitrary pages. Traversing list pointers frequently faults
+across distinct pages, inducing significantly higher page fault
+overhead.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY17/18 S2 Q3c: Loop nesting and locality analysis <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) Locality:</strong> The behavioral property where a
+program references a localized cluster of pages over a period of time,
+composed of temporal locality (re-referencing the same locations) and
+spatial locality (referencing adjacent locations).</p>
+<p><strong>(ii) Left vs. Right Fragment:</strong> The <strong>left
+fragment</strong> (<code>i</code> outer, <code>j</code> inner) exhibits
+superior locality. Because C arrays are stored in row-major order, the
+inner loop processes elements of row <code>i</code> sequentially within
+the same page. The <strong>right fragment</strong> (<code>j</code>
+outer, <code>i</code> inner) jumps across 1,024 distinct rows on each
+iteration, striding across 1,024 different pages and causing massive
+page faults.</p>
+</div>
+</details>
+<hr />
+<h2 id="working-set-model-page-fault-frequency">8. Working Set Model
+&amp; Page Fault Frequency</h2>
+<h3 id="working-set-model">Working Set Model</h3>
+<p>The <strong>working set window</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>
+defines a fixed sliding parameter of memory references.</p>
+<ul>
+<li><strong>Working Set at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>S</mi><mo stretchy="false" form="prefix">(</mo><mi>t</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">WS(t)</annotation></semantics></math>):</strong>
+The set of <strong>unique</strong> pages referenced in the past
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>
+time units.</li>
+<li><strong>Working Set Size
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>S</mi><msub><mi>S</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">WSS_i</annotation></semantics></math>):</strong>
+The number of unique pages in process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>’s
+working set.</li>
+</ul>
+<figure>
+<img width="1400" height="437" src="media/8-artifacts/working-set-window.webp" loading="lazy"
+decoding="async"
+alt="Working set window capturing shifting program localities (Lecture 8, slide 8.43)" />
+<figcaption aria-hidden="true">Working set window capturing shifting
+program localities (Lecture 8, slide 8.43)</figcaption>
+</figure>
+<p>Total memory demand
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>
+across all active processes is:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mi>W</mi><mi>S</mi><msub><mi>S</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">D = \sum_{i} WSS_i</annotation></semantics></math></p>
+<ul>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>&gt;</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">D &gt; m</annotation></semantics></math>
+(total frames): Demand exceeds physical capacity; thrashing is imminent.
+The OS <strong>suspends (swaps out)</strong> a process and reclaims its
+frames.</li>
+<li><strong>Window size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>
+tuning:</strong>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>
+<strong>too small:</strong> Fails to encompass the entire active
+locality, inducing high fault rates.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>
+<strong>too large:</strong> Spans across past and future localities,
+over-allocating frames and lowering multiprogramming.</li>
+</ul></li>
+</ul>
+<h3 id="page-fault-frequency-pff-strategy">Page Fault Frequency (PFF)
+Strategy</h3>
+<p>A direct, adaptive feedback mechanism tracking actual per-process
+page fault rates.</p>
+<figure>
+<img width="1400" height="857" src="media/8-artifacts/page-fault-frequency.webp"
+style="width:65.0%" loading="lazy" decoding="async"
+alt="Page-fault frequency bounded control (Lecture 8, slide 8.47)" />
+<figcaption aria-hidden="true">Page-fault frequency bounded control
+(Lecture 8, slide 8.47)</figcaption>
+</figure>
+<ul>
+<li><strong>Fault rate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>&gt;</mo><annotation encoding="application/x-tex">&gt;</annotation></semantics></math>
+Upper Threshold:</strong> Process is starved of frames; allocate an
+additional physical frame to the process (if no frame is free, swap out
+another process).</li>
+<li><strong>Fault rate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>&lt;</mo><annotation encoding="application/x-tex">&lt;</annotation></semantics></math>
+Lower Threshold:</strong> Process holds surplus frames; deallocate a
+frame from the process to prevent memory waste.</li>
+</ul>
+<details class="qa box">
+<summary>
+AY18/19 S1 Q3e: Working set window parameter Δ trade-offs <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>
+too small:</strong> The working set window underestimates process
+locality. Each process is allocated too few frames, causing <strong>page
+fault frequency to be high</strong>, while the degree of
+multiprogramming in memory remains artificially
+<strong>high</strong>.</li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>
+too large:</strong> The working set window spans across multiple
+obsolete localities. Each process is allocated surplus frames, driving
+<strong>page fault frequency low</strong>, but restricting physical
+memory capacity so the number of processes supported in memory is
+<strong>low</strong>.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="comprehensive-address-translation-replacement-problems">9.
+Comprehensive Address Translation &amp; Replacement Problems</h2>
+<details class="qa box">
+<summary>
+AY17/18 S2 Q3b: 12-bit logical address, fixed allocation, LRU vs FIFO
+fault trace <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Given:</strong> 12-bit logical address, page size = 1024
+bytes
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>10</mn></msup><annotation encoding="application/x-tex">2^{10}</annotation></semantics></math>),
+physical memory = 8 frames
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>3</mn></msup><annotation encoding="application/x-tex">2^3</annotation></semantics></math>),
+3 frames allocated to process.</p>
+<div class="table-wrap">
+<table style="width: 76%;">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 19%" />
+<col style="width: 15%" />
+<col style="width: 18%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Page number</th>
+<th style="text-align: center;">Frame number</th>
+<th style="text-align: center;">Valid bit</th>
+<th style="text-align: center;">Time loaded</th>
+<th style="text-align: center;">Time last accessed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">120</td>
+<td style="text-align: center;">200</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">150</td>
+<td style="text-align: center;">160</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">–</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">–</td>
+<td style="text-align: center;">–</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">140</td>
+<td style="text-align: center;">180</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>(i) Physical address bits:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Physical memory</mtext><mo>=</mo><mn>8</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> frames</mtext></mrow><mo>×</mo><mn>1024</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> B</mtext></mrow><mo>=</mo><mn>8192</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> B</mtext></mrow><mo>=</mo><msup><mn>2</mn><mn>13</mn></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bytes</mtext></mrow><mo>⟹</mo><mrow><mn mathvariant="bold">𝟏𝟑</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐛𝐢𝐭𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Physical memory} = 8 \text{ frames} \times 1024\text{ B} = 8192\text{ B} = 2^{13}\text{ bytes} \implies \mathbf{13\text{ bits}}</annotation></semantics></math>.</p>
+<p><strong>(ii) Address translations:</strong> Page offset = 10 bits
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mtext mathvariant="normal">–</mtext><mn>1023</mn></mrow><annotation encoding="application/x-tex">0\text{–}1023</annotation></semantics></math>).
+Page number =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>12</mn><mo>−</mo><mn>10</mn><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">12 - 10 = 2</annotation></semantics></math>
+bits.</p>
+<ul>
+<li><strong>Logical 1052:</strong> Page
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><mn>1052</mn><mi>/</mi><mn>1024</mn><mo stretchy="false" form="postfix">⌋</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">= \lfloor 1052 / 1024 \rfloor = 1</annotation></semantics></math>,
+Offset
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>1052</mn><mrow><mspace width="0.222em"></mspace><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><mn>1024</mn><mo stretchy="false" form="postfix">)</mo></mrow><mo>=</mo><mn>28</mn></mrow><annotation encoding="application/x-tex">= 1052 \pmod{1024} = 28</annotation></semantics></math>.
+Page 1 is valid in Frame 7. Physical address
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>7</mn><mo>×</mo><mn>1024</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>28</mn><mo>=</mo><mn mathvariant="bold">𝟕𝟏𝟗𝟔</mn></mrow><annotation encoding="application/x-tex">= (7 \times 1024) + 28 = \mathbf{7196}</annotation></semantics></math>.</li>
+<li><strong>Logical 2080:</strong> Page
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><mn>2080</mn><mi>/</mi><mn>1024</mn><mo stretchy="false" form="postfix">⌋</mo><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">= \lfloor 2080 / 1024 \rfloor = 2</annotation></semantics></math>,
+Offset
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>32</mn></mrow><annotation encoding="application/x-tex">= 32</annotation></semantics></math>.
+Page 2 has Valid bit
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">= 0</annotation></semantics></math>.
+<strong>Generates a page fault (no physical address
+translation)</strong>.</li>
+</ul>
+<p><strong>(iii) Identify 3 consecutive references causing page faults
+under local LRU:</strong> The sequence <strong>2, 1, 3</strong> causes 3
+consecutive page faults:</p>
+<ol type="1">
+<li><strong>Ref 2:</strong> Page 2 is missing (fault). Resident pages
+have access timestamps: Page 0 (200), Page 3 (180), Page 1 (160). LRU is
+Page 1 (160); Page 2 replaces Page 1 in Frame 7.</li>
+<li><strong>Ref 1:</strong> Page 1 is now missing (fault). Resident
+pages: Page 0 (200), Page 3 (180), Page 2 (new). LRU is Page 3 (180);
+Page 1 replaces Page 3 in Frame 4.</li>
+<li><strong>Ref 3:</strong> Page 3 is missing (fault). Resident pages:
+Page 0 (200), Page 2 (new), Page 1 (new). LRU is Page 0 (200); Page 3
+replaces Page 0 in Frame 2.</li>
+</ol>
+<p><strong>(iv) Evaluation under FIFO:</strong> FIFO inspects
+<strong>Time loaded</strong>: Page 0 (120), Page 3 (140), Page 1
+(150).</p>
+<ul>
+<li><strong>Ref 2:</strong> Faults. Oldest loaded page is Page 0 (120);
+Page 2 replaces Page 0 in Frame 2.</li>
+<li><strong>Ref 1:</strong> <strong>Hit!</strong> Page 1 is resident in
+Frame 7.</li>
+<li><strong>Ref 3:</strong> <strong>Hit!</strong> Page 3 is resident in
+Frame 4. Resulting mapping: Page 1
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Frame 7, Page 2
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Frame 2, Page 3
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Frame 4. (Only 1 fault generated).</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+AY19/20 S1 Q3d: 16-bit hex address sequence with LRU page replacement
+trace <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Given:</strong> 16-bit logical/physical addresses, 4KB page
+size
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>12</mn></msup><mo>⟹</mo><mn>12</mn><mtext mathvariant="normal">-bit offset</mtext></mrow><annotation encoding="application/x-tex">2^{12} \implies 12\text{-bit offset}</annotation></semantics></math>,
+4-bit page number / 1 hex digit), local LRU replacement across 4
+allocated frames {1, 4, 8, 15}.</p>
+<p>Initial page table:</p>
+<ul>
+<li>Page 1
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Frame 1 (last ref: 268)</li>
+<li>Page 7
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Frame 8 (last ref: 230)</li>
+<li>Page 10 (0xA)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Frame 4 (last ref: 245)</li>
+<li>Page 12 (0xC)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Frame 15 (last ref: 275)</li>
+</ul>
+<p><strong>(i) Offset bits:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mtext mathvariant="normal">KB</mtext><mo>=</mo><msup><mn>2</mn><mn>12</mn></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bytes</mtext></mrow><mo>⟹</mo><mrow><mn mathvariant="bold">𝟏𝟐</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐛𝐢𝐭𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">4\text{KB} = 2^{12}\text{ bytes} \implies \mathbf{12\text{ bits}}</annotation></semantics></math>.</p>
+<p><strong>(ii) &amp; (iv) Reference trace and address
+translations:</strong> Assign logical clock timestamps
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>=</mo><mn>276</mn><mo>,</mo><mn>277</mn><mo>,</mo><mi>…</mi></mrow><annotation encoding="application/x-tex">t = 276, 277, \dots</annotation></semantics></math>
+to sequential references:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 15%" />
+<col style="width: 9%" />
+<col style="width: 12%" />
+<col style="width: 41%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Tick</th>
+<th style="text-align: center;">Logical Addr</th>
+<th style="text-align: center;">Page</th>
+<th style="text-align: center;">Resident?</th>
+<th>Action / Frame Replacement</th>
+<th style="text-align: center;">Physical Addr</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">276</td>
+<td style="text-align: center;"><code>0x76F4</code></td>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;"><strong>Hit</strong></td>
+<td>Update Page 7 timestamp to 276 (Frame 8)</td>
+<td style="text-align: center;"><code>0x86F4</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">277</td>
+<td style="text-align: center;"><code>0xB89F</code></td>
+<td style="text-align: center;">11 (B)</td>
+<td style="text-align: center;"><strong>Fault</strong></td>
+<td>Evict LRU Page 10 (245)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Page 11 into Frame 4</td>
+<td style="text-align: center;"><code>0x489F</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">278</td>
+<td style="text-align: center;"><code>0x1A86</code></td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;"><strong>Hit</strong></td>
+<td>Update Page 1 timestamp to 278 (Frame 1)</td>
+<td style="text-align: center;"><code>0x1A86</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">279</td>
+<td style="text-align: center;"><code>0x6987</code></td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;"><strong>Fault</strong></td>
+<td>Evict LRU Page 12 (275)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Page 6 into Frame 15</td>
+<td style="text-align: center;"><code>0xF987</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">280</td>
+<td style="text-align: center;"><code>0x7E56</code></td>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;"><strong>Hit</strong></td>
+<td>Update Page 7 timestamp to 280 (Frame 8)</td>
+<td style="text-align: center;"><code>0x8E56</code></td>
+</tr>
+<tr>
+<td style="text-align: center;">281</td>
+<td style="text-align: center;"><code>0xD908</code></td>
+<td style="text-align: center;">13 (D)</td>
+<td style="text-align: center;"><strong>Fault</strong></td>
+<td>Evict LRU Page 11 (277)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Page 13 into Frame 4</td>
+<td style="text-align: center;"><code>0x4908</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Total Page Faults: 3.</strong></p>
+<p><strong>(iii) Final Frame Allocation Column:</strong></p>
+<ul>
+<li>Frame 1
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Page 1</li>
+<li>Frame 4
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Page 13</li>
+<li>Frame 8
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Page 7</li>
+<li>Frame 15
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+Page 6</li>
+</ul>
+</div>
+</details>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/7-memory-organization/7.html">← 7.
+Memory Organization</a>
+  <a class="next-page" href="../../notes/9-file-systems/9.html">9. File
+Systems →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

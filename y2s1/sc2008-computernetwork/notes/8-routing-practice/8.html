@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>8. Routing in Practice · SC2008 Computer Network</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">8. Routing in
+Practice</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2008</p>
+  <p class="site-title">Computer Network</p>
+  <h1 class="page-title">8. Routing in Practice</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 1</h2>
+          <ul>
+            <li><a href="../../notes/1-networklayers/1.html"
+                   data-nav="notes/1-networklayers/1.html">1. Network
+Layers and Physical Resilience</a></li>
+            <li><a href="../../notes/2-dll-flow-error-control/2.html"
+                   data-nav="notes/2-dll-flow-error-control/2.html">2.
+Data Link Layer (DLL): Flow &amp; Error Control</a></li>
+            <li><a href="../../notes/3-dll-mac-lan/3.html"
+                   data-nav="notes/3-dll-mac-lan/3.html">3. Data Link
+Layer (DLL): Medium Access Control &amp; LANs</a></li>
+            <li><a href="../../notes/4-network-paradigms/4.html"
+                   data-nav="notes/4-network-paradigms/4.html">4.
+Network Paradigms</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 2</h2>
+          <ul>
+            <li><a href="../../notes/5-ip-addressing/5.html"
+                   data-nav="notes/5-ip-addressing/5.html">5. Network
+Layer: IP Addressing</a></li>
+            <li><a href="../../notes/6-ip-forwarding/6.html"
+                   data-nav="notes/6-ip-forwarding/6.html">6. Network
+Layer: Forwarding, ARP, Fragmentation &amp; ICMP</a></li>
+            <li><a href="../../notes/7-routing/7.html"
+                   data-nav="notes/7-routing/7.html">7. Network Layer:
+Routing (RIP, OSPF, BGP)</a></li>
+            <li><a href="../../notes/8-routing-practice/8.html"
+                   data-nav="notes/8-routing-practice/8.html">8. Routing
+in Practice</a></li>
+            <li><a href="../../notes/9-transport/9.html"
+                   data-nav="notes/9-transport/9.html">9. Transport
+Layer: Ports, UDP and TCP</a></li>
+            <li><a href="../../notes/10-application-layer/10.html"
+                   data-nav="notes/10-application-layer/10.html">10.
+Application Layer: HTTP and DNS</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#routing-in-practice" id="toc-routing-in-practice">8.
+Routing in Practice</a>
+<ul>
+<li><a href="#quick-reference" id="toc-quick-reference">Quick
+reference</a></li>
+<li><a href="#recap-what-a-routing-table-entry-says"
+id="toc-recap-what-a-routing-table-entry-says">1. Recap: What a
+Routing-Table Entry Says</a></li>
+<li><a href="#your-computer-routing-tables-and-vpns"
+id="toc-your-computer-routing-tables-and-vpns">2. Your Computer: Routing
+Tables and VPNs</a>
+<ul>
+<li><a href="#every-host-has-a-routing-table"
+id="toc-every-host-has-a-routing-table">2.1 Every host has a routing
+table</a></li>
+<li><a href="#does-the-printer-need-the-gateway"
+id="toc-does-the-printer-need-the-gateway">2.2 Does the printer need the
+gateway?</a></li>
+<li><a href="#what-a-vpn-does" id="toc-what-a-vpn-does">2.3 What a VPN
+does</a></li>
+<li><a href="#how-the-laptop-chooses-the-vpn-adds-a-route"
+id="toc-how-the-laptop-chooses-the-vpn-adds-a-route">2.4 How the laptop
+chooses: the VPN adds a route</a></li>
+<li><a
+href="#a-matching-route-does-not-mean-the-destination-is-reachable"
+id="toc-a-matching-route-does-not-mean-the-destination-is-reachable">2.5
+A matching route does not mean the destination is reachable</a></li>
+</ul></li>
+<li><a href="#inside-an-organisation-the-devices"
+id="toc-inside-an-organisation-the-devices">3. Inside an Organisation:
+The Devices</a>
+<ul>
+<li><a href="#cables-patch-panels-switches-and-routers"
+id="toc-cables-patch-panels-switches-and-routers">3.1 Cables, patch
+panels, switches and routers</a></li>
+<li><a href="#what-hubs-switches-and-routers-do"
+id="toc-what-hubs-switches-and-routers-do">3.2 What hubs, switches and
+routers do</a></li>
+<li><a href="#how-a-switch-learns-which-port-leads-to-a-device"
+id="toc-how-a-switch-learns-which-port-leads-to-a-device">3.3 How a
+switch learns which port leads to a device</a></li>
+<li><a href="#a-switch-can-be-your-default-gateway"
+id="toc-a-switch-can-be-your-default-gateway">3.4 A switch can be your
+default gateway</a></li>
+</ul></li>
+<li><a href="#inside-an-organisation-static-routes-and-the-return-path"
+id="toc-inside-an-organisation-static-routes-and-the-return-path">4.
+Inside an Organisation: Static Routes and the Return Path</a>
+<ul>
+<li><a href="#where-routes-come-from-recap"
+id="toc-where-routes-come-from-recap">4.1 Where routes come from
+(recap)</a></li>
+<li><a href="#why-does-ping-still-fail-after-i-added-a-route"
+id="toc-why-does-ping-still-fail-after-i-added-a-route">4.2 Why does
+ping still fail after I added a route?</a></li>
+<li><a href="#how-r2-knows-that-the-server-network-is-on-gi01"
+id="toc-how-r2-knows-that-the-server-network-is-on-gi01">4.3 How R2
+knows that the server network is on Gi0/1</a></li>
+<li><a href="#the-last-hop-route-then-arp-then-switch-table"
+id="toc-the-last-hop-route-then-arp-then-switch-table">4.4 The last hop:
+route, then ARP, then switch table</a></li>
+</ul></li>
+<li><a href="#inside-an-organisation-ospf-in-practice"
+id="toc-inside-an-organisation-ospf-in-practice">5. Inside an
+Organisation: OSPF in Practice</a>
+<ul>
+<li><a href="#why-use-a-routing-protocol-at-all"
+id="toc-why-use-a-routing-protocol-at-all">5.1 Why use a routing
+protocol at all?</a></li>
+<li><a href="#worked-example-r1s-route-to-the-server-network"
+id="toc-worked-example-r1s-route-to-the-server-network">5.2 Worked
+example: R1’s route to the server network</a></li>
+<li><a href="#what-enabling-ospf-looks-like"
+id="toc-what-enabling-ospf-looks-like">5.3 What enabling OSPF looks
+like</a></li>
+<li><a href="#three-views-that-answer-three-different-questions"
+id="toc-three-views-that-answer-three-different-questions">5.4 Three
+views that answer three different questions</a></li>
+<li><a href="#worked-example-the-r3r4-link-fails"
+id="toc-worked-example-the-r3r4-link-fails">5.5 Worked example: the
+R3–R4 link fails</a></li>
+<li><a href="#why-traffic-can-pause-when-a-backup-path-exists"
+id="toc-why-traffic-can-pause-when-a-backup-path-exists">5.6 Why traffic
+can pause when a backup path exists</a></li>
+<li><a href="#distance-vector-briefly"
+id="toc-distance-vector-briefly">5.7 Distance vector, briefly</a></li>
+</ul></li>
+<li><a href="#between-organisations-bgp-in-practice"
+id="toc-between-organisations-bgp-in-practice">6. Between Organisations:
+BGP in Practice</a>
+<ul>
+<li><a href="#the-set-up" id="toc-the-set-up">6.1 The set-up</a></li>
+<li><a href="#how-the-as-path-grows" id="toc-how-the-as-path-grows">6.2
+How the AS path grows</a></li>
+<li><a href="#must-the-shorter-as-path-win"
+id="toc-must-the-shorter-as-path-win">6.3 Must the shorter AS path
+win?</a></li>
+<li><a href="#the-exit-is-chosen.-how-do-internal-routers-reach-it"
+id="toc-the-exit-is-chosen.-how-do-internal-routers-reach-it">6.4 The
+exit is chosen. How do internal routers reach it?</a></li>
+<li><a href="#the-reply-does-not-have-to-follow-the-same-path"
+id="toc-the-reply-does-not-have-to-follow-the-same-path">6.5 The reply
+does not have to follow the same path</a></li>
+<li><a
+href="#should-the-campus-offer-its-providers-routes-to-another-provider"
+id="toc-should-the-campus-offer-its-providers-routes-to-another-provider">6.6
+Should the campus offer its provider’s routes to another
+provider?</a></li>
+<li><a href="#export-and-import-checks"
+id="toc-export-and-import-checks">6.7 Export and import checks</a></li>
+<li><a href="#four-separate-decisions-about-a-route"
+id="toc-four-separate-decisions-about-a-route">6.8 Four separate
+decisions about a route</a></li>
+</ul></li>
+<li><a href="#review-explain-the-outcome"
+id="toc-review-explain-the-outcome">7. Review: Explain the
+Outcome</a></li>
+<li><a href="#exam-patterns" id="toc-exam-patterns">Exam
+patterns</a></li>
+<li><a href="#common-traps" id="toc-common-traps">Common Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="routing-in-practice">8. Routing in Practice</h1>
+<p>This chapter covers Part II Lecture 3.5, a live lecture. It takes the
+ideas from Chapters 6 and 7 (longest-prefix match, static routes, OSPF,
+distance vector and BGP) and applies them to real equipment and real
+command output. It adds no new algorithms. Instead, it asks one question
+again and again: <strong>what information does this device have, and
+what decision does it make from that information?</strong></p>
+<p>The lecture follows a packet outwards in three steps:</p>
+<ol type="1">
+<li><strong>Your computer:</strong> how a laptop reads its own routing
+table, and how a VPN changes it.</li>
+<li><strong>Inside an organisation:</strong> what routers and switches
+do, how routes get into their tables, and what happens when a link
+fails.</li>
+<li><strong>Between organisations:</strong> how BGP policy picks a
+provider, why a reply can take a different path, and how filters stop
+bad route announcements.</li>
+</ol>
+<p>The exam asks you to decide which routing-table entry a destination
+matches, explain why a ping fails when only one direction has a route,
+follow a packet through a router’s table, its ARP table and a switch’s
+MAC table, find R1’s OSPF route before and after a remote link fails,
+and explain why a longer AS path can win.</p>
+<p>This lecture has no tutorial. The questions below are the lecture’s
+own examples and review observations, each placed after the concept it
+tests. The answers are worked from the lecture and are unofficial.
+Concept checks are unofficial too. Past-year papers are not in these
+notes.</p>
+<hr />
+<h2 id="quick-reference">Quick reference</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 72%" />
+</colgroup>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Table entry</td>
+<td>Prefix + next hop + outgoing interface. Longest prefix wins. A match
+on <code>0.0.0.0/0</code> does not prove the destination is
+reachable.</td>
+</tr>
+<tr>
+<td>Host decision</td>
+<td>On-link: ARP for the destination. Otherwise: ARP for the gateway.
+The IP destination never changes.</td>
+</tr>
+<tr>
+<td>Split-tunnel VPN</td>
+<td>Adds one more specific route (for example /16). It wins over
+<code>/0</code> for those addresses only.</td>
+</tr>
+<tr>
+<td>Switch / router / hub</td>
+<td>Hub repeats bits. Switch forwards by MAC. Router forwards by IP. A
+Layer 3 switch does both.</td>
+</tr>
+<tr>
+<td>Last hop</td>
+<td>Route chooses the LAN. ARP gives the MAC. The switch table gives the
+port.</td>
+</tr>
+<tr>
+<td>Route codes</td>
+<td><code>C</code> connected, <code>S</code> static, <code>O</code>
+OSPF. A static route works on <strong>that</strong> router only.</td>
+</tr>
+<tr>
+<td>Ping</td>
+<td>Needs a route <strong>both ways</strong>. Request and reply are
+separate packets.</td>
+</tr>
+<tr>
+<td>OSPF route</td>
+<td>Path cost to the attached router + the LAN cost. Next hop = first
+router on the path. <code>[110/27]</code>: 110 = administrative
+distance, 27 = cost.</td>
+</tr>
+<tr>
+<td>OSPF views</td>
+<td>Neighbour list = direct peers. Database = the map. Routing table =
+the result.</td>
+</tr>
+<tr>
+<td>BGP choice</td>
+<td>Reject loops, then highest local preference, then shortest AS
+path.</td>
+</tr>
+<tr>
+<td>BGP checks</td>
+<td>Export check (sender) and import check (receiver) filter
+advertisements, not packets.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="recap-what-a-routing-table-entry-says">1. Recap: What a
+Routing-Table Entry Says</h2>
+<p>Chapter 6 introduced the routing table. Each entry has three
+parts:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 62%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Part</th>
+<th style="text-align: left;">What it means</th>
+<th style="text-align: left;">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Destination prefix</strong></td>
+<td style="text-align: left;">A group of destination addresses.</td>
+<td style="text-align: left;">10.20.18.0/24</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Next hop</strong></td>
+<td style="text-align: left;">The neighbouring router that gets the
+packet next.</td>
+<td style="text-align: left;">10.0.0.2</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Outgoing interface</strong></td>
+<td style="text-align: left;">This device’s own connection that leads to
+the next hop.</td>
+<td style="text-align: left;">Ethernet 1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The <strong>default route</strong>, 0.0.0.0/0, matches every IPv4
+destination. A device uses it only when no more specific entry
+matches.</p>
+<p><strong>Routing</strong> builds and updates the table.
+<strong>Forwarding</strong> looks up the table for each packet. When
+several entries match, the <strong>longest prefix wins</strong> (Chapter
+6, Section 1.4). For 10.20.18.7, both 10.20.18.0/24 and 0.0.0.0/0 match,
+so the /24 wins.</p>
+<hr />
+<h2 id="your-computer-routing-tables-and-vpns">2. Your Computer: Routing
+Tables and VPNs</h2>
+<h3 id="every-host-has-a-routing-table">2.1 Every host has a routing
+table</h3>
+<p>Routers are not the only devices with routing tables. Your laptop has
+one too, and it uses the same longest-prefix rule. On Windows, the
+command <code>route print</code> shows it. Before a VPN connects, a
+typical laptop on home Wi-Fi has these two important rows:</p>
+<div class="table-wrap">
+<table style="width: 69%;">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 23%" />
+<col style="width: 21%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Network destination</th>
+<th style="text-align: left;">Netmask</th>
+<th style="text-align: left;">Gateway</th>
+<th style="text-align: left;">Interface</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">0.0.0.0</td>
+<td style="text-align: left;">0.0.0.0</td>
+<td style="text-align: left;">192.168.50.1</td>
+<td style="text-align: left;">192.168.50.10</td>
+</tr>
+<tr>
+<td style="text-align: left;">192.168.50.0</td>
+<td style="text-align: left;">255.255.255.0</td>
+<td style="text-align: left;">On-link</td>
+<td style="text-align: left;">192.168.50.10</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>Network destination + netmask</strong> together give the
+prefix. 0.0.0.0 with mask 0.0.0.0 is the default route, /0.</li>
+<li><strong>Gateway</strong> is the next hop. <strong>On-link</strong>
+means “no gateway is needed: deliver directly on the attached
+network”.</li>
+<li><strong>Interface</strong> is the laptop’s own address on the
+network it sends from (here, its Wi-Fi address).</li>
+</ul>
+<p>(On macOS, <code>netstat -rn -f inet</code> shows the same table, and
+<code>route -n get 10.20.18.7</code> shows which entry a destination
+uses.)</p>
+<h3 id="does-the-printer-need-the-gateway">2.2 Does the printer need the
+gateway?</h3>
+<p><strong>Lecture question.</strong> The laptop is 192.168.50.10/24
+with gateway 192.168.50.1. The VPN is off. The laptop sends one packet
+to the printer 192.168.50.20 and another to the public server
+203.0.113.80. Which routing-table entry does each packet use, and which
+MAC address does the laptop ARP for?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 28%" />
+<col style="width: 18%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Destination</th>
+<th style="text-align: left;">Entries that match</th>
+<th style="text-align: left;">Entry that wins</th>
+<th style="text-align: left;">How the laptop sends</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Printer 192.168.50.20</td>
+<td style="text-align: left;">192.168.50.0/24 and 0.0.0.0/0</td>
+<td style="text-align: left;"><strong>/24</strong></td>
+<td style="text-align: left;">Directly on the Wi-Fi. ARP asks for the
+<strong>printer’s</strong> MAC.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Public server 203.0.113.80</td>
+<td style="text-align: left;">0.0.0.0/0 only</td>
+<td style="text-align: left;"><strong>/0</strong></td>
+<td style="text-align: left;">Through gateway 192.168.50.1. ARP asks for
+the <strong>gateway’s</strong> MAC.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>In both cases the <strong>IP destination</strong> in the packet is
+the real destination. Only the frame’s MAC destination changes. This is
+the same local-or-remote decision as in Chapter 6, Section 1, seen from
+the routing table.</p>
+</div>
+</details>
+<h3 id="what-a-vpn-does">2.3 What a VPN does</h3>
+<p>Suppose a university lab server sits on a <strong>private
+network</strong>. Your home Internet connection has no route into that
+network, so you cannot reach the server directly.</p>
+<p>A <strong>remote-access VPN (Virtual Private Network)</strong> solves
+this:</p>
+<ol type="1">
+<li><strong>Connect and sign in.</strong> A VPN app on your laptop
+proves to the university’s <strong>VPN gateway</strong> that you are
+allowed in.</li>
+<li><strong>Carry traffic through a tunnel.</strong> The app encrypts
+each university-bound packet. It then puts the whole original IP packet
+<strong>inside another packet</strong> addressed to the VPN
+gateway.</li>
+<li><strong>Forward inside the university.</strong> The gateway decrypts
+and unwraps the packet. It then forwards the original packet to the lab
+server. Replies come back through the same tunnel.</li>
+</ol>
+<figure>
+<img width="1400" height="422" src="media/8-artifacts/vpn-split-tunnel.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="The VPN tunnel runs from the laptop to the university’s VPN gateway, over the ordinary Internet connection" />
+<figcaption aria-hidden="true">The VPN tunnel runs from the laptop to
+the university’s VPN gateway, over the ordinary Internet
+connection</figcaption>
+</figure>
+<p>Your home Wi-Fi and Internet connection still carry every packet. The
+VPN adds a <strong>logical</strong> connection to the university
+network. It does not add a new cable.</p>
+<h3 id="how-the-laptop-chooses-the-vpn-adds-a-route">2.4 How the laptop
+chooses: the VPN adds a route</h3>
+<p>The laptop must decide which packets go into the tunnel. It does this
+with its routing table. In a <strong>split tunnel</strong>, the VPN
+software adds one route for the university’s addresses and leaves the
+default route alone:</p>
+<div class="table-wrap">
+<table style="width: 79%;">
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 32%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Destination prefix</th>
+<th style="text-align: left;">How to send</th>
+<th style="text-align: left;">Where the entry came from</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">192.168.50.0/24</td>
+<td style="text-align: left;">Local Wi-Fi network</td>
+<td style="text-align: left;">Wi-Fi interface configuration</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>10.20.0.0/16</strong></td>
+<td style="text-align: left;"><strong>VPN tunnel</strong></td>
+<td style="text-align: left;"><strong>The VPN software adds
+it</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">0.0.0.0/0</td>
+<td style="text-align: left;">Wi-Fi, via 192.168.50.1</td>
+<td style="text-align: left;">Default-gateway configuration</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>University server 10.20.18.7 matches both /16 and /0. The /16 is
+longer, so the packet goes <strong>through the tunnel</strong>.</li>
+<li>Public server 203.0.113.80 matches only /0, so it uses the
+<strong>ordinary Internet route</strong>.</li>
+</ul>
+<p><strong>Split tunnel</strong> means that only selected destinations
+use the VPN. Other VPN set-ups send most or all traffic through the
+tunnel.</p>
+<h3 id="a-matching-route-does-not-mean-the-destination-is-reachable">2.5
+A matching route does not mean the destination is reachable</h3>
+<p><strong>Lecture question.</strong> The student disconnects the VPN.
+Public websites still work, but 10.20.18.7 stops answering. Explain why,
+using the routing table.</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>The VPN software <strong>removes</strong> its 10.20.0.0/16
+route.</li>
+<li>10.20.18.7 still matches <strong>0.0.0.0/0</strong>, so the laptop
+sends the packet to its home gateway.</li>
+<li>But the home Internet connection has <strong>no path into the
+university’s private network</strong>. Only the VPN gave that access. So
+the packet never arrives.</li>
+<li>Public websites still work, because the default route is still
+correct for them.</li>
+</ul>
+<blockquote>
+<p><strong>A routing-table match only chooses the next hop. It does not
+prove that the destination is reachable.</strong></p>
+</blockquote>
+<p>Note also that the laptop did not run any routing protocol. Its
+entries came from its interface settings, its gateway setting and the
+VPN software.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A routing-table match shows that the destination is reachable. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A match only chooses the next hop. A packet
+for 10.20.18.7 matches <code>0.0.0.0/0</code> when the VPN is off, but
+the home network has no path to it.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A split-tunnel VPN replaces the laptop’s default route. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> It adds one <strong>more specific</strong>
+route (for example 10.20.0.0/16). The default route stays, and the /16
+wins only for the university addresses.</p>
+</div>
+</details>
+<hr />
+<h2 id="inside-an-organisation-the-devices">3. Inside an Organisation:
+The Devices</h2>
+<h3 id="cables-patch-panels-switches-and-routers">3.1 Cables, patch
+panels, switches and routers</h3>
+<p>In a building, network cables from the wall outlets end at
+<strong>patch panels</strong> in a rack. Patch panels only organise the
+cables. They do not choose routes. Short patch cables join the panels to
+<strong>switches</strong>, and other links join those switches to the
+rest of the network.</p>
+<blockquote>
+<p>A cable tells us what is <strong>attached</strong>. The forwarding
+tables tell us where traffic <strong>goes</strong>.</p>
+</blockquote>
+<ul>
+<li>A <strong>router</strong> (for example, a Cisco Catalyst 8300) has
+Ethernet interfaces that connect it to other networks. Your
+<strong>default gateway</strong> is the IP address of a router interface
+<strong>in your own subnet</strong>.</li>
+<li>A <strong>switch</strong> has many numbered Ethernet ports for
+computers, access points and printers, plus <strong>uplink</strong>
+ports that join it to the rest of the network. A label such as
+<code>Gi1/0/7</code> names one interface (GigabitEthernet, stack member
+1, module 0, port 7).</li>
+</ul>
+<p>A router and a switch can look alike. What they <strong>do</strong>
+tells them apart.</p>
+<h3 id="what-hubs-switches-and-routers-do">3.2 What hubs, switches and
+routers do</h3>
+<figure>
+<img width="1400" height="345" src="media/8-artifacts/hub-switch-router.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="A hub repeats bits to every port. A switch forwards a frame to the known port. A router forwards a packet between networks by IP address." />
+<figcaption aria-hidden="true">A hub repeats bits to every port. A
+switch forwards a frame to the known port. A router forwards a packet
+between networks by IP address.</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 8%" />
+<col style="width: 26%" />
+<col style="width: 47%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Device</th>
+<th style="text-align: left;">Layer</th>
+<th style="text-align: left;">What it looks at</th>
+<th style="text-align: left;">What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Hub</strong> (historical)</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Nothing</td>
+<td style="text-align: left;">Repeats incoming bits out of every other
+port. All devices share one medium.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Switch</strong></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Destination <strong>MAC</strong>
+address</td>
+<td style="text-align: left;">Looks up its MAC table and forwards the
+frame towards the known port. Separate links can carry traffic at the
+same time.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Router</strong></td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Destination <strong>IP</strong>
+address</td>
+<td style="text-align: left;">Looks up its routing table and forwards
+the packet <strong>between networks</strong>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="how-a-switch-learns-which-port-leads-to-a-device">3.3 How a
+switch learns which port leads to a device</h3>
+<p>A server sends a frame into switch S1 on port Gi1/0/7. The frame’s
+<strong>source</strong> MAC is 0200.0000.0020.</p>
+<ul>
+<li>S1 records: “MAC 0200.0000.0020 is reachable through Gi1/0/7.”</li>
+<li>Later, a frame <strong>to</strong> 0200.0000.0020 arrives. S1 sends
+it out of Gi1/0/7 only.</li>
+<li>A frame to an <strong>unknown</strong> MAC is
+<strong>flooded</strong> to every port in the same broadcast
+domain.</li>
+</ul>
+<p>The switch learns from <strong>any</strong> frame, whether it carries
+an ARP message or ordinary data.</p>
+<blockquote>
+<p><strong>ARP</strong> learns an <strong>IP-to-MAC</strong> mapping. A
+switch’s <strong>MAC table</strong> learns a
+<strong>MAC-to-port</strong> mapping. These are two different tables in
+two different devices.</p>
+</blockquote>
+<h3 id="a-switch-can-be-your-default-gateway">3.4 A switch can be your
+default gateway</h3>
+<p>The name “switch” does not always mean “Layer 2 only”. A
+<strong>Layer 3 switch</strong> does both Ethernet switching and IP
+routing, so it can be the gateway between subnets.</p>
+<figure>
+<img width="1400" height="342" src="media/8-artifacts/l3-switch-gateway.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="A Layer 3 switch routes between the lab subnet and the server subnet. Each gateway address belongs to one of its interfaces." />
+<figcaption aria-hidden="true">A Layer 3 switch routes between the lab
+subnet and the server subnet. Each gateway address belongs to one of its
+interfaces.</figcaption>
+</figure>
+<ul>
+<li>The lab PC (10.10.10.10/24) sees that 10.10.20.20 is outside its
+/24. So it sends the packet to its gateway, 10.10.10.1.</li>
+<li>The Layer 3 switch looks up its routing table and forwards the
+packet out of its server-subnet interface (10.10.20.1).</li>
+<li>Routing makes a path between the subnets. <strong>Access-control
+rules</strong> can then restrict which traffic may use it. (Chapter 5,
+Section 9: separate subnets do not block traffic by themselves.)</li>
+</ul>
+<details class="qa box">
+<summary>
+A patch panel decides which switch port a frame leaves from. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A patch panel only organises cables. The
+switch’s MAC table chooses the port, and the router’s routing table
+chooses the next network.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A switch learns which port leads to a device only from ARP messages.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> It learns the <strong>source</strong> MAC of
+<strong>any</strong> frame. ARP is an IP-to-MAC mapping in a host or
+router. The switch’s MAC table is a MAC-to-port mapping.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+Because R1 has a static route to the server network, the server can
+reply to the PC. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> The reply goes to the PC’s network, and R2
+needs its own route for that. A route on one router never creates a
+route on another.</p>
+</div>
+</details>
+<hr />
+<h2 id="inside-an-organisation-static-routes-and-the-return-path">4.
+Inside an Organisation: Static Routes and the Return Path</h2>
+<h3 id="where-routes-come-from-recap">4.1 Where routes come from
+(recap)</h3>
+<p>Chapter 7, Section 1 listed three sources of routes. On a Cisco
+router, <code>show ip route</code> marks each entry with a code for its
+source:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 14%" />
+<col style="width: 76%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Code</th>
+<th style="text-align: left;">Source</th>
+<th style="text-align: left;">What made it appear</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>C</strong></td>
+<td style="text-align: left;">Connected</td>
+<td style="text-align: left;">An interface has an address and is up, so
+the router knows the network it is attached to.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>S</strong></td>
+<td style="text-align: left;">Static</td>
+<td style="text-align: left;">An administrator typed the destination
+prefix and the next hop.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>O</strong></td>
+<td style="text-align: left;">OSPF</td>
+<td style="text-align: left;">The routing protocol calculated it from
+link-state information.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Each router uses only its own table.</strong> A route you
+configure on one router does not appear on any other router.</p>
+<h3 id="why-does-ping-still-fail-after-i-added-a-route">4.2 Why does
+ping still fail after I added a route?</h3>
+<figure>
+<img width="1400" height="308" src="media/8-artifacts/static-route-topology.webp"
+style="width:90.0%" loading="lazy" decoding="async"
+alt="PC – R1 – R2 – server. The routers start with connected routes only." />
+<figcaption aria-hidden="true">PC – R1 – R2 – server. The routers start
+with connected routes only.</figcaption>
+</figure>
+<p>The PC (10.1.0.10/24) pings the server (10.2.0.20/24). All links and
+host gateways are correct. At the start, each router has <strong>only
+its connected routes</strong>: no static routes, no default route, no
+NAT and no filtering.</p>
+<ul>
+<li>R1 knows 10.1.0.0/24 and 10.255.12.0/30 (connected).</li>
+<li>R2 knows 10.255.12.0/30 and 10.2.0.0/24 (connected).</li>
+</ul>
+<p>The administrator adds one static route on R1:</p>
+<pre><code>R1(config)# ip route 10.2.0.0 255.255.255.0 10.255.12.2</code></pre>
+<p>This says: “to reach 10.2.0.0/24, send to 10.255.12.2 (R2)”.</p>
+<p><strong>Lecture question.</strong> Does the ping from the PC to the
+server work now? Follow the Echo Request and the Echo Reply router by
+router.</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>No. The request arrives, but the reply is dropped. Follow the
+ping:</p>
+<ol type="1">
+<li>The PC sends the <strong>Echo Request</strong> to its gateway
+R1.</li>
+<li>R1 matches 10.2.0.0/24 (the new static route) and sends the packet
+to R2.</li>
+<li>R2 matches 10.2.0.0/24 (connected) and delivers the packet to the
+server. <strong>The request arrives.</strong></li>
+<li>The server sends the <strong>Echo Reply</strong> to 10.1.0.10,
+through its gateway R2.</li>
+<li>R2 looks up 10.1.0.10. It has <strong>no route to 10.1.0.0/24 and no
+default route</strong>. So R2 drops the reply.</li>
+</ol>
+<p>The request and the reply are <strong>separate packets</strong> with
+<strong>different destinations</strong>:</p>
+<div class="table-wrap">
+<table style="width: 64%;">
+<colgroup>
+<col style="width: 37%" />
+<col style="width: 62%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Packet</th>
+<th style="text-align: left;">Destination that each router looks up</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Request from the PC</td>
+<td style="text-align: left;">Server 10.2.0.20, in 10.2.0.0/24</td>
+</tr>
+<tr>
+<td style="text-align: left;">Reply from the server</td>
+<td style="text-align: left;">PC 10.1.0.10, in 10.1.0.0/24</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The fix is a <strong>return route</strong> on R2:</p>
+<pre><code>R2(config)# ip route 10.1.0.0 255.255.255.0 10.255.12.1</code></pre>
+<blockquote>
+<p><strong>A route in one direction does not create a route in the other
+direction.</strong> Both directions need a usable route.</p>
+</blockquote>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> a ping that fails after a route was
+added <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>A ping is <strong>two</strong> packets with
+<strong>different</strong> destinations: the request goes to the server,
+the reply goes to the PC.</li>
+<li>For each packet, go router by router. At each router, find a route
+to that packet’s destination (connected, static, OSPF or default).</li>
+<li>The first router with no route (and no default) drops the
+packet.</li>
+<li>Fix: add a route for the missing direction on that router. A route
+in one direction never creates the other.</li>
+</ol>
+</div>
+</details>
+<h3 id="how-r2-knows-that-the-server-network-is-on-gi01">4.3 How R2
+knows that the server network is on Gi0/1</h3>
+<p>The administrator gives R2’s server-facing interface an address and
+turns it on:</p>
+<pre><code>R2(config)# interface GigabitEthernet0/1
+R2(config-if)# ip address 10.2.0.1 255.255.255.0
+R2(config-if)# no shutdown</code></pre>
+<p>The address and mask together name the attached subnet, 10.2.0.0/24.
+When Gi0/1 is up, R2 <strong>automatically</strong> adds that subnet as
+a connected route:</p>
+<pre><code>R2# show ip route
+C    10.2.0.0/24 is directly connected, GigabitEthernet0/1</code></pre>
+<p>No static route and no OSPF exchange is needed for a network the
+router is directly attached to.</p>
+<h3 id="the-last-hop-route-then-arp-then-switch-table">4.4 The last hop:
+route, then ARP, then switch table</h3>
+<figure>
+<img width="1360" height="315" src="media/8-artifacts/r2-s1-server.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="On the last LAN, R2 sends the frame through switch S1 to the server" />
+<figcaption aria-hidden="true">On the last LAN, R2 sends the frame
+through switch S1 to the server</figcaption>
+</figure>
+<p>The packet for 10.2.0.20 has reached R2. Three tables, in three
+steps, get it to the server:</p>
+<ol type="1">
+<li><p><strong>Route → interface.</strong> 10.2.0.20 matches the
+connected route 10.2.0.0/24, so R2 chooses
+<strong>Gi0/1</strong>.</p></li>
+<li><p><strong>ARP → MAC address.</strong> R2 needs the server’s MAC to
+build the frame. Its ARP table holds the mapping (R2 runs ARP first if
+the entry is missing):</p>
+<pre><code>R2# show ip arp
+Address      Hardware Addr    Interface
+10.2.0.20    0200.0000.0020   GigabitEthernet0/1</code></pre>
+<p>R2 sends a frame to MAC 0200.0000.0020. The <strong>IP destination
+stays 10.2.0.20</strong>.</p></li>
+<li><p><strong>Switch table → port.</strong> The frame reaches S1. S1
+already learnt where that MAC is, from the source MAC of an earlier
+frame on Gi1/0/7:</p>
+<pre><code>S1# show mac address-table
+Mac Address       Type      Ports
+0200.0000.0020    DYNAMIC   Gi1/0/7</code></pre>
+<p>S1 forwards the frame out of Gi1/0/7 only.</p></li>
+</ol>
+<blockquote>
+<p><strong>The route selects the LAN. ARP supplies the MAC. The switch
+table selects the port.</strong></p>
+</blockquote>
+<hr />
+<h2 id="inside-an-organisation-ospf-in-practice">5. Inside an
+Organisation: OSPF in Practice</h2>
+<h3 id="why-use-a-routing-protocol-at-all">5.1 Why use a routing
+protocol at all?</h3>
+<p>Static routes work for a small network that rarely changes. With many
+routers and networks, a new subnet or a failed link means changing many
+tables by hand, on every router. A <strong>dynamic routing
+protocol</strong> such as OSPF exchanges information and
+<strong>recalculates</strong> the routes automatically. Administrators
+still configure which interfaces take part, the area and the costs.</p>
+<p>A routing protocol can only choose among links that exist. It
+<strong>cannot create</strong> a missing link.</p>
+<p>OSPF in five steps (full detail in Chapter 7, Section 4): discover
+neighbours with <strong>Hello</strong>, describe your own links in an
+<strong>LSA</strong>, <strong>flood</strong> the LSAs through the area,
+store them in the <strong>LSDB</strong> (the map), and run
+<strong>Dijkstra</strong> from your own position.</p>
+<p>Remember that “shortest” means shortest <strong>by the
+metric</strong>. In Chapter 7’s example, S–A–D has 2 hops but cost 20,
+and S–B–C–D has 3 hops but cost 3. OSPF picks the cost-3 path. An OSPF
+<strong>cost</strong> is a number an administrator configures. It is
+<strong>not</strong> a live measurement of delay.</p>
+<h3 id="worked-example-r1s-route-to-the-server-network">5.2 Worked
+example: R1’s route to the server network</h3>
+<figure>
+<img width="900" height="619" src="media/8-artifacts/ospf-r1-r5.webp" style="width:55.0%"
+loading="lazy" decoding="async"
+alt="One OSPF area. The numbers are link costs. R5’s server LAN, 10.11.0.0/16, adds cost 2." />
+<figcaption aria-hidden="true">One OSPF area. The numbers are link
+costs. R5’s server LAN, 10.11.0.0/16, adds cost 2.</figcaption>
+</figure>
+<p>All routers are in one OSPF area, and the costs are the same in both
+directions. R5 connects to server network <strong>10.11.0.0/16</strong>,
+and that LAN attachment costs <strong>2</strong>. R1 sends to server
+10.11.0.42. This is the same graph as Chapter 7, Section 4.5.</p>
+<p><strong>Lecture question.</strong> What OSPF route does R1 install
+for the server 10.11.0.42? What does each part of the route line
+mean?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Dijkstra from R1 gives (Chapter 7): R2 = 20, R3 = 5, R4 = 15 (via
+R3), R5 = 25 (via R3, R4). Add the LAN cost:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">cost to </mtext><mspace width="0.333em"></mspace></mrow><mn>10.11</mn><mn>.0</mn><mn>.0</mn><mi>/</mi><mn>16</mn><mo>=</mo><mn>5</mn><mo>+</mo><mn>10</mn><mo>+</mo><mn>10</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>27</mn></mrow><annotation encoding="application/x-tex">\text{cost to } 10.11.0.0/16 = 5 + 10 + 10 + 2 = 27</annotation></semantics></math></p>
+<p>The path is R1 → R3 → R4 → R5 → server LAN. The <strong>next
+hop</strong> is the <strong>first</strong> router on the path, R3, even
+though R4 is the last router before R5. R1 installs:</p>
+<pre><code>O    10.11.0.0/16 [110/27] via 10.255.13.2, GigabitEthernet0/1</code></pre>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 75%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Part</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>O</code></td>
+<td style="text-align: left;">The route came from OSPF.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>10.11.0.0/16</code></td>
+<td style="text-align: left;">The destination prefix.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>110</code></td>
+<td style="text-align: left;">Cisco’s <strong>administrative
+distance</strong> for OSPF. It ranks route <strong>sources</strong>
+(OSPF against static, for example) when two sources give the same
+prefix. It is <strong>not</strong> part of the path cost.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>27</code></td>
+<td style="text-align: left;">The OSPF <strong>path cost</strong>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>via 10.255.13.2</code></td>
+<td style="text-align: left;">The next hop: R3’s address on the R1–R3
+link.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>GigabitEthernet0/1</code></td>
+<td style="text-align: left;">R1’s own interface towards R3.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<h3 id="what-enabling-ospf-looks-like">5.3 What enabling OSPF looks
+like</h3>
+<p>On R1, Gi0/1 already has its address on the link to R3. The
+administrator adds:</p>
+<pre><code>R1(config)# interface GigabitEthernet0/1
+R1(config-if)# ip ospf 1 area 0
+R1(config-if)# ip ospf cost 5</code></pre>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Line</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td
+style="text-align: left;"><code>interface GigabitEthernet0/1</code></td>
+<td style="text-align: left;">Select R1’s interface towards R3.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ip ospf 1 area 0</code></td>
+<td style="text-align: left;">Run OSPF on this interface, in area 0. “1”
+is a local process number.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ip ospf cost 5</code></td>
+<td style="text-align: left;">Sending out of this interface costs
+5.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>This configures <strong>one</strong> interface. Every other interface
+and router that takes part needs matching configuration too.</p>
+<h3 id="three-views-that-answer-three-different-questions">5.4 Three
+views that answer three different questions</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 37%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Command</th>
+<th style="text-align: left;">Question it answers</th>
+<th style="text-align: left;">For R1 in this example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>show ip ospf neighbor</code></td>
+<td style="text-align: left;">Which <strong>directly connected</strong>
+OSPF routers are there, and what state are they in?</td>
+<td style="text-align: left;">R2, R3 and R4, all
+<strong>FULL</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>show ip ospf database</code></td>
+<td style="text-align: left;">What link-state information has R1 learnt?
+(the map)</td>
+<td style="text-align: left;">Every router’s links, including links far
+from R1</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>show ip route ospf</code></td>
+<td style="text-align: left;">Which OSPF routes did R1
+<strong>install</strong>?</td>
+<td style="text-align: left;">10.11.0.0/16 via R3, cost 27</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>The neighbour list.</strong> OSPF names each router by a
+<strong>router ID</strong> that looks like an IP address. Here R1 =
+1.1.1.1, R2 = 2.2.2.2, and so on. A router ID need not be any of the
+router’s link addresses.</p>
+<pre><code>R1# show ip ospf neighbor
+Neighbor ID   State   Address        Interface
+2.2.2.2       FULL    10.255.12.2    Gi0/0
+3.3.3.3       FULL    10.255.13.2    Gi0/1
+4.4.4.4       FULL    10.255.14.2    Gi0/2</code></pre>
+<p><strong>FULL</strong> means the two routers have finished
+synchronising their databases. <strong>R5 is not in the list</strong>,
+because it has no direct link to R1. R1 still learns about R5 through
+flooded LSAs.</p>
+<p><strong>The database.</strong> Each router’s own LSA (a
+<strong>Router-LSA</strong>) lists its links. Under each link, “TOS 0
+Metrics” is that link’s cost. R1’s own LSA lists links to 2.2.2.2 (cost
+20), 3.3.3.3 (cost 5) and 4.4.4.4 (cost 20). R1 also stores
+<strong>R5’s</strong> LSA, even though R5 is not its neighbour:</p>
+<pre><code>R1# show ip ospf database router 5.5.5.5
+  Advertising Router: 5.5.5.5
+   Link connected to: another Router (point-to-point)
+    (Link ID) Neighboring Router ID: 2.2.2.2
+     TOS 0 Metrics: 10
+   Link connected to: another Router (point-to-point)
+    (Link ID) Neighboring Router ID: 4.4.4.4
+     TOS 0 Metrics: 10
+   Link connected to: a Stub Network
+    (Link ID) Network/subnet number: 10.11.0.0
+    (Link Data) Network Mask: 255.255.0.0
+     TOS 0 Metrics: 2</code></pre>
+<p>The last entry is R5’s server LAN. “Stub Network” here means an
+attached network with no other OSPF router behind it. Its cost, 2, is
+the number R1 adds at the end of the path.</p>
+<blockquote>
+<p><strong>Neighbour list: local peers. Database: the learnt map.
+Routing table: the next hop to use.</strong></p>
+</blockquote>
+<h3 id="worked-example-the-r3r4-link-fails">5.5 Worked example: the
+R3–R4 link fails</h3>
+<figure>
+<img width="800" height="563" src="media/8-artifacts/ospf-r3r4-failed.webp" style="width:55.0%"
+loading="lazy" decoding="async"
+alt="Only the R3–R4 link fails. R1’s own three links still work." />
+<figcaption aria-hidden="true">Only the R3–R4 link fails. R1’s own three
+links still work.</figcaption>
+</figure>
+<p>Only the <strong>R3–R4</strong> link fails. R1’s own links to R2, R3
+and R4 still work.</p>
+<p><strong>Lecture question.</strong> After the failure and after
+convergence, what is R1’s route to 10.11.0.0/16? Does R1 lose a
+neighbour?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>New paths.</strong> The old path R1–R3–R4–R5 is gone. R3 now
+reaches R5 only back through R1, so R3 is no help. Two paths
+survive:</p>
+<div class="table-wrap">
+<table style="width: 48%;">
+<colgroup>
+<col style="width: 39%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Surviving path</th>
+<th style="text-align: left;">Cost to the server network</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">R1 → R2 → R5</td>
+<td style="text-align: left;">20 + 10 + 2 = <strong>32</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">R1 → R4 → R5</td>
+<td style="text-align: left;">20 + 10 + 2 = <strong>32</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The costs are equal, so R1 can install <strong>both</strong> next
+hops (equal-cost paths):</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 75%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">R1’s route to 10.11.0.0/16</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Before the failure</td>
+<td style="text-align: left;">via 10.255.13.2 (R3), cost 27</td>
+</tr>
+<tr>
+<td style="text-align: left;">After convergence</td>
+<td style="text-align: left;">via 10.255.12.2 (R2), cost 32
+<strong>and</strong> via 10.255.14.2 (R4), cost 32</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Does R1 lose a neighbour?</strong> No. The failed link is
+between two <strong>other</strong> routers. R1 still has direct links to
+R2, R3 and R4, so its neighbour list stays R2, R3, R4, all FULL. R1
+learns about the failure from <strong>updated LSAs</strong> that R3 and
+R4 flood. Those LSAs change R1’s database, so R1 runs Dijkstra again and
+changes its route.</p>
+<blockquote>
+<p><strong>A failure elsewhere can change your route even while all your
+own neighbours stay up.</strong> An unchanged neighbour list does not
+prove that the rest of the network is unchanged.</p>
+</blockquote>
+</div>
+</details>
+<h3 id="why-traffic-can-pause-when-a-backup-path-exists">5.6 Why traffic
+can pause when a backup path exists</h3>
+<p><strong>Convergence</strong> is the process of settling on new routes
+after a change. A spare cable gives an alternative, but the routing
+information must catch up first:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 66%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Stage</th>
+<th style="text-align: left;">What happens in this example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1. Detect the failure</td>
+<td style="text-align: left;">R3 and R4 notice that their shared link
+(or their adjacency) has failed.</td>
+</tr>
+<tr>
+<td style="text-align: left;">2. Distribute new information</td>
+<td style="text-align: left;">They flood updated LSAs over the links
+that still work.</td>
+</tr>
+<tr>
+<td style="text-align: left;">3. Recalculate</td>
+<td style="text-align: left;">R1 updates its map and runs Dijkstra
+again.</td>
+</tr>
+<tr>
+<td style="text-align: left;">4. Install forwarding changes</td>
+<td style="text-align: left;">R1 replaces the old next hop with the new
+ones.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>While routers still use old information, packets can be
+<strong>lost</strong>. Different routers can update at different times.
+How long convergence takes depends on how fast the failure is detected,
+the protocol settings and the implementation.</p>
+<h3 id="distance-vector-briefly">5.7 Distance vector, briefly</h3>
+<p>OSPF builds a map from link reports. <strong>Distance-vector</strong>
+routing (RIP) does not build a map. Each router only hears its
+neighbours’ <strong>distances to destinations</strong>, adds the cost of
+the link to that neighbour, and keeps the lowest total (Chapter 7,
+Section 3).</p>
+<p>Because a distance report hides the <strong>path</strong> behind it,
+an old report can mislead a router. When A’s link to Net1 fails, B still
+reports “Net1 = 2”, but B’s route goes through A. A believes it, the two
+routers count upwards, and packets loop between them
+(<strong>count-to-infinity</strong>). <strong>Poisoned reverse</strong>
+stops this two-router loop: B reports Net1 as unreachable (16) to A all
+the time, because B reaches Net1 through A. Chapter 7, Sections 3.5 and
+3.6, has the full trace.</p>
+<details class="qa box">
+<summary>
+The <code>110</code> in <code>[110/27]</code> is part of the path cost.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> 110 is the administrative distance. It ranks
+route <strong>sources</strong> (OSPF against static, for example). The
+path cost is 27.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+R1’s neighbour list changes when the R3–R4 link fails. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> R1 still has direct links to R2, R3 and R4.
+It learns about the failure from flooded LSAs, so its
+<strong>database</strong> and <strong>route</strong> change but its
+neighbour list does not.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+Every router in the OSPF area shows the same <code>show ip route</code>
+output. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> All routers have the same map, but each one
+runs Dijkstra from its own position.</p>
+</div>
+</details>
+<hr />
+<h2 id="between-organisations-bgp-in-practice">6. Between Organisations:
+BGP in Practice</h2>
+<h3 id="the-set-up">6.1 The set-up</h3>
+<p>Chapter 7, Section 6 explained why the Internet does not run one big
+OSPF: each <strong>autonomous system (AS)</strong> sets its own policy,
+and sharing every internal link would not scale. <strong>BGP</strong>
+exchanges <strong>reachability</strong> between ASes, while each AS runs
+its own internal routing.</p>
+<p>The lecture’s example network uses private-use AS numbers:</p>
+<figure>
+<img width="954" height="653" src="media/8-artifacts/bgp-campus-pq.webp" style="width:55.0%"
+loading="lazy" decoding="async"
+alt="The campus connects to providers P and Q. Destination D holds the server network 203.0.113.0/24. Network R lies on Q’s path to D." />
+<figcaption aria-hidden="true">The campus connects to providers P and Q.
+Destination D holds the server network 203.0.113.0/24. Network R lies on
+Q’s path to D.</figcaption>
+</figure>
+<div class="table-wrap">
+<table style="width: 56%;">
+<colgroup>
+<col style="width: 85%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Network</th>
+<th style="text-align: left;">ASN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Campus</td>
+<td style="text-align: left;">64496</td>
+</tr>
+<tr>
+<td style="text-align: left;">Provider P</td>
+<td style="text-align: left;">64497</td>
+</tr>
+<tr>
+<td style="text-align: left;">Provider Q</td>
+<td style="text-align: left;">64498</td>
+</tr>
+<tr>
+<td style="text-align: left;">Network R</td>
+<td style="text-align: left;">64499</td>
+</tr>
+<tr>
+<td style="text-align: left;">Destination D (server network
+203.0.113.0/24)</td>
+<td style="text-align: left;">64500</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>An ASN names a <strong>network under one administration</strong>, not
+a single router.</p>
+<h3 id="how-the-as-path-grows">6.2 How the AS path grows</h3>
+<p>Follow the advertisements for 203.0.113.0/24 along D → R → Q →
+Campus. Each AS adds (<strong>prepends</strong>) its own number on the
+<strong>left</strong> when it advertises the route to another AS:</p>
+<div class="table-wrap">
+<table style="width: 36%;">
+<colgroup>
+<col style="width: 44%" />
+<col style="width: 55%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Advertisement</th>
+<th style="text-align: left;">AS path sent</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">D to R</td>
+<td style="text-align: left;">64500</td>
+</tr>
+<tr>
+<td style="text-align: left;">R to Q</td>
+<td style="text-align: left;">64499 64500</td>
+</tr>
+<tr>
+<td style="text-align: left;">Q to Campus</td>
+<td style="text-align: left;">64498 64499 64500</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The prefix stays the same. The AS path grows by one at each AS
+boundary. The advertisements travel D → R → Q → Campus. Traffic that
+uses the route travels the <strong>opposite</strong> way: Campus → Q → R
+→ D.</p>
+<p>Through P, the campus receives the path 64497 64500. So the campus
+has <strong>two</strong> routes to the same prefix, and BGP policy
+decides which one it uses.</p>
+<h3 id="must-the-shorter-as-path-win">6.3 Must the shorter AS path
+win?</h3>
+<p><strong>Lecture question.</strong> The campus hears two routes to
+203.0.113.0/24, with the local preferences below. Which provider does it
+use in each case?</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 30%" />
+<col style="width: 29%" />
+<col style="width: 29%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Provider</th>
+<th style="text-align: left;">AS path</th>
+<th style="text-align: left;">Local preference (case 1)</th>
+<th style="text-align: left;">Local preference (case 2)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">P</td>
+<td style="text-align: left;">64497 64500 (2 ASes)</td>
+<td style="text-align: left;">100</td>
+<td style="text-align: left;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">Q</td>
+<td style="text-align: left;">64498 64499 64500 (3 ASes)</td>
+<td style="text-align: left;">100</td>
+<td style="text-align: left;"><strong>200</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Case 1.</strong> Local preferences are equal, so the
+<strong>shorter AS path</strong> wins: <strong>P</strong>.</li>
+<li><strong>Case 2.</strong> The campus wants Q as its main connection
+(perhaps Q is cheaper). The administrator gives Q’s route local
+preference 200. A <strong>higher</strong> local preference wins, and BGP
+compares it <strong>before</strong> AS-path length. So
+<strong>Q</strong> wins, and traffic goes Campus → Q → R → D.</li>
+</ul>
+<p>BGP applies the configured policy. It does <strong>not</strong>
+measure which provider gives the lowest delay. AS-path length only
+counts networks. It does not measure distance, delay or spare
+capacity.</p>
+</div>
+</details>
+<h3 id="the-exit-is-chosen.-how-do-internal-routers-reach-it">6.4 The
+exit is chosen. How do internal routers reach it?</h3>
+<figure>
+<img width="1220" height="427" src="media/8-artifacts/ibgp-ospf-exit.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="iBGP shares the external route inside the campus. OSPF gives the internal path from router I to border router E." />
+<figcaption aria-hidden="true">iBGP shares the external route inside the
+campus. OSPF gives the internal path from router I to border router
+E.</figcaption>
+</figure>
+<p>The campus chose Q. But a packet from inside the campus first has to
+reach the <strong>border router E</strong>, the router that connects to
+Q. Two protocols work together:</p>
+<ul>
+<li><strong>eBGP</strong> (external BGP) exchanges routes between E and
+Q.</li>
+<li><strong>iBGP</strong> (internal BGP) passes that external route to
+the other BGP routers <strong>inside</strong> the campus. For them, E is
+the <strong>BGP next hop</strong>.</li>
+<li><strong>OSPF</strong> gives the <strong>internal path</strong> from
+an internal router I to E.</li>
+</ul>
+<p>So internal router I learns “for 203.0.113.0/24, go to E” from iBGP,
+and “to reach E, use this internal next hop” from OSPF.</p>
+<h3 id="the-reply-does-not-have-to-follow-the-same-path">6.5 The reply
+does not have to follow the same path</h3>
+<p>Riot Games built its own network, <strong>Riot Direct</strong>, to
+control more of the path between players and its game servers. With
+direct connections, a player’s ISP can hand traffic to Riot’s backbone
+earlier, so the traffic takes fewer detours.</p>
+<figure>
+<img width="1400" height="575" src="media/8-artifacts/riot-asymmetric.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Riot’s 2016 example: the request entered Riot in Portland, but the reply left Riot in Chicago" />
+<figcaption aria-hidden="true">Riot’s 2016 example: the request entered
+Riot in Portland, but the reply left Riot in Chicago</figcaption>
+</figure>
+<p>In Riot’s historical example, a player near Portland sent traffic to
+a game server. Riot and the player’s ISP were connected in
+<strong>both</strong> Portland and Chicago. A <strong>handoff</strong>
+is the place where traffic crosses from one network to the other.</p>
+<ul>
+<li><strong>Outward:</strong> the request entered Riot’s network in
+<strong>Portland</strong>.</li>
+<li><strong>Return:</strong> the reply left Riot’s network for the ISP
+in <strong>Chicago</strong>, and then travelled back to Portland inside
+the ISP.</li>
+</ul>
+<p><strong>Why?</strong> The request is addressed to the <strong>game
+server</strong>. The reply is addressed to the <strong>player</strong>.
+Each router looks up each destination <strong>independently</strong>.
+Ordinary IP forwarding does not remember the request’s path and reverse
+it. Riot’s chosen return route simply handed the reply to the ISP in
+Chicago.</p>
+<p>Riot worked with the ISP to change the routing information and policy
+for the return path. A different return path is not automatically worse.
+What matters is how well the chosen path performs.</p>
+<blockquote>
+<p><strong>A game’s ping includes both directions.</strong> Fixing only
+the route to the server may not fix the delay.</p>
+</blockquote>
+<p>This is the inter-AS version of Section 4.2: every direction needs
+its own route, and each direction’s route is a separate decision.</p>
+<h3
+id="should-the-campus-offer-its-providers-routes-to-another-provider">6.6
+Should the campus offer its provider’s routes to another provider?</h3>
+<p>The campus uses P and Q to reach other networks. It does
+<strong>not</strong> want to carry traffic <strong>between</strong> its
+providers (Chapter 7, Section 6.7).</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 42%" />
+<col style="width: 57%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Campus tells Q…</th>
+<th style="text-align: left;">What happens if Q uses it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">“I can reach my own campus prefix.”</td>
+<td style="text-align: left;">Traffic <strong>to the campus</strong>
+arrives through Q. This is wanted.</td>
+</tr>
+<tr>
+<td style="text-align: left;">“I can reach D through P.”</td>
+<td style="text-align: left;">Q’s traffic <strong>to D</strong> may go Q
+→ Campus → P → D. The campus becomes a <strong>transit</strong> network
+for Q.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Learning P’s route lets the campus send <strong>its own</strong>
+traffic through P. <strong>Advertising</strong> that route to Q offers
+to carry <strong>Q’s</strong> traffic as well. Being able to use a route
+does not mean you should offer it to someone else.</p>
+<h3 id="export-and-import-checks">6.7 Export and import checks</h3>
+<p>Two checks, at two places, stop the unwanted advertisement:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 69%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Where the check runs</th>
+<th style="text-align: left;">Rule and result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Campus: export to Q</strong></td>
+<td style="text-align: left;">Advertise the campus’s own prefix.
+<strong>Withhold</strong> the route to D learnt from P.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Q: import from the
+campus</strong></td>
+<td style="text-align: left;">Accept the campus’s authorised prefixes.
+<strong>Reject</strong> D’s prefix if it arrives from the campus.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>An <strong>export</strong> check acts <strong>before</strong> an
+advertisement leaves the campus.</li>
+<li>An <strong>import</strong> check acts when Q
+<strong>receives</strong> it, before Q accepts it as a usable
+route.</li>
+<li>If the campus sends D’s route by mistake, Q’s import check still
+rejects it. Either check, if configured correctly, blocks the
+announcement.</li>
+</ul>
+<p>These checks filter <strong>routing information</strong>
+(advertisements). They do not directly filter ordinary user packets.
+(The YouTube incident in Chapter 7, Section 6.8, is what happens when
+neither check catches a bad announcement.)</p>
+<h3 id="four-separate-decisions-about-a-route">6.8 Four separate
+decisions about a route</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 37%" />
+<col style="width: 42%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Decision</th>
+<th style="text-align: left;">Question</th>
+<th style="text-align: left;">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Accept</strong> (import)</td>
+<td style="text-align: left;">Are we willing to learn this route from
+this neighbour?</td>
+<td style="text-align: left;">Q rejects D’s prefix from the campus,
+because the campus may not offer it.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Select</strong></td>
+<td style="text-align: left;">Which accepted route do we use for this
+prefix?</td>
+<td style="text-align: left;">Prefer Q’s route when its local preference
+is higher.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Forward</strong></td>
+<td style="text-align: left;">Which installed prefix best matches this
+packet?</td>
+<td style="text-align: left;">A VPN /16 beats the default /0.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Advertise</strong> (export)</td>
+<td style="text-align: left;">Which routes do we offer to this
+neighbour?</td>
+<td style="text-align: left;">The campus advertises its own prefix but
+withholds provider-learnt routes.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Route filters control what routers <strong>learn and
+advertise</strong>. Packet forwarding then uses whatever routes end up
+<strong>installed</strong>.</p>
+<details class="qa box">
+<summary>
+A reply packet always travels back along the path of the request. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> Each router looks up each destination on its
+own. The request is addressed to the server and the reply to the player,
+so they can leave and enter a network at different handoffs (Riot’s
+Portland and Chicago example).</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+BGP always prefers the route with the shortest AS path. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> Local preference is compared
+<strong>first</strong>. The shorter AS path decides only when the local
+preferences are equal.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+If a campus advertises its provider’s routes to another provider,
+nothing changes for packet forwarding. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> The other provider may then send its traffic
+<strong>through</strong> the campus, so the campus becomes a transit
+network. The export check (campus) and the import check (provider) both
+prevent this.</p>
+</div>
+</details>
+<hr />
+<h2 id="review-explain-the-outcome">7. Review: Explain the Outcome</h2>
+<p>The lecture closed with four observations. For each one, name the
+routing information involved, where the decision happens, and what it
+means for the next packet.</p>
+<details class="qa box">
+<summary>
+University traffic uses the VPN. Public traffic uses the home gateway.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The VPN installed 10.20.0.0/16. It is the longest match for
+university addresses. Other destinations match only /0.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+The PC’s ping request reaches the server, but no reply returns. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>R1 has the forward route, but R2 has no route (and no default) back
+to the PC’s subnet. A forward route on R1 does not create the return
+route on R2.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+R1’s neighbours stay up, but its route to the server changes. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The R3–R4 link failed elsewhere in the area. Updated LSAs changed
+R1’s database, so Dijkstra gave new paths.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+Q does not learn a route to D through the campus. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The campus exports only its own prefix, and Q’s import check rejects
+D’s prefix from the campus.</p>
+</div>
+</details>
+<p><strong>Activity 3 (NTULearn, “Second Shift”)</strong> is an online
+routing game based on this lecture: a failed link, routing loops and
+provider-route decisions. One example from it: R-SCI has no direct link
+to HALL, so how does it learn the cost of HALL’s link to DC? (Answer:
+from HALL’s LSA, flooded through the area.)</p>
+<hr />
+<h2 id="exam-patterns">Exam patterns</h2>
+<p>There is no tutorial for this lecture. The patterns come from the
+lecture’s own examples and review observations. Past-year papers are not
+in these notes.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Question type</th>
+<th>How to attack it</th>
+<th>Trap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Which entry does a destination use</td>
+<td>Match all entries, take the longest prefix, then decide ARP
+target</td>
+<td>Stopping at the match without asking if the destination is
+reachable</td>
+</tr>
+<tr>
+<td>Ping fails in one direction</td>
+<td>Check the request and the reply separately, router by router</td>
+<td>Adding a route on one router and assuming the other one has it</td>
+</tr>
+<tr>
+<td>VPN on and off</td>
+<td>Split tunnel adds a /16. Disconnect removes it. The default
+stays.</td>
+<td>Saying the default route changed</td>
+</tr>
+<tr>
+<td>Last hop through router and switch</td>
+<td>Route, then ARP, then switch table</td>
+<td>Mixing the ARP table and the MAC table</td>
+</tr>
+<tr>
+<td>OSPF route and cost</td>
+<td>Path cost to the attached router + LAN cost. Next hop = first
+router.</td>
+<td>Taking the last router as the next hop. Forgetting the LAN
+cost.</td>
+</tr>
+<tr>
+<td>OSPF after a remote failure</td>
+<td>New paths from the updated database. Look for equal-cost paths.</td>
+<td>Saying the neighbour list changes</td>
+</tr>
+<tr>
+<td>BGP provider choice</td>
+<td>Local preference first, then AS-path length</td>
+<td>Always choosing the shortest path</td>
+</tr>
+<tr>
+<td>Export and import checks</td>
+<td>Export filters what you offer. Import filters what you accept.</td>
+<td>Saying filters stop user packets</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="common-traps">Common Traps</h2>
+<ul>
+<li>Longest-prefix match chooses the entry. A match on /0 does
+<strong>not</strong> prove that the destination is reachable.</li>
+<li>Local destination → ARP for the destination. Remote destination →
+ARP for the <strong>gateway</strong>. The IP destination never
+changes.</li>
+<li>A split-tunnel VPN adds a more specific route (for example /16). It
+wins over /0 for those addresses only.</li>
+<li>A switch learns <strong>MAC → port</strong> from source MACs. ARP
+learns <strong>IP → MAC</strong>. A Layer 3 switch can also route.</li>
+<li>Connected route = an addressed interface that is up. Static route =
+typed by an administrator, on <strong>that</strong> router only.</li>
+<li>A ping needs a route <strong>both ways</strong>. A forward route
+never creates the return route.</li>
+<li>Last hop: the route selects the LAN, ARP supplies the MAC, the
+switch table selects the port.</li>
+<li>OSPF route to a prefix = path cost to the attached router + the LAN
+cost. The next hop is the <strong>first</strong> router on the
+path.</li>
+<li><code>[110/27]</code>: 110 = administrative distance (ranks
+sources), 27 = OSPF cost.</li>
+<li>Neighbour list, LSDB and routing table answer different questions. A
+remote failure changes the route but not the neighbour list.</li>
+<li>BGP: higher local preference beats a shorter AS path. Each AS
+prepends its ASN on the left.</li>
+<li>iBGP spreads the external route inside the AS. OSPF reaches the
+border router.</li>
+<li>Replies are routed independently and can take a different path.</li>
+<li>Export checks (sender) and import checks (receiver) filter
+advertisements, not user packets.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/7-routing/7.html">← 7.
+Network Layer: Routing (RIP, OSPF, BGP)</a>
+  <a class="next-page" href="../../notes/9-transport/9.html">9.
+Transport Layer: Ports, UDP and TCP →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,3868 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>9. Transport Layer: Ports, UDP and TCP · SC2008 Computer
+Network</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">9. Transport
+Layer: Ports, UDP and TCP</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2008</p>
+  <p class="site-title">Computer Network</p>
+  <h1 class="page-title">9. Transport Layer: Ports, UDP and TCP</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 1</h2>
+          <ul>
+            <li><a href="../../notes/1-networklayers/1.html"
+                   data-nav="notes/1-networklayers/1.html">1. Network
+Layers and Physical Resilience</a></li>
+            <li><a href="../../notes/2-dll-flow-error-control/2.html"
+                   data-nav="notes/2-dll-flow-error-control/2.html">2.
+Data Link Layer (DLL): Flow &amp; Error Control</a></li>
+            <li><a href="../../notes/3-dll-mac-lan/3.html"
+                   data-nav="notes/3-dll-mac-lan/3.html">3. Data Link
+Layer (DLL): Medium Access Control &amp; LANs</a></li>
+            <li><a href="../../notes/4-network-paradigms/4.html"
+                   data-nav="notes/4-network-paradigms/4.html">4.
+Network Paradigms</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Part 2</h2>
+          <ul>
+            <li><a href="../../notes/5-ip-addressing/5.html"
+                   data-nav="notes/5-ip-addressing/5.html">5. Network
+Layer: IP Addressing</a></li>
+            <li><a href="../../notes/6-ip-forwarding/6.html"
+                   data-nav="notes/6-ip-forwarding/6.html">6. Network
+Layer: Forwarding, ARP, Fragmentation &amp; ICMP</a></li>
+            <li><a href="../../notes/7-routing/7.html"
+                   data-nav="notes/7-routing/7.html">7. Network Layer:
+Routing (RIP, OSPF, BGP)</a></li>
+            <li><a href="../../notes/8-routing-practice/8.html"
+                   data-nav="notes/8-routing-practice/8.html">8. Routing
+in Practice</a></li>
+            <li><a href="../../notes/9-transport/9.html"
+                   data-nav="notes/9-transport/9.html">9. Transport
+Layer: Ports, UDP and TCP</a></li>
+            <li><a href="../../notes/10-application-layer/10.html"
+                   data-nav="notes/10-application-layer/10.html">10.
+Application Layer: HTTP and DNS</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#transport-layer-ports-udp-and-tcp"
+id="toc-transport-layer-ports-udp-and-tcp">9. Transport Layer: Ports,
+UDP and TCP</a>
+<ul>
+<li><a href="#quick-reference" id="toc-quick-reference">Quick
+reference</a></li>
+<li><a href="#from-ip-to-the-transport-layer"
+id="toc-from-ip-to-the-transport-layer">1. From IP to the Transport
+Layer</a>
+<ul>
+<li><a href="#what-ip-gives-us-and-what-it-does-not"
+id="toc-what-ip-gives-us-and-what-it-does-not">1.1 What IP gives us, and
+what it does not</a></li>
+<li><a href="#the-ipv4-header-from-the-transport-layers-point-of-view"
+id="toc-the-ipv4-header-from-the-transport-layers-point-of-view">1.2 The
+IPv4 header, from the transport layer’s point of view</a></li>
+<li><a href="#step-1-the-protocol-field-picks-tcp-or-udp"
+id="toc-step-1-the-protocol-field-picks-tcp-or-udp">1.3 Step 1: the
+Protocol field picks TCP or UDP</a></li>
+<li><a href="#names-for-the-data-at-each-layer"
+id="toc-names-for-the-data-at-each-layer">1.4 Names for the data at each
+layer</a></li>
+</ul></li>
+<li><a href="#ports-delivering-to-the-right-program"
+id="toc-ports-delivering-to-the-right-program">2. Ports: Delivering to
+the Right Program</a>
+<ul>
+<li><a href="#process-to-process-delivery"
+id="toc-process-to-process-delivery">2.1 Process-to-process
+delivery</a></li>
+<li><a href="#port-numbers" id="toc-port-numbers">2.2 Port
+numbers</a></li>
+<li><a href="#multiplexing-and-demultiplexing"
+id="toc-multiplexing-and-demultiplexing">2.3 Multiplexing and
+demultiplexing</a></li>
+<li><a href="#how-a-server-on-port-443-tells-thousands-of-clients-apart"
+id="toc-how-a-server-on-port-443-tells-thousands-of-clients-apart">2.4
+How a server on port 443 tells thousands of clients apart</a></li>
+</ul></li>
+<li><a href="#udp-user-datagram-protocol"
+id="toc-udp-user-datagram-protocol">3. UDP: User Datagram Protocol</a>
+<ul>
+<li><a href="#what-udp-does" id="toc-what-udp-does">3.1 What UDP
+does</a></li>
+<li><a href="#the-udp-header" id="toc-the-udp-header">3.2 The UDP
+header</a></li>
+</ul></li>
+<li><a href="#tcp-transmission-control-protocol"
+id="toc-tcp-transmission-control-protocol">4. TCP: Transmission Control
+Protocol</a>
+<ul>
+<li><a href="#what-tcp-does" id="toc-what-tcp-does">4.1 What TCP
+does</a></li>
+<li><a href="#the-tcp-header" id="toc-the-tcp-header">4.2 The TCP
+header</a></li>
+<li><a href="#udp-and-tcp-side-by-side"
+id="toc-udp-and-tcp-side-by-side">4.3 UDP and TCP side by side</a></li>
+<li><a href="#why-would-anyone-choose-unreliable-udp"
+id="toc-why-would-anyone-choose-unreliable-udp">4.4 Why would anyone
+choose unreliable UDP?</a></li>
+<li><a href="#choosing-tcp-or-udp" id="toc-choosing-tcp-or-udp">4.5
+Choosing TCP or UDP</a></li>
+</ul></li>
+<li><a href="#byte-numbering-sn-and-an"
+id="toc-byte-numbering-sn-and-an">5. Byte Numbering: SN and AN</a>
+<ul>
+<li><a href="#what-tcp-adds-and-the-one-idea-under-it"
+id="toc-what-tcp-adds-and-the-one-idea-under-it">5.1 What TCP adds, and
+the one idea under it</a></li>
+<li><a href="#tcp-is-a-byte-stream" id="toc-tcp-is-a-byte-stream">5.2
+TCP is a byte stream</a></li>
+<li><a href="#how-much-data-fits-in-one-segment-mss-and-mtu"
+id="toc-how-much-data-fits-in-one-segment-mss-and-mtu">5.3 How much data
+fits in one segment: MSS and MTU</a></li>
+<li><a href="#the-sequence-number-sn"
+id="toc-the-sequence-number-sn">5.4 The sequence number (SN)</a></li>
+<li><a href="#the-acknowledgement-number-an"
+id="toc-the-acknowledgement-number-an">5.5 The acknowledgement number
+(AN)</a></li>
+<li><a href="#worked-example-data-in-one-direction"
+id="toc-worked-example-data-in-one-direction">5.6 Worked example: data
+in one direction</a></li>
+<li><a href="#worked-example-data-in-both-directions"
+id="toc-worked-example-data-in-both-directions">5.7 Worked example: data
+in both directions</a></li>
+<li><a href="#what-happens-when-a-segment-goes-missing"
+id="toc-what-happens-when-a-segment-goes-missing">5.8 What happens when
+a segment goes missing</a></li>
+</ul></li>
+<li><a href="#opening-and-closing-a-connection"
+id="toc-opening-and-closing-a-connection">6. Opening and Closing a
+Connection</a>
+<ul>
+<li><a href="#why-set-up-a-connection-first"
+id="toc-why-set-up-a-connection-first">6.1 Why set up a connection
+first?</a></li>
+<li><a href="#the-control-flags" id="toc-the-control-flags">6.2 The
+control flags</a></li>
+<li><a href="#the-three-way-handshake"
+id="toc-the-three-way-handshake">6.3 The three-way handshake</a></li>
+<li><a href="#the-rule-syn-and-fin-each-use-up-one-number"
+id="toc-the-rule-syn-and-fin-each-use-up-one-number">6.4 The rule: SYN
+and FIN each use up one number</a></li>
+<li><a href="#closing-a-connection" id="toc-closing-a-connection">6.5
+Closing a connection</a></li>
+<li><a href="#the-whole-conversation-in-one-table"
+id="toc-the-whole-conversation-in-one-table">6.6 The whole conversation
+in one table</a></li>
+<li><a href="#fill-in-the-blanks" id="toc-fill-in-the-blanks">6.7 Fill
+in the blanks</a></li>
+<li><a href="#method-list-every-segment-of-a-whole-exchange"
+id="toc-method-list-every-segment-of-a-whole-exchange">6.8 Method: list
+every segment of a whole exchange</a></li>
+<li><a href="#tutorial-2.3-q1" id="toc-tutorial-2.3-q1">6.9 Tutorial 2.3
+Q1</a></li>
+</ul></li>
+<li><a href="#error-control-recovering-lost-data"
+id="toc-error-control-recovering-lost-data">7. Error Control: Recovering
+Lost Data</a>
+<ul>
+<li><a href="#what-error-control-must-handle"
+id="toc-what-error-control-must-handle">7.1 What error control must
+handle</a></li>
+<li><a href="#the-retransmission-timeout"
+id="toc-the-retransmission-timeout">7.2 The retransmission
+timeout</a></li>
+<li><a href="#duplicate-acks-and-fast-retransmit"
+id="toc-duplicate-acks-and-fast-retransmit">7.3 Duplicate ACKs and fast
+retransmit</a></li>
+<li><a href="#two-ways-to-detect-loss"
+id="toc-two-ways-to-detect-loss">7.4 Two ways to detect loss</a></li>
+<li><a href="#head-of-line-blocking" id="toc-head-of-line-blocking">7.5
+Head-of-line blocking</a></li>
+</ul></li>
+<li><a href="#flow-control-protecting-the-receiver"
+id="toc-flow-control-protecting-the-receiver">8. Flow Control:
+Protecting the Receiver</a>
+<ul>
+<li><a href="#the-receive-window" id="toc-the-receive-window">8.1 The
+receive window</a></li>
+<li><a href="#the-senders-window" id="toc-the-senders-window">8.2 The
+sender’s window</a></li>
+<li><a href="#worked-example-flow-control-lecture"
+id="toc-worked-example-flow-control-lecture">8.3 Worked example: flow
+control (lecture)</a></li>
+<li><a href="#the-receive-window-in-numbers"
+id="toc-the-receive-window-in-numbers">8.4 The receive window in
+numbers</a></li>
+</ul></li>
+<li><a href="#congestion-control-protecting-the-network"
+id="toc-congestion-control-protecting-the-network">9. Congestion
+Control: Protecting the Network</a>
+<ul>
+<li><a href="#congestion-and-congestion-collapse"
+id="toc-congestion-and-congestion-collapse">9.1 Congestion and
+congestion collapse</a></li>
+<li><a href="#the-congestion-window" id="toc-the-congestion-window">9.2
+The congestion window</a></li>
+<li><a href="#two-limits-one-window" id="toc-two-limits-one-window">9.3
+Two limits, one window</a></li>
+<li><a href="#transmission-rounds" id="toc-transmission-rounds">9.4
+Transmission rounds</a></li>
+<li><a href="#slow-start" id="toc-slow-start">9.5 Slow start</a></li>
+<li><a href="#congestion-avoidance" id="toc-congestion-avoidance">9.6
+Congestion avoidance</a></li>
+<li><a href="#after-a-loss-tahoe-and-reno"
+id="toc-after-a-loss-tahoe-and-reno">9.7 After a loss: Tahoe and
+Reno</a></li>
+<li><a href="#worked-example-tahoe-lecture"
+id="toc-worked-example-tahoe-lecture">9.8 Worked example: Tahoe
+(lecture)</a></li>
+<li><a href="#worked-example-reno-lecture"
+id="toc-worked-example-reno-lecture">9.9 Worked example: Reno
+(lecture)</a></li>
+<li><a href="#which-round-sends-segment-n"
+id="toc-which-round-sends-segment-n">9.10 Which round sends segment
+<em>n</em>?</a></li>
+<li><a href="#read-the-graph" id="toc-read-the-graph">9.11 Read the
+graph</a></li>
+<li><a href="#method-how-long-until-cwnd-recovers"
+id="toc-method-how-long-until-cwnd-recovers">9.12 Method: how long until
+cwnd recovers?</a></li>
+<li><a href="#tutorial-2.3-q2" id="toc-tutorial-2.3-q2">9.13 Tutorial
+2.3 Q2</a></li>
+</ul></li>
+<li><a href="#throughput-how-fast-can-tcp-go"
+id="toc-throughput-how-fast-can-tcp-go">10. Throughput: How Fast Can TCP
+Go?</a>
+<ul>
+<li><a href="#the-window-limits-throughput"
+id="toc-the-window-limits-throughput">10.1 The window limits
+throughput</a></li>
+<li><a href="#file-transfer-time" id="toc-file-transfer-time">10.2
+File-transfer time</a></li>
+<li><a href="#why-is-my-1-gbits-plan-still-slow"
+id="toc-why-is-my-1-gbits-plan-still-slow">10.3 Why is my 1 Gbit/s plan
+still slow?</a></li>
+<li><a href="#turning-the-formula-round"
+id="toc-turning-the-formula-round">10.4 Turning the formula
+round</a></li>
+<li><a href="#tutorial-2.3-q4" id="toc-tutorial-2.3-q4">10.5 Tutorial
+2.3 Q4</a></li>
+</ul></li>
+<li><a href="#exam-patterns" id="toc-exam-patterns">Exam
+patterns</a></li>
+<li><a href="#common-traps" id="toc-common-traps">Common Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="transport-layer-ports-udp-and-tcp">9. Transport Layer: Ports,
+UDP and TCP</h1>
+<p>This chapter covers Part II Lecture 4, Parts I and II. Chapters 5 to
+8 showed how IP moves a packet from one <strong>host</strong> to another
+host, router by router. This chapter goes one layer up. It shows how the
+data reaches the right <strong>program</strong> on that host (ports),
+and how TCP turns IP’s unreliable delivery into a reliable, ordered
+stream of bytes that does not overload the receiver or the network.</p>
+<p>The exam asks you to choose TCP or UDP and give the reason, fill in
+the SN and AN of every segment in a connection (handshake, data, close),
+find how much new data a sender may send from AN, rwnd, cwnd and MSS,
+trace cwnd round by round (slow start, congestion avoidance, Tahoe and
+Reno), and estimate throughput (W / RTT) and file-transfer time.</p>
+<p>The questions sit in drawers after the concept they test. Tutorial
+2.3 Q1, Q2 and Q4 are here. <strong>No solutions were released for
+Tutorial 2.3, so those answers are unofficial.</strong> The lecture’s
+own examples are written as questions too. Concept checks and extensions
+are unofficial. Past-year papers are not in these notes.</p>
+<hr />
+<h2 id="quick-reference">Quick reference</h2>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+</colgroup>
+<thead>
+<tr>
+<th>Topic</th>
+<th>Rule</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IP Protocol field</td>
+<td>1 = ICMP, 6 = TCP, 17 = UDP. Then the <strong>port</strong> picks
+the process.</td>
+</tr>
+<tr>
+<td>Port</td>
+<td>16 bits (0–65535). Well-known: 0–1023 (DNS 53, HTTP 80, HTTPS 443).
+A TCP connection = four values: source IP and port, destination IP and
+port.</td>
+</tr>
+<tr>
+<td>UDP</td>
+<td>8-byte header, no set-up, no ACK, no resend. Good for live media,
+games, DNS.</td>
+</tr>
+<tr>
+<td>TCP</td>
+<td>20–60-byte header. Connection, ACKs, order, flow control, congestion
+control.</td>
+</tr>
+<tr>
+<td>MSS</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">MTU</mtext><mo>−</mo><mn>20</mn><mo>−</mo><mn>20</mn></mrow><annotation encoding="application/x-tex">\text{MTU} - 20 - 20</annotation></semantics></math>.
+Counts TCP data only.</td>
+</tr>
+<tr>
+<td>SN / AN</td>
+<td>SN = first byte of this segment. AN = next byte expected. next SN =
+SN + data (+1 if SYN) (+1 if FIN). A pure ACK uses none.</td>
+</tr>
+<tr>
+<td>Handshake and close</td>
+<td>SYN (ISN) → SYN+ACK (AN = ISN + 1) → ACK. Close: FIN+ACK, ACK,
+FIN+ACK, ACK (3 segments if the middle two combine).</td>
+</tr>
+<tr>
+<td>Loss signals</td>
+<td>Timeout, or three duplicate ACKs (four ACKs with the same AN).</td>
+</tr>
+<tr>
+<td>Flow control</td>
+<td>rwnd in bytes. Right edge = AN + rwnd − 1. Acknowledged ≠ read.</td>
+</tr>
+<tr>
+<td>Window</td>
+<td>In flight
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">rwnd</mtext><mo>,</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">cwnd</mtext><mo>×</mo><mtext mathvariant="normal">MSS</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\le \min(\text{rwnd},\ \text{cwnd} \times \text{MSS})</annotation></semantics></math></td>
+</tr>
+<tr>
+<td>Slow start</td>
+<td>cwnd doubles per round, from 1. Capped at ssthresh in this course.
+Then +1 per round.</td>
+</tr>
+<tr>
+<td>After loss</td>
+<td>ssthresh = ⌊cwnd/2⌋. Timeout: cwnd = 1. Three duplicate ACKs: Tahoe
+cwnd = 1, Reno cwnd = ssthresh.</td>
+</tr>
+<tr>
+<td>Throughput</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">bottleneck</mtext><mo>,</mo><mspace width="0.222em"></mspace><mi>W</mi><mi>/</mi><mtext mathvariant="normal">RTT</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\min(\text{bottleneck},\ W/\text{RTT})</annotation></semantics></math>.
+Time = size / throughput. Bits against bytes.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Not examined</strong> (the lecture says so): other
+congestion-control algorithms such as CUBIC and BBR, and the older
+appendix (delayed ACK, silly window syndrome with Clark’s solution and
+Nagle’s algorithm, Jacobson’s RTO algorithm, Karn’s algorithm).</p>
+<hr />
+<h2 id="from-ip-to-the-transport-layer">1. From IP to the Transport
+Layer</h2>
+<h3 id="what-ip-gives-us-and-what-it-does-not">1.1 What IP gives us, and
+what it does not</h3>
+<p>IP moves a packet from one host to another host, router by router. It
+is <strong>best effort</strong>: packets can be <strong>lost,
+duplicated, delayed or delivered out of order</strong>, and IP repairs
+none of this. Routers only forward IP packets. Any repair must happen at
+the two <strong>end hosts</strong>, and that is the job of the transport
+layer.</p>
+<h3 id="the-ipv4-header-from-the-transport-layers-point-of-view">1.2 The
+IPv4 header, from the transport layer’s point of view</h3>
+<p>Chapter 6 met most of the IPv4 header already. The fields group by
+job:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 44%" />
+<col style="width: 39%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Job</th>
+<th style="text-align: left;">Fields</th>
+<th style="text-align: left;">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Housekeeping</td>
+<td style="text-align: left;">Version, IHL, Type of Service, Total
+Length, Header Checksum</td>
+<td style="text-align: left;">IHL counts 32-bit words: IHL = 5 means 20
+bytes. The checksum covers the <strong>header only</strong>, not the
+data.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Fragmentation</td>
+<td style="text-align: left;">Identification, Flags (DF, MF), Fragment
+Offset</td>
+<td style="text-align: left;">Chapter 6, Section 4.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Forwarding</td>
+<td style="text-align: left;">Time to Live (TTL)</td>
+<td style="text-align: left;">Each router subtracts 1. At 0 the packet
+is dropped. Traceroute relies on this.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Hand-over</strong></td>
+<td style="text-align: left;"><strong>Protocol</strong></td>
+<td style="text-align: left;">Which protocol gets the payload.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Addressing</td>
+<td style="text-align: left;">Source and Destination Address</td>
+<td style="text-align: left;">The two <strong>end hosts</strong>.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Options</td>
+<td style="text-align: left;">Options and padding</td>
+<td style="text-align: left;">Rarely used. When present, IHL &gt;
+5.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The first five rows of the header are always 20 bytes.</p>
+<h3 id="step-1-the-protocol-field-picks-tcp-or-udp">1.3 Step 1: the
+Protocol field picks TCP or UDP</h3>
+<figure>
+<img width="1400" height="519" src="media/9-artifacts/protocol-field-demux.webp"
+style="width:75.0%" loading="lazy" decoding="async"
+alt="The receiving host reads the IP header’s Protocol field to choose ICMP, TCP or UDP" />
+<figcaption aria-hidden="true">The receiving host reads the IP header’s
+Protocol field to choose ICMP, TCP or UDP</figcaption>
+</figure>
+<p>When a packet arrives, the host reads the IP header’s
+<strong>Protocol</strong> field and hands the payload to that
+protocol:</p>
+<div class="table-wrap">
+<table style="width: 56%;">
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 19%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Protocol value</th>
+<th style="text-align: left;">Protocol</th>
+<th style="text-align: left;">Used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>1</strong></td>
+<td style="text-align: left;">ICMP</td>
+<td style="text-align: left;">ping, traceroute</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>6</strong></td>
+<td style="text-align: left;"><strong>TCP</strong></td>
+<td style="text-align: left;">web, email, file transfer</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>17</strong></td>
+<td style="text-align: left;"><strong>UDP</strong></td>
+<td style="text-align: left;">DNS, video calls, games</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>That is only the first step. TCP or UDP then reads <strong>its
+own</strong> header to find the right application. That second step uses
+<strong>port numbers</strong>.</p>
+<h3 id="names-for-the-data-at-each-layer">1.4 Names for the data at each
+layer</h3>
+<div class="table-wrap">
+<table style="width: 89%;">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 42%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Layer</th>
+<th style="text-align: left;">Unit name</th>
+<th style="text-align: left;">What it contains</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Application</td>
+<td style="text-align: left;"><strong>Message</strong></td>
+<td style="text-align: left;">The data</td>
+</tr>
+<tr>
+<td style="text-align: left;">Transport</td>
+<td style="text-align: left;"><strong>Segment</strong> (TCP) or
+<strong>datagram</strong> (UDP)</td>
+<td style="text-align: left;">TCP/UDP header + data</td>
+</tr>
+<tr>
+<td style="text-align: left;">Network</td>
+<td style="text-align: left;"><strong>Packet</strong> (also called an IP
+datagram)</td>
+<td style="text-align: left;">IP header + segment</td>
+</tr>
+<tr>
+<td style="text-align: left;">Link</td>
+<td style="text-align: left;"><strong>Frame</strong></td>
+<td style="text-align: left;">Ethernet header + packet + trailer</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Careful: “datagram” on its own can mean a UDP unit
+<strong>or</strong> an IP packet. In this chapter, a
+<strong>segment</strong> is one TCP unit and a <strong>UDP
+datagram</strong> is one UDP unit.</p>
+<hr />
+<h2 id="ports-delivering-to-the-right-program">2. Ports: Delivering to
+the Right Program</h2>
+<h3 id="process-to-process-delivery">2.1 Process-to-process
+delivery</h3>
+<p>Your laptop runs many programs at once: browser tabs, Zoom, Spotify.
+A <strong>process</strong> is a program running on a host. When a packet
+arrives, which process should get it?</p>
+<figure>
+<img width="1400" height="377" src="media/9-artifacts/transport-process-to-process.webp"
+style="width:80.0%" loading="lazy" decoding="async"
+alt="IP gives host-to-host delivery, router by router. The transport layer gives process-to-process delivery." />
+<figcaption aria-hidden="true">IP gives host-to-host delivery, router by
+router. The transport layer gives process-to-process
+delivery.</figcaption>
+</figure>
+<ul>
+<li><strong>IP</strong> gives <strong>host-to-host</strong>
+delivery.</li>
+<li>The <strong>transport layer</strong> gives
+<strong>process-to-process</strong> delivery.</li>
+</ul>
+<p>Only the two end hosts run TCP or UDP. Routers in between only
+forward the IP packets underneath.</p>
+<h3 id="port-numbers">2.2 Port numbers</h3>
+<p>A <strong>port number</strong> is a <strong>16-bit</strong> number (0
+to 65535) that names a process on a host.</p>
+<blockquote>
+<p><strong>The IP address gets the data to the right computer. The port
+gets it to the right program on that computer.</strong></p>
+</blockquote>
+<ul>
+<li><strong>Well-known ports (0 to 1023)</strong> are used by standard
+services. Examples: DNS on <strong>53</strong>, HTTP on
+<strong>80</strong>, HTTPS on <strong>443</strong>, SMTP (email) on
+<strong>25</strong>, SSH (secure remote login) on <strong>22</strong>. A
+server can also listen on another port.</li>
+<li>An <strong>ephemeral port</strong> is a temporary port that the
+client’s operating system picks for one conversation, for example 50432.
+It does <strong>not</strong> need to be registered with anyone.</li>
+</ul>
+<p>Example: your browser asks the DNS server 8.8.8.8 on port 53 “where
+is www.ntu.edu.sg?”. It then asks the web server 203.0.113.10 on port
+443 for the page.</p>
+<h3 id="multiplexing-and-demultiplexing">2.3 Multiplexing and
+demultiplexing</h3>
+<figure>
+<img width="1400" height="394" src="media/9-artifacts/mux-demux.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Sending: several applications share one transport layer. Receiving: the destination port picks the application." />
+<figcaption aria-hidden="true">Sending: several applications share one
+transport layer. Receiving: the destination port picks the
+application.</figcaption>
+</figure>
+<ul>
+<li><strong>Multiplexing (sending):</strong> the transport layer takes
+data from several applications and sends it all through one IP layer.
+Each segment carries its application’s port as the <strong>source
+port</strong>.</li>
+<li><strong>Demultiplexing (receiving):</strong> the transport layer
+reads the <strong>destination port</strong> of each arriving segment and
+gives the data to that application.</li>
+</ul>
+<p>When the browser (port 50432) sends a request, the source port is
+50432. When the reply comes back, its destination port is 50432, so the
+laptop gives it to the browser and not to Zoom.</p>
+<h3 id="how-a-server-on-port-443-tells-thousands-of-clients-apart">2.4
+How a server on port 443 tells thousands of clients apart</h3>
+<p>Every client talks to the <strong>same</strong> server port, 443. So
+the server port alone cannot separate them. A TCP connection is named by
+<strong>four values</strong>:</p>
+<div class="table-wrap">
+<table style="width: 92%;">
+<colgroup>
+<col style="width: 29%" />
+<col style="width: 16%" />
+<col style="width: 15%" />
+<col style="width: 18%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Connection</th>
+<th style="text-align: left;">Source IP</th>
+<th style="text-align: left;">Source port</th>
+<th style="text-align: left;">Destination IP</th>
+<th style="text-align: left;">Destination port</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1 (tab 1 on a laptop)</td>
+<td style="text-align: left;">198.51.100.7</td>
+<td style="text-align: left;">50432</td>
+<td style="text-align: left;">203.0.113.10</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">2 (tab 2, same laptop)</td>
+<td style="text-align: left;">198.51.100.7</td>
+<td style="text-align: left;"><strong>50433</strong></td>
+<td style="text-align: left;">203.0.113.10</td>
+<td style="text-align: left;">443</td>
+</tr>
+<tr>
+<td style="text-align: left;">3 (a different computer)</td>
+<td style="text-align: left;"><strong>192.0.2.25</strong></td>
+<td style="text-align: left;">50432</td>
+<td style="text-align: left;">203.0.113.10</td>
+<td style="text-align: left;">443</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>If <strong>any one</strong> of the four values differs, it is a
+different connection. Connections 1 and 3 even share the client port
+50432, but their source IPs differ, so they are still separate.</p>
+<p><strong>NAT</strong> (Chapter 5) uses the same idea. It maps a
+private IP address <strong>and port</strong> to a public IP address and
+port, and uses that mapping to send replies back to the right inside
+device.</p>
+<details class="qa box">
+<summary>
+A client’s port number must be registered before it can be used. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> The client’s operating system picks a
+temporary (ephemeral) port for each conversation. Only the well-known
+ports 0 to 1023 have standard meanings.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+Two TCP connections to the same server port 443 must use different
+client ports. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A connection is named by
+<strong>four</strong> values. Two clients can both use port 50432 if
+their source IPs differ. One client needs a different source port for a
+second connection to the same server.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+The IP Protocol field tells the host which application gets the data.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> It picks the transport protocol (1 ICMP, 6
+TCP, 17 UDP). The destination <strong>port</strong> then picks the
+application.</p>
+</div>
+</details>
+<hr />
+<h2 id="udp-user-datagram-protocol">3. UDP: User Datagram Protocol</h2>
+<h3 id="what-udp-does">3.1 What UDP does</h3>
+<figure>
+<img width="970" height="540" src="media/9-artifacts/udp-no-ack.webp" style="width:45.0%"
+loading="lazy" decoding="async"
+alt="UDP: no set-up and no acknowledgements. Datagram 2 is simply gone." />
+<figcaption aria-hidden="true">UDP: no set-up and no acknowledgements.
+Datagram 2 is simply gone.</figcaption>
+</figure>
+<ul>
+<li>UDP sends each message as a <strong>separate datagram</strong>, with
+<strong>no set-up</strong> first.</li>
+<li>It does <strong>not</strong> number, acknowledge or resend
+datagrams. A lost datagram is gone, and datagrams can arrive out of
+order.</li>
+<li>UDP adds only two things to IP: <strong>port numbers</strong>, so
+the data reaches the right process, and a
+<strong>checksum</strong>.</li>
+</ul>
+<p>Think of posting letters: each one travels on its own, and nobody
+tells you if one goes missing.</p>
+<h3 id="the-udp-header">3.2 The UDP header</h3>
+<figure>
+<img width="1320" height="507" src="media/9-artifacts/udp-header.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="The UDP header is 8 bytes: two ports, a length and a checksum" />
+<figcaption aria-hidden="true">The UDP header is 8 bytes: two ports, a
+length and a checksum</figcaption>
+</figure>
+<div class="table-wrap">
+<table style="width: 93%;">
+<colgroup>
+<col style="width: 34%" />
+<col style="width: 65%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Field (16 bits each)</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Source port, destination port</td>
+<td style="text-align: left;">Which processes are talking.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Length</td>
+<td style="text-align: left;">Header plus data, in bytes (at least
+8).</td>
+</tr>
+<tr>
+<td style="text-align: left;">Checksum</td>
+<td style="text-align: left;">Detects a damaged datagram. The receiver
+then discards it.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The header is always <strong>8 bytes</strong>. There are no sequence
+numbers, no acknowledgements and no connection.</p>
+<hr />
+<h2 id="tcp-transmission-control-protocol">4. TCP: Transmission Control
+Protocol</h2>
+<h3 id="what-tcp-does">4.1 What TCP does</h3>
+<ul>
+<li>TCP first <strong>sets up a connection</strong> between the two
+processes, using three messages.</li>
+<li>The receiver sends <strong>acknowledgements (ACKs)</strong> for what
+has arrived. Anything not acknowledged in time is sent again.</li>
+<li>TCP gives the bytes to the application <strong>in order, with no
+gaps and no duplicates</strong>.</li>
+<li>TCP slows down for a slow <strong>receiver</strong> (<strong>flow
+control</strong>) and for a busy <strong>network</strong>
+(<strong>congestion control</strong>).</li>
+</ul>
+<p>Think of a phone call: you connect first, and you ask the other
+person to repeat anything you missed.</p>
+<h3 id="the-tcp-header">4.2 The TCP header</h3>
+<figure>
+<img width="1400" height="556" src="media/9-artifacts/tcp-header.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="The TCP header: 20 bytes minimum, up to 60 with options" />
+<figcaption aria-hidden="true">The TCP header: 20 bytes minimum, up to
+60 with options</figcaption>
+</figure>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 57%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Field</th>
+<th style="text-align: left;">What it does</th>
+<th style="text-align: left;">Section</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Source port, destination port</td>
+<td style="text-align: left;">Which processes are talking, as in
+UDP.</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Sequence Number (SN)</strong></td>
+<td style="text-align: left;">The number of the <strong>first data
+byte</strong> in this segment.</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Acknowledgement Number
+(AN)</strong></td>
+<td style="text-align: left;">The <strong>next byte</strong> that the
+sender of this segment expects to receive.</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr>
+<td style="text-align: left;">HLEN</td>
+<td style="text-align: left;">Header length in 32-bit words. 5 means 20
+bytes; the maximum, 15, means 60 bytes.</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">Flags</td>
+<td style="text-align: left;">One-bit signals: SYN, ACK, FIN, RST.</td>
+<td style="text-align: left;">6</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Window Size</strong></td>
+<td style="text-align: left;">How many more bytes the receiver can
+accept (rwnd).</td>
+<td style="text-align: left;">8</td>
+</tr>
+<tr>
+<td style="text-align: left;">Checksum</td>
+<td style="text-align: left;">Detects a damaged segment.</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">Urgent pointer</td>
+<td style="text-align: left;">Marks urgent data. Rarely used.</td>
+<td style="text-align: left;">—</td>
+</tr>
+<tr>
+<td style="text-align: left;">Options</td>
+<td style="text-align: left;">For example MSS, window scaling, selective
+ACKs, timestamps.</td>
+<td style="text-align: left;">5, 10</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The TCP header is <strong>20 to 60 bytes</strong>. The UDP header is
+always 8 bytes.</p>
+<h3 id="udp-and-tcp-side-by-side">4.3 UDP and TCP side by side</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 33%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">UDP</th>
+<th style="text-align: left;">TCP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Set-up before data</td>
+<td style="text-align: left;">None (connectionless)</td>
+<td style="text-align: left;">Three-way handshake
+(connection-oriented)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Lost data</td>
+<td style="text-align: left;">Not detected, not resent</td>
+<td style="text-align: left;">Acknowledged; lost bytes are resent</td>
+</tr>
+<tr>
+<td style="text-align: left;">Order of delivery</td>
+<td style="text-align: left;">No guarantee</td>
+<td style="text-align: left;">Bytes delivered in order</td>
+</tr>
+<tr>
+<td style="text-align: left;">Unit the application sees</td>
+<td style="text-align: left;"><strong>Messages:</strong> one send is one
+datagram</td>
+<td style="text-align: left;">A <strong>byte stream</strong> with no
+message boundaries</td>
+</tr>
+<tr>
+<td style="text-align: left;">Header size</td>
+<td style="text-align: left;">8 bytes, fixed</td>
+<td style="text-align: left;">20 bytes minimum, up to 60</td>
+</tr>
+<tr>
+<td style="text-align: left;">Also provides</td>
+<td style="text-align: left;">Nothing else</td>
+<td style="text-align: left;">Flow control and congestion control</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="why-would-anyone-choose-unreliable-udp">4.4 Why would anyone
+choose unreliable UDP?</h3>
+<figure>
+<img width="1400" height="504" src="media/9-artifacts/playback-deadline.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="With a 100 ms playback deadline, data that arrives at 160 ms is too late to use" />
+<figcaption aria-hidden="true">With a 100 ms playback deadline, data
+that arrives at 160 ms is too late to use</figcaption>
+</figure>
+<p>For <strong>live media</strong>, data is only useful if it arrives
+<strong>before its playback deadline</strong>. Suppose a video call
+plays each piece 100 ms after it is sent. A piece that arrives at 40 ms
+is played. A lost piece that TCP recovers at 160 ms is <strong>too
+late</strong>: the conversation has already moved on.</p>
+<p>UDP has no handshake and no built-in resending. So the
+<strong>application</strong> decides whether and how to recover missing
+data. It may simply skip a lost frame.</p>
+<h3 id="choosing-tcp-or-udp">4.5 Choosing TCP or UDP</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 9%" />
+<col style="width: 56%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Application</th>
+<th style="text-align: left;">Choice</th>
+<th style="text-align: left;">Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Downloading a lecture PDF</td>
+<td style="text-align: left;"><strong>TCP</strong></td>
+<td style="text-align: left;">Every byte must arrive, in order.</td>
+</tr>
+<tr>
+<td style="text-align: left;">A web page (HTTP/1.1 or HTTP/2)</td>
+<td style="text-align: left;"><strong>TCP</strong></td>
+<td style="text-align: left;">Every byte of the page must arrive.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Looking up www.ntu.edu.sg in DNS</td>
+<td style="text-align: left;"><strong>UDP</strong></td>
+<td style="text-align: left;">One short question and one short answer.
+If it is lost, just ask again.</td>
+</tr>
+<tr>
+<td style="text-align: left;">A live video call</td>
+<td style="text-align: left;"><strong>UDP</strong></td>
+<td style="text-align: left;">A late frame is useless. Skip it rather
+than wait.</td>
+</tr>
+<tr>
+<td style="text-align: left;">A fast multiplayer game</td>
+<td style="text-align: left;"><strong>UDP</strong></td>
+<td style="text-align: left;">Only the newest position matters, not old
+ones.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Sending an email</td>
+<td style="text-align: left;"><strong>TCP</strong></td>
+<td style="text-align: left;">The message must arrive complete.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+UDP numbers its datagrams and resends lost ones. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> UDP adds only port numbers and a checksum. A
+lost datagram is gone.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+The Transmission Control Protocol (TCP) is connectionless. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> TCP sets up a connection with a three-way
+handshake first. UDP is connectionless.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A video call usually prefers UDP, because a recovered frame that arrives
+late is useless. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>True.</strong> The data is only useful before its playback
+deadline, so the application skips a lost frame instead of waiting for a
+resend.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+If an application writes “HELLO” and then “WORLD”, the TCP receiver
+reads exactly two pieces. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> TCP is a byte stream. It keeps the byte order
+but not the write boundaries.</p>
+</div>
+</details>
+<hr />
+<h2 id="byte-numbering-sn-and-an">5. Byte Numbering: SN and AN</h2>
+<h3 id="what-tcp-adds-and-the-one-idea-under-it">5.1 What TCP adds, and
+the one idea under it</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 64%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Service</th>
+<th style="text-align: left;">Problem it solves</th>
+<th style="text-align: left;">Section</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Connection management</td>
+<td style="text-align: left;">Both sides agree to talk and agree their
+starting numbers.</td>
+<td style="text-align: left;">6</td>
+</tr>
+<tr>
+<td style="text-align: left;">Error control</td>
+<td style="text-align: left;">Lost, duplicated, damaged or out-of-order
+segments.</td>
+<td style="text-align: left;">7</td>
+</tr>
+<tr>
+<td style="text-align: left;">Flow control</td>
+<td style="text-align: left;">A fast sender overrunning a slow
+receiver’s buffer.</td>
+<td style="text-align: left;">8</td>
+</tr>
+<tr>
+<td style="text-align: left;">Congestion control</td>
+<td style="text-align: left;">Too much traffic overloading the network
+itself.</td>
+<td style="text-align: left;">9</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>All four depend on one idea: <strong>TCP numbers every byte it
+sends.</strong></p>
+<h3 id="tcp-is-a-byte-stream">5.2 TCP is a byte stream</h3>
+<figure>
+<img width="1400" height="355" src="media/9-artifacts/byte-stream.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="TCP keeps the byte order but not the application’s write boundaries" />
+<figcaption aria-hidden="true">TCP keeps the byte order but not the
+application’s write boundaries</figcaption>
+</figure>
+<p>If the sender writes “HELLO” and then “WORLD”, must the receiver read
+the same two pieces? <strong>No.</strong> TCP keeps the bytes <strong>in
+order</strong>, but it does not keep the <strong>boundaries</strong>
+between writes. TCP may send “HELLOWO” and “RLD”, and the receiver may
+read “HELLOWOR” and “LD”. Every row still holds HELLOWORLD in the same
+order.</p>
+<p>TCP sends no marker for the end of each write. If an application
+needs separate messages, it must mark them itself, for example with a
+length field at the start of each message.</p>
+<h3 id="how-much-data-fits-in-one-segment-mss-and-mtu">5.3 How much data
+fits in one segment: MSS and MTU</h3>
+<p><strong>Maximum segment size (MSS):</strong> the most <strong>TCP
+data</strong> one segment can carry. The TCP and IP headers are
+<strong>not</strong> counted.</p>
+<ul>
+<li>Example: MSS = 1000 bytes and the application has 2500 bytes. TCP
+sends 1000 + 1000 + 500. MSS is a <strong>maximum</strong>, so the last
+segment can be smaller.</li>
+<li>Each segment has its own TCP and IP headers. Those are extra bytes
+on top of the data.</li>
+</ul>
+<p><strong>Maximum transmission unit (MTU):</strong> the largest
+<strong>IP packet</strong> a link carries without fragmentation.</p>
+<figure>
+<img width="1400" height="151" src="media/9-artifacts/mtu-mss.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="With a 1500-byte MTU and two 20-byte headers, 1460 bytes remain for TCP data" />
+<figcaption aria-hidden="true">With a 1500-byte MTU and two 20-byte
+headers, 1460 bytes remain for TCP data</figcaption>
+</figure>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">MSS</mtext><mo>=</mo><mtext mathvariant="normal">MTU</mtext><mo>−</mo><mtext mathvariant="normal">IP header</mtext><mo>−</mo><mtext mathvariant="normal">TCP header</mtext><mo>=</mo><mn>1500</mn><mo>−</mo><mn>20</mn><mo>−</mo><mn>20</mn><mo>=</mo><mn>1460</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bytes</mtext></mrow></mrow><annotation encoding="application/x-tex">\text{MSS} = \text{MTU} - \text{IP header} - \text{TCP header} = 1500 - 20 - 20 = 1460 \text{ bytes}</annotation></semantics></math></p>
+<p>MSS varies from link to link (536 bytes is another common value).
+<strong>Always use the value given in the question.</strong></p>
+<h3 id="the-sequence-number-sn">5.4 The sequence number (SN)</h3>
+<p>TCP numbers the bytes so that the receiver can put the data in order
+and find gaps. <strong>The SN of a segment is the number of its first
+data byte.</strong></p>
+<figure>
+<img width="1400" height="221" src="media/9-artifacts/sequence-numbers.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="Segment 1 carries bytes 2001 to 2400, so segment 2 starts at 2401" />
+<figcaption aria-hidden="true">Segment 1 carries bytes 2001 to 2400, so
+segment 2 starts at 2401</figcaption>
+</figure>
+<p>Suppose the first data byte is number 2001.</p>
+<ul>
+<li>Segment 1 carries 400 bytes: bytes 2001 to 2400. <strong>SN =
+2001.</strong></li>
+<li>Segment 2 carries 300 bytes: bytes 2401 to 2700. <strong>SN =
+2401.</strong></li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">next SN</mtext><mo>=</mo><mtext mathvariant="normal">this SN</mtext><mo>+</mo><mtext mathvariant="normal">number of data bytes</mtext></mrow><annotation encoding="application/x-tex">\text{next SN} = \text{this SN} + \text{number of data bytes}</annotation></semantics></math></p>
+<p>The SN field is 32 bits, so the numbers wrap round to 0 after
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>32</mn></msup><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">2^{32} - 1</annotation></semantics></math>.
+Exam questions stay away from that limit.</p>
+<h3 id="the-acknowledgement-number-an">5.5 The acknowledgement number
+(AN)</h3>
+<p><strong>The AN is the number of the next byte the receiver
+expects.</strong></p>
+<ul>
+<li>AN = 2401 means: “I have every byte up to 2400. Send 2401
+next.”</li>
+<li>ACKs are <strong>cumulative</strong>: one AN confirms
+<strong>all</strong> the bytes before it, not just the last segment. If
+one ACK is lost, the next ACK covers for it.</li>
+<li>The <strong>ACK flag</strong> is a separate bit that says “the AN
+field is valid”.</li>
+</ul>
+<h3 id="worked-example-data-in-one-direction">5.6 Worked example: data
+in one direction</h3>
+<p>The connection is already open. The client’s first data byte is 2001,
+and the server’s is 5001.</p>
+<div class="table-wrap">
+<table style="width: 92%;">
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 21%" />
+<col style="width: 30%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Direction</th>
+<th style="text-align: left;">Segment</th>
+<th style="text-align: left;">Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Client → server</td>
+<td style="text-align: left;">SN = 2001, 400 bytes</td>
+<td style="text-align: left;">Bytes 2001 to 2400.</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Server → client</td>
+<td style="text-align: left;">ACK, SN = 5001, AN = 2401</td>
+<td style="text-align: left;">The server has everything up to 2400.</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Client → server</td>
+<td style="text-align: left;">SN = 2401, 300 bytes</td>
+<td style="text-align: left;">Bytes 2401 to 2700.</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">Server → client</td>
+<td style="text-align: left;">ACK, SN = 5001, AN = 2701</td>
+<td style="text-align: left;">Everything up to 2700.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The server’s ACKs carry <strong>no data</strong>. Such a <strong>pure
+ACK</strong> uses up <strong>no</strong> sequence number, so the
+server’s SN stays at 5001.</p>
+<h3 id="worked-example-data-in-both-directions">5.7 Worked example: data
+in both directions</h3>
+<figure>
+<img width="1100" height="855" src="media/9-artifacts/data-both-directions.webp"
+style="width:50.0%" loading="lazy" decoding="async"
+alt="The server’s data segment also carries AN = 2701. This is piggybacking." />
+<figcaption aria-hidden="true">The server’s data segment also carries AN
+= 2701. This is piggybacking.</figcaption>
+</figure>
+<p>After segment 4 above, the server sends 600 bytes of its own:</p>
+<ul>
+<li>The server’s segment has <strong>SN = 5001</strong> (its own first
+byte) and <strong>AN = 2701</strong> (it still acknowledges the client).
+Carrying an ACK on a data segment is called
+<strong>piggybacking</strong>.</li>
+<li>The client replies <strong>AN = 5001 + 600 = 5601</strong>, with SN
+= 2701.</li>
+</ul>
+<blockquote>
+<p><strong>SN always counts the sender’s own bytes. AN always counts the
+other side’s bytes.</strong></p>
+</blockquote>
+<h3 id="what-happens-when-a-segment-goes-missing">5.8 What happens when
+a segment goes missing</h3>
+<figure>
+<img width="1100" height="894" src="media/9-artifacts/missing-segment.webp" style="width:50.0%"
+loading="lazy" decoding="async"
+alt="Bytes 2101 to 2200 are lost, so the receiver sends AN = 2101 again" />
+<figcaption aria-hidden="true">Bytes 2101 to 2200 are lost, so the
+receiver sends AN = 2101 again</figcaption>
+</figure>
+<p>The client sends three 100-byte segments: 2001, 2101 and 2201. The
+segment 2101 is lost, but 2201 arrives.</p>
+<ul>
+<li>The receiver can only acknowledge up to the <strong>first missing
+byte</strong>. So it sends <strong>AN = 2101 again</strong>, even though
+bytes 2201 to 2300 have arrived.</li>
+<li>An ACK that repeats the previous AN is a <strong>duplicate
+ACK</strong>. It tells the sender: “something after this point did not
+arrive.” Section 7 shows what the sender does with it.</li>
+</ul>
+<p><strong>Lecture question.</strong> A segment has SN = 7301 and 180
+bytes, and all earlier bytes have arrived. (a) What AN does the receiver
+send? (b) Next, the segment SN = 7481 (200 bytes) is lost and the
+segment SN = 7681 (150 bytes) arrives. What AN does the receiver send
+now? (c) What must the sender resend eventually?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><ol type="a">
+<li>The receiver sends <strong>AN = 7301 + 180 = 7481</strong>.</li>
+</ol></li>
+<li><ol start="2" type="a">
+<li>Next, SN = 7481 (200 bytes) is lost and SN = 7681 (150 bytes)
+arrives. The receiver sends <strong>AN = 7481 again</strong>, a
+duplicate ACK. Byte 7481 is missing, so it cannot acknowledge 7681 to
+7830 yet.</li>
+</ol></li>
+<li><ol start="3" type="a">
+<li>The sender must eventually resend <strong>SN = 7481</strong>, the
+first byte of the lost segment.</li>
+</ol></li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+The acknowledgement number is the number of the last byte that arrived.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> It is the number of the <strong>next</strong>
+byte the receiver expects.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A pure ACK (no data, no SYN, no FIN) uses up one sequence number. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> It uses none, so the next segment from that
+side repeats the same SN.</p>
+</div>
+</details>
+<hr />
+<h2 id="opening-and-closing-a-connection">6. Opening and Closing a
+Connection</h2>
+<h3 id="why-set-up-a-connection-first">6.1 Why set up a connection
+first?</h3>
+<p>A TCP connection is a <strong>logical conversation</strong> that both
+end hosts keep track of. It does <strong>not</strong> reserve a physical
+path. Before any data moves, both sides must:</p>
+<ul>
+<li>check that the other side exists and is ready;</li>
+<li>agree each side’s starting sequence number, the <strong>initial
+sequence number (ISN)</strong>;</li>
+<li>tell each other how much buffer space they have (the window, Section
+8);</li>
+<li>set aside memory to track the connection’s numbers, windows and
+state.</li>
+</ul>
+<p>This exchange is the <strong>three-way handshake</strong>.</p>
+<h3 id="the-control-flags">6.2 The control flags</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Flag</th>
+<th style="text-align: left;">Meaning when the bit is 1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>SYN</strong></td>
+<td style="text-align: left;">Synchronise: “my starting sequence number
+is in the SN field”. Used only when opening.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ACK</strong></td>
+<td style="text-align: left;">The AN field is valid.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>FIN</strong></td>
+<td style="text-align: left;">Finish: “I have no more data to send”.
+Used when closing.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>RST</strong></td>
+<td style="text-align: left;">Reset: abort the connection at once, for
+example when a segment arrives for a connection that does not
+exist.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A segment can have more than one flag set, for example
+<strong>SYN+ACK</strong> or <strong>FIN+ACK</strong>.</p>
+<h3 id="the-three-way-handshake">6.3 The three-way handshake</h3>
+<figure>
+<img width="1030" height="686" src="media/9-artifacts/three-way-handshake.webp" style="width:50.0%"
+loading="lazy" decoding="async"
+alt="Client ISN 2000, server ISN 5000" />
+<figcaption aria-hidden="true">Client ISN 2000, server ISN
+5000</figcaption>
+</figure>
+<ol type="1">
+<li><strong>Client → server: SYN, SN = 2000.</strong> “My starting
+number is 2000.”</li>
+<li><strong>Server → client: SYN+ACK, SN = 5000, AN = 2001.</strong> “I
+acknowledge yours. Mine is 5000.”</li>
+<li><strong>Client → server: ACK, SN = 2001, AN = 5001.</strong> “I
+acknowledge yours too.”</li>
+</ol>
+<p><strong>Why a third message?</strong> So that each side hears its own
+starting number confirmed. The SYN+ACK confirms the client’s ISN. The
+third message confirms the server’s ISN.</p>
+<h3 id="the-rule-syn-and-fin-each-use-up-one-number">6.4 The rule: SYN
+and FIN each use up one number</h3>
+<ul>
+<li>A SYN carries <strong>no data</strong>, but it <strong>counts as one
+byte</strong> in the numbering. So the first data byte is <strong>ISN +
+1</strong>.</li>
+<li>That is why the server replies AN = <strong>2001</strong>, not 2000:
+it is acknowledging the SYN itself.</li>
+<li>A <strong>pure ACK</strong> (no data, no SYN, no FIN) uses up
+<strong>nothing</strong>. So the client’s ACK in step 3
+<strong>and</strong> its first data segment both have SN = 2001.</li>
+<li>Why count the SYN at all? So that it can be acknowledged, and resent
+if it is lost, just like data.</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><mtext mathvariant="normal">next SN</mtext><mo>=</mo><mtext mathvariant="normal">SN</mtext><mo>+</mo><mtext mathvariant="normal">data bytes</mtext><mspace width="0.222em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>+</mi><mn>1</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if SYN</mtext></mrow><mo stretchy="false" form="postfix">)</mo><mspace width="0.222em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>+</mi><mn>1</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> if FIN</mtext></mrow><mo stretchy="false" form="postfix">)</mo></mrow></menclose><annotation encoding="application/x-tex">\boxed{\text{next SN} = \text{SN} + \text{data bytes}\ (+1 \text{ if SYN})\ (+1 \text{ if FIN})}</annotation></semantics></math></p>
+<h3 id="closing-a-connection">6.5 Closing a connection</h3>
+<p>When one side stops sending, silence is not enough: silence could
+just mean a pause or a delay. So each side sends an explicit
+<strong>FIN</strong>: “I have no more data to send.”</p>
+<ul>
+<li><strong>Each direction closes separately.</strong> The peer ACKs the
+FIN, but it may still send its own remaining data. One direction closed
+while the other is still open is a <strong>half-close</strong>.</li>
+<li>Normally the close takes four segments: FIN, ACK, FIN, ACK. The
+middle ACK and FIN can be combined into one FIN+ACK, which gives
+<strong>three</strong> segments.</li>
+<li>Each FIN uses up <strong>one</strong> sequence number.</li>
+</ul>
+<figure>
+<img width="1160" height="788" src="media/9-artifacts/closing.webp" style="width:55.0%"
+loading="lazy" decoding="async" alt="Closing after the data exchange" />
+<figcaption aria-hidden="true">Closing after the data
+exchange</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 20%" />
+<col style="width: 32%" />
+<col style="width: 44%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Direction</th>
+<th style="text-align: left;">Segment</th>
+<th style="text-align: left;">Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Client → server</td>
+<td style="text-align: left;">FIN+ACK, SN = 2701, AN = 5601</td>
+<td style="text-align: left;">The client has finished.</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Server → client</td>
+<td style="text-align: left;">ACK, SN = 5601, AN =
+<strong>2702</strong></td>
+<td style="text-align: left;">The client’s FIN used up 2701.</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Server → client</td>
+<td style="text-align: left;">FIN+ACK, SN = <strong>5601</strong>, AN =
+2702</td>
+<td style="text-align: left;">The server’s pure ACK used up nothing.
+Between rows 2 and 3 (the half-close), the server could still send data.
+Here it sends none.</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">Client → server</td>
+<td style="text-align: left;">ACK, SN = 2702, AN =
+<strong>5602</strong></td>
+<td style="text-align: left;">The server’s FIN used up 5601.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="the-whole-conversation-in-one-table">6.6 The whole conversation
+in one table</h3>
+<div class="table-wrap">
+<table style="width: 54%;">
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 22%" />
+<col style="width: 18%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 24%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Direction</th>
+<th style="text-align: left;">Flags</th>
+<th style="text-align: left;">SN</th>
+<th style="text-align: left;">AN</th>
+<th style="text-align: left;">Data bytes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">SYN</td>
+<td style="text-align: left;">2000</td>
+<td style="text-align: left;">–</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">SYN+ACK</td>
+<td style="text-align: left;">5000</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">5001</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">2001</td>
+<td style="text-align: left;">5001</td>
+<td style="text-align: left;">400</td>
+</tr>
+<tr>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">5001</td>
+<td style="text-align: left;">2401</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">2401</td>
+<td style="text-align: left;">5001</td>
+<td style="text-align: left;">300</td>
+</tr>
+<tr>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">5001</td>
+<td style="text-align: left;">2701</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">5001</td>
+<td style="text-align: left;">2701</td>
+<td style="text-align: left;">600</td>
+</tr>
+<tr>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">2701</td>
+<td style="text-align: left;">5601</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">10</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">FIN+ACK</td>
+<td style="text-align: left;">2701</td>
+<td style="text-align: left;">5601</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">5601</td>
+<td style="text-align: left;">2702</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">FIN+ACK</td>
+<td style="text-align: left;">5601</td>
+<td style="text-align: left;">2702</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr>
+<td style="text-align: left;">13</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">2702</td>
+<td style="text-align: left;">5602</td>
+<td style="text-align: left;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Rows 1 to 3 open the connection, rows 4 to 9 move data, and rows 10
+to 13 close it. Add <strong>+1 after each SYN and FIN</strong>, the
+<strong>data length</strong> after each data segment, and
+<strong>0</strong> after a pure ACK.</p>
+<h3 id="fill-in-the-blanks">6.7 Fill in the blanks</h3>
+<p><strong>Lecture question.</strong> Client ISN = 800, server ISN =
+3000. After the handshake, the client sends 120 bytes, the server
+replies with 500 bytes, the client ACKs, and then the client closes.
+Fill in the SN and AN of every segment.</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 5%" />
+<col style="width: 38%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Segment</th>
+<th style="text-align: left;">SN</th>
+<th style="text-align: left;">AN</th>
+<th style="text-align: left;">Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">Client: SYN</td>
+<td style="text-align: left;">800</td>
+<td style="text-align: left;">–</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">Server: SYN+ACK</td>
+<td style="text-align: left;">3000</td>
+<td style="text-align: left;"><strong>801</strong></td>
+<td style="text-align: left;">Acknowledges the SYN: 800 + 1.</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">Client: ACK</td>
+<td style="text-align: left;"><strong>801</strong></td>
+<td style="text-align: left;">3001</td>
+<td style="text-align: left;">The first number after the SYN.</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">Client: 120 bytes</td>
+<td style="text-align: left;">801</td>
+<td style="text-align: left;"><strong>3001</strong></td>
+<td style="text-align: left;">The pure ACK in row 3 used up nothing.
+Server ISN + 1.</td>
+</tr>
+<tr>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">Server: 500 bytes (ACK piggybacked)</td>
+<td style="text-align: left;">3001</td>
+<td style="text-align: left;"><strong>921</strong></td>
+<td style="text-align: left;">801 + 120.</td>
+</tr>
+<tr>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">Client: ACK</td>
+<td style="text-align: left;">921</td>
+<td style="text-align: left;"><strong>3501</strong></td>
+<td style="text-align: left;">3001 + 500.</td>
+</tr>
+<tr>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">Client: FIN+ACK</td>
+<td style="text-align: left;"><strong>921</strong></td>
+<td style="text-align: left;">3501</td>
+<td style="text-align: left;">The ACK in row 6 used up nothing.</td>
+</tr>
+<tr>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">Server: ACK</td>
+<td style="text-align: left;">3501</td>
+<td style="text-align: left;"><strong>922</strong></td>
+<td style="text-align: left;">The FIN used up 921.</td>
+</tr>
+<tr>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">Server: FIN+ACK</td>
+<td style="text-align: left;"><strong>3501</strong></td>
+<td style="text-align: left;">922</td>
+<td style="text-align: left;">The pure ACK in row 8 used up
+nothing.</td>
+</tr>
+<tr>
+<td style="text-align: left;">10</td>
+<td style="text-align: left;">Client: ACK</td>
+<td style="text-align: left;">922</td>
+<td style="text-align: left;"><strong>3502</strong></td>
+<td style="text-align: left;">The server’s FIN used up 3501.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<h3 id="method-list-every-segment-of-a-whole-exchange">6.8 Method: list
+every segment of a whole exchange</h3>
+<p>A common task gives two programs, their ISNs, the MSS and how much
+each side writes. It asks for the <strong>minimum</strong> list of
+segments, with the SN and AN of each. Work in this order:</p>
+<ol type="1">
+<li><strong>Open:</strong> SYN (client ISN), SYN+ACK (server ISN, AN =
+client ISN + 1), ACK.</li>
+<li><strong>Piggyback wherever you can.</strong> To keep the count
+minimal, an ACK rides on a data segment or a FIN whenever one is about
+to go the same way. The handshake’s final ACK can carry the client’s
+first data.</li>
+<li><strong>Split each side’s data into segments</strong> of at most MSS
+bytes:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mtext mathvariant="normal">bytes</mtext><mi>/</mi><mtext mathvariant="normal">MSS</mtext><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">\lceil \text{bytes} / \text{MSS} \rceil</annotation></semantics></math>
+segments, with the last one smaller.</li>
+<li><strong>Apply slow start</strong> if the question gives an initial
+congestion window (Section 9). The sender sends 1 segment, waits for its
+ACK, then sends 2, then 4, and so on. One cumulative ACK can cover a
+whole round. Check that the receive window never stops a round.</li>
+<li><strong>Close:</strong> each side’s FIN uses one number. If the
+second side closes straight away, its ACK and FIN combine into one
+FIN+ACK.</li>
+<li><strong>Number as you go:</strong> next SN = SN + data bytes (+1 for
+a SYN or FIN). AN = the next byte expected from the other side.</li>
+</ol>
+<h3 id="tutorial-2.3-q1">6.9 Tutorial 2.3 Q1</h3>
+<p><strong>Tutorial 2.3 Q1.</strong> Figure Q1 shows an extract of a
+Client program and a Server program (in pseudo code) interacting with
+their TCP layers. Fill in the minimum number of TCP segments that must
+be exchanged between the Client TCP and Server TCP, in an ideal
+communication situation without error retransmission. Indicate clearly
+the Sequence Number (SN) and the Acknowledgement Number (AN) in each
+segment. Include SYN or FIN flags if they are set.</p>
+<p>Assume that the Initial Sequence Number (ISN) for the Client TCP is
+100 and the ISN for the Server TCP is 600. Both window sizes are fixed
+at 2048 bytes. The Maximum Segment Size (MSS) is 536 bytes, and the
+initial congestion window size is 1 MSS.</p>
+<pre><code>Client program                      Server program
+
+c = new Socket()                    svr = new ServerSocket()
+                                    s = svr.accept()
+
+c.write(30 bytes)                   s.read(30 bytes)
+c.read(3000 bytes)                  s.write(3000 bytes)
+
+c.close()
+                                    s.close()</code></pre>
+<details class="qa box">
+<summary>
+<strong>Answer (unofficial: no solution was released)</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Plan.</strong> Open the connection. The client sends 30
+bytes. The server sends 3000 bytes in slow start:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mn>3000</mn><mi>/</mi><mn>536</mn><mo stretchy="false" form="postfix">⌉</mo><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">\lceil 3000/536 \rceil = 6</annotation></semantics></math>
+segments (five of 536 bytes and one of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3000</mn><mo>−</mo><mn>2680</mn><mo>=</mo><mn>320</mn></mrow><annotation encoding="application/x-tex">3000 - 2680 = 320</annotation></semantics></math>
+bytes), in rounds of 1, 2 and 3 segments. The windows never block: the
+biggest round holds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>536</mn><mo>+</mo><mn>536</mn><mo>+</mo><mn>320</mn><mo>=</mo><mn>1392</mn></mrow><annotation encoding="application/x-tex">536 + 536 + 320 = 1392</annotation></semantics></math>
+bytes, and the limit is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>2048</mn><mo>,</mo><mspace width="0.222em"></mspace><mn>4</mn><mo>×</mo><mn>536</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2048</mn></mrow><annotation encoding="application/x-tex">\min(2048,\ 4 \times 536) = 2048</annotation></semantics></math>.
+Then both sides close.</p>
+<p>To keep the count minimal, the client’s handshake ACK carries the 30
+bytes, the server’s first data segment carries the ACK for them, and
+each side’s ACK and FIN combine.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 5%" />
+<col style="width: 12%" />
+<col style="width: 10%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 13%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Direction</th>
+<th style="text-align: left;">Flags</th>
+<th style="text-align: left;">SN</th>
+<th style="text-align: left;">AN</th>
+<th style="text-align: left;">Data bytes</th>
+<th style="text-align: left;">Bytes carried</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">SYN</td>
+<td style="text-align: left;">100</td>
+<td style="text-align: left;">–</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">SYN+ACK</td>
+<td style="text-align: left;">600</td>
+<td style="text-align: left;">101</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">101</td>
+<td style="text-align: left;">601</td>
+<td style="text-align: left;">30</td>
+<td style="text-align: left;">101–130</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">601</td>
+<td style="text-align: left;">131</td>
+<td style="text-align: left;">536</td>
+<td style="text-align: left;">601–1136 (cwnd = 1)</td>
+</tr>
+<tr>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">131</td>
+<td style="text-align: left;">1137</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">1137</td>
+<td style="text-align: left;">131</td>
+<td style="text-align: left;">536</td>
+<td style="text-align: left;">1137–1672 (cwnd = 2)</td>
+</tr>
+<tr>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">1673</td>
+<td style="text-align: left;">131</td>
+<td style="text-align: left;">536</td>
+<td style="text-align: left;">1673–2208</td>
+</tr>
+<tr>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">131</td>
+<td style="text-align: left;">2209</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">one ACK for rows 6 and 7</td>
+</tr>
+<tr>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">2209</td>
+<td style="text-align: left;">131</td>
+<td style="text-align: left;">536</td>
+<td style="text-align: left;">2209–2744 (cwnd = 4, 3 segments left)</td>
+</tr>
+<tr>
+<td style="text-align: left;">10</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">2745</td>
+<td style="text-align: left;">131</td>
+<td style="text-align: left;">536</td>
+<td style="text-align: left;">2745–3280</td>
+</tr>
+<tr>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">3281</td>
+<td style="text-align: left;">131</td>
+<td style="text-align: left;">320</td>
+<td style="text-align: left;">3281–3600</td>
+</tr>
+<tr>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">FIN+ACK</td>
+<td style="text-align: left;">131</td>
+<td style="text-align: left;">3601</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">the client ACKs the data and closes</td>
+</tr>
+<tr>
+<td style="text-align: left;">13</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">FIN+ACK</td>
+<td style="text-align: left;">3601</td>
+<td style="text-align: left;">132</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">the server ACKs the FIN and closes</td>
+</tr>
+<tr>
+<td style="text-align: left;">14</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">132</td>
+<td style="text-align: left;">3602</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>14 segments.</strong> If the client sends its handshake ACK
+on its own (without data), the count is 15.</p>
+<p><em>Check:</em> the server’s data runs from 601 to 3600, which is
+3000 bytes, so its next SN is 3601. The client’s data is 101 to 130, so
+its next SN is 131. The FINs use 131 and 3601, so the final ACKs are 132
+and 3602. ✓</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> the minimum segment list with slow
+start <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Number the opening: SYN (ISN), SYN+ACK (AN = ISN + 1), ACK. Let the
+first data ride on the last handshake ACK.</li>
+<li>For each direction, split the data into segments of at most MSS:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌈</mo><mtext mathvariant="normal">bytes</mtext><mi>/</mi><mtext mathvariant="normal">MSS</mtext><mo stretchy="false" form="postfix">⌉</mo></mrow><annotation encoding="application/x-tex">\lceil \text{bytes}/\text{MSS} \rceil</annotation></semantics></math>.</li>
+<li>Sender rounds: round
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+sends
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><msub><mtext mathvariant="normal">cwnd</mtext><mi>k</mi></msub><mo>,</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">segments left</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\min(\text{cwnd}_k,\ \text{segments left})</annotation></semantics></math>
+segments, where cwnd doubles each round from 1. Check that the bytes in
+flight stay within
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">rwnd</mtext><mo>,</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">cwnd</mtext><mo>×</mo><mtext mathvariant="normal">MSS</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\min(\text{rwnd},\ \text{cwnd} \times \text{MSS})</annotation></semantics></math>.</li>
+<li>One cumulative ACK after each round. The ACK of the last round rides
+on the next FIN.</li>
+<li>Close with FIN+ACK, FIN+ACK, ACK when the second side closes
+straight away.</li>
+<li>Number as you go: next SN = SN + data (+1 for SYN or FIN). AN = the
+next byte expected from the other side.</li>
+</ol>
+</div>
+</details>
+<p><strong>Extension 1.1.</strong> Client ISN = 1000, server ISN = 5000.
+The client writes 20 bytes, and the server replies with 2000 bytes. Then
+the client closes, and the server closes. MSS = 500 bytes, the initial
+cwnd = 1 segment, and the windows are large. List the minimum segments
+with the SN and AN of each.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 1.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The server’s 2000 bytes need 4 segments, sent in rounds of 1, 2 and
+1.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 5%" />
+<col style="width: 12%" />
+<col style="width: 10%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 51%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">#</th>
+<th style="text-align: left;">Direction</th>
+<th style="text-align: left;">Flags</th>
+<th style="text-align: left;">SN</th>
+<th style="text-align: left;">AN</th>
+<th style="text-align: left;">Data</th>
+<th style="text-align: left;">Bytes carried</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">SYN</td>
+<td style="text-align: left;">1000</td>
+<td style="text-align: left;">–</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">SYN+ACK</td>
+<td style="text-align: left;">5000</td>
+<td style="text-align: left;">1001</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">1001</td>
+<td style="text-align: left;">5001</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">1001–1020 (the handshake ACK carries the
+data)</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">5001</td>
+<td style="text-align: left;">1021</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">5001–5500 (cwnd = 1)</td>
+</tr>
+<tr>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">1021</td>
+<td style="text-align: left;">5501</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">5501</td>
+<td style="text-align: left;">1021</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">5501–6000 (cwnd = 2)</td>
+</tr>
+<tr>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">6001</td>
+<td style="text-align: left;">1021</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">6001–6500</td>
+</tr>
+<tr>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">1021</td>
+<td style="text-align: left;">6501</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">one cumulative ACK for rows 6 and 7</td>
+</tr>
+<tr>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">6501</td>
+<td style="text-align: left;">1021</td>
+<td style="text-align: left;">500</td>
+<td style="text-align: left;">6501–7000 (the last segment)</td>
+</tr>
+<tr>
+<td style="text-align: left;">10</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">FIN+ACK</td>
+<td style="text-align: left;">1021</td>
+<td style="text-align: left;">7001</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">the client ACKs the data and closes
+together</td>
+</tr>
+<tr>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;">S → C</td>
+<td style="text-align: left;">FIN+ACK</td>
+<td style="text-align: left;">7001</td>
+<td style="text-align: left;">1022</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">the server ACKs the FIN and closes
+together</td>
+</tr>
+<tr>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;">C → S</td>
+<td style="text-align: left;">ACK</td>
+<td style="text-align: left;">1022</td>
+<td style="text-align: left;">7002</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>That is 12 segments. If the client sends its handshake ACK on its
+own, add one segment. That ACK and the first data segment then both have
+SN = 1001, because a pure ACK uses no number.</p>
+</div>
+</details>
+<p><strong>When the figure shows segments crossing.</strong> Two data
+segments can pass each other in a time-sequence diagram. Each one
+acknowledges only what its sender had received <strong>when it was
+sent</strong>. A segment that left before the other side’s data arrived
+still carries the old AN.</p>
+<details class="qa box">
+<summary>
+The handshake needs a third message so that the server hears its own
+starting number confirmed. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>True.</strong> The SYN+ACK confirms the client’s ISN. The
+third message confirms the server’s ISN.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A SYN segment carries no data, so it uses no sequence number. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A SYN and a FIN each use <strong>one</strong>
+number, so that they can be acknowledged and resent like data.</p>
+</div>
+</details>
+<hr />
+<h2 id="error-control-recovering-lost-data">7. Error Control: Recovering
+Lost Data</h2>
+<h3 id="what-error-control-must-handle">7.1 What error control must
+handle</h3>
+<p><strong>Error control</strong> makes sure every byte reaches the
+receiving application <strong>exactly once, in order</strong>, even
+though IP gives no such guarantee.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 21%" />
+<col style="width: 39%" />
+<col style="width: 39%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Problem</th>
+<th style="text-align: left;">How TCP notices</th>
+<th style="text-align: left;">What TCP does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Segment lost</td>
+<td style="text-align: left;">No ACK before a timer runs out,
+<strong>or</strong> three duplicate ACKs</td>
+<td style="text-align: left;">The sender resends it.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Segment damaged</td>
+<td style="text-align: left;">The checksum does not match.</td>
+<td style="text-align: left;">The receiver discards it. It is then
+treated as lost.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Segment duplicated</td>
+<td style="text-align: left;">Its bytes have already arrived.</td>
+<td style="text-align: left;">The receiver discards it and ACKs
+again.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Out of order</td>
+<td style="text-align: left;">Its SN is higher than the next byte
+expected.</td>
+<td style="text-align: left;">The receiver keeps it in its buffer, sends
+a duplicate ACK, and puts the bytes in order later.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="the-retransmission-timeout">7.2 The retransmission timeout</h3>
+<figure>
+<img width="1080" height="573" src="media/9-artifacts/timeout-scenarios.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Left: the data is lost. Right: the ACK is lost. In both cases the timer runs out and the sender resends." />
+<figcaption aria-hidden="true">Left: the data is lost. Right: the ACK is
+lost. In both cases the timer runs out and the sender
+resends.</figcaption>
+</figure>
+<p><strong>Outstanding data</strong> (data in flight) has been sent but
+not yet acknowledged. TCP runs a <strong>retransmission timer</strong>
+for it. If the timer runs out, TCP resends the <strong>oldest
+unacknowledged</strong> segment.</p>
+<ul>
+<li><strong>Lost data (left):</strong> the receiver never saw the 8
+bytes with SEQ = 92. The sender resends them after the timeout.</li>
+<li><strong>Lost ACK (right):</strong> the receiver already has the
+bytes. It discards the second copy and sends ACK = 100 again.</li>
+</ul>
+<p>(In the figure, SEQ means SN, and ACK = 100 means AN = 100.)</p>
+<p><strong>How long should the timer be?</strong> The <strong>round-trip
+time (RTT)</strong> is the time from sending a segment to receiving its
+ACK. RTT changes all the time, so one measurement is a poor guide.</p>
+<ul>
+<li><strong>Smoothed RTT</strong> is a weighted running average of
+measured RTTs. One slow reply changes it only a little, but many slow
+replies raise it.</li>
+<li><strong>Retransmission timeout (RTO)</strong> = the RTT estimate
+<strong>plus</strong> extra time for variation.</li>
+<li>Too short: the sender resends data that was not lost. Too long: the
+sender recovers slowly from a real loss.</li>
+</ul>
+<h3 id="duplicate-acks-and-fast-retransmit">7.3 Duplicate ACKs and fast
+retransmit</h3>
+<p>Can the sender find a loss <strong>before</strong> the timer runs
+out? Yes, from duplicate ACKs.</p>
+<figure>
+<img width="1070" height="866" src="media/9-artifacts/fast-retransmit.webp" style="width:50.0%"
+loading="lazy" decoding="async"
+alt="After three duplicate ACKs, the sender resends 3101 at once" />
+<figcaption aria-hidden="true">After three duplicate ACKs, the sender
+resends 3101 at once</figcaption>
+</figure>
+<p>The sender sends 100-byte segments 3001, 3101, 3201, 3301 and 3401.
+Segment 3101 is lost.</p>
+<ol type="1">
+<li>3001 arrives: AN = 3101.</li>
+<li>3201, 3301 and 3401 each arrive. Each one makes the receiver repeat
+<strong>AN = 3101</strong>, because byte 3101 is still missing. These
+are <strong>duplicate ACKs 1, 2 and 3</strong>.</li>
+<li><strong>Fast retransmit:</strong> after <strong>three duplicate
+ACKs</strong>, the sender resends 3101 at once, without waiting for the
+timer.</li>
+<li>The receiver already holds 3201 to 3500. When 3101 arrives, one ACK
+confirms everything: <strong>AN = 3501</strong>.</li>
+</ol>
+<p><strong>Why three, not one?</strong> One or two duplicate ACKs can
+happen when segments are only <strong>reordered</strong> on the way.
+Three duplicates make a real loss much more likely.</p>
+<h3 id="two-ways-to-detect-loss">7.4 Two ways to detect loss</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 40%" />
+<col style="width: 37%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">Timeout</th>
+<th style="text-align: left;">Three duplicate ACKs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">What happens</td>
+<td style="text-align: left;">The oldest outstanding data is not
+acknowledged before the timer runs out.</td>
+<td style="text-align: left;">Later segments arrive, but the receiver is
+still waiting for an earlier byte.</td>
+</tr>
+<tr>
+<td style="text-align: left;">Sender’s response</td>
+<td style="text-align: left;">Resend the oldest unacknowledged
+segment.</td>
+<td style="text-align: left;">Fast retransmit: resend the missing
+segment without waiting.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>If not enough later segments arrive (for example, the lost segment
+was the last one), there are no three duplicate ACKs. <strong>So the
+timer is still needed.</strong></p>
+<p><strong>Lecture question.</strong> 200-byte segments start at SN =
+6001. Segment 6201 is lost. Segments 6401, 6601 and 6801 arrive. (a)
+What AN does each arrival produce? (b) When does the sender resend, and
+which SN? (c) What AN follows when the resent segment arrives?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><ol type="a">
+<li>After 6001: AN = 6201. After 6401, 6601 and 6801: AN =
+<strong>6201</strong> each time, which is three duplicate ACKs.</li>
+</ol></li>
+<li><ol start="2" type="a">
+<li>After the <strong>third</strong> duplicate ACK, the sender resends
+<strong>SN = 6201</strong> by fast retransmit.</li>
+</ol></li>
+<li><ol start="3" type="a">
+<li>Then the receiver sends <strong>AN = 6801 + 200 = 7001</strong>,
+because it already held 6401 to 7000.</li>
+</ol></li>
+</ul>
+</div>
+</details>
+<h3 id="head-of-line-blocking">7.5 Head-of-line blocking</h3>
+<figure>
+<img width="1020" height="507" src="media/9-artifacts/hol-blocking.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="Segments 4 to 6 have arrived but wait in the buffer until segment 3 arrives" />
+<figcaption aria-hidden="true">Segments 4 to 6 have arrived but wait in
+the buffer until segment 3 arrives</figcaption>
+</figure>
+<p>TCP gives bytes to the application <strong>in order</strong>. If
+segment 3 is lost, segments 4 to 6 wait in the receive buffer, even
+though they have arrived. This is <strong>head-of-line
+blocking</strong>: one loss holds up everything behind it.</p>
+<p>For a file download this is fine, because every byte is needed
+anyway. For live media, the waiting can make later data miss its
+playback deadline. That is one reason such applications choose UDP and
+handle recovery themselves.</p>
+<details class="qa box">
+<summary>
+Fast retransmit happens after the first duplicate ACK. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> It needs <strong>three</strong> duplicate
+ACKs (four ACKs with the same AN). One or two can come from
+reordering.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+With fast retransmit, the retransmission timer is no longer needed.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> If the lost segment is near the end of the
+data, too few later segments arrive to make three duplicate ACKs. The
+timer is still needed.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+A receiver whose application reads slowly can acknowledge every byte and
+still advertise rwnd = 0. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>True.</strong> Acknowledged does not mean read. Unread bytes
+fill the buffer, so rwnd shrinks.</p>
+</div>
+</details>
+<hr />
+<h2 id="flow-control-protecting-the-receiver">8. Flow Control:
+Protecting the Receiver</h2>
+<h3 id="the-receive-window">8.1 The receive window</h3>
+<figure>
+<img width="1400" height="308" src="media/9-artifacts/flow-control.webp" style="width:80.0%"
+loading="lazy" decoding="async"
+alt="The receiver advertises its free buffer space (rwnd) in every ACK" />
+<figcaption aria-hidden="true">The receiver advertises its free buffer
+space (rwnd) in every ACK</figcaption>
+</figure>
+<p>The <strong>receive buffer</strong> is memory where arrived data
+waits until the application reads it. <strong>Flow control</strong>
+stops the sender from overfilling it.</p>
+<ul>
+<li>The <strong>receive window (rwnd)</strong> is how much more data the
+receiver can accept: its <strong>free buffer space</strong>.</li>
+<li>The receiver puts rwnd in the <strong>Window Size</strong> field of
+every segment it sends. The AN says which byte is expected next.</li>
+<li>A byte can be acknowledged while it is still waiting in the buffer
+for the application. <strong>Acknowledged does not mean
+read.</strong></li>
+</ul>
+<h3 id="the-senders-window">8.2 The sender’s window</h3>
+<figure>
+<img width="1400" height="260" src="media/9-artifacts/sender-window.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="rwnd = 2000 bytes from AN = 2001 lets the sender have bytes up to 4000 outstanding" />
+<figcaption aria-hidden="true">rwnd = 2000 bytes from AN = 2001 lets the
+sender have bytes up to 4000 outstanding</figcaption>
+</figure>
+<p>The sender keeps at most <strong>rwnd</strong> bytes
+unacknowledged.</p>
+<ul>
+<li>The <strong>left edge</strong> of the window is the first
+unacknowledged byte: the last AN received, here
+<strong>2001</strong>.</li>
+<li>The <strong>right edge</strong> is left edge + rwnd − 1. Here 2001 +
+2000 − 1 = <strong>4000</strong>.</li>
+<li>So bytes 1001 to 2000 are acknowledged, 2001 to 3500 are sent but
+not acknowledged, <strong>3501 to 4000 can be sent now</strong>, and
+4001 onwards must wait.</li>
+<li>When a new ACK arrives, the left edge moves to the new AN and the
+right edge moves to new AN + new rwnd − 1.</li>
+<li>If <strong>rwnd = 0</strong>, the sender stops sending new data
+until the receiver announces free space. TCP can send small probes to
+ask for an update.</li>
+</ul>
+<h3 id="worked-example-flow-control-lecture">8.3 Worked example: flow
+control (lecture)</h3>
+<figure>
+<img width="1400" height="607" src="media/9-artifacts/flow-worked.webp" style="width:85.0%"
+loading="lazy" decoding="async"
+alt="The buffer holds 2000 bytes. Orange is received but unread; green is free." />
+<figcaption aria-hidden="true">The buffer holds 2000 bytes. Orange is
+received but unread; green is free.</figcaption>
+</figure>
+<p>The receive buffer holds 2000 bytes.</p>
+<div class="table-wrap">
+<table style="width: 84%;">
+<colgroup>
+<col style="width: 54%" />
+<col style="width: 28%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Event</th>
+<th style="text-align: left;">Buffer</th>
+<th style="text-align: left;">AN</th>
+<th style="text-align: left;">rwnd</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1. Initially empty</td>
+<td style="text-align: left;">2000 free</td>
+<td style="text-align: left;">1001</td>
+<td style="text-align: left;">2000</td>
+</tr>
+<tr>
+<td style="text-align: left;">2. Bytes 1001 to 3000 sent, still in
+flight</td>
+<td style="text-align: left;">2000 free</td>
+<td style="text-align: left;">1001</td>
+<td style="text-align: left;">2000</td>
+</tr>
+<tr>
+<td style="text-align: left;">3. All arrive; the app has read
+nothing</td>
+<td style="text-align: left;">2000 unread</td>
+<td style="text-align: left;">3001</td>
+<td style="text-align: left;"><strong>0</strong></td>
+</tr>
+<tr>
+<td style="text-align: left;">4. The app reads 1200 bytes</td>
+<td style="text-align: left;">800 unread, 1200 free</td>
+<td style="text-align: left;">3001</td>
+<td style="text-align: left;">1200</td>
+</tr>
+<tr>
+<td style="text-align: left;">5. 1200 more arrive; the app reads
+800</td>
+<td style="text-align: left;">1200 unread, 800 free</td>
+<td style="text-align: left;">4201</td>
+<td style="text-align: left;">800</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>At step 2, 2000 bytes are already outstanding, which fills the whole
+window. So the sender must wait.</li>
+<li>At step 4, AN = 3001 and rwnd = 1200 allow bytes <strong>3001 to
+4200</strong>.</li>
+</ul>
+<h3 id="the-receive-window-in-numbers">8.4 The receive window in
+numbers</h3>
+<p><strong>Lecture question.</strong> The last ACK had AN = 6001 and
+rwnd = 3000. The sender has already sent every byte up to 8000. (a) How
+many more bytes may the sender send? (b) Then AN = 7001 and rwnd = 1500
+arrive. How many more bytes may it send now?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><ol type="a">
+<li>The right edge is 6001 + 3000 − 1 = <strong>9000</strong>. The
+sender has sent up to 8000, so it may send <strong>1000</strong> more
+bytes (8001 to 9000).</li>
+</ol></li>
+<li><ol start="2" type="a">
+<li>Then AN = 7001 and rwnd = 1500 arrive. The right edge is 7001 + 1500
+− 1 = <strong>8500</strong>. So it may send <strong>500</strong> more
+bytes (8001 to 8500).</li>
+</ol></li>
+</ul>
+<p>Notice that the right edge <strong>moved left</strong> from 9000 to
+8500, because the buffer filled up faster than the window slid.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+The right edge of the sender’s window never moves left. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> It is AN + rwnd − 1. If rwnd shrinks faster
+than AN grows, the right edge moves left.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+rwnd is measured in segments. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> rwnd is in <strong>bytes</strong>. In this
+course cwnd is in segments (MSS units), so convert before you take the
+minimum.</p>
+</div>
+</details>
+<hr />
+<h2 id="congestion-control-protecting-the-network">9. Congestion
+Control: Protecting the Network</h2>
+<h3 id="congestion-and-congestion-collapse">9.1 Congestion and
+congestion collapse</h3>
+<figure>
+<img width="1300" height="528" src="media/9-artifacts/congestion.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Three senders share one link. The router’s queue fills and packets are dropped." />
+<figcaption aria-hidden="true">Three senders share one link. The
+router’s queue fills and packets are dropped.</figcaption>
+</figure>
+<p><strong>Congestion</strong> happens when more traffic arrives at a
+router than its outgoing link can carry. The queue grows, so delay
+grows. When the queue is full, packets are <strong>dropped</strong>.</p>
+<blockquote>
+<p><strong>Flow control protects the receiver. Congestion control
+protects the network.</strong></p>
+</blockquote>
+<p>The receiver tells the sender its free space directly (rwnd). Nobody
+tells the sender how busy the network is. So, for the TCP variants in
+this course, the sender <strong>infers</strong> congestion from ACKs and
+loss signals.</p>
+<figure>
+<img width="1020" height="495" src="media/9-artifacts/congestion-collapse.webp" style="width:55.0%"
+loading="lazy" decoding="async"
+alt="Without congestion control, goodput rises, then falls towards zero" />
+<figcaption aria-hidden="true">Without congestion control, goodput
+rises, then falls towards zero</figcaption>
+</figure>
+<p><strong>Goodput</strong> is useful data delivered per second, not
+counting resent copies.</p>
+<ol type="1">
+<li>At low load, goodput rises with the load (point 1).</li>
+<li>As queues fill, dropped packets are resent, so part of the load is
+repeats (point 2).</li>
+<li>Eventually the links are full of resent packets and goodput falls
+towards zero. This is <strong>congestion collapse</strong> (point
+3).</li>
+</ol>
+<h3 id="the-congestion-window">9.2 The congestion window</h3>
+<ul>
+<li><strong>Congestion control</strong> adjusts how much data a sender
+allows into the network.</li>
+<li>The <strong>congestion window (cwnd)</strong> limits the data
+<strong>sent but not yet acknowledged</strong>.</li>
+<li>In this course, cwnd is in <strong>MSS units</strong> (segments).
+cwnd = 4 with MSS = 1000 bytes means a 4000-byte limit.</li>
+</ul>
+<h3 id="two-limits-one-window">9.3 Two limits, one window</h3>
+<p>The sender must respect <strong>both</strong> windows, so it uses the
+smaller one:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><menclose notation="box"><mrow><mtext mathvariant="normal">maximum bytes in flight</mtext><mo>=</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">rwnd</mtext><mo>,</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">cwnd</mtext><mo>×</mo><mtext mathvariant="normal">MSS</mtext><mo stretchy="false" form="postfix">)</mo></mrow></menclose><annotation encoding="application/x-tex">\boxed{\text{maximum bytes in flight} = \min(\text{rwnd},\ \text{cwnd} \times \text{MSS})}</annotation></semantics></math></p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">new data allowed</mtext><mo>=</mo><mrow><mi mathvariant="normal">max</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">limit</mtext><mo>−</mo><mtext mathvariant="normal">bytes already outstanding</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{new data allowed} = \max(0,\ \text{limit} - \text{bytes already outstanding})</annotation></semantics></math></p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 28%" />
+<col style="width: 21%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">rwnd (receiver)</th>
+<th style="text-align: left;">cwnd (network), MSS = 1000</th>
+<th style="text-align: left;">May have in flight</th>
+<th style="text-align: left;">Who is the limit?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">20,000 bytes</td>
+<td style="text-align: left;">8 MSS = 8000 bytes</td>
+<td style="text-align: left;"><strong>8000</strong> bytes</td>
+<td style="text-align: left;">The network (congestion control)</td>
+</tr>
+<tr>
+<td style="text-align: left;">5000 bytes</td>
+<td style="text-align: left;">8 MSS = 8000 bytes</td>
+<td style="text-align: left;"><strong>5000</strong> bytes</td>
+<td style="text-align: left;">The receiver (flow control)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>If cwnd is already given in bytes, use min(rwnd, cwnd) directly.</p>
+<p><strong>Lecture question.</strong> AN = 5001, MSS = 1000 bytes, rwnd
+= 3500 bytes, cwnd = 4 MSS. Bytes 5001 to 7000 are sent but not
+acknowledged. How many new bytes may the sender send?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Convert cwnd: 4 × 1000 = 4000 bytes.</li>
+<li>Limit: min(3500, 4000) = <strong>3500</strong> bytes.</li>
+<li>Already outstanding: 7000 − 5001 + 1 = 2000 bytes. New data allowed:
+3500 − 2000 = <strong>1500 bytes</strong>, that is bytes 7001 to 8500.
+(For example, one 1000-byte segment and one 500-byte segment.)</li>
+</ol>
+</div>
+</details>
+<p>From here on, assume the receiver has plenty of space, so
+<strong>cwnd sets the pace</strong>.</p>
+<h3 id="transmission-rounds">9.4 Transmission rounds</h3>
+<p>For tracing, one <strong>transmission round</strong> = one RTT: the
+sender sends a whole window of segments and gets their ACKs back. Assume
+data is always ready, the receiver has enough space, and each full
+segment gets an ACK.</p>
+<h3 id="slow-start">9.5 Slow start</h3>
+<figure>
+<img width="860" height="686" src="media/9-artifacts/slow-start.webp" style="width:45.0%"
+loading="lazy" decoding="async"
+alt="Slow start: cwnd = 1, 2, 4, … doubles every round" />
+<figcaption aria-hidden="true">Slow start: cwnd = 1, 2, 4, … doubles
+every round</figcaption>
+</figure>
+<p>At the start, the sender does not know the path’s capacity, so it
+starts small.</p>
+<ul>
+<li>In this course, the initial cwnd = <strong>1 MSS</strong>.</li>
+<li>For <strong>each ACK of new data</strong>, cwnd grows by 1 MSS. A
+round of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+segments returns
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+ACKs, so cwnd <strong>doubles every round</strong>: 1, 2, 4, 8, 16,
+…</li>
+<li>“Slow” refers to the <strong>small start</strong>, not the growth.
+The growth is exponential.</li>
+<li>Slow start ends when cwnd reaches the <strong>slow start threshold
+(ssthresh)</strong>, or earlier if a loss happens.</li>
+</ul>
+<h3 id="congestion-avoidance">9.6 Congestion avoidance</h3>
+<p>At ssthresh, doubling becomes risky. TCP switches to
+<strong>congestion avoidance</strong>: cwnd grows by <strong>1 segment
+per round</strong>: 4, 5, 6, 7, … This <strong>linear</strong> growth
+carefully probes for spare capacity. ssthresh is not a measured limit,
+so cwnd keeps growing past it until a loss happens.</p>
+<p><strong>What if doubling would overshoot ssthresh?</strong> Example:
+cwnd = 8 and ssthresh = 12. Doubling would give 16.</p>
+<blockquote>
+<p><strong>Course convention:</strong> double cwnd up to ssthresh but
+<strong>cap it at ssthresh</strong>, then add 1 MSS per round. So the
+rounds go 8 → <strong>12</strong> → 13 → 14.</p>
+</blockquote>
+<h3 id="after-a-loss-tahoe-and-reno">9.7 After a loss: Tahoe and
+Reno</h3>
+<p>Both variants first set:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">ssthresh</mtext><mo>=</mo><mrow><mo stretchy="true" form="prefix">⌊</mo><mtext mathvariant="normal">cwnd</mtext><mi>/</mi><mn>2</mn><mo stretchy="true" form="postfix">⌋</mo></mrow></mrow><annotation encoding="application/x-tex">\text{ssthresh} = \left\lfloor \text{cwnd} / 2 \right\rfloor</annotation></semantics></math></p>
+<p>(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌊</mo><mspace width="0.222em"></mspace><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">\lfloor\ \rfloor</annotation></semantics></math>
+means round down: cwnd = 13 gives ssthresh = 6.) Then:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 28%" />
+<col style="width: 63%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;"></th>
+<th style="text-align: left;">After a <strong>timeout</strong></th>
+<th style="text-align: left;">After <strong>three duplicate
+ACKs</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Tahoe</strong></td>
+<td style="text-align: left;">cwnd = 1, slow start again</td>
+<td style="text-align: left;">cwnd = 1, slow start again</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Reno</strong></td>
+<td style="text-align: left;">cwnd = 1, slow start again</td>
+<td style="text-align: left;"><strong>cwnd = ssthresh</strong> (half the
+old cwnd), then congestion avoidance</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Why does Reno treat three duplicate ACKs more
+gently?</strong> Three duplicate ACKs mean later segments <strong>are
+still arriving</strong>, so the network is still delivering data. Reno
+does a fast retransmit, then <strong>fast recovery</strong>: it carries
+on with the halved window instead of restarting from 1 MSS. A timeout
+gives no such evidence, so both variants restart from 1. Tahoe’s
+weakness is that it drops to 1 even when data is still flowing.</p>
+<h3 id="worked-example-tahoe-lecture">9.8 Worked example: Tahoe
+(lecture)</h3>
+<figure>
+<img width="1180" height="720" src="media/9-artifacts/tahoe.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="Tahoe: a timeout in round 9 sends cwnd back to 1" />
+<figcaption aria-hidden="true">Tahoe: a timeout in round 9 sends cwnd
+back to 1</figcaption>
+</figure>
+<p>Initial ssthresh = 16.</p>
+<div class="table-wrap">
+<table style="width: 84%;">
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Round</th>
+<th style="text-align: left;">1</th>
+<th style="text-align: left;">2</th>
+<th style="text-align: left;">3</th>
+<th style="text-align: left;">4</th>
+<th style="text-align: left;">5</th>
+<th style="text-align: left;">6</th>
+<th style="text-align: left;">7</th>
+<th style="text-align: left;">8</th>
+<th style="text-align: left;">9</th>
+<th style="text-align: left;">10</th>
+<th style="text-align: left;">11</th>
+<th style="text-align: left;">12</th>
+<th style="text-align: left;">13</th>
+<th style="text-align: left;">14</th>
+<th style="text-align: left;">15</th>
+<th style="text-align: left;">16</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">cwnd</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">16</td>
+<td style="text-align: left;">17</td>
+<td style="text-align: left;">18</td>
+<td style="text-align: left;">19</td>
+<td style="text-align: left;"><strong>20</strong></td>
+<td style="text-align: left;"><strong>1</strong></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;"><strong>10</strong></td>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;">12</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Rounds 1 to 5: slow start, 1 to 16.</li>
+<li>Rounds 6 to 9: congestion avoidance, 17 to 20.</li>
+<li>Timeout in round 9: ssthresh = 20 / 2 = <strong>10</strong>, cwnd =
+1.</li>
+<li>Rounds 10 to 14: slow start again, capped at 10. Then congestion
+avoidance: 11, 12.</li>
+</ul>
+<h3 id="worked-example-reno-lecture">9.9 Worked example: Reno
+(lecture)</h3>
+<figure>
+<img width="1180" height="720" src="media/9-artifacts/reno.webp" style="width:60.0%" loading="lazy"
+decoding="async"
+alt="Reno: three duplicate ACKs in round 9 halve cwnd; a timeout in round 13 resets it to 1" />
+<figcaption aria-hidden="true">Reno: three duplicate ACKs in round 9
+halve cwnd; a timeout in round 13 resets it to 1</figcaption>
+</figure>
+<div class="table-wrap">
+<table style="width: 94%;">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 4%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Round</th>
+<th style="text-align: left;">1</th>
+<th style="text-align: left;">2</th>
+<th style="text-align: left;">3</th>
+<th style="text-align: left;">4</th>
+<th style="text-align: left;">5</th>
+<th style="text-align: left;">6</th>
+<th style="text-align: left;">7</th>
+<th style="text-align: left;">8</th>
+<th style="text-align: left;">9</th>
+<th style="text-align: left;">10</th>
+<th style="text-align: left;">11</th>
+<th style="text-align: left;">12</th>
+<th style="text-align: left;">13</th>
+<th style="text-align: left;">14</th>
+<th style="text-align: left;">15</th>
+<th style="text-align: left;">16</th>
+<th style="text-align: left;">17</th>
+<th style="text-align: left;">18</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">cwnd</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">16</td>
+<td style="text-align: left;">17</td>
+<td style="text-align: left;">18</td>
+<td style="text-align: left;">19</td>
+<td style="text-align: left;"><strong>20</strong></td>
+<td style="text-align: left;"><strong>10</strong></td>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;"><strong>13</strong></td>
+<td style="text-align: left;"><strong>1</strong></td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;"><strong>6</strong></td>
+<td style="text-align: left;">7</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Rounds 1 to 9: as in the Tahoe example.</li>
+<li><strong>Three duplicate ACKs</strong> in round 9: ssthresh = 10,
+cwnd = <strong>10</strong>. Rounds 10 to 13: congestion avoidance.</li>
+<li><strong>Timeout</strong> in round 13: ssthresh = ⌊13 / 2⌋ =
+<strong>6</strong>, cwnd = 1.</li>
+<li>Rounds 14 to 17: slow start, capped at 6. Then 7.</li>
+</ul>
+<h3 id="which-round-sends-segment-n">9.10 Which round sends segment
+<em>n</em>?</h3>
+<p>Keep a running total of segments sent. Using the first rounds of the
+Tahoe example:</p>
+<div class="table-wrap">
+<table style="width: 57%;">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Round</th>
+<th style="text-align: left;">1</th>
+<th style="text-align: left;">2</th>
+<th style="text-align: left;">3</th>
+<th style="text-align: left;">4</th>
+<th style="text-align: left;">5</th>
+<th style="text-align: left;">6</th>
+<th style="text-align: left;">7</th>
+<th style="text-align: left;">8</th>
+<th style="text-align: left;">9</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">cwnd</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">16</td>
+<td style="text-align: left;">17</td>
+<td style="text-align: left;">18</td>
+<td style="text-align: left;">19</td>
+<td style="text-align: left;">20</td>
+</tr>
+<tr>
+<td style="text-align: left;">Sent so far</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">31</td>
+<td style="text-align: left;"><strong>48</strong></td>
+<td style="text-align: left;"><strong>66</strong></td>
+<td style="text-align: left;"><strong>85</strong></td>
+<td style="text-align: left;"><strong>105</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>Segment 50:</strong> 48 have gone after round 6, and 66
+after round 7. So segment 50 goes in <strong>round 7</strong>.</li>
+<li><strong>Segment 100:</strong> 85 after round 8, and 105 after round
+9. So segment 100 goes in <strong>round 9</strong>.</li>
+</ul>
+<h3 id="read-the-graph">9.11 Read the graph</h3>
+<figure>
+<img width="1140" height="720" src="media/9-artifacts/cc-question.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="Find ssthresh, the slow-start rounds and the two loss events" />
+<figcaption aria-hidden="true">Find ssthresh, the slow-start rounds and
+the two loss events</figcaption>
+</figure>
+<p><strong>Lecture question.</strong> Use the graph. (a) What is the
+initial ssthresh? (b) In which rounds does slow start run? (c) What
+happened at the end of round 8? (d) What happened at the end of round
+12? (e) Is this Tahoe or Reno?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><ol type="a">
+<li>Initial ssthresh = <strong>12</strong>: slow start goes 1, 2, 4, 8,
+then <strong>12</strong> instead of 16.</li>
+</ol></li>
+<li><ol start="2" type="a">
+<li>Slow start runs in rounds <strong>1 to 5</strong> and <strong>13 to
+16</strong>.</li>
+</ol></li>
+<li><ol start="3" type="a">
+<li>End of round 8: <strong>three duplicate ACKs</strong>. cwnd fell
+from 15 to 7 = ⌊15 / 2⌋ and then kept growing by 1. It did not go back
+to 1.</li>
+</ol></li>
+<li><ol start="4" type="a">
+<li>End of round 12: a <strong>timeout</strong>. cwnd fell to 1, and
+ssthresh became ⌊10 / 2⌋ = 5.</li>
+</ol></li>
+<li><ol start="5" type="a">
+<li><strong>Reno.</strong> Tahoe would also have dropped to 1 at the end
+of round 8.</li>
+</ol></li>
+</ul>
+</div>
+</details>
+<h3 id="method-how-long-until-cwnd-recovers">9.12 Method: how long until
+cwnd recovers?</h3>
+<p>A question can give the current cwnd, an RTT and one or more loss
+events, and then ask how long something takes. Each round lasts one RTT.
+So <strong>trace cwnd round by round in the course model, count the
+rounds, then multiply by the RTT.</strong></p>
+<p><strong>E1. After a timeout.</strong> cwnd = 20 and RTT = 100 ms when
+a timeout happens. How long until cwnd is 20 again?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (E1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>Timeout: ssthresh = ⌊20 / 2⌋ = 10, cwnd = 1.</li>
+<li>Rounds: 1 → 2 → 4 → 8 → <strong>10</strong> (capped at ssthresh) →
+11 → … → 20. That is 4 slow-start steps + 10 linear steps = 14
+rounds.</li>
+<li>Time = 14 × 0.1 s = <strong>1.4 s</strong>.</li>
+</ul>
+</div>
+</details>
+<p><strong>E2. After three duplicate ACKs.</strong> Same start: cwnd =
+20 and RTT = 100 ms. This time three duplicate ACKs arrive instead of a
+timeout. How long until cwnd is 20 again, for Reno and for Tahoe?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (E2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Reno:</strong> ssthresh = 10, cwnd = <strong>10</strong>.
+Then congestion avoidance: 11, 12, …, 20. That is 10 rounds =
+<strong>1.0 s</strong>.</li>
+<li><strong>Tahoe:</strong> three duplicate ACKs reset cwnd to 1, so
+recovery takes 1.4 s, the same as after a timeout.</li>
+</ul>
+</div>
+</details>
+<p><strong>Two events in a row.</strong> Trace the first event. Let the
+given time pass as whole rounds, and read off cwnd <strong>at the
+moment</strong> of the second event. Then apply the second event to
+<strong>that</strong> cwnd, not to the original one.</p>
+<p><strong>E3. The average window.</strong> A Reno sender always meets
+three duplicate ACKs when cwnd reaches W = 40. cwnd then halves and
+climbs by 1 per round back to W. What is the average window?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (E3)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>It climbs evenly from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>/</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">W/2</annotation></semantics></math>
+to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>W</mi><annotation encoding="application/x-tex">W</annotation></semantics></math>,
+so the average is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>W</mi><mi>/</mi><mn>2</mn><mo>+</mo><mi>W</mi><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mn>2</mn><mo>=</mo><mn>3</mn><mi>W</mi><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">(W/2 + W)/2 = 3W/4</annotation></semantics></math>.
+For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><mn>40</mn></mrow><annotation encoding="application/x-tex">W = 40</annotation></semantics></math>,
+the average is <strong>30</strong>.</p>
+</div>
+</details>
+<h3 id="tutorial-2.3-q2">9.13 Tutorial 2.3 Q2</h3>
+<p><strong>Tutorial 2.3 Q2.</strong> Consider the following plot of TCP
+window size as a function of time.</p>
+<figure>
+<img width="860" height="447" src="media/9-artifacts/t23-q2-cwnd-plot.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Figure Q2: the congestion window (in segments) in transmission rounds 1 to 26" />
+<figcaption aria-hidden="true">Figure Q2: the congestion window (in
+segments) in transmission rounds 1 to 26</figcaption>
+</figure>
+<p>Assuming TCP is the protocol experiencing the behavior shown above,
+answer the following questions. In all cases, you should provide a short
+discussion justifying your answer.</p>
+<ol type="a">
+<li>Identify the intervals of time when TCP slow start is
+operating.</li>
+<li>Identify the intervals of time when TCP congestion avoidance is
+operating.</li>
+<li>After the 16th transmission round, is segment loss detected by a
+triple duplicate ACK or by a timeout?</li>
+<li>After the 22nd transmission round, is segment loss detected by a
+triple duplicate ACK or by a timeout?</li>
+<li>What is the initial value of Threshold at the first transmission
+round?</li>
+<li>What is the value of Threshold at the 18th transmission round?</li>
+<li>What is the value of Threshold at the 24th transmission round?</li>
+<li>During what transmission round is the 70th segment sent?</li>
+</ol>
+<details class="qa box">
+<summary>
+<strong>Answer (unofficial: no solution was released)</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Read the plot: cwnd is 1, 2, 4, 8, 16, 32 in rounds 1 to 6, then 33,
+34, … 42 in rounds 7 to 16. It drops to 21 in round 17 and climbs 22, …
+26 in rounds 18 to 22. It drops to 1 in round 23 and goes 2, 4, 8 in
+rounds 24 to 26.</p>
+<ul>
+<li><strong>(a) Slow start:</strong> rounds <strong>1 to 6</strong> and
+rounds <strong>23 to 26</strong>. cwnd doubles each round (1, 2, 4, 8,
+16, 32, and 1, 2, 4, 8).</li>
+<li><strong>(b) Congestion avoidance:</strong> rounds <strong>6 to
+16</strong> and rounds <strong>17 to 22</strong>. cwnd grows by 1 per
+round (32, 33, … 42, and 21, 22, … 26).</li>
+<li><strong>(c) Triple duplicate ACK.</strong> cwnd falls from 42 to 21,
+which is half, and growth continues from 21. A timeout would drop cwnd
+to 1.</li>
+<li><strong>(d) Timeout.</strong> cwnd falls from 26 to 1.</li>
+<li><strong>(e) Threshold = 32.</strong> Slow start stops doubling at
+round 6 and linear growth starts, so the threshold is 32.</li>
+<li><strong>(f) Threshold = 21</strong> at round 18. The loss after
+round 16 happened at cwnd = 42, so ssthresh = ⌊42/2⌋ = 21.</li>
+<li><strong>(g) Threshold = 13</strong> at round 24. The loss after
+round 22 happened at cwnd = 26, so ssthresh = ⌊26/2⌋ = 13.</li>
+<li><strong>(h) Round 7.</strong> Segments sent so far: 1, 3, 7, 15, 31
+and 63 after rounds 1 to 6. Round 7 sends 33 more, so it covers segments
+64 to 96, and segment 70 is in round 7.</li>
+</ul>
+<p><em>Check (h):</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mn>2</mn><mo>+</mo><mn>4</mn><mo>+</mo><mn>8</mn><mo>+</mo><mn>16</mn><mo>+</mo><mn>32</mn><mo>=</mo><mn>63</mn></mrow><annotation encoding="application/x-tex">1 + 2 + 4 + 8 + 16 + 32 = 63</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>63</mn><mo>&lt;</mo><mn>70</mn><mo>≤</mo><mn>63</mn><mo>+</mo><mn>33</mn><mo>=</mo><mn>96</mn></mrow><annotation encoding="application/x-tex">63 &lt; 70 \le 63 + 33 = 96</annotation></semantics></math>.
+✓</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> reading a cwnd plot <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li><strong>Shape tells the phase.</strong> Doubling = slow start. +1
+per round = congestion avoidance.</li>
+<li><strong>Drop tells the loss type.</strong> A drop to half = three
+duplicate ACKs (Reno). A drop to 1 = timeout (or Tahoe after
+either).</li>
+<li><strong>Threshold:</strong> the first one is the cwnd where doubling
+stops. After each loss, ssthresh = ⌊cwnd before the drop / 2⌋.</li>
+<li><strong>Which round sends segment
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>:</strong>
+add up the cwnd values round by round. The round where the running total
+first reaches
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+is the answer.</li>
+</ol>
+</div>
+</details>
+<p><strong>Extension 2.1.</strong> Suppose the sender in Q2 is
+<strong>Tahoe</strong>, and the loss after round 16 is the same three
+duplicate ACKs (cwnd = 42). What are cwnd and ssthresh in rounds 17 to
+23?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 2.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Tahoe resets cwnd to 1 after three duplicate ACKs, and ssthresh =
+⌊42/2⌋ = 21.</p>
+<div class="table-wrap">
+<table style="width: 43%;">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+<col style="width: 11%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: left;">Round</th>
+<th style="text-align: left;">17</th>
+<th style="text-align: left;">18</th>
+<th style="text-align: left;">19</th>
+<th style="text-align: left;">20</th>
+<th style="text-align: left;">21</th>
+<th style="text-align: left;">22</th>
+<th style="text-align: left;">23</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">cwnd</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;">16</td>
+<td style="text-align: left;"><strong>21</strong></td>
+<td style="text-align: left;">22</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Doubling from 16 would give 32, so the course convention caps it at
+ssthresh = 21 in round 22. Then congestion avoidance adds 1.</p>
+</div>
+</details>
+<p><strong>Extension 2.2.</strong> In Q2, during which round is segment
+200 sent?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 2.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Running totals: 63 after round 6, then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mn>33</mn><mo>=</mo><mn>96</mn></mrow><annotation encoding="application/x-tex">+33 = 96</annotation></semantics></math>
+(round 7),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mn>34</mn><mo>=</mo><mn>130</mn></mrow><annotation encoding="application/x-tex">+34 = 130</annotation></semantics></math>
+(round 8),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mn>35</mn><mo>=</mo><mn>165</mn></mrow><annotation encoding="application/x-tex">+35 = 165</annotation></semantics></math>
+(round 9),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>+</mi><mn>36</mn><mo>=</mo><mn>201</mn></mrow><annotation encoding="application/x-tex">+36 = 201</annotation></semantics></math>
+(round 10). Since
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>165</mn><mo>&lt;</mo><mn>200</mn><mo>≤</mo><mn>201</mn></mrow><annotation encoding="application/x-tex">165 &lt; 200 \le 201</annotation></semantics></math>,
+segment 200 is in <strong>round 10</strong>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+After three duplicate ACKs, both Tahoe and Reno set cwnd to 1. <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> Tahoe sets cwnd to 1. Reno sets cwnd to
+ssthresh (half the old cwnd) and continues in congestion avoidance.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+After a timeout, Reno keeps half the old window. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> After a timeout, both Tahoe and Reno set cwnd
+to 1 and ssthresh to ⌊cwnd/2⌋.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+In slow start, cwnd grows by 1 MSS per round. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> In slow start it grows by 1 MSS <strong>per
+ACK</strong>, so it doubles per round. Congestion avoidance adds 1 MSS
+per round.</p>
+</div>
+</details>
+<hr />
+<h2 id="throughput-how-fast-can-tcp-go">10. Throughput: How Fast Can TCP
+Go?</h2>
+<h3 id="the-window-limits-throughput">10.1 The window limits
+throughput</h3>
+<figure>
+<img width="1110" height="597" src="media/9-artifacts/window-throughput.webp" style="width:55.0%"
+loading="lazy" decoding="async"
+alt="The sender can send one window of W bytes, then must wait about one RTT for the ACKs" />
+<figcaption aria-hidden="true">The sender can send one window of W
+bytes, then must wait about one RTT for the ACKs</figcaption>
+</figure>
+<p><strong>Throughput</strong> is the amount of data moved per second.
+The sender may have at most <strong>W</strong> bytes unacknowledged,
+where W is the smaller of rwnd and cwnd, both in bytes. After it sends
+one window, it must wait about one <strong>RTT</strong> for ACKs before
+it can send more. So:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><menclose notation="box"><mrow><mtext mathvariant="normal">throughput</mtext><mo>≈</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mspace width="-0.167em"></mspace><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">bottleneck capacity</mtext><mo>,</mo><mspace width="0.222em"></mspace><mfrac><mi>W</mi><mtext mathvariant="normal">RTT</mtext></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mrow></menclose><mspace width="2.0em"></mspace><mtext mathvariant="normal">transfer time</mtext><mo>≈</mo><mfrac><mtext mathvariant="normal">file size</mtext><mtext mathvariant="normal">throughput</mtext></mfrac></mrow><annotation encoding="application/x-tex">\boxed{\text{throughput} \approx \min\!\left(\text{bottleneck capacity},\ \frac{W}{\text{RTT}}\right)} \qquad \text{transfer time} \approx \frac{\text{file size}}{\text{throughput}}</annotation></semantics></math></p>
+<p>The <strong>bottleneck</strong> is the link with the lowest available
+capacity on the path. These estimates assume a constant W and RTT, no
+loss, and no start-up or header overhead. <strong>Keep the units
+consistent:</strong> bits against bytes, and decimal (1 MB =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>6</mn></msup><annotation encoding="application/x-tex">10^6</annotation></semantics></math>
+bytes) against binary
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>20</mn></msup><annotation encoding="application/x-tex">2^{20}</annotation></semantics></math>)
+prefixes.</p>
+<h3 id="file-transfer-time">10.2 File-transfer time</h3>
+<p><strong>Lecture question.</strong> A 100 MB file, cwnd = 10 segments,
+MSS = 1460 bytes, RTT = 50 ms. The receiver and the links do not set a
+smaller limit. How long does the transfer take?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Window: W = 10 × 1460 = <strong>14,600 bytes</strong>.</li>
+<li>Throughput ≈ 14,600 / 0.05 = <strong>292,000 bytes/s</strong> (about
+2.34 Mbit/s).</li>
+<li>Transfer time ≈ 100,000,000 / 292,000 = <strong>342.5 s</strong>,
+about 5.7 minutes.</li>
+</ol>
+</div>
+</details>
+<h3 id="why-is-my-1-gbits-plan-still-slow">10.3 Why is my 1 Gbit/s plan
+still slow?</h3>
+<figure>
+<img width="1400" height="416" src="media/9-artifacts/gbps-slow.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="The same window gives ten times less throughput to a server ten times further away" />
+<figcaption aria-hidden="true">The same window gives ten times less
+throughput to a server ten times further away</figcaption>
+</figure>
+<p>Your access link speed is only one limit. The path’s RTT and the
+effective window matter too. With the same W = 65,535 bytes:</p>
+<ul>
+<li>Server A, RTT = 20 ms: 65,535 × 8 / 0.02 ≈ <strong>26.2
+Mbit/s</strong>.</li>
+<li>Server B, RTT = 200 ms: 65,535 × 8 / 0.2 ≈ <strong>2.62
+Mbit/s</strong>.</li>
+</ul>
+<p>Both are far below 1 Gbit/s. The <strong>16-bit Window Size
+field</strong> can only say 65,535 bytes. The <strong>window
+scaling</strong> option applies an agreed multiplier so that the
+receiver can advertise a larger window.</p>
+<h3 id="turning-the-formula-round">10.4 Turning the formula round</h3>
+<p>The same relation answers three kinds of question. Write it once:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">throughput</mtext><mo>=</mo><mfrac><mi>W</mi><mtext mathvariant="normal">RTT</mtext></mfrac><mo>,</mo><mspace width="2.0em"></mspace><mtext mathvariant="normal">required throughput</mtext><mo>=</mo><mfrac><mtext mathvariant="normal">file size</mtext><mtext mathvariant="normal">time limit</mtext></mfrac></mrow><annotation encoding="application/x-tex">\text{throughput} = \frac{W}{\text{RTT}}, \qquad \text{required throughput} = \frac{\text{file size}}{\text{time limit}}</annotation></semantics></math></p>
+<p><strong>E4. The largest RTT.</strong> A 500 MB file must transfer
+within 5 minutes. The window is at most 10 segments of 1000 bytes. What
+is the largest RTT that still meets the limit?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (E4)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>W = 10 × 1000 = 10,000 bytes.</li>
+<li>Required throughput = 500 ×
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>6</mn></msup><annotation encoding="application/x-tex">10^6</annotation></semantics></math>
+/ 300 s ≈ 1.67 ×
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>6</mn></msup><annotation encoding="application/x-tex">10^6</annotation></semantics></math>
+bytes/s.</li>
+<li>RTT ≤ W / required throughput = 10,000 × 300 / (500 ×
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>6</mn></msup><annotation encoding="application/x-tex">10^6</annotation></semantics></math>)
+= 0.006 s = <strong>6 ms</strong>.</li>
+</ul>
+</div>
+</details>
+<p><strong>E5. The smallest window.</strong> A transfer must reach 4
+Mbit/s with RTT = 50 ms and MSS = 1000 bytes. How many segments must the
+window hold?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (E5)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>W ≥ throughput × RTT = 4 ×
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>6</mn></msup><annotation encoding="application/x-tex">10^6</annotation></semantics></math>
+× 0.05 = 200,000 bits = 25,000 bytes.</li>
+<li>25,000 / 1000 = <strong>25 segments</strong>.</li>
+</ul>
+</div>
+</details>
+<p><strong>Is the link or the window the limit?</strong> Work out W /
+RTT and compare it with the link rate. Suppose W / RTT is far below the
+link rate, for example 1.3 Mbit/s on a 10 Gbit/s link. Then the window
+is the limit, and a faster link would not help.</p>
+<p><strong>Units decide the answer.</strong> “1 GB” can mean
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>9</mn></msup><annotation encoding="application/x-tex">10^9</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>30</mn></msup><annotation encoding="application/x-tex">2^{30}</annotation></semantics></math>
+bytes, and the two answers differ by about 7%. Use the convention the
+question states. In an MCQ, if one convention matches no option, try the
+other.</p>
+<h3 id="tutorial-2.3-q4">10.5 Tutorial 2.3 Q4</h3>
+<p><strong>Tutorial 2.3 Q4.</strong> The research scientist at NTU,
+wants to upload a 1GByte file to Japan via a 10 Gbps link with a RTT of
+100 milliseconds. The scientist notebook has the following TCP
+congestion control configuration:</p>
+<ol type="i">
+<li>Maximum segment size is 1K Bytes</li>
+<li>Maximum number of segment is 16</li>
+</ol>
+<p>Determine the expected time required for the scientist to upload the
+file. Assume no packet loss.</p>
+<details class="qa box">
+<summary>
+<strong>Answer (unofficial: no solution was released)</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Assumptions.</strong> The question gives no receiver window,
+so assume rwnd is not smaller than the cwnd limit. Use decimal units: 1
+KB = 1000 bytes and 1 GB =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>9</mn></msup><annotation encoding="application/x-tex">10^9</annotation></semantics></math>
+bytes.</p>
+<ol type="1">
+<li><strong>Window.</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><mn>16</mn><mo>×</mo><mn>1000</mn><mo>=</mo><mn>16</mn><mspace width="0.167em"></mspace><mn>000</mn></mrow><annotation encoding="application/x-tex">W = 16 \times 1000 = 16\,000</annotation></semantics></math>
+bytes. The window is the limit, because cwnd stops at 16 segments.</li>
+<li><strong>Throughput.</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>/</mi><mtext mathvariant="normal">RTT</mtext><mo>=</mo><mn>16</mn><mspace width="0.167em"></mspace><mn>000</mn><mi>/</mi><mn>0.1</mn><mo>=</mo><mn>160</mn><mspace width="0.167em"></mspace><mn>000</mn></mrow><annotation encoding="application/x-tex">W/\text{RTT} = 16\,000 / 0.1 = 160\,000</annotation></semantics></math>
+bytes/s
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>1.28</mn></mrow><annotation encoding="application/x-tex">= 1.28</annotation></semantics></math>
+Mbit/s. This is far below the 10 Gbit/s link, so the
+<strong>window</strong>, not the link, sets the speed.</li>
+<li><strong>Time.</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mn>9</mn></msup><mi>/</mi><mn>160</mn><mspace width="0.167em"></mspace><mn>000</mn><mo>=</mo></mrow><annotation encoding="application/x-tex">10^9 / 160\,000 =</annotation></semantics></math>
+<strong>6250 s</strong>, which is about 104 minutes.</li>
+</ol>
+<p><em>Check with rounds:</em> the file is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>10</mn><mn>9</mn></msup><mi>/</mi><mn>1000</mn><mo>=</mo><msup><mn>10</mn><mn>6</mn></msup></mrow><annotation encoding="application/x-tex">10^9 / 1000 = 10^6</annotation></semantics></math>
+segments. Slow start sends 1, 2, 4 and 8 segments in rounds 1 to 4 (15
+segments). After that each round sends 16.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><msup><mn>10</mn><mn>6</mn></msup><mo>−</mo><mn>15</mn><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mn>16</mn><mo>=</mo><mn>62</mn><mspace width="0.167em"></mspace><mn>499.06</mn></mrow><annotation encoding="application/x-tex">(10^6 - 15)/16 = 62\,499.06</annotation></semantics></math>,
+so 62 500 more rounds. Total
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>62</mn><mspace width="0.167em"></mspace><mn>504</mn></mrow><annotation encoding="application/x-tex">= 62\,504</annotation></semantics></math>
+rounds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>×</mi><annotation encoding="application/x-tex">\times</annotation></semantics></math>
+0.1 s
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>=</mo><annotation encoding="application/x-tex">=</annotation></semantics></math>
+6250.4 s. Slow start adds under one second.</p>
+<p><strong>Binary units.</strong> If 1 KB
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><msup><mn>2</mn><mn>10</mn></msup></mrow><annotation encoding="application/x-tex">= 2^{10}</annotation></semantics></math>
+bytes and 1 GB
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><msup><mn>2</mn><mn>30</mn></msup></mrow><annotation encoding="application/x-tex">= 2^{30}</annotation></semantics></math>
+bytes, the file is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>20</mn></msup><annotation encoding="application/x-tex">2^{20}</annotation></semantics></math>
+segments and takes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>20</mn></msup><mi>/</mi><mn>16</mn><mo>=</mo><mn>65</mn><mspace width="0.167em"></mspace><mn>536</mn></mrow><annotation encoding="application/x-tex">2^{20}/16 = 65\,536</annotation></semantics></math>
+rounds, about <strong>6554 s</strong>. State the convention you use. The
+time that the 10 Gbit/s link needs to send the bits
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>8</mn><mo>×</mo><msup><mn>10</mn><mn>9</mn></msup><mi>/</mi><msup><mn>10</mn><mn>10</mn></msup><mo>=</mo><mn>0.8</mn></mrow><annotation encoding="application/x-tex">8 \times 10^9 / 10^{10} = 0.8</annotation></semantics></math>
+s) is small and overlaps with the waiting.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> file-transfer time with a window limit
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>=</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">rwnd</mtext><mo>,</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">cwnd limit</mtext><mo>×</mo><mtext mathvariant="normal">MSS</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">W = \min(\text{rwnd},\ \text{cwnd limit} \times \text{MSS})</annotation></semantics></math>,
+in bytes.</li>
+<li>Throughput
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">link rate</mtext><mo>,</mo><mspace width="0.222em"></mspace><mi>W</mi><mi>/</mi><mtext mathvariant="normal">RTT</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">= \min(\text{link rate},\ W/\text{RTT})</annotation></semantics></math>.
+Convert bytes to bits for the comparison.</li>
+<li>Time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>=</mo><annotation encoding="application/x-tex">=</annotation></semantics></math>
+file size / throughput. Or count rounds: segments
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>÷</mi><annotation encoding="application/x-tex">\div</annotation></semantics></math>
+segments per round, times the RTT.</li>
+<li>Use one unit convention for KB and GB, and say which.</li>
+</ol>
+</div>
+</details>
+<p><strong>Extension 4.1.</strong> Keep Q4, but the path’s slowest link
+is 1 Mbit/s. How long does the upload take?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 4.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The window allows
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>/</mi><mtext mathvariant="normal">RTT</mtext><mo>=</mo><mn>1.28</mn></mrow><annotation encoding="application/x-tex">W/\text{RTT} = 1.28</annotation></semantics></math>
+Mbit/s, but the link carries only 1 Mbit/s. The <strong>link</strong> is
+now the bottleneck, so the throughput is 1 Mbit/s. Time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>8</mn><mo>×</mo><msup><mn>10</mn><mn>9</mn></msup><mi>/</mi><msup><mn>10</mn><mn>6</mn></msup><mo>=</mo></mrow><annotation encoding="application/x-tex">= 8 \times 10^9 / 10^6 =</annotation></semantics></math>
+<strong>8000 s</strong>, about 133 minutes.</p>
+</div>
+</details>
+<p><strong>Extension 4.2.</strong> What window would the sender need to
+fill the 10 Gbit/s link in Q4? How many 1000-byte segments is that?</p>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 4.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo>≥</mo><mtext mathvariant="normal">throughput</mtext><mo>×</mo><mtext mathvariant="normal">RTT</mtext><mo>=</mo><msup><mn>10</mn><mn>10</mn></msup><mo>×</mo><mn>0.1</mn><mo>=</mo><msup><mn>10</mn><mn>9</mn></msup></mrow><annotation encoding="application/x-tex">W \ge \text{throughput} \times \text{RTT} = 10^{10} \times 0.1 = 10^9</annotation></semantics></math>
+bits
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>1.25</mn><mo>×</mo><msup><mn>10</mn><mn>8</mn></msup></mrow><annotation encoding="application/x-tex">= 1.25 \times 10^8</annotation></semantics></math>
+bytes. That is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>125</mn><mspace width="0.167em"></mspace><mn>000</mn></mrow><annotation encoding="application/x-tex">125\,000</annotation></semantics></math>
+segments of 1000 bytes. The window of 16 segments is far too small, and
+the 16-bit Window Size field (65 535 bytes) cannot even announce it
+without window scaling.</p>
+</div>
+</details>
+<hr />
+<h2 id="exam-patterns">Exam patterns</h2>
+<p>Tutorial source: Tutorial 2.3 Q1 (segment list with SN and AN), Q2
+(cwnd plot), Q4 (file-transfer time). <strong>None of these has an
+official solution.</strong> The other patterns come from the lecture’s
+own examples. Past-year papers are not in these notes.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 37%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th>Question type</th>
+<th>How to attack it</th>
+<th>Trap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TCP or UDP for an application</td>
+<td>Does every byte need to arrive, or is late data useless?</td>
+<td>Calling UDP “worse TCP”</td>
+</tr>
+<tr>
+<td>Segment list with SN and AN</td>
+<td>SYN +1, FIN +1, pure ACK +0, next SN = SN + data. Piggyback to reach
+the minimum.</td>
+<td>Giving SYN no number. Using AN as “last byte received”.</td>
+</tr>
+<tr>
+<td>Duplicate ACKs, fast retransmit</td>
+<td>AN repeats until the gap fills. Three duplicates, then resend.</td>
+<td>Resending after the first duplicate</td>
+</tr>
+<tr>
+<td>Receive window</td>
+<td>Right edge = AN + rwnd − 1. New data = right edge − bytes sent.</td>
+<td>Forgetting the −1. Forgetting that acknowledged is not read.</td>
+</tr>
+<tr>
+<td>Bytes allowed to send</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">min</mi><mo>&#8289;</mo></mrow><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">rwnd</mtext><mo>,</mo><mspace width="0.222em"></mspace><mtext mathvariant="normal">cwnd</mtext><mo>×</mo><mtext mathvariant="normal">MSS</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\min(\text{rwnd},\ \text{cwnd} \times \text{MSS})</annotation></semantics></math>
+minus bytes outstanding</td>
+<td>Mixing bytes and segments</td>
+</tr>
+<tr>
+<td>cwnd trace, Tahoe and Reno</td>
+<td>Slow start doubles to ssthresh, then +1. After loss: half, then 1 or
+half.</td>
+<td>Reno after a timeout. Ignoring the cap at ssthresh.</td>
+</tr>
+<tr>
+<td>Read a cwnd plot</td>
+<td>Shape = phase, drop = loss type, ssthresh = half the cwnd before the
+drop</td>
+<td>Reading ssthresh from the wrong round</td>
+</tr>
+<tr>
+<td>Which round sends segment
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math></td>
+<td>Running total of cwnd</td>
+<td>Off by one round at the boundary</td>
+</tr>
+<tr>
+<td>Throughput and file time</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>/</mi><mtext mathvariant="normal">RTT</mtext></mrow><annotation encoding="application/x-tex">W/\text{RTT}</annotation></semantics></math>
+against the link, then size ÷ rate</td>
+<td>Bits against bytes.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>9</mn></msup><annotation encoding="application/x-tex">10^9</annotation></semantics></math>
+against
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>30</mn></msup><annotation encoding="application/x-tex">2^{30}</annotation></semantics></math>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="common-traps">Common Traps</h2>
+<ul>
+<li>The IP <strong>Protocol</strong> field (1 = ICMP, 6 = TCP, 17 = UDP)
+picks the transport protocol. The <strong>port</strong> then picks the
+process. Don’t mix up the two steps.</li>
+<li>Port numbers are <strong>16 bits</strong> (0 to 65535). A client’s
+ephemeral port (for example 58888) does <strong>not</strong> need to be
+registered. Only the well-known ports 0 to 1023 have standard
+meanings.</li>
+<li>A TCP connection is the <strong>four</strong> values together. Two
+connections can share a client port if any other value differs.</li>
+<li>UDP is not “a worse TCP”. It suits live media, games and DNS,
+because late data is useless or a retry is cheap. Files, web pages and
+email need TCP.</li>
+<li>BGP runs over <strong>TCP</strong>, not UDP.</li>
+<li><strong>MSS counts only TCP data.</strong> It leaves out both
+headers. The MTU counts the whole IP packet.</li>
+<li><strong>SN is the first byte of this segment. AN is the next byte
+expected.</strong> AN is not “the last byte received”.</li>
+<li>A SYN and a FIN each use <strong>one</strong> sequence number. A
+pure ACK uses <strong>none</strong>, so the next segment repeats the
+same SN.</li>
+<li>SN always counts the <strong>sender’s own</strong> bytes. AN always
+counts the <strong>other side’s</strong> bytes.</li>
+<li>After a lost segment, the receiver keeps repeating the
+<strong>same</strong> AN, even while later segments arrive. When the gap
+fills, the AN jumps past everything the receiver holds.</li>
+<li>Fast retransmit needs <strong>three duplicate</strong> ACKs, which
+means four ACKs with the same AN in total.</li>
+<li>The timer is still needed: a loss near the end of the data produces
+no duplicate ACKs.</li>
+<li><strong>Acknowledged does not mean read.</strong> rwnd shrinks when
+the application reads slowly, even if every byte was acknowledged.</li>
+<li>The window’s right edge is AN + rwnd <strong>− 1</strong>. It can
+move <strong>left</strong> when rwnd shrinks.</li>
+<li>rwnd is in <strong>bytes</strong>. In this course, cwnd is in
+<strong>segments</strong>. Convert before you take min(rwnd, cwnd ×
+MSS).</li>
+<li>In slow start, cwnd doubles <strong>per round</strong>, but it grows
+by 1 MSS <strong>per ACK</strong>. The course model caps slow start at
+ssthresh.</li>
+<li>After <strong>any</strong> loss, ssthresh = ⌊cwnd / 2⌋, rounded
+<strong>down</strong>. A timeout sets cwnd = 1 in both Tahoe and Reno.
+Three duplicate ACKs set Tahoe’s cwnd to 1 and <strong>Reno’s to
+ssthresh</strong>.</li>
+<li>On a cwnd graph, a drop to <strong>half</strong> means three
+duplicate ACKs (Reno). A drop to <strong>1</strong> means a timeout, or
+Tahoe after either event.</li>
+<li>Throughput ≈ W / RTT, so a fast link does not guarantee a fast
+transfer. A long RTT or a small window limits it first.</li>
+<li>Watch bits against bytes (× 8), and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>10</mn><mn>9</mn></msup><annotation encoding="application/x-tex">10^9</annotation></semantics></math>
+against
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>30</mn></msup><annotation encoding="application/x-tex">2^{30}</annotation></semantics></math>.</li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/8-routing-practice/8.html">← 8.
+Routing in Practice</a>
+  <a class="next-page" href="../../notes/10-application-layer/10.html">10.
+Application Layer: HTTP and DNS →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

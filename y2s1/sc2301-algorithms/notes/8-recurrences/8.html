@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>8. Analysis Techniques: Solving Recurrences · SC2301 Algorithm
+Design &amp; Analysis</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">8. Analysis
+Techniques: Solving Recurrences</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2301</p>
+  <p class="site-title">Algorithm Design &amp; Analysis</p>
+  <h1 class="page-title">8. Analysis Techniques: Solving
+Recurrences</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-foundations/1.html"
+                   data-nav="notes/1-foundations/1.html">1. Foundations:
+Asymptotic Notation and Insertion Sort</a></li>
+            <li><a href="../../notes/2-mergesort/2.html"
+                   data-nav="notes/2-mergesort/2.html">2. Divide and
+Conquer: Mergesort</a></li>
+            <li><a href="../../notes/3-heapsort/3.html"
+                   data-nav="notes/3-heapsort/3.html">3. Heaps and
+Heapsort</a></li>
+            <li><a href="../../notes/4-quicksort-linear-sorts/4.html"
+                   data-nav="notes/4-quicksort-linear-sorts/4.html">4.
+Quicksort, the Limit of Comparison Sorts, and Linear-Time Sorts</a></li>
+            <li><a href="../../notes/5-graph-traversal/5.html"
+                   data-nav="notes/5-graph-traversal/5.html">5. Graphs:
+Representations, BFS, DFS and Topological Sort</a></li>
+            <li><a href="../../notes/6-dijkstra-prim/6.html"
+                   data-nav="notes/6-dijkstra-prim/6.html">6. Greedy
+Algorithms: Dijkstra’s Shortest Paths and Prim’s MST</a></li>
+            <li><a href="../../notes/7-union-find-kruskal/7.html"
+                   data-nav="notes/7-union-find-kruskal/7.html">7.
+Union-Find and Kruskal’s Algorithm</a></li>
+            <li><a href="../../notes/8-recurrences/8.html"
+                   data-nav="notes/8-recurrences/8.html">8. Analysis
+Techniques: Solving Recurrences</a></li>
+            <li><a href="../../notes/9-amortized-analysis/9.html"
+                   data-nav="notes/9-amortized-analysis/9.html">9.
+Amortized Analysis</a></li>
+            <li><a href="../../notes/10-dynamic-programming/10.html"
+                   data-nav="notes/10-dynamic-programming/10.html">10.
+Dynamic Programming</a></li>
+            <li><a href="../../notes/11-string-matching/11.html"
+                   data-nav="notes/11-string-matching/11.html">11.
+String Matching</a></li>
+            <li><a href="../../notes/12-np-completeness/12.html"
+                   data-nav="notes/12-np-completeness/12.html">12.
+NP-Completeness</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Cheatsheet</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#divide-and-conquer-recurrences"
+id="toc-divide-and-conquer-recurrences">1. Divide-and-Conquer
+Recurrences</a></li>
+<li><a href="#the-substitution-method-inductive-proofs"
+id="toc-the-substitution-method-inductive-proofs">2. The Substitution
+Method (Inductive Proofs)</a>
+<ul>
+<li><a href="#step-by-step-method-the-substitution-protocol"
+id="toc-step-by-step-method-the-substitution-protocol">Step-by-Step
+Method: The Substitution Protocol</a></li>
+</ul></li>
+<li><a href="#the-iteration-unrolling-method"
+id="toc-the-iteration-unrolling-method">3. The Iteration (Unrolling)
+Method</a>
+<ul>
+<li><a href="#step-by-step-method-recurrence-unrolling"
+id="toc-step-by-step-method-recurrence-unrolling">Step-by-Step Method:
+Recurrence Unrolling</a></li>
+</ul></li>
+<li><a href="#the-recursion-tree-and-master-theorem"
+id="toc-the-recursion-tree-and-master-theorem">4. The Recursion Tree and
+Master Theorem</a>
+<ul>
+<li><a href="#the-master-theorem" id="toc-the-master-theorem">The Master
+Theorem</a></li>
+</ul></li>
+<li><a href="#linear-homogeneous-recurrences-with-constant-coefficients"
+id="toc-linear-homogeneous-recurrences-with-constant-coefficients">5.
+Linear Homogeneous Recurrences with Constant Coefficients</a>
+<ul>
+<li><a href="#the-characteristic-equation-method"
+id="toc-the-characteristic-equation-method">The Characteristic Equation
+Method</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>Divide-and-conquer and recursive algorithms naturally yield
+<strong>recurrence relations</strong>—equations expressing the running
+time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T(n)</annotation></semantics></math>
+on an input of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+in terms of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>T</mi><annotation encoding="application/x-tex">T</annotation></semantics></math>
+evaluated on strictly smaller inputs
+(e.g. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T(n) = 2T(n/2) + O(n)</annotation></semantics></math>).
+Because recurrences do not explicitly disclose asymptotic growth,
+solving them to derive closed-form bounds is a central task in algorithm
+analysis.</p>
+<p>This chapter covers the five analytical techniques:
+<strong>Substitution</strong> (induction), <strong>Iteration</strong>
+(unrolling), <strong>Recursion Trees</strong>, the <strong>Master
+Theorem</strong>, and the <strong>Characteristic Equation
+Method</strong> for linear homogeneous recurrence relations.</p>
+<hr />
+<h2 id="divide-and-conquer-recurrences">1. Divide-and-Conquer
+Recurrences</h2>
+<p>A standard divide-and-conquer recurrence has the universal form:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>a</mi><mspace width="0.167em"></mspace><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><mi>a</mi><mo>≥</mo><mn>1</mn><mo>,</mo><mspace width="0.278em"></mspace><mi>b</mi><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(n) = a\,T(n/b) + f(n), \qquad a \ge 1, \; b &gt; 1</annotation></semantics></math></p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>:
+The number of recursive subproblems generated per step.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>b</mi><annotation encoding="application/x-tex">b</annotation></semantics></math>:
+The factor by which the input shrinks, making each subproblem size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">n/b</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n)</annotation></semantics></math>:
+The cost of dividing the problem and combining subproblem
+solutions.</li>
+</ul>
+<figure>
+<img width="1400" height="954" src="media/8-artifacts/divide-conquer-cost.webp" style="width:75.0%"
+loading="lazy" decoding="async"
+alt="A problem of size n decomposes into a subproblems of size n/b. Dividing and combining costs f(n)." />
+<figcaption aria-hidden="true">A problem of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+decomposes into
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>a</mi><annotation encoding="application/x-tex">a</annotation></semantics></math>
+subproblems of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><mi>b</mi></mrow><annotation encoding="application/x-tex">n/b</annotation></semantics></math>.
+Dividing and combining costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n)</annotation></semantics></math>.</figcaption>
+</figure>
+<hr />
+<h2 id="the-substitution-method-inductive-proofs">2. The Substitution
+Method (Inductive Proofs)</h2>
+<p>The substitution method guesses the asymptotic bound and proves it
+formally via mathematical induction.</p>
+<hr />
+<h3 id="step-by-step-method-the-substitution-protocol">Step-by-Step
+Method: The Substitution Protocol</h3>
+<ol type="1">
+<li><strong>State the Inductive Guess:</strong> Formulate an explicit
+hypothesis
+(e.g. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>c</mi><mspace width="0.167em"></mspace><mi>n</mi><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">T(n) \le c\,n \lg n</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≥</mo><msub><mi>n</mi><mn>0</mn></msub></mrow><annotation encoding="application/x-tex">n \ge n_0</annotation></semantics></math>).</li>
+<li><strong>Inductive Step:</strong> Assume the hypothesis holds for all
+subproblem sizes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>&lt;</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">k &lt; n</annotation></semantics></math>.
+Substitute into the recurrence and show that the <strong>exact same
+functional form with the exact same constant
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math></strong>
+holds for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.</li>
+<li><strong>Handle Residual Terms by Subtracting Constants:</strong>
+<ul>
+<li>If substitution yields an unwanted positive constant
+(e.g. <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>c</mi><mspace width="0.167em"></mspace><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(n) \le c\,n + 1</annotation></semantics></math>,
+which fails because
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mspace width="0.167em"></mspace><mi>n</mi><mo>+</mo><mn>1</mn><mo>≰</mo><mi>c</mi><mspace width="0.167em"></mspace><mi>n</mi></mrow><annotation encoding="application/x-tex">c\,n + 1 \not\le c\,n</annotation></semantics></math>),
+<strong>subtract a lower-order term</strong> in the initial guess:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>c</mi><mspace width="0.167em"></mspace><mi>n</mi><mo>−</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">T(n) \le c\,n - d</annotation></semantics></math>.</li>
+<li>Each subproblem scales
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>,
+generating
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mi>a</mi><mo>⋅</mo><mi>d</mi><mo>+</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>−</mi><mi>d</mi></mrow><annotation encoding="application/x-tex">-a\cdot d + f(n) \le -d</annotation></semantics></math>,
+which absorbs positive residuals.</li>
+</ul></li>
+<li><strong>Base Case:</strong> Select
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>c</mi><annotation encoding="application/x-tex">c</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>n</mi><mn>0</mn></msub><annotation encoding="application/x-tex">n_0</annotation></semantics></math>
+sufficiently large to satisfy the base conditions.</li>
+</ol>
+<hr />
+<h2 id="the-iteration-unrolling-method">3. The Iteration (Unrolling)
+Method</h2>
+<p>The iteration method expands the recurrence step-by-step until an
+algebraic pattern emerges, summing all terms down to the base case.</p>
+<hr />
+<h3 id="step-by-step-method-recurrence-unrolling">Step-by-Step Method:
+Recurrence Unrolling</h3>
+<ol type="1">
+<li><strong>Expand
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+Times:</strong> Substitute
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T(n-1)</annotation></semantics></math>
+or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mi>b</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T(n/b)</annotation></semantics></math>
+repeatedly, maintaining unsimplified coefficients to identify geometric
+or arithmetic progressions.</li>
+<li><strong>Express at Step
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>:</strong>
+Write
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T(n)</annotation></semantics></math>
+as a function of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+and the base index.</li>
+<li><strong>Set Boundary Condition:</strong> Set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mi>k</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - k = 1</annotation></semantics></math>
+(or
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><msup><mi>b</mi><mi>k</mi></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n/b^k = 1</annotation></semantics></math>)
+to solve for the terminal iteration count
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>.</li>
+<li><strong>Evaluate Sums:</strong> Apply standard formulas:
+<ul>
+<li>Geometric Series:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msubsup><msup><mi>r</mi><mi>i</mi></msup><mo>=</mo><mfrac><mrow><msup><mi>r</mi><mi>k</mi></msup><mo>−</mo><mn>1</mn></mrow><mrow><mi>r</mi><mo>−</mo><mn>1</mn></mrow></mfrac></mrow><annotation encoding="application/x-tex">\sum_{i=0}^{k-1} r^i = \frac{r^k - 1}{r - 1}</annotation></semantics></math></li>
+<li>Arithmetic Series:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></msubsup><mi>i</mi><mo>=</mo><mfrac><mrow><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">\sum_{i=1}^k i = \frac{k(k+1)}{2}</annotation></semantics></math></li>
+</ul></li>
+</ol>
+<details class="qa box">
+<summary>
+<strong>Tutorial 8 Q1:</strong> Solving Recurrences via Iteration <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Solve the following recurrences by the
+iteration method:</p>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(1) = 1</annotation></semantics></math>,
+and for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≥</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">n \ge 2</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>3</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">T(n) = 3T(n-1) + 2</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(1) = 1</annotation></semantics></math>,
+and for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≥</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">n \ge 2</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">T(n) = 2T(n-1) + n</annotation></semantics></math></li>
+</ol>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><p><strong>Part 1:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>3</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">T(n) = 3T(n-1) + 2</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(1) = 1</annotation></semantics></math></strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn>3</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn>3</mn><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mo>=</mo><msup><mn>3</mn><mn>2</mn></msup><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mo>⋅</mo><mn>3</mn><mo>+</mo><mn>2</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mn>3</mn><mn>2</mn></msup><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mo>⋅</mo><mn>3</mn><mo>+</mo><mn>2</mn><mo>=</mo><msup><mn>3</mn><mn>3</mn></msup><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mo>⋅</mo><msup><mn>3</mn><mn>2</mn></msup><mo>+</mo><mn>2</mn><mo>⋅</mo><mn>3</mn><mo>+</mo><mn>2</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mspace width="0.278em"></mspace><mspace width="0.278em"></mspace><mi>⋮</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mn>3</mn><mi>k</mi></msup><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></munderover><msup><mn>3</mn><mi>i</mi></msup></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned}
+T(n) &amp;= 3T(n-1) + 2 \\
+&amp;= 3(3T(n-2) + 2) + 2 = 3^2 T(n-2) + 2 \cdot 3 + 2 \\
+&amp;= 3^2(3T(n-3) + 2) + 2 \cdot 3 + 2 = 3^3 T(n-3) + 2 \cdot 3^2 + 2 \cdot 3 + 2 \\
+&amp;\;\;\vdots \\
+&amp;= 3^k T(n-k) + 2 \sum_{i=0}^{k-1} 3^i
+\end{aligned}</annotation></semantics></math> Set
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>−</mo><mi>k</mi><mo>=</mo><mn>1</mn><mo>⟹</mo><mi>k</mi><mo>=</mo><mi>n</mi><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n - k = 1 \implies k = n - 1</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mn>3</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mrow><mo stretchy="true" form="prefix">(</mo><mfrac><mrow><msup><mn>3</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn></mrow><mrow><mn>3</mn><mo>−</mo><mn>1</mn></mrow></mfrac><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mn>3</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msup><mn>3</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mn mathvariant="bold">𝟐</mn><mo mathvariant="bold">⋅</mo><msup><mn mathvariant="bold">𝟑</mn><mrow><mi mathvariant="bold-italic">𝒏</mi><mo mathvariant="bold">−</mo><mn mathvariant="bold">𝟏</mn></mrow></msup><mo mathvariant="bold">−</mo><mn mathvariant="bold">𝟏</mn></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned}
+T(n) &amp;= 3^{n-1} T(1) + 2\left(\frac{3^{n-1} - 1}{3 - 1}\right) \\
+&amp;= 3^{n-1}(1) + (3^{n-1} - 1) = \mathbf{2 \cdot 3^{n-1} - 1}
+\end{aligned}</annotation></semantics></math></p></li>
+<li><p><strong>Part 2:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">T(n) = 2T(n-1) + n</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(1) = 1</annotation></semantics></math></strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi><mo>=</mo><msup><mn>2</mn><mn>2</mn></msup><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mn>2</mn><mn>3</mn></msup><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><msup><mn>2</mn><mn>2</mn></msup><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mspace width="0.278em"></mspace><mspace width="0.278em"></mspace><mi>⋮</mi></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right; padding-right: 0"></mtd><mtd columnalign="left" style="text-align: left; padding-left: 0"><mo>=</mo><msup><mn>2</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></munderover><msup><mn>2</mn><mi>j</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">\begin{aligned}
+T(n) &amp;= 2T(n-1) + n \\
+&amp;= 2(2T(n-2) + n - 1) + n = 2^2 T(n-2) + 2(n - 1) + n \\
+&amp;= 2^3 T(n-3) + 2^2(n - 2) + 2(n - 1) + n \\
+&amp;\;\;\vdots \\
+&amp;= 2^{n-1} T(1) + \sum_{j=0}^{n-2} 2^j (n - j)
+\end{aligned}</annotation></semantics></math> Evaluating the
+arithmetico-geometric sum:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></munderover><msup><mn>2</mn><mi>j</mi></msup><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mi>j</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>n</mi><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></munderover><msup><mn>2</mn><mi>j</mi></msup><mo>−</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>0</mn></mrow><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></munderover><mi>j</mi><msup><mn>2</mn><mi>j</mi></msup><mo>=</mo><mi>n</mi><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo><msup><mn>2</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>+</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\sum_{j=0}^{n-2} 2^j (n - j) = n \sum_{j=0}^{n-2} 2^j - \sum_{j=0}^{n-2} j 2^j = n(2^{n-1} - 1) - ((n-3)2^{n-1} + 2)</annotation></semantics></math>
+Combining terms gives:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mn>2</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>+</mo><mn>2</mn><mo>⋅</mo><msup><mn>2</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mi>n</mi><mo>−</mo><mn>2</mn><mo>=</mo><mrow><msup><mn mathvariant="bold">𝟐</mn><mrow><mi mathvariant="bold-italic">𝒏</mi><mo mathvariant="bold">+</mo><mn mathvariant="bold">𝟏</mn></mrow></msup><mo mathvariant="bold">−</mo><mi mathvariant="bold-italic">𝒏</mi><mo mathvariant="bold">−</mo><mn mathvariant="bold">𝟐</mn></mrow></mrow><annotation encoding="application/x-tex">T(n) = 2^{n-1} + 2 \cdot 2^{n-1} - n - 2 = \mathbf{2^{n+1} - n - 2}</annotation></semantics></math></p></li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 8 Q2:</strong> Proving Iteration Solutions via
+Mathematical Induction (Substitution) <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Prove by the substitution method that:</p>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mo>⋅</mo><msup><mn>3</mn><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(n) = 2 \cdot 3^{n-1} - 1</annotation></semantics></math>
+satisfies
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>3</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">T(n) = 3T(n-1) + 2</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(1) = 1</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mn>2</mn><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>−</mo><mi>n</mi><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">T(n) = 2^{n+1} - n - 2</annotation></semantics></math>
+satisfies
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">T(n) = 2T(n-1) + n</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(1) = 1</annotation></semantics></math>.</li>
+</ol>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Proof 1:</strong>
+<ul>
+<li><em>Base Case
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n = 1</annotation></semantics></math>):</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mo>⋅</mo><msup><mn>3</mn><mrow><mn>1</mn><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mn>1</mn><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(1) = 2 \cdot 3^{1-1} - 1 = 2(1) - 1 = 1</annotation></semantics></math>.
+Holds.</li>
+<li><em>Inductive Step:</em> Assume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mo>⋅</mo><msup><mn>3</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(k) = 2 \cdot 3^{k-1} - 1</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k \ge 1</annotation></semantics></math>.
+For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mi>k</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n = k + 1</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>3</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mo>=</mo><mn>3</mn><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>⋅</mo><msup><mn>3</mn><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>2</mn><mo>=</mo><mn>2</mn><mo>⋅</mo><msup><mn>3</mn><mi>k</mi></msup><mo>−</mo><mn>3</mn><mo>+</mo><mn>2</mn><mo>=</mo><mn>2</mn><mo>⋅</mo><msup><mn>3</mn><mi>k</mi></msup><mo>−</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(k+1) = 3T(k) + 2 = 3(2 \cdot 3^{k-1} - 1) + 2 = 2 \cdot 3^k - 3 + 2 = 2 \cdot 3^k - 1</annotation></semantics></math>
+Matches target form for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mi>k</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n = k + 1</annotation></semantics></math>.
+Proved.</li>
+</ul></li>
+<li><strong>Proof 2:</strong>
+<ul>
+<li><em>Base Case
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n = 1</annotation></semantics></math>):</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mn>2</mn><mrow><mn>1</mn><mo>+</mo><mn>1</mn></mrow></msup><mo>−</mo><mn>1</mn><mo>−</mo><mn>2</mn><mo>=</mo><mn>4</mn><mo>−</mo><mn>3</mn><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T(1) = 2^{1+1} - 1 - 2 = 4 - 3 = 1</annotation></semantics></math>.
+Holds.</li>
+<li><em>Inductive Step:</em> Assume
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>−</mo><mi>k</mi><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">T(k) = 2^{k+1} - k - 2</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k \ge 1</annotation></semantics></math>.
+For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mi>k</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n = k + 1</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msup><mo>−</mo><mi>k</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo>=</mo><msup><mn>2</mn><mrow><mi>k</mi><mo>+</mo><mn>2</mn></mrow></msup><mo>−</mo><mn>2</mn><mi>k</mi><mo>−</mo><mn>4</mn><mo>+</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo>=</mo><msup><mn>2</mn><mrow><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>1</mn></mrow></msup><mo>−</mo><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">T(k+1) = 2T(k) + (k + 1) = 2(2^{k+1} - k - 2) + k + 1 = 2^{k+2} - 2k - 4 + k + 1 = 2^{(k+1)+1} - (k+1) - 2</annotation></semantics></math>
+Matches target form for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mi>k</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n = k + 1</annotation></semantics></math>.
+Proved.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="the-recursion-tree-and-master-theorem">4. The Recursion Tree and
+Master Theorem</h2>
+<p>A recursion tree visualizes recursive branching. Level
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>
+contains
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>a</mi><mi>j</mi></msup><annotation encoding="application/x-tex">a^j</annotation></semantics></math>
+subproblems of size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mi>/</mi><msup><mi>b</mi><mi>j</mi></msup></mrow><annotation encoding="application/x-tex">n/b^j</annotation></semantics></math>.
+The total number of leaf nodes at depth
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>n</mi></mrow><annotation encoding="application/x-tex">\log_b n</annotation></semantics></math>
+is:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>a</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>n</mi></mrow></msup><mo>=</mo><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi></mrow></msup></mrow><annotation encoding="application/x-tex">a^{\log_b n} = n^{\log_b a}</annotation></semantics></math></p>
+<figure>
+<img width="1400" height="966" src="media/8-artifacts/recursion-tree-leaves.webp"
+style="width:80.0%" loading="lazy" decoding="async"
+alt="The leaf level of a recursion tree contains n^{\log_b a} nodes, each executing base case work \Theta(1)." />
+<figcaption aria-hidden="true">The leaf level of a recursion tree
+contains
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi></mrow></msup><annotation encoding="application/x-tex">n^{\log_b a}</annotation></semantics></math>
+nodes, each executing base case work
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\Theta(1)</annotation></semantics></math>.</figcaption>
+</figure>
+<hr />
+<h3 id="the-master-theorem">The Master Theorem</h3>
+<p>For
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>a</mi><mspace width="0.167em"></mspace><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">T(n) = a\,T(n/b) + f(n)</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>≥</mo><mn>1</mn><mo>,</mo><mi>b</mi><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a \ge 1, b &gt; 1</annotation></semantics></math>:
+Compare the non-recursive work
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n)</annotation></semantics></math>
+against the watershed function
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi></mrow></msup><annotation encoding="application/x-tex">n^{\log_b a}</annotation></semantics></math></strong>:</p>
+<pre class="mermaid"><code>flowchart TD
+    Comp[&quot;Compare f(n) vs n^(log_b a)&quot;] --&gt; C1[&quot;Case 1: Leaf-Heavy&lt;br/&gt;f(n) = O(n^(log_b a - eps))&lt;br/&gt;T(n) = Theta(n^(log_b a))&quot;]
+    Comp --&gt; C2[&quot;Case 2: Balanced&lt;br/&gt;f(n) = Theta(n^(log_b a) lg^k n)&lt;br/&gt;T(n) = Theta(n^(log_b a) lg^(k+1) n)&quot;]
+    Comp --&gt; C3[&quot;Case 3: Root-Heavy&lt;br/&gt;f(n) = Omega(n^(log_b a + eps)) AND a f(n/b) &lt;= c f(n)&lt;br/&gt;T(n) = Theta(f(n))&quot;]</code></pre>
+<ul>
+<li><strong>Case 1 (Leaf-Heavy):</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n)</annotation></semantics></math>
+is <strong>polynomially smaller</strong> than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi></mrow></msup><annotation encoding="application/x-tex">n^{\log_b a}</annotation></semantics></math>.
+Leaves dominate:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi><mo>−</mo><mi>ϵ</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> for </mtext><mspace width="0.333em"></mspace></mrow><mi>ϵ</mi><mo>&gt;</mo><mn>0</mn><mo>⟹</mo><mrow><mi mathvariant="bold-italic">𝑻</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒏</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo><mo mathvariant="bold">=</mo><mi mathvariant="bold">𝚯</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><msup><mi mathvariant="bold-italic">𝒏</mi><mrow><msub><mrow><mi mathvariant="bold-italic">𝒍𝒐𝒈</mi><mo mathvariant="bold">&#8289;</mo></mrow><mi mathvariant="bold-italic">𝒃</mi></msub><mi mathvariant="bold-italic">𝒂</mi></mrow></msup><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(n) = O(n^{\log_b a - \epsilon}) \text{ for } \epsilon &gt; 0 \implies \mathbf{T(n) = \Theta(n^{\log_b a})}</annotation></semantics></math></li>
+<li><strong>Case 2 (Balanced):</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n)</annotation></semantics></math>
+has the same growth rate as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi></mrow></msup><annotation encoding="application/x-tex">n^{\log_b a}</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi></mrow></msup><msup><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>k</mi></msup><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> for </mtext><mspace width="0.333em"></mspace></mrow><mi>k</mi><mo>≥</mo><mn>0</mn><mo>⟹</mo><mrow><mi mathvariant="bold-italic">𝑻</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒏</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo><mo mathvariant="bold">=</mo><mi mathvariant="bold">𝚯</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><msup><mi mathvariant="bold-italic">𝒏</mi><mrow><msub><mrow><mi mathvariant="bold-italic">𝒍𝒐𝒈</mi><mo mathvariant="bold">&#8289;</mo></mrow><mi mathvariant="bold-italic">𝒃</mi></msub><mi mathvariant="bold-italic">𝒂</mi></mrow></msup><msup><mrow><mi mathvariant="bold-italic">𝒍𝒈</mi><mo mathvariant="bold">&#8289;</mo></mrow><mrow><mi mathvariant="bold-italic">𝒌</mi><mo mathvariant="bold">+</mo><mn mathvariant="bold">𝟏</mn></mrow></msup><mi mathvariant="bold-italic">𝒏</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(n) = \Theta(n^{\log_b a} \lg^k n) \text{ for } k \ge 0 \implies \mathbf{T(n) = \Theta(n^{\log_b a} \lg^{k+1} n)}</annotation></semantics></math></li>
+<li><strong>Case 3 (Root-Heavy):</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n)</annotation></semantics></math>
+is <strong>polynomially larger</strong> than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi></mrow></msup><annotation encoding="application/x-tex">n^{\log_b a}</annotation></semantics></math>,
+and satisfies the <strong>regularity condition</strong>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mi>b</mi><mo stretchy="false" form="postfix">)</mo><mo>≤</mo><mi>c</mi><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">a f(n/b) \le c f(n)</annotation></semantics></math>
+for some
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>&lt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">c &lt; 1</annotation></semantics></math>):
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Ω</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi><mo>+</mo><mi>ϵ</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> for </mtext><mspace width="0.333em"></mspace></mrow><mi>ϵ</mi><mo>&gt;</mo><mn>0</mn><mo>⟹</mo><mrow><mi mathvariant="bold-italic">𝑻</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒏</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo><mo mathvariant="bold">=</mo><mi mathvariant="bold">𝚯</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒇</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒏</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">f(n) = \Omega(n^{\log_b a + \epsilon}) \text{ for } \epsilon &gt; 0 \implies \mathbf{T(n) = \Theta(f(n))}</annotation></semantics></math></li>
+</ul>
+<blockquote>
+<p>[!WARNING] <strong>Polynomial Separation Requirement:</strong> The
+difference between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n)</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi></mrow></msup><annotation encoding="application/x-tex">n^{\log_b a}</annotation></semantics></math>
+must be polynomial
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mi>ϵ</mi></msup><annotation encoding="application/x-tex">n^\epsilon</annotation></semantics></math>).
+If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi></mrow></msup><mi>/</mi><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">f(n) = n^{\log_b a} / \lg n</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n)</annotation></semantics></math>
+is asymptotically smaller than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi></mrow></msup><annotation encoding="application/x-tex">n^{\log_b a}</annotation></semantics></math>,
+but NOT polynomially smaller. The Master Theorem does not apply; use
+substitution or recursion trees.</p>
+</blockquote>
+<details class="qa box">
+<summary>
+<strong>Tutorial 8 Q3:</strong> Application of the Master Theorem Across
+All Cases <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Solve the following recurrences using the
+Master Method:</p>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">W(n) = W(n/3) + 5</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">T(n) = 2T(n/2) + n/4</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">W(n) = 2W(n/2) + \log n</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">T(n) = 2T(n/2) + n \log n</annotation></semantics></math></li>
+</ol>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>3</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">W(n) = W(n/3) + 5</annotation></semantics></math>:</strong>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>b</mi><mo>=</mo><mn>3</mn><mo>⟹</mo><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>b</mi></msub><mi>a</mi></mrow></msup><mo>=</mo><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>3</mn></msub><mn>1</mn></mrow></msup><mo>=</mo><msup><mi>n</mi><mn>0</mn></msup><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a = 1, b = 3 \implies n^{\log_b a} = n^{\log_3 1} = n^0 = 1</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>5</mn><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>3</mn></msub><mn>1</mn></mrow></msup><msup><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mn>0</mn></msup><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) = 5 = \Theta(1) = \Theta(n^{\log_3 1} \lg^0 n)</annotation></semantics></math>.</li>
+<li>Matches <strong>Case 2</strong>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">k = 0</annotation></semantics></math>):
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>0</mn></msup><msup><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mrow><mn>0</mn><mo>+</mo><mn>1</mn></mrow></msup><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="bold">𝚯</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mrow><mi mathvariant="bold-italic">𝒍𝒐𝒈</mi><mo mathvariant="bold">&#8289;</mo></mrow><mi mathvariant="bold-italic">𝒏</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">W(n) = \Theta(n^0 \lg^{0+1} n) = \mathbf{\Theta(\log n)}</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi><mi>/</mi><mn>4</mn></mrow><annotation encoding="application/x-tex">T(n) = 2T(n/2) + n/4</annotation></semantics></math>:</strong>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>2</mn><mo>,</mo><mi>b</mi><mo>=</mo><mn>2</mn><mo>⟹</mo><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><mn>2</mn></mrow></msup><mo>=</mo><msup><mi>n</mi><mn>1</mn></msup><mo>=</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">a = 2, b = 2 \implies n^{\log_2 2} = n^1 = n</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>n</mi><mi>/</mi><mn>4</mn><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>1</mn></msup><msup><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mn>0</mn></msup><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) = n/4 = \Theta(n) = \Theta(n^1 \lg^0 n)</annotation></semantics></math>.</li>
+<li>Matches <strong>Case 2</strong>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">k = 0</annotation></semantics></math>):
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><msup><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mrow><mn>0</mn><mo>+</mo><mn>1</mn></mrow></msup><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="bold">𝚯</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒏</mi><mrow><mi mathvariant="bold-italic">𝒍𝒐𝒈</mi><mo mathvariant="bold">&#8289;</mo></mrow><mi mathvariant="bold-italic">𝒏</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">T(n) = \Theta(n \lg^{0+1} n) = \mathbf{\Theta(n \log n)}</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">W(n) = 2W(n/2) + \log n</annotation></semantics></math>:</strong>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>2</mn><mo>,</mo><mi>b</mi><mo>=</mo><mn>2</mn><mo>⟹</mo><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><mn>2</mn></mrow></msup><mo>=</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">a = 2, b = 2 \implies n^{\log_2 2} = n</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">f(n) = \log n</annotation></semantics></math>.</li>
+<li>Since
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo>=</mo><mi>O</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mrow><mn>1</mn><mo>−</mo><mi>ϵ</mi></mrow></msup><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\log n = O(n^{1 - \epsilon})</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ϵ</mi><mo>=</mo><mn>0.5</mn></mrow><annotation encoding="application/x-tex">\epsilon = 0.5</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>n</mi><mn>0.5</mn></msup><annotation encoding="application/x-tex">n^{0.5}</annotation></semantics></math>
+grows faster than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">\log n</annotation></semantics></math>),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n)</annotation></semantics></math>
+is polynomially smaller than
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>.</li>
+<li>Matches <strong>Case 1</strong>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="bold">𝚯</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒏</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow></mrow><annotation encoding="application/x-tex">W(n) = \mathbf{\Theta(n)}</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>2</mn><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mi>/</mi><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">T(n) = 2T(n/2) + n \log n</annotation></semantics></math>:</strong>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>a</mi><mo>=</mo><mn>2</mn><mo>,</mo><mi>b</mi><mo>=</mo><mn>2</mn><mo>⟹</mo><msup><mi>n</mi><mrow><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><mn>2</mn></mrow></msup><mo>=</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">a = 2, b = 2 \implies n^{\log_2 2} = n</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi>n</mi><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><msup><mi>n</mi><mn>1</mn></msup><msup><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mn>1</mn></msup><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">f(n) = n \log n = \Theta(n^1 \lg^1 n)</annotation></semantics></math>.</li>
+<li>Matches <strong>Extended Case 2</strong>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k = 1</annotation></semantics></math>):
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mi mathvariant="normal">Θ</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><msup><mrow><mi mathvariant="normal">lg</mi><mo>&#8289;</mo></mrow><mrow><mn>1</mn><mo>+</mo><mn>1</mn></mrow></msup><mi>n</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mi mathvariant="bold">𝚯</mi><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mi mathvariant="bold-italic">𝒏</mi><msup><mrow><mi mathvariant="bold-italic">𝒍𝒐𝒈</mi><mo mathvariant="bold">&#8289;</mo></mrow><mn mathvariant="bold">𝟐</mn></msup><mi mathvariant="bold-italic">𝒏</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo></mrow><mi>.</mi></mrow><annotation encoding="application/x-tex">T(n) = \Theta(n \lg^{1+1} n) = \mathbf{\Theta(n \log^2 n)}.</annotation></semantics></math></li>
+</ul></li>
+</ol>
+</div>
+</details>
+<hr />
+<h2 id="linear-homogeneous-recurrences-with-constant-coefficients">5.
+Linear Homogeneous Recurrences with Constant Coefficients</h2>
+<p>A recurrence relation has the linear homogeneous form of degree
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><msub><mi>c</mi><mn>1</mn></msub><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><msub><mi>c</mi><mn>2</mn></msub><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></msub><mo>+</mo><mi>…</mi><mo>+</mo><msub><mi>c</mi><mi>k</mi></msub><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mi>k</mi></mrow></msub><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>c</mi><mi>k</mi></msub><mo>≠</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">a_n = c_1 a_{n-1} + c_2 a_{n-2} + \dots + c_k a_{n-k}, \qquad c_k \ne 0</annotation></semantics></math></p>
+<h3 id="the-characteristic-equation-method">The Characteristic Equation
+Method</h3>
+<p>Substitute candidate solution
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><msup><mi>r</mi><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">a_n = r^n</annotation></semantics></math>,
+yielding the <strong>characteristic equation</strong>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>r</mi><mi>k</mi></msup><mo>−</mo><msub><mi>c</mi><mn>1</mn></msub><msup><mi>r</mi><mrow><mi>k</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>−</mo><msub><mi>c</mi><mn>2</mn></msub><msup><mi>r</mi><mrow><mi>k</mi><mo>−</mo><mn>2</mn></mrow></msup><mo>−</mo><mi>…</mi><mo>−</mo><msub><mi>c</mi><mi>k</mi></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">r^k - c_1 r^{k-1} - c_2 r^{k-2} - \dots - c_k = 0</annotation></semantics></math></p>
+<ul>
+<li><strong>Distinct Real Roots
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>1</mn></msub><mo>≠</mo><msub><mi>r</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">r_1 \ne r_2</annotation></semantics></math>):</strong>
+General solution is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><msub><mi>α</mi><mn>1</mn></msub><msubsup><mi>r</mi><mn>1</mn><mi>n</mi></msubsup><mo>+</mo><msub><mi>α</mi><mn>2</mn></msub><msubsup><mi>r</mi><mn>2</mn><mi>n</mi></msubsup></mrow><annotation encoding="application/x-tex">a_n = \alpha_1 r_1^n + \alpha_2 r_2^n</annotation></semantics></math>.</li>
+<li><strong>Repeated Roots of Multiplicity
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>1</mn></msub><mo>=</mo><msub><mi>r</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">r_1 = r_2</annotation></semantics></math>):</strong>
+General solution is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>α</mi><mn>1</mn></msub><mo>+</mo><msub><mi>α</mi><mn>2</mn></msub><mi>n</mi><mo>+</mo><mi>…</mi><mo>+</mo><msub><mi>α</mi><mi>m</mi></msub><msup><mi>n</mi><mrow><mi>m</mi><mo>−</mo><mn>1</mn></mrow></msup><mo stretchy="false" form="postfix">)</mo><msubsup><mi>r</mi><mn>1</mn><mi>n</mi></msubsup></mrow><annotation encoding="application/x-tex">a_n = (\alpha_1 + \alpha_2 n + \dots + \alpha_m n^{m-1}) r_1^n</annotation></semantics></math>.</li>
+<li>Constants
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>α</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\alpha_i</annotation></semantics></math>
+are uniquely determined by substituting initial base conditions.</li>
+</ul>
+<details class="qa box">
+<summary>
+<strong>Tutorial 8 Q4:</strong> Classifying Linear Homogeneous
+Recurrences <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Determine which of the following are
+linear homogeneous recurrence relations with constant coefficients, and
+state their degree:</p>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><mn>2</mn><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">a_n = 2a_{n-1}</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><msubsup><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">a_n = a_{n-1}^2</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">a_n = a_{n-1} + 2n</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></msub></mrow><annotation encoding="application/x-tex">a_n = a_{n-2}</annotation></semantics></math></li>
+</ol>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><mn>2</mn><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub></mrow><annotation encoding="application/x-tex">a_n = 2a_{n-1}</annotation></semantics></math>:</strong>
+<strong>Yes</strong>, linear homogeneous with constant coefficient
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>c</mi><mn>1</mn></msub><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">c_1 = 2</annotation></semantics></math>).
+<strong>Degree 1</strong>.</li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><msubsup><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><mn>2</mn></msubsup></mrow><annotation encoding="application/x-tex">a_n = a_{n-1}^2</annotation></semantics></math>:</strong>
+<strong>No</strong>. Non-linear due to squaring of term
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><annotation encoding="application/x-tex">a_{n-1}</annotation></semantics></math>.</li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">a_n = a_{n-1} + 2n</annotation></semantics></math>:</strong>
+<strong>No</strong>. Non-homogeneous due to independent variable
+function
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mi>n</mi></mrow><annotation encoding="application/x-tex">2n</annotation></semantics></math>.</li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></msub></mrow><annotation encoding="application/x-tex">a_n = a_{n-2}</annotation></semantics></math>:</strong>
+<strong>Yes</strong>, linear homogeneous
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><mn>0</mn><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><mn>1</mn><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></msub></mrow><annotation encoding="application/x-tex">a_n = 0a_{n-1} + 1a_{n-2}</annotation></semantics></math>).
+<strong>Degree 2</strong>.</li>
+</ol>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 8 Q5:</strong> Solving Characteristic Equations with
+Initial Conditions <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Solve the following recurrence relations
+with given initial conditions:</p>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><mn>7</mn><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>−</mo><mn>10</mn><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></msub></mrow><annotation encoding="application/x-tex">a_n = 7a_{n-1} - 10a_{n-2}</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≥</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">n \ge 2</annotation></semantics></math>,
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>0</mn></msub><mo>=</mo><mn>2</mn><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">a_0 = 2, a_1 = 1</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><mn>6</mn><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>−</mo><mn>9</mn><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></msub></mrow><annotation encoding="application/x-tex">a_n = 6a_{n-1} - 9a_{n-2}</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>≥</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">n \ge 2</annotation></semantics></math>,
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>0</mn></msub><mo>=</mo><mn>1</mn><mo>,</mo><msub><mi>a</mi><mn>1</mn></msub><mo>=</mo><mn>6</mn></mrow><annotation encoding="application/x-tex">a_0 = 1, a_1 = 6</annotation></semantics></math>.</li>
+</ol>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Problem 1:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>−</mo><mn>7</mn><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><mn>10</mn><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">a_n - 7a_{n-1} + 10a_{n-2} = 0</annotation></semantics></math></strong>
+<ol type="1">
+<li>Characteristic equation:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>r</mi><mn>2</mn></msup><mo>−</mo><mn>7</mn><mi>r</mi><mo>+</mo><mn>10</mn><mo>=</mo><mn>0</mn><mo>⟹</mo><mo stretchy="false" form="prefix">(</mo><mi>r</mi><mo>−</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mi>r</mi><mo>−</mo><mn>5</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">r^2 - 7r + 10 = 0 \implies (r - 2)(r - 5) = 0</annotation></semantics></math>.</li>
+<li>Distinct roots:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>r</mi><mn>1</mn></msub><mo>=</mo><mn>2</mn><mo>,</mo><msub><mi>r</mi><mn>2</mn></msub><mo>=</mo><mn>5</mn></mrow><annotation encoding="application/x-tex">r_1 = 2, r_2 = 5</annotation></semantics></math>.</li>
+<li>General solution:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><msub><mi>α</mi><mn>1</mn></msub><msup><mn>2</mn><mi>n</mi></msup><mo>+</mo><msub><mi>α</mi><mn>2</mn></msub><msup><mn>5</mn><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">a_n = \alpha_1 2^n + \alpha_2 5^n</annotation></semantics></math>.</li>
+<li>Apply initial conditions:
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>0</mn><mo>:</mo><msub><mi>α</mi><mn>1</mn></msub><mo>+</mo><msub><mi>α</mi><mn>2</mn></msub><mo>=</mo><mn>2</mn><mo>⟹</mo><msub><mi>α</mi><mn>1</mn></msub><mo>=</mo><mn>2</mn><mo>−</mo><msub><mi>α</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">n = 0: \alpha_1 + \alpha_2 = 2 \implies \alpha_1 = 2 - \alpha_2</annotation></semantics></math></li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1</mn><mo>:</mo><mn>2</mn><msub><mi>α</mi><mn>1</mn></msub><mo>+</mo><mn>5</mn><msub><mi>α</mi><mn>2</mn></msub><mo>=</mo><mn>1</mn><mo>⟹</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>−</mo><msub><mi>α</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>5</mn><msub><mi>α</mi><mn>2</mn></msub><mo>=</mo><mn>1</mn><mo>⟹</mo><mn>3</mn><msub><mi>α</mi><mn>2</mn></msub><mo>=</mo><mi>−</mi><mn>3</mn><mo>⟹</mo><msub><mi>α</mi><mn>2</mn></msub><mo>=</mo><mi>−</mi><mn>1</mn><mo>,</mo><msub><mi>α</mi><mn>1</mn></msub><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">n = 1: 2\alpha_1 + 5\alpha_2 = 1 \implies 2(2 - \alpha_2) + 5\alpha_2 = 1 \implies 3\alpha_2 = -3 \implies \alpha_2 = -1, \alpha_1 = 3</annotation></semantics></math>.</li>
+</ul></li>
+<li>Final closed-form:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒂</mi><mi mathvariant="bold-italic">𝒏</mi></msub><mo mathvariant="bold">=</mo><mn mathvariant="bold">𝟑</mn><mo mathvariant="bold">⋅</mo><msup><mn mathvariant="bold">𝟐</mn><mi mathvariant="bold-italic">𝒏</mi></msup><mo mathvariant="bold">−</mo><msup><mn mathvariant="bold">𝟓</mn><mi mathvariant="bold-italic">𝒏</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{a_n = 3 \cdot 2^n - 5^n}</annotation></semantics></math>.</li>
+</ol></li>
+<li><strong>Problem 2:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>−</mo><mn>6</mn><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow></msub><mo>+</mo><mn>9</mn><msub><mi>a</mi><mrow><mi>n</mi><mo>−</mo><mn>2</mn></mrow></msub><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">a_n - 6a_{n-1} + 9a_{n-2} = 0</annotation></semantics></math></strong>
+<ol type="1">
+<li>Characteristic equation:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>r</mi><mn>2</mn></msup><mo>−</mo><mn>6</mn><mi>r</mi><mo>+</mo><mn>9</mn><mo>=</mo><mn>0</mn><mo>⟹</mo><mo stretchy="false" form="prefix">(</mo><mi>r</mi><mo>−</mo><mn>3</mn><msup><mo stretchy="false" form="postfix">)</mo><mn>2</mn></msup><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">r^2 - 6r + 9 = 0 \implies (r - 3)^2 = 0</annotation></semantics></math>.</li>
+<li>Repeated root:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>r</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">r = 3</annotation></semantics></math>
+with multiplicity 2.</li>
+<li>General solution:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mi>n</mi></msub><mo>=</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>α</mi><mn>1</mn></msub><mo>+</mo><msub><mi>α</mi><mn>2</mn></msub><mi>n</mi><mo stretchy="false" form="postfix">)</mo><msup><mn>3</mn><mi>n</mi></msup></mrow><annotation encoding="application/x-tex">a_n = (\alpha_1 + \alpha_2 n) 3^n</annotation></semantics></math>.</li>
+<li>Apply initial conditions:
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>0</mn><mo>:</mo><msub><mi>α</mi><mn>1</mn></msub><mo>⋅</mo><msup><mn>3</mn><mn>0</mn></msup><mo>=</mo><mn>1</mn><mo>⟹</mo><msub><mi>α</mi><mn>1</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n = 0: \alpha_1 \cdot 3^0 = 1 \implies \alpha_1 = 1</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mn>1</mn><mo>:</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><msub><mi>α</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>⋅</mo><msup><mn>3</mn><mn>1</mn></msup><mo>=</mo><mn>6</mn><mo>⟹</mo><mn>1</mn><mo>+</mo><msub><mi>α</mi><mn>2</mn></msub><mo>=</mo><mn>2</mn><mo>⟹</mo><msub><mi>α</mi><mn>2</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n = 1: (1 + \alpha_2) \cdot 3^1 = 6 \implies 1 + \alpha_2 = 2 \implies \alpha_2 = 1</annotation></semantics></math>.</li>
+</ul></li>
+<li>Final closed-form:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi mathvariant="bold-italic">𝒂</mi><mi mathvariant="bold-italic">𝒏</mi></msub><mo mathvariant="bold">=</mo><mo stretchy="false" form="prefix" mathvariant="bold">(</mo><mn mathvariant="bold">𝟏</mn><mo mathvariant="bold">+</mo><mi mathvariant="bold-italic">𝒏</mi><mo stretchy="false" form="postfix" mathvariant="bold">)</mo><msup><mn mathvariant="bold">𝟑</mn><mi mathvariant="bold-italic">𝒏</mi></msup></mrow><annotation encoding="application/x-tex">\mathbf{a_n = (1 + n) 3^n}</annotation></semantics></math>.</li>
+</ol></li>
+</ul>
+</div>
+</details>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/7-union-find-kruskal/7.html">← 7.
+Union-Find and Kruskal's Algorithm</a>
+  <a class="next-page" href="../../notes/9-amortized-analysis/9.html">9.
+Amortized Analysis →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>9. File Systems · SC2005 Operating Systems</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=72A3B210">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">9. File
+Systems</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">9. File Systems</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-overview/1.html"
+                   data-nav="notes/1-overview/1.html">1. Overview of
+Operating Systems</a></li>
+            <li><a href="../../notes/2-processes-threads/2.html"
+                   data-nav="notes/2-processes-threads/2.html">2.
+Processes and Threads</a></li>
+            <li><a href="../../notes/3-cpu-scheduling/3.html"
+                   data-nav="notes/3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../../notes/4-synchronization/4.html"
+                   data-nav="notes/4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../../notes/5-deadlocks/5.html"
+                   data-nav="notes/5-deadlocks/5.html">5.
+Deadlocks</a></li>
+            <li><a href="../../notes/6a-rtos/6a.html"
+                   data-nav="notes/6a-rtos/6a.html">6a. Real-Time
+Operating Systems</a></li>
+            <li><a href="../../notes/6b-virtualization/6b.html"
+                   data-nav="notes/6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../../notes/7-memory-organization/7.html"
+                   data-nav="notes/7-memory-organization/7.html">7.
+Memory Organization</a></li>
+            <li><a href="../../notes/8-virtual-memory/8.html"
+                   data-nav="notes/8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../../notes/9-file-systems/9.html"
+                   data-nav="notes/9-file-systems/9.html">9. File
+Systems</a></li>
+            <li><a href="../../notes/10-io-disk/10.html"
+                   data-nav="notes/10-io-disk/10.html">10. I/O Systems
+and Disk</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Course
+Cheatsheet</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../../notes/labs/lab-1.html"
+                   data-nav="notes/labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../../notes/labs/lab-2.html"
+                   data-nav="notes/labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3.html"
+                   data-nav="notes/labs/lab-3/lab-3.html">Lab 3
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4.html"
+                   data-nav="notes/labs/lab-4/lab-4.html">Lab 4
+Guide</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#layered-file-system-architecture"
+id="toc-layered-file-system-architecture">1. Layered File System
+Architecture</a></li>
+<li><a href="#files-file-operations-and-open-file-tables"
+id="toc-files-file-operations-and-open-file-tables">2. Files, File
+Operations, and Open-File Tables</a>
+<ul>
+<li><a href="#file-abstraction-basic-operations"
+id="toc-file-abstraction-basic-operations">File Abstraction &amp; Basic
+Operations</a></li>
+<li><a href="#why-open-exists-the-two-table-architecture"
+id="toc-why-open-exists-the-two-table-architecture">Why
+<code>open()</code> Exists &amp; The Two-Table Architecture</a></li>
+</ul></li>
+<li><a href="#directories-path-names-and-file-sharing"
+id="toc-directories-path-names-and-file-sharing">3. Directories, Path
+Names, and File Sharing</a>
+<ul>
+<li><a href="#file-sharing-hard-links-vs.-symbolic-links"
+id="toc-file-sharing-hard-links-vs.-symbolic-links">File Sharing: Hard
+Links vs. Symbolic Links</a></li>
+</ul></li>
+<li><a href="#file-protection-in-unix"
+id="toc-file-protection-in-unix">4. File Protection in UNIX</a>
+<ul>
+<li><a href="#file-vs.-directory-permissions"
+id="toc-file-vs.-directory-permissions">File vs. Directory
+Permissions</a></li>
+</ul></li>
+<li><a href="#file-space-allocation-methods"
+id="toc-file-space-allocation-methods">5. File Space Allocation
+Methods</a>
+<ul>
+<li><a href="#the-three-allocation-schemes"
+id="toc-the-three-allocation-schemes">The Three Allocation
+Schemes</a></li>
+<li><a
+href="#step-by-step-method-calculating-disk-reads-for-file-access"
+id="toc-step-by-step-method-calculating-disk-reads-for-file-access">Step-by-Step
+Method: Calculating Disk Reads for File Access</a></li>
+</ul></li>
+<li><a href="#the-unix-multi-level-inode-architecture"
+id="toc-the-unix-multi-level-inode-architecture">6. The UNIX Multi-Level
+Inode Architecture</a>
+<ul>
+<li><a href="#inode-calculation-toolkit"
+id="toc-inode-calculation-toolkit">Inode Calculation Toolkit</a></li>
+<li><a href="#worked-inode-exam-problems"
+id="toc-worked-inode-exam-problems">Worked Inode Exam Problems</a></li>
+</ul></li>
+<li><a href="#block-size-trade-offs-and-free-space-management"
+id="toc-block-size-trade-offs-and-free-space-management">7. Block Size
+Trade-offs and Free-Space Management</a>
+<ul>
+<li><a href="#block-size-trade-off" id="toc-block-size-trade-off">Block
+Size Trade-Off</a></li>
+<li><a href="#free-space-management"
+id="toc-free-space-management">Free-Space Management</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>A physical disk is a one-dimensional array of fixed-size blocks
+(typically 512 B or 4 KB) addressed by integer index. It has no built-in
+notion of filenames, directories, or permissions.</p>
+<p>The <strong>file system</strong> provides this abstraction: it maps
+human-readable names and directory hierarchies to raw disk blocks,
+manages free space, and enforces access permissions.</p>
+<hr />
+<h2 id="layered-file-system-architecture">1. Layered File System
+Architecture</h2>
+<p>Operating systems structure file systems in hierarchical layers,
+where each layer depends only on the one directly below it:</p>
+<figure>
+<img width="1400" height="803" src="media/9-artifacts/directory-entry-fcb.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="File-System Structure Layers" />
+<figcaption aria-hidden="true">File-System Structure Layers</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 28%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Primary Role</th>
+<th>What It Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Application Programs</strong></td>
+<td>API Calls</td>
+<td>Issues <code>open</code>, <code>read</code>, <code>write</code>,
+<code>close</code>.</td>
+</tr>
+<tr>
+<td><strong>Logical File System</strong></td>
+<td>Names &amp; Metadata</td>
+<td>Resolves pathnames, manages directory hierarchies, enforces
+permissions, and maintains <strong>File Control Blocks (FCBs)</strong> /
+<strong>inodes</strong>.</td>
+</tr>
+<tr>
+<td><strong>File-Organisation Module</strong></td>
+<td>Address Translation</td>
+<td>Translates <strong>logical block addresses</strong> (e.g. file block
+2) into <strong>physical disk block addresses</strong> (e.g. disk block
+4182). Tracks free blocks.</td>
+</tr>
+<tr>
+<td><strong>Basic File System</strong></td>
+<td>Buffering &amp; Block I/O</td>
+<td>Issues generic read/write block commands to disk drivers; manages
+in-memory block caches.</td>
+</tr>
+<tr>
+<td><strong>I/O Control</strong></td>
+<td>Hardware Driver Interface</td>
+<td>Device drivers and interrupt handlers transferring data between disk
+controllers and main memory.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>[!IMPORTANT] <strong>Key Exam Split:</strong></p>
+<ul>
+<li><strong>Logical File System:</strong> Handles <strong>names,
+directories, protection, and metadata (FCBs/inodes)</strong>.</li>
+<li><strong>File-Organisation Module:</strong> Handles <strong>block
+translation (logical
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+physical) and space allocation</strong>.</li>
+</ul>
+</blockquote>
+<hr />
+<h2 id="files-file-operations-and-open-file-tables">2. Files, File
+Operations, and Open-File Tables</h2>
+<h3 id="file-abstraction-basic-operations">File Abstraction &amp; Basic
+Operations</h3>
+<p>A file is an unstructured, continuous <strong>sequence of
+bytes</strong>. Applications access files via:</p>
+<ul>
+<li><strong>Sequential Access:</strong> Bytes are processed in order;
+each operation advances an internal position pointer.</li>
+<li><strong>Direct / Random Access:</strong> Applications read or write
+arbitrary byte offsets directly using <code>seek()</code>.</li>
+</ul>
+<p>Common file operations:</p>
+<ul>
+<li><code>create</code> / <code>delete</code>: Allocates or removes
+directory entries and disk blocks.</li>
+<li><code>open</code>: Resolves path on disk, checks permissions, loads
+metadata into memory, and returns a <strong>file
+descriptor</strong>.</li>
+<li><code>read</code> / <code>write</code>: Transfers bytes starting at
+the current position pointer and advances it.</li>
+<li><code>seek</code>: Moves the position pointer to a target offset
+(<strong>0 disk I/O</strong>; updates an in-memory variable).</li>
+<li><code>close</code>: Decrements the reference count and frees
+in-memory entries when the count hits zero.</li>
+</ul>
+<h3 id="why-open-exists-the-two-table-architecture">Why
+<code>open()</code> Exists &amp; The Two-Table Architecture</h3>
+<p>Traversing directories on disk to find a file’s metadata for every
+single <code>read()</code> or <code>write()</code> is prohibitively
+slow. <code>open()</code> performs this directory search
+<strong>once</strong>, caches the file’s metadata in memory, and returns
+a lightweight integer <strong>file descriptor (fd)</strong>.</p>
+<p>To allow multiple processes to access the same file concurrently with
+independent read positions, the kernel separates state into two
+tables:</p>
+<pre><code>Process A                      System-Wide Open-File Table
+[fd: 3] ──&gt; [Offset: 500  ] ──┐
+                              ├──&gt; [ Inode / FCB copy ]
+Process B                     │    [ Open Count: 2    ]
+[fd: 4] ──&gt; [Offset: 12000] ──┘</code></pre>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 20%" />
+<col style="width: 28%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th>Table</th>
+<th>Scope</th>
+<th>Stored Information</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Per-Process Open-File Table</strong></td>
+<td>One per process</td>
+<td>Current file position pointer, access mode (read/write), pointer to
+system-wide entry.</td>
+<td>Tracks independent read/write offsets for each process.</td>
+</tr>
+<tr>
+<td><strong>System-Wide Open-File Table</strong></td>
+<td>One for entire OS</td>
+<td>Cached copy of the <strong>FCB (inode)</strong>, <strong>open
+count</strong> (number of active opens).</td>
+<td>Coordinates shared metadata and tracks when a file can be removed
+from memory.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img width="1400" height="885" src="media/9-artifacts/open-file-tables.webp" loading="lazy"
+decoding="async" alt="Open and Read File Operations" />
+<figcaption aria-hidden="true">Open and Read File
+Operations</figcaption>
+</figure>
+<details class="qa box">
+<summary>
+<strong>AY19/20 S1 Q4a:</strong> Why both open-file tables are required,
+and how open() modifies them <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Explain why both per-process open file
+table and system-wide open file table are required and describe how they
+are modified in open() operation.</em></p>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>Why both are required:</strong>
+<ul>
+<li>The <strong>per-process table</strong> maintains independent,
+process-specific state (most importantly, the <strong>current file
+position pointer</strong> and process access rights).</li>
+<li>The <strong>system-wide table</strong> maintains shared state across
+all processes (a single cached copy of the <strong>FCB/inode</strong>
+and an <strong>open count</strong>), avoiding duplicate memory
+allocation and synchronizing file size/metadata changes.</li>
+</ul></li>
+<li><strong>Modifications during <code>open()</code>:</strong>
+<ol type="1">
+<li>The kernel traverses directories on disk to locate the FCB.</li>
+<li>If the file is already in the system-wide table, the kernel
+increments its <code>open count</code>; otherwise, it allocates a new
+entry, copies the FCB from disk, and sets
+<code>open count = 1</code>.</li>
+<li>The kernel verifies process access permissions against the FCB.</li>
+<li>It creates a new entry in the calling process’s per-process table
+with <code>offset = 0</code>, records the access mode, and links it to
+the system-wide entry.</li>
+<li>It returns the index of this per-process entry as the file
+descriptor (<code>fd</code>).</li>
+</ol></li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="directories-path-names-and-file-sharing">3. Directories, Path
+Names, and File Sharing</h2>
+<p>A directory is a specialized file whose data blocks contain directory
+entries:</p>
+<ul>
+<li><strong>Direct storage:</strong> Filename + all attributes stored
+inside each entry.</li>
+<li><strong>UNIX model:</strong> Filename + <strong>inode
+number</strong>. All attributes reside in the inode.</li>
+</ul>
+<figure>
+<img width="1400" height="826" src="media/9-artifacts/tree-directory.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Tree-Structured Directory Hierarchy" />
+<figcaption aria-hidden="true">Tree-Structured Directory
+Hierarchy</figcaption>
+</figure>
+<ul>
+<li><strong>Absolute path:</strong> Starts from root <code>/</code>
+(e.g., <code>/usr/ast/mbox</code>).</li>
+<li><strong>Relative path:</strong> Starts from the current working
+directory (e.g., <code>ast/mbox</code> if in <code>/usr</code>).</li>
+</ul>
+<h3 id="file-sharing-hard-links-vs.-symbolic-links">File Sharing: Hard
+Links vs. Symbolic Links</h3>
+<p>To allow files to be shared across directories without duplicating
+data, file systems use an <strong>Acyclic Graph Directory</strong>:</p>
+<figure>
+<img width="1350" height="1035" src="media/9-artifacts/acyclic-graph-directory.webp"
+style="width:50.0%" loading="lazy" decoding="async"
+alt="Acyclic-Graph Directory with Shared Subdirectories" />
+<figcaption aria-hidden="true">Acyclic-Graph Directory with Shared
+Subdirectories</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 41%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Hard Link</th>
+<th>Symbolic Link (Soft Link)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Underlying Mechanism</strong></td>
+<td>A new directory entry pointing to the <strong>same inode
+number</strong>.</td>
+<td>A separate file whose data block stores the <strong>pathname
+string</strong> of the target.</td>
+</tr>
+<tr>
+<td><strong>Lookup Speed</strong></td>
+<td>Fast (direct inode reference).</td>
+<td>Slower (requires parsing and resolving the target path).</td>
+</tr>
+<tr>
+<td><strong>Cross-Device</strong></td>
+<td>Cannot span across different file systems/partitions.</td>
+<td>Can span across different file systems, partitions, and
+networks.</td>
+</tr>
+<tr>
+<td><strong>On Deletion of Target</strong></td>
+<td>Content remains intact. Inode <strong>reference count</strong>
+decrements; blocks freed only when <code>count == 0</code>.</td>
+<td>Link becomes a <strong>dangling link</strong> pointing to a
+non-existent path.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+<strong>Tutorial 11 Q1(a):</strong> Hazards and solutions when deleting
+shared files <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>What problems may occur if a file is
+deleted while links to it still exist, especially if disk space or path
+names are reused? How can these be avoided?</em></p>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>Problems:</strong>
+<ol type="1">
+<li><strong>Dangling Pointers:</strong> Existing links point to
+deallocated space.</li>
+<li><strong>Data Corruption / Wrong File Access:</strong> If a new file
+reuses the deallocated disk space or the same pathname, the old link
+silently accesses the new file.</li>
+<li><strong>Security Vulnerability:</strong> A user following an old
+link may read or overwrite another user’s private data.</li>
+</ol></li>
+<li><strong>Solutions:</strong>
+<ul>
+<li><strong>Reference Counting (UNIX hard links):</strong> Inode tracks
+active links; disk blocks are freed only when link count reaches 0.</li>
+<li><strong>Link Deletion:</strong> Maintain a back-pointer list of all
+links and remove them when the target is deleted.</li>
+<li><strong>Lazy Validation:</strong> Check link validity on access;
+return an error (<code>ENOENT</code>) if the target is missing.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 11 Q1(b):</strong> Single shared copy vs. multiple
+individual copies <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Comparison:</strong></p>
+<ul>
+<li><strong>Single Shared Copy:</strong> Updates are immediately visible
+to all users; minimal disk space. However, requires file
+locking/synchronization, and accidental corruption affects
+everyone.</li>
+<li><strong>Multiple Copies (One per user):</strong> Users work
+independently without lock contention; damage is isolated. However,
+wastes disk space, and copies diverge, making synchronization
+difficult.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY Past-Paper Checks:</strong> Directory &amp; Link True/False
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY17/18 S1 Q4a(i):</strong> <em>If a file has a symbolic
+link, it can be accessed using two absolute path names.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>True</strong> (its original path and the link’s path).</li>
+<li><strong>AY18/19 S1 Q4a(i):</strong> <em>Using either a symbolic or a
+hard link, a file can have different names.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>True</strong> (both mechanisms create additional named directory
+entries).</li>
+<li><strong>AY17/18 S2 Q4a(i):</strong> <em>Compare tree vs acyclic
+graph.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+Trees restrict each file to a single parent; acyclic graphs allow
+multiple parents via links for sharing.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="file-protection-in-unix">4. File Protection in UNIX</h2>
+<p>UNIX uses 9 permission bits divided into three classes: <strong>Owner
+(<code>u</code>)</strong>, <strong>Group (<code>g</code>)</strong>, and
+<strong>Public/Other (<code>o</code>)</strong>. Each class has three
+rights: <strong>Read (<code>r</code> = 4)</strong>, <strong>Write
+(<code>w</code> = 2)</strong>, and <strong>Execute (<code>x</code> =
+1)</strong>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mrow><mtext mathvariant="normal">Mode </mtext><mspace width="0.333em"></mspace></mrow><mn>751</mn><mo>⟹</mo><munder><munder><mtext mathvariant="normal">r w x</mtext><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">Owner (7)</mtext></munder><mspace width="1.0em"></mspace><munder><munder><mtext mathvariant="normal">r - x</mtext><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">Group (5)</mtext></munder><mspace width="1.0em"></mspace><munder><munder><mtext mathvariant="normal">- - x</mtext><mo accent="true">⏟</mo></munder><mtext mathvariant="normal">Public (1)</mtext></munder></mrow><annotation encoding="application/x-tex">\text{Mode } 751 \implies \underbrace{\text{r w x}}_{\text{Owner (7)}} \quad \underbrace{\text{r - x}}_{\text{Group (5)}} \quad \underbrace{\text{- - x}}_{\text{Public (1)}}</annotation></semantics></math></p>
+<h3 id="file-vs.-directory-permissions">File vs. Directory
+Permissions</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 26%" />
+<col style="width: 60%" />
+</colgroup>
+<thead>
+<tr>
+<th>Permission</th>
+<th>Regular File</th>
+<th>Directory</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Read (<code>r</code>)</strong></td>
+<td>Read file content.</td>
+<td><strong>List filenames</strong> inside the directory
+(<code>ls</code>).</td>
+</tr>
+<tr>
+<td><strong>Write (<code>w</code>)</strong></td>
+<td>Modify file content.</td>
+<td><strong>Create, rename, or delete files</strong> inside the
+directory.</td>
+</tr>
+<tr>
+<td><strong>Execute (<code>x</code>)</strong></td>
+<td>Execute program/script.</td>
+<td><strong>Traverse/Enter the directory</strong> (<code>cd</code>,
+accessing inodes inside).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>[!WARNING]</p>
+<ul>
+<li><strong>Directory <code>x</code> is mandatory:</strong> Lacking
+<code>x</code> on a directory prevents accessing any file inside it,
+even if the file itself has permissions <code>777</code>
+(<code>rwxrwxrwx</code>).</li>
+<li><strong>File deletion depends on directory <code>w</code>:</strong>
+Deleting a file modifies the enclosing directory’s list. It requires
+<code>w</code> on the directory, not on the file itself!</li>
+</ul>
+</blockquote>
+<details class="qa box">
+<summary>
+<strong>AY Past-Paper Checks:</strong> Protection Scenarios <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY17/18 S1 Q4a(ii):</strong> <em>With bits
+<code>r-x r-x --x</code>, only the owner can read the file.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>False.</strong> Group also has <code>r-x</code> (read
+access).</li>
+<li><strong>AY17/18 S2 Q4a(ii):</strong> <em>Bits
+<code>rwx r-x r--</code>. Permissions for owner’s group?</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<code>r-x</code> = <strong>read and execute</strong>.</li>
+<li><strong>AY18/19 S2 Q4a(ii):</strong> <em>Only owner can read/write;
+group can read; others no access.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<code>rw- r-- ---</code> (octal <strong>640</strong>).</li>
+<li><strong>Directory traversal trap:</strong> <em>Directory has
+<code>---</code>, file inside has <code>rwxrwxrwx</code>. Can user read
+it?</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>No.</strong> Lacks <code>x</code> on directory.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="file-space-allocation-methods">5. File Space Allocation
+Methods</h2>
+<p>To locate byte offset
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+in a file with block payload
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>B</mi><mrow><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><annotation encoding="application/x-tex">B_{data}</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>=</mo><mi>Q</mi><mo>×</mo><msub><mi>B</mi><mrow><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo>+</mo><mi>R</mi><mo>⟹</mo><mi>Q</mi><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><mi>n</mi><mi>/</mi><msub><mi>B</mi><mrow><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="postfix">⌋</mo><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> (Logical Block)</mtext></mrow><mo>,</mo><mspace width="1.0em"></mspace><mi>R</mi><mo>=</mo><mi>n</mi><mrow><mspace width="0.222em"></mspace><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">mod</mi><mo>&#8289;</mo></mrow><mspace width="0.222em"></mspace><msub><mi>B</mi><mrow><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="postfix">)</mo></mrow><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> (Offset in Block)</mtext></mrow></mrow><annotation encoding="application/x-tex">n = Q \times B_{data} + R \implies Q = \lfloor n / B_{data} \rfloor \text{ (Logical Block)}, \quad R = n \pmod{B_{data}} \text{ (Offset in Block)}</annotation></semantics></math></p>
+<h3 id="the-three-allocation-schemes">The Three Allocation Schemes</h3>
+<ol type="1">
+<li><strong>Contiguous Allocation:</strong>
+<ul>
+<li>File occupies a continuous range of physical blocks:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Block</mtext><mo>=</mo><mtext mathvariant="normal">Start</mtext><mo>+</mo><mi>Q</mi></mrow><annotation encoding="application/x-tex">\text{Block} = \text{Start} + Q</annotation></semantics></math>.
+Directory stores <code>(start, length)</code>.</li>
+<li><em>Pros:</em> Optimal sequential and random access (<strong>1 disk
+read</strong>).</li>
+<li><em>Cons:</em> <strong>External fragmentation</strong>; file
+expansion is difficult (requires reallocation or causes internal
+fragmentation).</li>
+</ul></li>
+<li><strong>Linked Allocation:</strong>
+<ul>
+<li>Each block stores data plus a pointer (size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>)
+to the next block:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>B</mi><mrow><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo>=</mo><mi>B</mi><mo>−</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">B_{data} = B - p</annotation></semantics></math>.
+Directory stores <code>first_block</code>.</li>
+<li><em>Pros:</em> No external fragmentation; files grow dynamically
+block by block.</li>
+<li><em>Cons:</em> <strong>No random access</strong>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">Q+1</annotation></semantics></math>
+disk reads to reach block
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>);
+pointer overhead; chain corruption risk.</li>
+<li><em>(Note: FAT solves the random access penalty by caching the link
+table entirely in RAM).</em></li>
+</ul></li>
+<li><strong>Indexed Allocation:</strong>
+<ul>
+<li>Each file has an <strong>index block</strong> containing an array of
+pointers to data blocks. Directory stores
+<code>index_block_num</code>.</li>
+<li><em>Pros:</em> Fast direct access without external
+fragmentation.</li>
+<li><em>Cons:</em> Index block overhead for small files; file size
+capped by pointers fitting in one block
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>×</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">P \times B</annotation></semantics></math>).</li>
+</ul></li>
+</ol>
+<p><img width="1400" height="894" src="media/9-artifacts/contiguous-allocation.webp"
+style="width:50.0%" loading="lazy" decoding="async"
+alt="Contiguous Allocation" /> <img width="1400" height="780"
+src="media/9-artifacts/linked-allocation.webp" style="width:50.0%"
+loading="lazy" decoding="async" alt="Linked Allocation" /> <img width="1400" height="833"
+src="media/9-artifacts/indexed-allocation.webp" style="width:50.0%"
+loading="lazy" decoding="async" alt="Indexed Allocation" /></p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 23%" />
+<col style="width: 22%" />
+<col style="width: 27%" />
+</colgroup>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Contiguous</th>
+<th>Linked</th>
+<th>Indexed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Directory Stores</strong></td>
+<td>Start block &amp; length</td>
+<td>First block pointer</td>
+<td>Index block pointer</td>
+</tr>
+<tr>
+<td><strong>Direct / Random Access</strong></td>
+<td><strong>1 read</strong></td>
+<td><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>Q</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">Q + 1</annotation></semantics></math>
+reads</strong></td>
+<td><strong>2 reads</strong> (Index + Data)</td>
+</tr>
+<tr>
+<td><strong>External Fragmentation</strong></td>
+<td><strong>Yes</strong></td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr>
+<td><strong>File Growth</strong></td>
+<td>Difficult</td>
+<td>Easy</td>
+<td>Easy (up to index size)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h3
+id="step-by-step-method-calculating-disk-reads-for-file-access">Step-by-Step
+Method: Calculating Disk Reads for File Access</h3>
+<p>To find disk I/Os required to read
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>L</mi><annotation encoding="application/x-tex">L</annotation></semantics></math>
+bytes starting at byte offset
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>:</p>
+<ol type="1">
+<li><strong>Find byte range:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mi>A</mi><mo>,</mo><mspace width="0.278em"></mspace><mi>A</mi><mo>+</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[A, \; A + L - 1]</annotation></semantics></math>.</li>
+<li><strong>Determine usable block size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>B</mi><mrow><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><annotation encoding="application/x-tex">B_{data}</annotation></semantics></math>:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+for Contiguous/Indexed;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi><mo>−</mo><mi>p</mi></mrow><annotation encoding="application/x-tex">B - p</annotation></semantics></math>
+for Linked.</li>
+<li><strong>Compute logical block indices:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><mi>A</mi><mi>/</mi><msub><mi>B</mi><mrow><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">Q_{start} = \lfloor A / B_{data} \rfloor</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><mo stretchy="false" form="prefix">(</mo><mi>A</mi><mo>+</mo><mi>L</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mi>/</mi><msub><mi>B</mi><mrow><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">Q_{end} = \lfloor (A + L - 1) / B_{data} \rfloor</annotation></semantics></math>.</li>
+<li><strong>Compute Disk Reads</strong> <em>(assuming directory is
+cached in memory)</em>:
+<ul>
+<li><strong>Contiguous:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo>−</mo><msub><mi>Q</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">Q_{end} - Q_{start} + 1</annotation></semantics></math>
+reads.</li>
+<li><strong>Linked:</strong> Must traverse from block 0 to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo>⟹</mo><mrow><msub><mi mathvariant="bold-italic">𝑸</mi><mrow><mi mathvariant="bold-italic">𝒆</mi><mi mathvariant="bold-italic">𝒏</mi><mi mathvariant="bold-italic">𝒅</mi></mrow></msub><mo mathvariant="bold">+</mo><mn mathvariant="bold">𝟏</mn></mrow></mrow><annotation encoding="application/x-tex">Q_{end} \implies \mathbf{Q_{end} + 1}</annotation></semantics></math>
+reads.</li>
+<li><strong>Indexed:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> (fetch index block)</mtext></mrow><mo>+</mo><mo stretchy="false" form="prefix">(</mo><msub><mi>Q</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo>−</mo><msub><mi>Q</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">1 \text{ (fetch index block)} + (Q_{end} - Q_{start} + 1)</annotation></semantics></math>
+reads. <em>(If index block is already cached, count is just
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo>−</mo><msub><mi>Q</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">Q_{end} - Q_{start} + 1</annotation></semantics></math>)</em>.</li>
+</ul></li>
+</ol>
+<details class="qa box">
+<summary>
+<strong>Tutorial 11 Q3:</strong> Disk I/O across allocation methods
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Block size = 1000 B, pointer = 4 B.
+Directory cached in RAM. To read 200 bytes from byte 1900, how many disk
+I/Os are required for Contiguous, Linked, and Indexed?</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li>Byte range: 1900 to
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1900</mn><mo>+</mo><mn>200</mn><mo>−</mo><mn>1</mn><mo>=</mo><mn>2099</mn></mrow><annotation encoding="application/x-tex">1900 + 200 - 1 = 2099</annotation></semantics></math>.</li>
+</ul>
+<ol type="1">
+<li><strong>Contiguous
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>B</mi><mrow><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">B_{data} = 1000</annotation></semantics></math>
+B):</strong>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><mn>1900</mn><mi>/</mi><mn>1000</mn><mo stretchy="false" form="postfix">⌋</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">Q_{start} = \lfloor 1900 / 1000 \rfloor = 1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><mn>2099</mn><mi>/</mi><mn>1000</mn><mo stretchy="false" form="postfix">⌋</mo><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">Q_{end} = \lfloor 2099 / 1000 \rfloor = 2</annotation></semantics></math>.</li>
+<li>Blocks 1 and 2 needed
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>2 reads</strong>.</li>
+</ul></li>
+<li><strong>Linked
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>B</mi><mrow><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo>=</mo><mn>1000</mn><mo>−</mo><mn>4</mn><mo>=</mo><mn>996</mn></mrow><annotation encoding="application/x-tex">B_{data} = 1000 - 4 = 996</annotation></semantics></math>
+B):</strong>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><mn>1900</mn><mi>/</mi><mn>996</mn><mo stretchy="false" form="postfix">⌋</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">Q_{start} = \lfloor 1900 / 996 \rfloor = 1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><mn>2099</mn><mi>/</mi><mn>996</mn><mo stretchy="false" form="postfix">⌋</mo><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">Q_{end} = \lfloor 2099 / 996 \rfloor = 2</annotation></semantics></math>.</li>
+<li>Must traverse from block 0 through block 2
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>3 reads</strong> (blocks 0, 1, 2).</li>
+</ul></li>
+<li><strong>Indexed
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>B</mi><mrow><mi>d</mi><mi>a</mi><mi>t</mi><mi>a</mi></mrow></msub><mo>=</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">B_{data} = 1000</annotation></semantics></math>
+B):</strong>
+<ul>
+<li>Read index block (1) + read data blocks 1 and 2 (2)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>3 reads</strong>.</li>
+</ul></li>
+</ol>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY Past-Paper Problems:</strong> Allocation Selection &amp; Read
+Counts <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY18/19 S1 Q4b:</strong> <em>Block size = 512 B. Read 600
+bytes from byte 5200 (range 5200–5799
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+blocks 10 and 11).</em>
+<ul>
+<li>Contiguous: Read blocks 10 and 11
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>2 reads</strong>.</li>
+<li>Linked: Traverse blocks 0 through 11
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>12 reads</strong>.</li>
+<li>Indexed: Index block + blocks 10 and 11
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>3 reads</strong>.</li>
+</ul></li>
+<li><strong>AY18/19 S2 Q4b:</strong> <em>Choose best allocation
+method:</em>
+<ul>
+<li><em>(i) Infrequent updates, frequent random access:</em>
+<strong>Contiguous</strong> (fastest direct access, zero index overhead;
+growth cost irrelevant).</li>
+<li><em>(ii) Frequent updates, frequent random access:</em>
+<strong>Indexed</strong> (fast direct access + easy dynamic block
+allocation without external fragmentation).</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="the-unix-multi-level-inode-architecture">6. The UNIX Multi-Level
+Inode Architecture</h2>
+<p>To support massive files without penalizing small files with large
+index blocks, UNIX inodes use a hybrid structure:</p>
+<figure>
+<img width="1400" height="1047" src="media/9-artifacts/inode-structure.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="UNIX Inode Pointer Architecture" />
+<figcaption aria-hidden="true">UNIX Inode Pointer
+Architecture</figcaption>
+</figure>
+<p>An inode contains file metadata and <strong>15 block
+pointers</strong>:</p>
+<ul>
+<li><strong>12 Direct Pointers:</strong> Point directly to data
+blocks.</li>
+<li><strong>1 Single Indirect Pointer:</strong> Points to an index block
+of data pointers.</li>
+<li><strong>1 Double Indirect Pointer:</strong> Points to an index block
+of single-indirect pointers.</li>
+<li><strong>1 Triple Indirect Pointer:</strong> Points to an index block
+of double-indirect pointers.</li>
+</ul>
+<hr />
+<h3 id="inode-calculation-toolkit">Inode Calculation Toolkit</h3>
+<p>Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+= Block size,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+= Pointer size, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mi>B</mi><mi>/</mi><mi>p</mi></mrow><annotation encoding="application/x-tex">P = B / p</annotation></semantics></math>
+(pointers per block):</p>
+<div class="table-wrap">
+<table style="width: 83%;">
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 24%" />
+<col style="width: 28%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th>Component</th>
+<th>Index Blocks Used</th>
+<th>Data Blocks Supported</th>
+<th>Capacity Formula</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math>
+Direct Pointers</strong></td>
+<td>0</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>D</mi><annotation encoding="application/x-tex">D</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>×</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">D \times B</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>Single Indirect</strong></td>
+<td>1</td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>×</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">P \times B</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>Double Indirect</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">1 + P</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>P</mi><mn>2</mn></msup><annotation encoding="application/x-tex">P^2</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>P</mi><mn>2</mn></msup><mo>×</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">P^2 \times B</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>Triple Indirect</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mi>P</mi><mo>+</mo><msup><mi>P</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">1 + P + P^2</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>P</mi><mn>3</mn></msup><annotation encoding="application/x-tex">P^3</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>P</mi><mn>3</mn></msup><mo>×</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">P^3 \times B</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="bold">𝐌𝐚𝐱 𝐅𝐢𝐥𝐞 𝐒𝐢𝐳𝐞</mtext><mo>=</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>D</mi><mo>+</mo><mi>P</mi><mo>+</mo><msup><mi>P</mi><mn>2</mn></msup><mo>+</mo><msup><mi>P</mi><mn>3</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>×</mo><mi>B</mi></mrow><annotation encoding="application/x-tex">\mathbf{\text{Max File Size}} = \left(D + P + P^2 + P^3\right) \times B</annotation></semantics></math></p>
+<h4
+id="disk-reads-to-access-logical-block-q-after-open-inode-in-ram">Disk
+Reads to Access Logical Block
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Q</mi><annotation encoding="application/x-tex">Q</annotation></semantics></math>
+(after <code>open()</code>, inode in RAM)</h4>
+<ul>
+<li><strong>Direct
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>≤</mo><mi>Q</mi><mo>&lt;</mo><mi>D</mi></mrow><annotation encoding="application/x-tex">0 \le Q &lt; D</annotation></semantics></math>):</strong>
+<strong>1 read</strong> (data block).</li>
+<li><strong>Single Indirect
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>≤</mo><mi>Q</mi><mo>&lt;</mo><mi>D</mi><mo>+</mo><mi>P</mi></mrow><annotation encoding="application/x-tex">D \le Q &lt; D + P</annotation></semantics></math>):</strong>
+<strong>2 reads</strong> (index block + data block).</li>
+<li><strong>Double Indirect
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>+</mo><mi>P</mi><mo>≤</mo><mi>Q</mi><mo>&lt;</mo><mi>D</mi><mo>+</mo><mi>P</mi><mo>+</mo><msup><mi>P</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">D + P \le Q &lt; D + P + P^2</annotation></semantics></math>):</strong>
+<strong>3 reads</strong> (double index + single index + data block).
+<em>(Note: An indirect index block fetched once during a read request is
+cached for subsequent blocks under it).</em></li>
+</ul>
+<h4 id="path-resolution-open-disk-reads">Path Resolution
+(<code>open()</code>) Disk Reads</h4>
+<p>For a path with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+components below the cached starting directory
+(e.g. <code>/usr/ast/mbox</code> with root cached has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">k = 3</annotation></semantics></math>):
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="bold">𝐃𝐢𝐬𝐤 𝐑𝐞𝐚𝐝𝐬 𝐟𝐨𝐫 𝐨𝐩𝐞𝐧()</mtext><mo>=</mo><mn>2</mn><mo stretchy="false" form="prefix">(</mo><mi>k</mi><mo>−</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\mathbf{\text{Disk Reads for open()}} = 2(k - 1) + 1</annotation></semantics></math>
+<em>(Each intermediate directory costs 2 reads: its inode + its data
+block. The target file costs 1 read: its inode).</em></p>
+<figure>
+<img width="1400" height="672" src="media/9-artifacts/inode-path-lookup.webp" loading="lazy"
+decoding="async" alt="Path Lookup Step-by-Step" />
+<figcaption aria-hidden="true">Path Lookup Step-by-Step</figcaption>
+</figure>
+<hr />
+<h3 id="worked-inode-exam-problems">Worked Inode Exam Problems</h3>
+<details class="qa box">
+<summary>
+<strong>Tutorial 11 Q2:</strong> Inode open, seek, read, and max file
+size <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Inodes have 6 direct pointers, 1
+single indirect pointer. Block size = 1000 B, pointer size = 2 B. Root
+is in memory.</em></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>fd <span class="op">=</span> open<span class="op">(</span><span class="st">&quot;/usr/ast/mbox&quot;</span><span class="op">);</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>seek<span class="op">(</span>fd<span class="op">,</span> <span class="dv">5900</span><span class="op">);</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>read<span class="op">(</span>fd<span class="op">,</span> buf<span class="op">,</span> <span class="dv">200</span><span class="op">);</span></span></code></pre></div>
+<p><em>(a) Disk reads for <code>open()</code>? (b) Disk reads for
+<code>seek()</code> and <code>read()</code>? (c) Max supported file
+size?</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(a) <code>open("/usr/ast/mbox")</code>:</strong>
+<ul>
+<li>Search root (in RAM)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+read <code>usr</code> inode (1)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+read <code>usr</code> directory block (2)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+read <code>ast</code> inode (3)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+read <code>ast</code> directory block (4)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+read <code>mbox</code> inode (5).
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>5 reads</strong>.</li>
+</ul></li>
+<li><strong>(b) <code>seek</code> and <code>read</code>:</strong>
+<ul>
+<li><code>seek(5900)</code>: Updates memory offset only
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>0 reads</strong>.</li>
+<li><code>read(200)</code>: Reads bytes 5900 to 6099
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+spans Block 5
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌊</mo><mn>5900</mn><mi>/</mi><mn>1000</mn><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">\lfloor 5900/1000 \rfloor</annotation></semantics></math>)
+and Block 6
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⌊</mo><mn>6099</mn><mi>/</mi><mn>1000</mn><mo stretchy="false" form="postfix">⌋</mo></mrow><annotation encoding="application/x-tex">\lfloor 6099/1000 \rfloor</annotation></semantics></math>).</li>
+<li>Block 5 is direct
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+1 read (data block 5).</li>
+<li>Block 6 is single indirect
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+2 reads (single-indirect index block + data block 6).</li>
+<li>Total
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>3 reads</strong>.</li>
+</ul></li>
+<li><strong>(c) Max File Size:</strong>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mn>1000</mn><mi>/</mi><mn>2</mn><mo>=</mo><mn>500</mn></mrow><annotation encoding="application/x-tex">P = 1000 / 2 = 500</annotation></semantics></math>
+pointers.</li>
+<li>Max Blocks
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>6</mn><mo>+</mo><mn>500</mn><mo>=</mo><mn>506</mn></mrow><annotation encoding="application/x-tex">= 6 + 500 = 506</annotation></semantics></math>
+blocks.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Max Size</mtext><mo>=</mo><mn>506</mn><mo>×</mo><mn>1000</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟓𝟎𝟔</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟎𝟎𝟎</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐛𝐲𝐭𝐞𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Max Size} = 506 \times 1000 = \mathbf{506,000\text{ bytes}}</annotation></semantics></math>.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY17/18 S2 Q4b:</strong> Inode with 10 direct, 1 single, 1
+double indirect <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Block size = 512 B, pointer = 8 B. 10
+direct, 1 single, 1 double indirect. Read 1,000 bytes starting at offset
+37,000. Inode is in memory.</em> <em>(i) Which logical blocks are
+accessed? (ii) Disk reads performed? (iii) Max file size?</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mn>512</mn><mi>/</mi><mn>8</mn><mo>=</mo><mn>64</mn></mrow><annotation encoding="application/x-tex">P = 512 / 8 = 64</annotation></semantics></math>
+pointers per block.</li>
+<li>Direct: Blocks 0–9. Single indirect: Blocks 10–73. Double indirect:
+Block 74 onward.</li>
+<li><strong>(i) Blocks accessed:</strong> Byte range 37,000–37,999.
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>s</mi><mi>t</mi><mi>a</mi><mi>r</mi><mi>t</mi></mrow></msub><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><mn>37000</mn><mi>/</mi><mn>512</mn><mo stretchy="false" form="postfix">⌋</mo><mo>=</mo><mn>72</mn></mrow><annotation encoding="application/x-tex">Q_{start} = \lfloor 37000 / 512 \rfloor = 72</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Q</mi><mrow><mi>e</mi><mi>n</mi><mi>d</mi></mrow></msub><mo>=</mo><mo stretchy="false" form="prefix">⌊</mo><mn>37999</mn><mi>/</mi><mn>512</mn><mo stretchy="false" form="postfix">⌋</mo><mo>=</mo><mn>74</mn><mo>⟹</mo></mrow><annotation encoding="application/x-tex">Q_{end} = \lfloor 37999 / 512 \rfloor = 74 \implies</annotation></semantics></math>
+<strong>Blocks 72, 73, and 74</strong>.</li>
+</ul></li>
+<li><strong>(ii) Disk reads:</strong>
+<ul>
+<li>Blocks 72 and 73 (single indirect): 1 index read + 2 data reads
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">= 3</annotation></semantics></math>
+reads.</li>
+<li>Block 74 (double indirect): 1 double-index read + 1 single-index
+read + 1 data read
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">= 3</annotation></semantics></math>
+reads.</li>
+<li>Total
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>⟹</mo><mrow><mn mathvariant="bold">𝟔</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐫𝐞𝐚𝐝𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\implies \mathbf{6\text{ reads}}</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>(iii) Max file size:</strong>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>+</mo><mn>64</mn><mo>+</mo><msup><mn>64</mn><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mn>512</mn><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>+</mo><mn>64</mn><mo>+</mo><mn>4096</mn><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mn>512</mn><mo>=</mo><mn>4170</mn><mo>×</mo><mn>512</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟐</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟏𝟑𝟓</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟎𝟒𝟎</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐛𝐲𝐭𝐞𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">(10 + 64 + 64^2) \times 512 = (10 + 64 + 4096) \times 512 = 4170 \times 512 = \mathbf{2,135,040\text{ bytes}}</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≈</mo><mn>2.04</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> MB</mtext></mrow></mrow><annotation encoding="application/x-tex">\approx 2.04\text{ MB}</annotation></semantics></math>).</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY19/20 S1 Q4b &amp; AY16/17 S1 Q4b:</strong> Boundary reads,
+appending, and path traversal <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY19/20 S1 Q4b:</strong> <em>Block = 1000 B, pointer = 10 B
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mn>100</mn></mrow><annotation encoding="application/x-tex">P = 100</annotation></semantics></math>).
+10 direct, 1 single, 1 double. Open file is 110,000 bytes (110 blocks:
+0–109).</em>
+<ul>
+<li><em>(i) Read 1000 bytes from byte 9500 (range 9500–10499
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>→</mo><annotation encoding="application/x-tex">\to</annotation></semantics></math>
+blocks 9 and 10):</em> Block 9 is direct (1 read); Block 10 is single
+indirect (2 reads)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>3 reads</strong>.</li>
+<li><em>(ii) Append a new data block (block 110):</em> Direct (10) +
+single (100) cover blocks 0–109. Block 110 starts double indirection
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+allocate double-index block + single-index block + data block
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>3 disk accesses</strong>.</li>
+<li><em>(iii) Max file size:</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>10</mn><mo>+</mo><mn>100</mn><mo>+</mo><msup><mn>100</mn><mn>2</mn></msup><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mn>1000</mn><mo>=</mo><mn>10</mn><mo>,</mo><mn>110</mn><mo>×</mo><mn>1000</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟏𝟎</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟏𝟏𝟎</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟎𝟎𝟎</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐛𝐲𝐭𝐞𝐬</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">(10 + 100 + 100^2) \times 1000 = 10,110 \times 1000 = \mathbf{10,110,000\text{ bytes}}</annotation></semantics></math>.</li>
+</ul></li>
+<li><strong>AY16/17 S1 Q4b:</strong> <em>Open
+<code>/spell/mail/ptr/first</code> with <code>/spell/mail</code> cached
+in RAM:</em>
+<ul>
+<li>Read <code>ptr</code> inode (1) + read <code>ptr</code> directory
+block (2) + read <code>first</code> inode (3)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>3 disk reads</strong>.</li>
+</ul></li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="block-size-trade-offs-and-free-space-management">7. Block Size
+Trade-offs and Free-Space Management</h2>
+<h3 id="block-size-trade-off">Block Size Trade-Off</h3>
+<p>Choosing disk block size balances <strong>throughput</strong> against
+<strong>space utilization</strong>:</p>
+<figure>
+<img width="1400" height="501" src="media/9-artifacts/block-size-tradeoff.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Block Size Trade-Off" />
+<figcaption aria-hidden="true">Block Size Trade-Off</figcaption>
+</figure>
+<ul>
+<li><strong>Large Blocks (e.g. 8 KB):</strong> High data rate (fewer
+seeks, more payload per transfer). Lower space utilization due to
+<strong>internal fragmentation</strong> in the trailing block.</li>
+<li><strong>Small Blocks (e.g. 512 B):</strong> High space utilization
+(minimal waste). Lower data rate (more seeks, large pointer/index
+overhead).</li>
+<li><strong>Dual Block Sizes (Tutorial 11 Q4):</strong> Large blocks for
+file bodies + small fragments (e.g. 512 B) for tails. Minimizes internal
+fragmentation while preserving high throughput.</li>
+</ul>
+<hr />
+<h3 id="free-space-management">Free-Space Management</h3>
+<figure>
+<img width="1060" height="990" src="media/9-artifacts/free-space-list.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Linked Free-Space List" />
+<figcaption aria-hidden="true">Linked Free-Space List</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 22%" />
+<col style="width: 28%" />
+<col style="width: 24%" />
+<col style="width: 23%" />
+</colgroup>
+<thead>
+<tr>
+<th>Scheme</th>
+<th>Space Overhead</th>
+<th>Allocation / Lookup Speed</th>
+<th>Contiguous Allocation?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Bit Vector (Bitmap)</strong><br><em>(1 bit per block: 0 =
+free, 1 = allocated)</em></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mfrac><mrow><mtext mathvariant="normal">Disk Size</mtext><mi>/</mi><mtext mathvariant="normal">Block Size</mtext></mrow><mrow><mn>8</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bits/byte</mtext></mrow></mrow></mfrac><annotation encoding="application/x-tex">\frac{\text{Disk Size} / \text{Block Size}}{8\text{ bits/byte}}</annotation></semantics></math></td>
+<td><strong>Fast</strong> via CPU bit-scan instructions (if in
+RAM).</td>
+<td><strong>Easy</strong> to find contiguous free runs.</td>
+</tr>
+<tr>
+<td><strong>Linked Free List</strong><br><em>(Pointers stored inside
+free blocks)</em></td>
+<td><strong>Zero extra space</strong></td>
+<td><strong>Slow</strong> (requires disk seeks to traverse chain).</td>
+<td><strong>Hard</strong>; blocks are scattered.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+<strong>AY Past-Paper Checks:</strong> Free Space &amp; Sizing <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY18/19 S2 Q4c (Compare Bitmap vs Linked List):</strong>
+Linked list uses zero extra storage but is inefficient due to disk
+traversal. Bitmap requires dedicated memory (1 bit/block) but is
+extremely fast and efficiently finds contiguous runs.</li>
+<li><strong>Bitmap sizing (16 GB disk, 512 B blocks):</strong>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Blocks</mtext><mo>=</mo><mfrac><mrow><mn>16</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> GB</mtext></mrow></mrow><mrow><mn>512</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> B</mtext></mrow></mrow></mfrac><mo>=</mo><msup><mn>2</mn><mn>25</mn></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> blocks</mtext></mrow><mo>⟹</mo><mtext mathvariant="normal">Bitmap Size</mtext><mo>=</mo><mfrac><mrow><msup><mn>2</mn><mn>25</mn></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bits</mtext></mrow></mrow><mn>8</mn></mfrac><mo>=</mo><msup><mn>2</mn><mn>22</mn></msup><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bytes</mtext></mrow><mo>=</mo><mrow><mn mathvariant="bold">𝟒</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐌𝐁</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">\text{Blocks} = \frac{16\text{ GB}}{512\text{ B}} = 2^{25}\text{ blocks} \implies \text{Bitmap Size} = \frac{2^{25}\text{ bits}}{8} = 2^{22}\text{ bytes} = \mathbf{4\text{ MB}}</annotation></semantics></math></li>
+<li><strong>AY18/19 S1 Q4a(ii):</strong> <em>Large block size results in
+high data rate and high disk utilization.</em>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<strong>False</strong> (data rate is high, but space utilization is
+low).</li>
+</ul>
+</div>
+</details>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/8-virtual-memory/8.html">← 8.
+Virtual Memory</a>
+  <a class="next-page" href="../../notes/10-io-disk/10.html">10. I/O
+Systems and Disk →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

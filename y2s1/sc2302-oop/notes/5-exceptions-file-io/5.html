@@ -99,6 +99,14 @@ Principles and SOLID</a></li>
 Java</a></li>
           </ul>
         </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Course
+Cheatsheet</a></li>
+          </ul>
+        </section>
       </div>
     </details>
   </nav>
@@ -107,558 +115,516 @@ Java</a></li>
     <p class="page-contents-title">Contents</p>
     <div id="TOC">
 <ul>
-<li><a href="#exception-handling-and-file-io"
-id="toc-exception-handling-and-file-io">Exception Handling and File
-I/O</a>
+<li><a href="#the-java-exception-hierarchy"
+id="toc-the-java-exception-hierarchy">1. The Java Exception
+Hierarchy</a>
 <ul>
-<li><a href="#what-an-exception-is" id="toc-what-an-exception-is">1.
-What an Exception Is</a></li>
-<li><a href="#syntax" id="toc-syntax">2. Syntax</a>
+<li><a href="#checked-vs.-unchecked-exceptions-matrix"
+id="toc-checked-vs.-unchecked-exceptions-matrix">Checked vs. Unchecked
+Exceptions Matrix</a></li>
+</ul></li>
+<li><a href="#structured-syntax-try-catch-and-finally"
+id="toc-structured-syntax-try-catch-and-finally">2. Structured Syntax:
+<code>try</code>, <code>catch</code>, and <code>finally</code></a>
 <ul>
-<li><a href="#useful-methods-of-every-exception"
-id="toc-useful-methods-of-every-exception">Useful methods of every
-exception</a></li>
+<li><a href="#critical-rules-governing-catch-and-finally-blocks"
+id="toc-critical-rules-governing-catch-and-finally-blocks">Critical
+Rules Governing Catch and Finally Blocks</a></li>
 </ul></li>
-<li><a href="#the-exception-hierarchy"
-id="toc-the-exception-hierarchy">3. The Exception Hierarchy</a>
+<li><a href="#exception-propagation-and-method-contracts"
+id="toc-exception-propagation-and-method-contracts">3. Exception
+Propagation and Method Contracts</a>
 <ul>
-<li><a href="#checked-and-unchecked-exceptions"
-id="toc-checked-and-unchecked-exceptions">Checked and unchecked
-exceptions</a></li>
-<li><a href="#common-exceptions" id="toc-common-exceptions">Common
-exceptions</a></li>
+<li><a href="#overriding-rules-for-methods-declaring-checked-exceptions"
+id="toc-overriding-rules-for-methods-declaring-checked-exceptions">Overriding
+Rules for Methods Declaring Checked Exceptions</a></li>
 </ul></li>
-<li><a href="#rules-for-tracing-try-catch-finally"
-id="toc-rules-for-tracing-try-catch-finally">4. Rules for Tracing
-<code>try</code> / <code>catch</code> / <code>finally</code></a></li>
-<li><a href="#exception-propagation" id="toc-exception-propagation">5.
-Exception Propagation</a></li>
-<li><a href="#multiple-catch-blocks" id="toc-multiple-catch-blocks">6.
-Multiple <code>catch</code> Blocks</a></li>
-<li><a href="#your-own-exception-class"
-id="toc-your-own-exception-class">7. Your Own Exception Class</a>
+<li><a href="#java-file-io-architecture"
+id="toc-java-file-io-architecture">4. Java File I/O
+Architecture</a></li>
+<li><a href="#object-serialization-and-the-transient-keyword"
+id="toc-object-serialization-and-the-transient-keyword">5. Object
+Serialization and the <code>transient</code> Keyword</a>
 <ul>
-<li><a href="#exceptions-and-overriding"
-id="toc-exceptions-and-overriding">Exceptions and overriding</a></li>
+<li><a href="#serialization-rules-and-traps"
+id="toc-serialization-rules-and-traps">Serialization Rules and
+Traps</a></li>
 </ul></li>
-<li><a href="#file-input-and-output" id="toc-file-input-and-output">8.
-File Input and Output</a>
-<ul>
-<li><a href="#data-in-files" id="toc-data-in-files">Data in
-files</a></li>
-<li><a href="#text-files" id="toc-text-files">Text files</a></li>
-<li><a href="#binary-files" id="toc-binary-files">Binary files</a></li>
-<li><a href="#object-serialization" id="toc-object-serialization">Object
-serialization</a></li>
-</ul></li>
-<li><a href="#quiz-traps" id="toc-quiz-traps">9. Quiz Traps</a></li>
-</ul></li>
+<li><a href="#tracing-toolkit-exception-control-flow-finally"
+id="toc-tracing-toolkit-exception-control-flow-finally">6. Tracing
+Toolkit: Exception Control Flow &amp; <code>finally</code></a></li>
+<li><a href="#tutorial-and-exam-practice"
+id="toc-tutorial-and-exam-practice">7. Tutorial and Exam
+Practice</a></li>
 </ul>
     </div>
   </nav>
 </header>
 
 <main id="content">
-<h1 id="exception-handling-and-file-io">Exception Handling and File
-I/O</h1>
-<style>
-table.wide-table { width: max-content; min-width: 100%; table-layout: auto; }
-</style>
-<p>This chapter covers Lecture 4 (exception handling) and Lecture 4.5
-(file input and output). Quiz questions here are mostly “trace the
-output” with <code>try</code>, <code>catch</code> and
-<code>finally</code>. Section 4 gives the rules for that.</p>
-<h2 id="what-an-exception-is">1. What an Exception Is</h2>
-<p>An <strong>exception</strong> is a problem that happens while the
-program runs (a run-time anomaly). Examples: division by zero, an array
-index out of range, a file that does not exist, memory that runs
-out.</p>
-<p>Without handling, an exception stops the program. With handling, the
-program catches the exception, recovers, and continues. Example: there
-are 10 statements, and statement 5 throws an exception. Without a
-handler, statements 6 to 10 do not run.</p>
-<p>The old way is to test with <code>if</code> and call
-<code>System.exit(0)</code>. That mixes error code with normal code, and
-the program ends. Java’s way separates them:</p>
-<ul>
-<li><strong>Try</strong>: run code that can fail, inside a
-<code>try</code> block.</li>
-<li><strong>Throw</strong>: when a statement finds a problem, it creates
-an exception object and throws it. The object holds the type of the
-problem and a message.</li>
-<li><strong>Catch</strong>: the JVM looks for a <code>catch</code> block
-whose type matches the thrown object. That block handles it.</li>
-</ul>
-<h2 id="syntax">2. Syntax</h2>
-<div class="sourceCode" id="cb1"><pre
-class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// normal code; at least one statement can throw</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>numOfStudents <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Exception</span><span class="op">(</span><span class="st">&quot;Error: no of students must not equal to 0!&quot;</span><span class="op">);</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    avg <span class="op">=</span> total <span class="op">/</span> numOfStudents<span class="op">;</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">catch</span> <span class="op">(</span><span class="bu">ArithmeticException</span> e<span class="op">)</span> <span class="op">{</span>        <span class="co">// more specific first</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span>e<span class="op">.</span><span class="fu">getMessage</span><span class="op">());</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="cf">catch</span> <span class="op">(</span><span class="bu">Exception</span> e<span class="op">)</span> <span class="op">{</span>                  <span class="co">// more general last</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span>e<span class="op">.</span><span class="fu">getMessage</span><span class="op">());</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="cf">finally</span> <span class="op">{</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// optional; runs whether an exception happened or not</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;End of program execution!&quot;</span><span class="op">);</span></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<ul>
-<li><code>throw</code> (no s) throws one exception object:
-<code>throw new X("msg");</code></li>
-<li><code>throws</code> (with s) goes in a method header. It lists the
-checked exceptions that the method can pass to its caller:
-<code>public double computeAvg() throws IOException</code>.</li>
-<li>A <code>try</code> needs at least one <code>catch</code> or a
-<code>finally</code>.</li>
-</ul>
-<h3 id="useful-methods-of-every-exception">Useful methods of every
-exception</h3>
-<div class="table-wrap">
-<table class="wide-table">
-<colgroup>
-<col style="width: 24%" />
-<col style="width: 75%" />
-</colgroup>
-<thead>
-<tr>
-<th>Method</th>
-<th>Gives</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>getMessage()</code></td>
-<td>The message string given to the constructor (can be
-<code>null</code>)</td>
-</tr>
-<tr>
-<td><code>toString()</code></td>
-<td>Class name plus message,
-e.g. <code>java.lang.ArithmeticException: / by zero</code></td>
-</tr>
-<tr>
-<td><code>printStackTrace()</code></td>
-<td>Prints the chain of method calls that led to the exception</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p><code>Exception</code> has two constructors: <code>Exception()</code>
-and <code>Exception(String message)</code>.</p>
-<h2 id="the-exception-hierarchy">3. The Exception Hierarchy</h2>
+<p>Runtime anomalies—such as lost network connections, missing files,
+array boundary overruns, or arithmetic division by zero—threaten program
+correctness. Traditional error handling in procedural languages relies
+on error return codes and conditional checks, which convolute normal
+business logic and are easily ignored.</p>
+<p>Java’s <strong>structured exception handling</strong> decouples
+error-detection logic from error-recovery routines. When an anomalous
+event occurs, the JVM instantiates and <strong>throws</strong> an
+exception object containing diagnostic metadata. Execution aborts the
+current block and transfers control down the call stack until an
+appropriate <strong>catch</strong> handler intercepts it.</p>
+<hr />
+<h2 id="the-java-exception-hierarchy">1. The Java Exception
+Hierarchy</h2>
+<p>All error and exception objects derive from
+<code>java.lang.Throwable</code>. The taxonomy branches into two
+distinct categories:</p>
 <figure>
-<img width="1400" height="912" src="media/5-artifacts/exception-hierarchy.webp" loading="lazy"
-decoding="async"
-alt="Java’s exception hierarchy. RuntimeException and Error, and all their subclasses, are unchecked." />
-<figcaption aria-hidden="true">Java’s exception hierarchy.
-RuntimeException and Error, and all their subclasses, are
-unchecked.</figcaption>
+<img width="1400" height="912" src="media/5-artifacts/exception-hierarchy.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Java Exception Hierarchy" />
+<figcaption aria-hidden="true">Java Exception Hierarchy</figcaption>
 </figure>
-<p><code>Throwable</code> is the parent of <code>Exception</code> and
-<code>Error</code>. <code>Exception</code> is the root of all exceptions
-that a program normally handles.</p>
-<h3 id="checked-and-unchecked-exceptions">Checked and unchecked
-exceptions</h3>
+<pre><code>                                  java.lang.Throwable
+                                           │
+                    ┌──────────────────────┴──────────────────────┐
+                    ▼                                             ▼
+             java.lang.Error                            java.lang.Exception
+          (Fatal system failures;                                 │
+           e.g., OutOfMemoryError,                ┌───────────────┴───────────────┐
+           StackOverflowError)                    ▼                               ▼
+                                       java.lang.RuntimeException         [Checked Exceptions]
+                                      (Unchecked logic/programming       (Recoverable external
+                                       defects; e.g., NullPointer,        hazards; e.g., IOException,
+                                       Arithmetic, IndexOutOfBounds)      FileNotFoundException)</code></pre>
+<h3 id="checked-vs.-unchecked-exceptions-matrix">Checked vs. Unchecked
+Exceptions Matrix</h3>
 <div class="table-wrap">
-<table class="wide-table">
+<table>
 <colgroup>
-<col style="width: 19%" />
-<col style="width: 36%" />
-<col style="width: 44%" />
-</colgroup>
-<thead>
-<tr>
-<th></th>
-<th>Checked</th>
-<th>Unchecked</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Which classes</td>
-<td><code>Exception</code> and its subclasses, <strong>except</strong>
-<code>RuntimeException</code></td>
-<td><code>RuntimeException</code> and its subclasses, plus
-<code>Error</code> and its subclasses</td>
-</tr>
-<tr>
-<td>Examples</td>
-<td><code>IOException</code>, <code>FileNotFoundException</code>,
-<code>ClassNotFoundException</code>, <code>Exception</code> itself</td>
-<td><code>ArithmeticException</code>, <code>NullPointerException</code>,
-<code>ArrayIndexOutOfBoundsException</code>,
-<code>ClassCastException</code>, <code>NumberFormatException</code>,
-<code>IllegalArgumentException</code></td>
-</tr>
-<tr>
-<td>Compiler checks?</td>
-<td><strong>Yes.</strong> You must <strong>catch</strong> it or
-<strong>declare</strong> it with <code>throws</code>. If you do neither,
-it is a compile error.</td>
-<td>No. Handling is optional.</td>
-</tr>
-<tr>
-<td>Usual cause</td>
-<td>Things outside the program (missing file, network)</td>
-<td>Programming mistakes or bad input; prevent them with good code</td>
-</tr>
-</tbody>
-</table>
-</div>
-<p>If an unchecked exception is not caught, Java’s default handler stops
-the program and prints the exception’s class name and the stack
-trace.</p>
-<h3 id="common-exceptions">Common exceptions</h3>
-<div class="table-wrap">
-<table class="wide-table">
-<colgroup>
-<col style="width: 35%" />
-<col style="width: 64%" />
-</colgroup>
-<thead>
-<tr>
-<th>Exception</th>
-<th>Cause</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>ArithmeticException</code></td>
-<td>Integer division by zero (<code>10 / 0</code>). Message:
-<code>/ by zero</code>. (Floating-point <code>10.0 / 0</code> gives
-<code>Infinity</code>, no exception.)</td>
-</tr>
-<tr>
-<td><code>ArrayIndexOutOfBoundsException</code></td>
-<td>Array index <code>&lt; 0</code> or <code>&gt;= length</code></td>
-</tr>
-<tr>
-<td><code>StringIndexOutOfBoundsException</code></td>
-<td>String index <code>&lt; 0</code> or <code>&gt;= length()</code></td>
-</tr>
-<tr>
-<td><code>NullPointerException</code></td>
-<td>Calling a method or reading a field through a <code>null</code>
-reference</td>
-</tr>
-<tr>
-<td><code>NumberFormatException</code></td>
-<td><code>Integer.parseInt("abc")</code> (a subclass of
-<code>IllegalArgumentException</code>)</td>
-</tr>
-<tr>
-<td><code>IllegalArgumentException</code></td>
-<td>A method got an argument it does not accept</td>
-</tr>
-<tr>
-<td><code>ClassCastException</code></td>
-<td>A downcast to a type that the object is not</td>
-</tr>
-<tr>
-<td><code>InputMismatchException</code></td>
-<td><code>Scanner.nextInt()</code> read a non-number</td>
-</tr>
-<tr>
-<td><code>FileNotFoundException</code></td>
-<td>A file to open does not exist (checked; subclass of
-<code>IOException</code>)</td>
-</tr>
-<tr>
-<td><code>EOFException</code></td>
-<td>Reading past the end of a binary file (checked; subclass of
-<code>IOException</code>)</td>
-</tr>
-</tbody>
-</table>
-</div>
-<h2 id="rules-for-tracing-try-catch-finally">4. Rules for Tracing
-<code>try</code> / <code>catch</code> / <code>finally</code></h2>
-<ol type="1">
-<li>Statements in <code>try</code> run in order. At the first exception,
-the rest of the <code>try</code> block is <strong>skipped</strong>.</li>
-<li>Java checks the <code>catch</code> blocks <strong>from top to
-bottom</strong>. It runs only the <strong>first</strong> block whose
-type matches (the thrown class or a parent of it). The other
-<code>catch</code> blocks are skipped.</li>
-<li><code>finally</code> runs <strong>always</strong>: after a normal
-<code>try</code>, after a <code>catch</code>, and also when no
-<code>catch</code> matches. It runs even when the <code>try</code> or
-<code>catch</code> has a <code>return</code>. (Only
-<code>System.exit()</code> stops it.)</li>
-<li>If a <code>catch</code> handled the exception, the program continues
-with the statement <strong>after</strong> the whole
-<code>try</code>-<code>catch</code>-<code>finally</code>.</li>
-<li>If no <code>catch</code> matched, then after <code>finally</code>
-the exception leaves the method. The rest of the method does
-<strong>not</strong> run. The exception goes to the caller (Section
-5).</li>
-</ol>
-<p><strong>Example</strong> (from Tutorial 4):</p>
-<div class="sourceCode" id="cb2"><pre
-class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">sampleMethod</span><span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span> <span class="op">{</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>n <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span>      <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Exception</span><span class="op">();</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">NegativeNumberException</span><span class="op">();</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;No Exception.&quot;</span><span class="op">);</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Still in sampleMethod.&quot;</span><span class="op">);</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">catch</span> <span class="op">(</span>NegativeNumberException e<span class="op">)</span> <span class="op">{</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Caught in sampleMethod.&quot;</span><span class="op">);</span> <span class="op">}</span></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">finally</span> <span class="op">{</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;In finally block.&quot;</span><span class="op">);</span> <span class="op">}</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;After finally block.&quot;</span><span class="op">);</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">// main: try { sampleMethod(n); } catch (Exception e) { System.out.println(&quot;Caught in main.&quot;); }</span></span></code></pre></div>
-<div class="table-wrap">
-<table class="wide-table">
-<colgroup>
-<col style="width: 6%" />
+<col style="width: 23%" />
+<col style="width: 34%" />
 <col style="width: 42%" />
-<col style="width: 52%" />
 </colgroup>
 <thead>
 <tr>
-<th><code>n</code></th>
-<th>Output</th>
-<th>Why</th>
+<th>Characteristic</th>
+<th>Checked Exceptions</th>
+<th>Unchecked Exceptions (<code>RuntimeException</code> &amp;
+<code>Error</code>)</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>99</code></td>
-<td>In finally block. / Caught in main.</td>
-<td><code>Exception</code> does not match the
-<code>NegativeNumberException</code> catch. <code>finally</code> runs,
-then the exception goes to <code>main</code>. “After finally” is
-skipped.</td>
+<td><strong>Root Class</strong></td>
+<td><code>Exception</code> (excluding
+<code>RuntimeException</code>)</td>
+<td>Subclasses of <code>RuntimeException</code> and
+<code>Error</code></td>
 </tr>
 <tr>
-<td><code>-99</code></td>
-<td>Caught in sampleMethod. / In finally block. / After finally
-block.</td>
-<td>The catch matches, then <code>finally</code>, then the method
-continues.</td>
+<td><strong>Compiler Enforcement</strong></td>
+<td><strong>Mandatory:</strong> Must be caught via
+<code>try-catch</code> or declared via <code>throws</code> in method
+header</td>
+<td><strong>Optional:</strong> Compiler does not enforce catch or
+declare</td>
 </tr>
 <tr>
-<td><code>0</code></td>
-<td>No Exception. / Still in sampleMethod. / In finally block. / After
-finally block.</td>
-<td>No exception.</td>
+<td><strong>Typical Origin</strong></td>
+<td>External environmental failures outside direct program control
+(e.g., missing file, network drop, SQL failure)</td>
+<td>Internal programming logic bugs (e.g.,
+<code>NullPointerException</code>, invalid index, divide by zero)</td>
+</tr>
+<tr>
+<td><strong>Examples</strong></td>
+<td><code>IOException</code>, <code>FileNotFoundException</code>,
+<code>ClassNotFoundException</code>, <code>SQLException</code></td>
+<td><code>NullPointerException</code>, <code>ArithmeticException</code>,
+<code>ArrayIndexOutOfBoundsException</code>,
+<code>ClassCastException</code></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>Short pattern:
-<code>try { A; 10/0; B; } catch { C; } finally { D; } E;</code> prints
-<strong>A C D E</strong>. B is skipped.</p>
-<h2 id="exception-propagation">5. Exception Propagation</h2>
-<p>If a method does not catch an exception, the exception goes to the
-method that called it, then to that method’s caller, and so on
-(<strong>propagation</strong>). Each method on the way stops at once.
-The first method with a matching <code>catch</code> handles it. If even
-<code>main</code> does not catch it, the program stops.</p>
-<pre><code>main() calls method1()            method1 has try { method2(); } catch (ArrayIndexOutOfBoundsException e)
-method1() calls method2()         method2 has no try
-method2() calls method3()         method3 does array[6] = 10 on an array of 5</code></pre>
-<p>Output order: Start method1 → Start method2 → Start method3 →
-exception in method3 → “End method3” and “End method2” are
-<strong>skipped</strong> → method1’s catch runs → “End method1” → “End
-of program”. The stack trace lists method3, method2, method1, main
-(newest call first).</p>
-<h2 id="multiple-catch-blocks">6. Multiple <code>catch</code>
-Blocks</h2>
+<hr />
+<h2 id="structured-syntax-try-catch-and-finally">2. Structured Syntax:
+<code>try</code>, <code>catch</code>, and <code>finally</code></h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Protected block: code that may throw one or more exceptions</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="bu">FileInputStream</span> fis <span class="op">=</span> <span class="kw">new</span> <span class="bu">FileInputStream</span><span class="op">(</span><span class="st">&quot;data.bin&quot;</span><span class="op">);</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> val <span class="op">=</span> <span class="dv">10</span> <span class="op">/</span> divisor<span class="op">;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">FileNotFoundException</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Specific handler: catches exact match or subclass</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">err</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;File missing: &quot;</span> <span class="op">+</span> e<span class="op">.</span><span class="fu">getMessage</span><span class="op">());</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">ArithmeticException</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">err</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Math error: &quot;</span> <span class="op">+</span> e<span class="op">.</span><span class="fu">getMessage</span><span class="op">());</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">IOException</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Broader handler placed AFTER specific handlers</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">err</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;General I/O error: &quot;</span> <span class="op">+</span> e<span class="op">.</span><span class="fu">getMessage</span><span class="op">());</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">finally</span> <span class="op">{</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Guaranteed cleanup block: executes under ALL execution paths</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Cleanup executed.&quot;</span><span class="op">);</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="critical-rules-governing-catch-and-finally-blocks">Critical
+Rules Governing Catch and Finally Blocks</h3>
+<ol type="1">
+<li><strong>Ordering Rule (Specific to General):</strong> Subclass catch
+blocks <strong>must precede superclass catch blocks</strong>. Placing
+<code>catch (Exception e)</code> before
+<code>catch (IOException e)</code> results in a <strong>compilation
+error</strong>: <em>“exception IOException has already been
+caught”</em>.</li>
+<li><strong>First Match Only:</strong> When an exception is thrown, the
+JVM evaluates catch clauses sequentially from top to bottom. It executes
+the <strong>first matching block</strong> and bypasses all subsequent
+catch clauses.</li>
+<li><strong>The Unconditional Guarantee of
+<code>finally</code>:</strong>
 <ul>
-<li>One method can throw several kinds of exceptions, and one
-<code>try</code> can have several <code>catch</code> blocks.</li>
-<li>A <code>catch</code> for a parent class also catches every subclass
-(“is-a”).</li>
-<li>So put <strong>specific</strong> exceptions first and
-<strong>general</strong> ones last. If a parent <code>catch</code>
-(e.g. <code>Exception</code>) comes before a child <code>catch</code>
-(e.g. <code>ArithmeticException</code>), the child block can never run.
-The compiler reports an error: “exception … has already been
-caught”.</li>
-<li>A <code>catch</code> for a <strong>checked</strong> exception that
-the <code>try</code> body can never throw is also a compile error.
-(<code>catch (Exception e)</code> is always allowed.)</li>
-</ul>
-<h2 id="your-own-exception-class">7. Your Own Exception Class</h2>
-<div class="sourceCode" id="cb4"><pre
-class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> IntNonNegativeException <span class="kw">extends</span> <span class="bu">Exception</span> <span class="op">{</span>   <span class="co">// checked</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">IntNonNegativeException</span><span class="op">()</span> <span class="op">{</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="kw">super</span><span class="op">(</span><span class="st">&quot;Integer input is a negative number!!&quot;</span><span class="op">);</span>     <span class="co">// default message</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">IntNonNegativeException</span><span class="op">(</span><span class="bu">String</span> message<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="kw">super</span><span class="op">(</span>message<span class="op">);</span>                                    <span class="co">// caller&#39;s message</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<li>The <code>finally</code> block executes <strong>always</strong>,
+whether an exception is thrown or not, whether a caught exception is
+handled or not, and <strong>even if the <code>try</code> or
+<code>catch</code> block executes a <code>return</code>
+statement</strong>.</li>
+<li>If a <code>try</code> block returns a value, the
+<code>finally</code> block executes immediately before the method
+formally returns control to the caller.</li>
+<li>The only circumstance that prevents a <code>finally</code> block
+from executing is an explicit termination of the JVM via
+<code>System.exit(0)</code> or catastrophic host OS / power
+failure.</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="exception-propagation-and-method-contracts">3. Exception
+Propagation and Method Contracts</h2>
+<p>When a method encounters an exceptional condition it cannot recover
+from, it delegates responsibility to its caller:</p>
 <ul>
-<li>It must extend an existing exception class. Extend
-<code>Exception</code> for a checked exception, or
-<code>RuntimeException</code> for an unchecked one.</li>
-<li>Usually you write only constructors. Each one calls
-<code>super(message)</code>, so <code>getMessage()</code> returns that
-message.</li>
-<li>Throw it with
-<code>throw new IntNonNegativeException();</code>.</li>
+<li><strong><code>throw</code> (Statement):</strong> Triggers the
+immediate instantiation and ejection of an exception object:<br />
+<code>throw new IllegalArgumentException("Negative balance");</code></li>
+<li><strong><code>throws</code> (Clause):</strong> Appended to a method
+header to declare that the method may propagate specified
+<strong>checked exceptions</strong> up the call stack:<br />
+<code>public void parseLog(String path) throws IOException, ParseException</code></li>
 </ul>
-<h3 id="exceptions-and-overriding">Exceptions and overriding</h3>
-<p>An overriding method cannot throw a new or broader
-<strong>checked</strong> exception than the method it overrides. It can
-throw fewer, narrower or unchecked ones. (If <code>A.m()</code> throws
-nothing, <code>B.m() throws Exception</code> does not compile.)</p>
-<h2 id="file-input-and-output">8. File Input and Output</h2>
-<h3 id="data-in-files">Data in files</h3>
-<p>Data goes from small to big: bit → byte → field → record → file. A
-<strong>record</strong> holds all the fields for one thing (one
-employee). A <strong>sequential file</strong> is read from start to end.
-A <strong>random-access file</strong> can jump to any record.</p>
-<p>A <strong>stream</strong> is a flow of bytes to or from a file. Java
-has two modes:</p>
+<h3
+id="overriding-rules-for-methods-declaring-checked-exceptions">Overriding
+Rules for Methods Declaring Checked Exceptions</h3>
+<p>When a subclass overrides a superclass method:</p>
+<ol type="1">
+<li>The subclass method <strong>cannot declare broader or new checked
+exceptions</strong> than those declared in the superclass method.</li>
+<li>The subclass method <strong>may declare fewer</strong> checked
+exceptions, <strong>more specific subclass exceptions</strong>, or
+<strong>no checked exceptions at all</strong>.</li>
+<li>Unchecked exceptions (<code>RuntimeException</code>) are
+unconstrained by this rule.</li>
+</ol>
+<hr />
+<h2 id="java-file-io-architecture">4. Java File I/O Architecture</h2>
+<p>Java models file operations via stream abstractions in
+<code>java.io</code>:</p>
 <div class="table-wrap">
-<table class="wide-table">
+<table>
 <colgroup>
-<col style="width: 17%" />
-<col style="width: 39%" />
-<col style="width: 44%" />
+<col style="width: 18%" />
+<col style="width: 21%" />
+<col style="width: 14%" />
+<col style="width: 19%" />
+<col style="width: 28%" />
 </colgroup>
 <thead>
 <tr>
-<th></th>
-<th>Text mode</th>
-<th>Binary mode</th>
+<th>Stream Category</th>
+<th>Base Abstract Classes</th>
+<th style="text-align: center;">Data Unit</th>
+<th>Primary Purpose</th>
+<th>Key Concrete Implementations</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Data stored as</td>
-<td>Characters</td>
-<td>Raw bytes (0s and 1s)</td>
+<td><strong>Byte Streams</strong></td>
+<td><code>InputStream</code> / <code>OutputStream</code></td>
+<td style="text-align: center;">8-bit byte</td>
+<td>Raw binary data, images, media, serialized objects</td>
+<td><code>FileInputStream</code>, <code>FileOutputStream</code>,
+<code>BufferedInputStream</code></td>
 </tr>
 <tr>
-<td>File examples</td>
-<td><code>.txt</code>, <code>.java</code></td>
-<td><code>.exe</code>, <code>.class</code>, <code>.ppt</code></td>
-</tr>
-<tr>
-<td>Write classes</td>
-<td><code>FileWriter</code> → <code>BufferedWriter</code> →
-<code>PrintWriter</code></td>
-<td><code>FileOutputStream</code> → <code>BufferedOutputStream</code> →
-<code>ObjectOutputStream</code></td>
-</tr>
-<tr>
-<td>Read classes</td>
-<td><code>FileReader</code> → <code>BufferedReader</code>, or
-<code>Scanner(new File(...))</code></td>
-<td><code>FileInputStream</code> → <code>BufferedInputStream</code> →
-<code>ObjectInputStream</code></td>
-</tr>
-<tr>
-<td>End of file</td>
-<td><code>readLine()</code> returns <code>null</code>;
-<code>hasNext()</code> is <code>false</code></td>
-<td><code>readInt()</code> etc. throw <code>EOFException</code></td>
+<td><strong>Character Streams</strong></td>
+<td><code>Reader</code> / <code>Writer</code></td>
+<td style="text-align: center;">16-bit char</td>
+<td>Text files with character encoding conversion</td>
+<td><code>FileReader</code>, <code>FileWriter</code>,
+<code>BufferedReader</code>, <code>PrintWriter</code></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>All these classes are in <code>java.io</code>. Each layer wraps the
-one before it. The <code>Buffered…</code> layer collects data in memory
-to make reading and writing faster. The outer layer gives handy methods
-(<code>println</code>, <code>readLine</code>,
-<code>writeInt</code>).</p>
-<h3 id="text-files">Text files</h3>
-<div class="sourceCode" id="cb5"><pre
-class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">java</span><span class="op">.</span><span class="im">io</span><span class="op">.*;</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co">// write</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">PrintWriter</span> pw <span class="op">=</span> <span class="kw">new</span> <span class="bu">PrintWriter</span><span class="op">(</span><span class="kw">new</span> <span class="bu">BufferedWriter</span><span class="op">(</span><span class="kw">new</span> <span class="bu">FileWriter</span><span class="op">(</span><span class="st">&quot;data.txt&quot;</span><span class="op">)));</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">5</span><span class="op">;</span> i<span class="op">++)</span> pw<span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Number = &quot;</span> <span class="op">+</span> i <span class="op">*</span> <span class="dv">5</span><span class="op">);</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    pw<span class="op">.</span><span class="fu">close</span><span class="op">();</span>                         <span class="co">// close() also flushes the buffer</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">IOException</span> e<span class="op">)</span> <span class="op">{</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;IO Error!&quot;</span> <span class="op">+</span> e<span class="op">.</span><span class="fu">getMessage</span><span class="op">());</span> <span class="op">}</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="co">// read until end of file</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    <span class="bu">BufferedReader</span> br <span class="op">=</span> <span class="kw">new</span> <span class="bu">BufferedReader</span><span class="op">(</span><span class="kw">new</span> <span class="bu">FileReader</span><span class="op">(</span><span class="st">&quot;data.txt&quot;</span><span class="op">));</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> line <span class="op">=</span> br<span class="op">.</span><span class="fu">readLine</span><span class="op">();</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>line <span class="op">!=</span> <span class="kw">null</span><span class="op">)</span> <span class="op">{</span>              <span class="co">// null = end of file</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span>line<span class="op">);</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        line <span class="op">=</span> br<span class="op">.</span><span class="fu">readLine</span><span class="op">();</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    br<span class="op">.</span><span class="fu">close</span><span class="op">();</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">FileNotFoundException</span> e<span class="op">)</span> <span class="op">{</span>     <span class="co">// specific first</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Error opening the input file!&quot;</span><span class="op">);</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">IOException</span> e<span class="op">)</span> <span class="op">{</span>               <span class="co">// general last</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;IO Error!&quot;</span><span class="op">);</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Modern idiom: Try-With-Resources (implements java.lang.AutoCloseable)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">(</span><span class="bu">BufferedReader</span> reader <span class="op">=</span> <span class="kw">new</span> <span class="bu">BufferedReader</span><span class="op">(</span><span class="kw">new</span> <span class="bu">FileReader</span><span class="op">(</span><span class="st">&quot;input.txt&quot;</span><span class="op">));</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>     <span class="bu">PrintWriter</span> writer <span class="op">=</span> <span class="kw">new</span> <span class="bu">PrintWriter</span><span class="op">(</span><span class="kw">new</span> <span class="bu">FileWriter</span><span class="op">(</span><span class="st">&quot;output.txt&quot;</span><span class="op">)))</span> <span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="bu">String</span> line<span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">((</span>line <span class="op">=</span> reader<span class="op">.</span><span class="fu">readLine</span><span class="op">())</span> <span class="op">!=</span> <span class="kw">null</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>        writer<span class="op">.</span><span class="fu">println</span><span class="op">(</span>line<span class="op">.</span><span class="fu">toUpperCase</span><span class="op">());</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="co">// Streams automatically closed here without requiring an explicit finally block</span></span></code></pre></div>
+<hr />
+<h2 id="object-serialization-and-the-transient-keyword">5. Object
+Serialization and the <code>transient</code> Keyword</h2>
+<p><strong>Serialization</strong> transforms an object’s complete
+in-memory object graph into a portable sequence of binary bytes for
+storage or network transmission; <strong>Deserialization</strong>
+reconstructs identical heap objects from the byte sequence.</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">import</span> <span class="im">java</span><span class="op">.</span><span class="im">io</span><span class="op">.</span><span class="im">Serializable</span><span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> UserSession <span class="kw">implements</span> <span class="bu">Serializable</span> <span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="dt">static</span> <span class="dt">final</span> <span class="dt">long</span> serialVersionUID <span class="op">=</span> <span class="dv">1L</span><span class="op">;</span> <span class="co">// Schema version verification</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="bu">String</span> username<span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">transient</span> <span class="bu">String</span> passwordHash<span class="op">;</span> <span class="co">// EXCLUDED from serialization!</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">private</span> <span class="kw">transient</span> <span class="bu">Socket</span> connection<span class="op">;</span>   <span class="co">// Non-serializable resources excluded</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">UserSession</span><span class="op">(</span><span class="bu">String</span> username<span class="op">,</span> <span class="bu">String</span> hash<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">username</span> <span class="op">=</span> username<span class="op">;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        <span class="kw">this</span><span class="op">.</span><span class="fu">passwordHash</span> <span class="op">=</span> hash<span class="op">;</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h3 id="serialization-rules-and-traps">Serialization Rules and
+Traps</h3>
+<ol type="1">
+<li><strong>The Marker Interface:</strong> A class must implement
+<code>java.io.Serializable</code> (an interface with zero methods). If a
+class does not implement <code>Serializable</code>, passing it to
+<code>ObjectOutputStream.writeObject()</code> throws
+<strong><code>NotSerializableException</code></strong>.</li>
+<li><strong>The <code>transient</code> Modifier:</strong> Fields marked
+<code>transient</code> are <strong>skipped during
+serialization</strong>. When the object is deserialized, transient
+fields are reset to their default uninitialized values
+(<code>null</code>, <code>0</code>, <code>false</code>).</li>
+<li><strong>Static Fields:</strong> Static fields belong to the class
+Metaspace, not individual object instances. <strong>Static variables are
+never serialized</strong>.</li>
+<li><strong>Composed Objects:</strong> Every reference field inside a
+serializable class must also reference a serializable object; otherwise
+serialization fails at runtime.</li>
+</ol>
+<hr />
+<h2 id="tracing-toolkit-exception-control-flow-finally">6. Tracing
+Toolkit: Exception Control Flow &amp; <code>finally</code></h2>
+<p>When predicting the output of nested <code>try-catch-finally</code>
+blocks under exam conditions:</p>
+<pre><code>Step 1: Execute try block sequentially line by line.
+   ├── No exception thrown:
+   │     Run all try statements ──► Skip catch blocks ──► Run finally ──► Continue after try-catch.
+   └── Exception thrown at statement X:
+         Halt try block immediately (all subsequent lines inside try are SKIPPED).
+
+Step 2: Match Exception against catch blocks (top-to-bottom).
+   ├── Catch block matches (thrown object is-a CaughtType):
+   │     Execute matching catch body ──► Run finally block ──► Continue after try-catch.
+   └── No catch block matches (or unhandled checked/unchecked exception):
+         Run finally block ──► Abort current method ──► Propagate exception to caller.
+
+Step 3: Handle return statements inside try or catch.
+   ├── Record return value.
+   ├── Force execution of finally block.
+   └── Complete method return (unless finally itself executes a return, which overrides the original).</code></pre>
+<hr />
+<h2 id="tutorial-and-exam-practice">7. Tutorial and Exam Practice</h2>
+<details class="qa box">
+<summary>
+<strong>Wooclap Check:</strong> Basic <code>try-catch-finally</code>
+Flow Trace <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Determine the exact character sequence
+output by the following snippet:</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> ExceptionFlow <span class="op">{</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">main</span><span class="op">(</span><span class="bu">String</span><span class="op">[]</span> args<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">print</span><span class="op">(</span><span class="st">&quot;A&quot;</span><span class="op">);</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>            <span class="dt">int</span> x <span class="op">=</span> <span class="dv">10</span> <span class="op">/</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">print</span><span class="op">(</span><span class="st">&quot;B&quot;</span><span class="op">);</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">ArithmeticException</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">print</span><span class="op">(</span><span class="st">&quot;C&quot;</span><span class="op">);</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">finally</span> <span class="op">{</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">print</span><span class="op">(</span><span class="st">&quot;D&quot;</span><span class="op">);</span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">print</span><span class="op">(</span><span class="st">&quot;E&quot;</span><span class="op">);</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li>Enter <code>try</code> block: prints <code>"A"</code>.</li>
+<li>Statement <code>int x = 10 / 0;</code> triggers an
+<code>ArithmeticException</code>. Statement
+<code>System.out.print("B");</code> is <strong>skipped</strong>.</li>
+<li>JVM searches catch blocks:
+<code>catch (ArithmeticException e)</code> matches.</li>
+<li>Catch block executes: prints <code>"C"</code>.</li>
+<li><code>finally</code> block executes unconditionally: prints
+<code>"D"</code>.</li>
+<li>Normal execution resumes after the block: prints
+<code>"E"</code>.</li>
+</ol>
+<p>Final Output:</p>
+<pre class="text"><code>ACDE</code></pre>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 4 Q3:</strong> Multi-Level Exception Propagation with
+Custom Exceptions <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Given the custom exception and methods
+below, determine the exact console output produced when
+<code>sampleMethod(99)</code> is invoked from <code>main</code>:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> NegativeNumberException <span class="kw">extends</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="fu">NegativeNumberException</span><span class="op">()</span> <span class="op">{</span> <span class="kw">super</span><span class="op">(</span><span class="st">&quot;Negative Number Exception!&quot;</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> FinallyDemo <span class="op">{</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">main</span><span class="op">(</span><span class="bu">String</span><span class="op">[]</span> args<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>            <span class="fu">sampleMethod</span><span class="op">(</span><span class="dv">99</span><span class="op">);</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">Exception</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Caught in main.&quot;</span><span class="op">);</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">sampleMethod</span><span class="op">(</span><span class="dt">int</span> n<span class="op">)</span> <span class="kw">throws</span> <span class="bu">Exception</span> <span class="op">{</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>        <span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> <span class="op">(</span>n <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">throw</span> <span class="kw">new</span> <span class="bu">Exception</span><span class="op">();</span></span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">throw</span> <span class="kw">new</span> <span class="fu">NegativeNumberException</span><span class="op">();</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>            <span class="cf">else</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;No Exception.&quot;</span><span class="op">);</span></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Still in sampleMethod.&quot;</span><span class="op">);</span></span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span>NegativeNumberException e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Caught in sampleMethod.&quot;</span><span class="op">);</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">finally</span> <span class="op">{</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a>            <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;In finally block.&quot;</span><span class="op">);</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;After finally block.&quot;</span><span class="op">);</span></span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>What would the output be if <code>sampleMethod(-99)</code> was
+invoked instead?</p>
+<p><strong>Solution:</strong></p>
+<p><strong>Trace for <code>sampleMethod(99)</code>:</strong></p>
+<ol type="1">
+<li><code>n = 99 &gt; 0</code>: <code>throw new Exception();</code>
+throws a general <code>Exception</code>.</li>
+<li><code>catch (NegativeNumberException e)</code> does <strong>not
+match</strong> because <code>Exception</code> is a superclass of
+<code>NegativeNumberException</code>, not a subtype.</li>
+<li>The exception is unhandled within <code>sampleMethod</code>.</li>
+<li>The <code>finally</code> block runs unconditionally: prints
+<code>"In finally block."</code>.</li>
+<li>The unhandled <code>Exception</code> propagates out of
+<code>sampleMethod</code> to <code>main</code>.
+<code>"After finally block."</code> is <strong>skipped</strong>.</li>
+<li>In <code>main</code>, <code>catch (Exception e)</code> catches the
+propagated exception: prints <code>"Caught in main."</code>.</li>
+</ol>
+<p>Output for <code>n = 99</code>:</p>
+<pre class="text"><code>In finally block.
+Caught in main.</code></pre>
+<p><strong>Trace for <code>sampleMethod(-99)</code>:</strong></p>
+<ol type="1">
+<li><code>n = -99 &lt; 0</code>: throws
+<code>NegativeNumberException</code>.</li>
+<li><code>catch (NegativeNumberException e)</code> matches: prints
+<code>"Caught in sampleMethod."</code>.</li>
+<li><code>finally</code> block executes: prints
+<code>"In finally block."</code>.</li>
+<li>Because the exception was handled, normal execution resumes in
+<code>sampleMethod</code>: prints
+<code>"After finally block."</code>.</li>
+</ol>
+<p>Output for <code>n = -99</code>:</p>
+<pre class="text"><code>Caught in sampleMethod.
+In finally block.
+After finally block.</code></pre>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Exam Check:</strong> Catch Block Ordering Compilation Rule <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Why does the following code fail to
+compile, and how must it be rectified?</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span> <span class="op">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="bu">FileReader</span> fr <span class="op">=</span> <span class="kw">new</span> <span class="bu">FileReader</span><span class="op">(</span><span class="st">&quot;config.txt&quot;</span><span class="op">);</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    fr<span class="op">.</span><span class="fu">read</span><span class="op">();</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">IOException</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;General I/O error&quot;</span><span class="op">);</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">catch</span> <span class="op">(</span><span class="bu">FileNotFoundException</span> e<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;File not found&quot;</span><span class="op">);</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>Solution:</strong></p>
 <ul>
-<li>Close every stream. If you do not close or <code>flush()</code> a
-buffered writer, the last data can stay in the buffer and never reach
-the file.</li>
-<li><code>new FileWriter(name)</code> <strong>overwrites</strong> the
-file. <code>new FileWriter(name, true)</code> adds to the end
-(append).</li>
-<li>A <code>Scanner</code> can read a file too:
-<code>new Scanner(new File("data.txt"))</code> with
-<code>hasNext()</code> and <code>nextLine()</code>.</li>
+<li><code>FileNotFoundException</code> is a direct subclass of
+<code>IOException</code>.</li>
+<li>Any <code>FileNotFoundException</code> thrown inside the
+<code>try</code> block would be intercepted by the preceding
+<code>catch (IOException e)</code> clause.</li>
+<li>As a result, the second catch block
+<code>catch (FileNotFoundException e)</code> is completely unreachable
+(<strong>dead code</strong>).</li>
+<li>Java compiler enforces that specific exception subtypes must appear
+<strong>before</strong> broader superclasses.</li>
+<li><strong>Rectification:</strong> Invert the catch clauses so
+<code>FileNotFoundException</code> precedes
+<code>IOException</code>.</li>
 </ul>
-<h3 id="binary-files">Binary files</h3>
-<p>Write with <code>writeInt</code>, <code>writeDouble</code>,
-<code>writeUTF</code> (a string), and so on. Read the values back with
-<code>readInt</code>, <code>readDouble</code>, <code>readUTF</code>
-<strong>in the same order and with the same types</strong>. A loop
-<code>while (true)</code> that reads records stops when
-<code>readUTF()</code> throws <code>EOFException</code>; catch it to
-detect the end of the file.</p>
-<h3 id="object-serialization">Object serialization</h3>
-<p><strong>Serialization</strong> saves a whole object as a sequence of
-bytes, with its data and its type information.
-<strong>Deserialization</strong> rebuilds the object from the bytes
-later.</p>
-<ul>
-<li><code>ObjectOutputStream.writeObject(obj)</code> writes an object.
-<code>ObjectInputStream.readObject()</code> reads one back. It returns
-<code>Object</code>, so you must downcast it to its real type.</li>
-<li>The class must implement <strong><code>Serializable</code></strong>.
-This is a <strong>marker (tagging) interface</strong>: it has no
-methods. It only marks the class as safe to serialize.
-<code>ObjectOutputStream</code> refuses an object that is not
-<code>Serializable</code>.</li>
-<li>Every field must be serializable too. Primitives always are. Mark a
-field that must not be saved as <strong><code>transient</code></strong>;
-serialization skips it.</li>
-<li><code>readObject()</code> throws <code>EOFException</code> at the
-end of the file, and <code>ClassNotFoundException</code> if Java cannot
-find the object’s class.</li>
-</ul>
-<h2 id="quiz-traps">9. Quiz Traps</h2>
-<ul>
-<li>After an exception in <code>try</code>, the rest of <code>try</code>
-is skipped.</li>
-<li>Only the <strong>first</strong> matching <code>catch</code> runs.
-Parent <code>catch</code> before child <code>catch</code>: compile
-error.</li>
-<li><code>finally</code> always runs, even with <code>return</code> in
-<code>try</code>. After an uncaught exception, <code>finally</code>
-runs, then the method ends (the statements after <code>finally</code> do
-not run).</li>
-<li>Checked exceptions (<code>Exception</code>,
-<code>IOException</code>) must be caught or declared.
-<code>RuntimeException</code> subclasses and <code>Error</code> are
-unchecked.</li>
-<li><code>throw</code> throws an object; <code>throws</code> declares in
-a header.</li>
-<li>A custom exception passes its message with
-<code>super(message)</code>.</li>
-<li><code>readLine()</code> returns <code>null</code> at end of file;
-binary reads throw <code>EOFException</code>.</li>
-<li><code>Serializable</code> has no methods; <code>transient</code>
-fields are not saved.</li>
-</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Exam Scenario:</strong> State Restoration during Deserialization
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> A class <code>Account</code> defines
+<code>private static int count = 10;</code>,
+<code>private String id = "A1";</code>, and
+<code>private transient double secretKey = 999.9;</code>. An instance is
+serialized to a binary file and subsequently deserialized in a new JVM
+execution where <code>count</code> is initialized to <code>0</code>.</p>
+<p>What are the values of <code>count</code>, <code>id</code>, and
+<code>secretKey</code> on the newly deserialized object instance?</p>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li><strong><code>id</code> = <code>"A1"</code>:</strong> Standard
+non-transient instance fields are serialized into the stream and
+restored verbatim during deserialization.</li>
+<li><strong><code>secretKey</code> = <code>0.0</code>:</strong> Marked
+with <code>transient</code>. It is omitted from the serialized stream.
+During deserialization, Java initializes primitive numeric transient
+fields to default zero (<code>0.0</code>).</li>
+<li><strong><code>count</code> = <code>0</code>:</strong>
+<code>count</code> is <code>static</code>. Static variables belong to
+the Metaspace class definition, not object instance state, and are
+<strong>never serialized</strong>. The restored instance reflects
+whatever value the static variable currently holds in the active JVM
+(<code>0</code>).</li>
+</ol>
+</div>
+</details>
 </main>
 
 <nav class="sequence-navigation" aria-label="Chapter sequence">

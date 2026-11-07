@@ -1,0 +1,2373 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>1. Foundations: asymptotic notation, insertion sort</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="drill.css">
+</head><body data-page="01-foundations">
+<nav class="top"><a href="index.html">All topics</a><span id="count"></span>
+<label><input type="checkbox" id="onlyshaky"> only shaky</label>
+<button id="export">Copy progress</button></nav>
+<main>
+<h1 id="foundations-asymptotic-notation-insertion-sort">1. Foundations:
+asymptotic notation, insertion sort</h1>
+<h2 id="facts">Facts</h2>
+<div class="q">
+<p>Give the formal definitions of <span
+class="math inline">f=O(g)</span>, <span
+class="math inline">f=\Omega(g)</span> and <span
+class="math inline">f=\Theta(g)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><span class="math inline">f = O(g)</span>: there exist <span
+class="math inline">c&gt;0</span> and <span
+class="math inline">n_0</span> with <span class="math inline">0 \le f(n)
+\le c\,g(n)</span> for all <span class="math inline">n \ge
+n_0</span>.</li>
+<li><span class="math inline">f = \Omega(g)</span>: there exist <span
+class="math inline">c&gt;0</span> and <span
+class="math inline">n_0</span> with <span class="math inline">0 \le
+c\,g(n) \le f(n)</span> for all <span class="math inline">n \ge
+n_0</span>.</li>
+<li><span class="math inline">f = \Theta(g)</span>: there exist <span
+class="math inline">c_1, c_2 &gt; 0</span> and <span
+class="math inline">n_0</span> with <span class="math inline">c_1 g(n)
+\le f(n) \le c_2 g(n)</span> for all <span class="math inline">n \ge
+n_0</span>. Equivalently, <span class="math inline">f = O(g)</span>
+<strong>and</strong> <span class="math inline">f =
+\Omega(g)</span>.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p>How do <span class="math inline">o</span> and <span
+class="math inline">\omega</span> differ from <span
+class="math inline">O</span> and <span class="math inline">\Omega</span>
+in the definition?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">O</span>, <span
+class="math inline">\Omega</span>, <span
+class="math inline">\Theta</span> need <strong>some</strong> constant
+<span class="math inline">c</span> (<span class="math inline">\exists
+c</span>). <span class="math inline">o</span> and <span
+class="math inline">\omega</span> need the inequality for
+<strong>every</strong> constant <span class="math inline">c&gt;0</span>
+(<span class="math inline">\forall c</span>), with <span
+class="math inline">n_0</span> depending on <span
+class="math inline">c</span>. So <span class="math inline">f=o(g)</span>
+means <span class="math inline">f</span> is strictly smaller in growth:
+<span class="math inline">f(n)/g(n)\to 0</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>State the limit test with <span
+class="math inline">L=\lim_{n\to\infty} f(n)/g(n)</span>. When does it
+fail?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><span class="math inline">L=0</span>: <span
+class="math inline">f=o(g)</span> (so also <span
+class="math inline">O(g)</span>).</li>
+<li><span class="math inline">0&lt;L&lt;\infty</span>: <span
+class="math inline">f=\Theta(g)</span>.</li>
+<li><span class="math inline">L=\infty</span>: <span
+class="math inline">f=\omega(g)</span> (so also <span
+class="math inline">\Omega(g)</span>).</li>
+</ul>
+<p>It fails when the limit does not exist (for example <span
+class="math inline">f</span> oscillates). Then go back to the definition
+with explicit <span class="math inline">c</span> and <span
+class="math inline">n_0</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Is <span class="math inline">\log_2 n=\Theta(\log_{10} n)</span>? Is
+<span class="math inline">2^n=\Theta(3^n)</span>?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The first is true: <span class="math inline">\log_a n=\log_b n/\log_b
+a</span>, a constant factor, so the base does not matter inside <span
+class="math inline">\Theta</span>. The second is false: <span
+class="math inline">3^n/2^n=(3/2)^n\to\infty</span>. A base in an
+<strong>exponent</strong> changes the growth rate.</p>
+</div>
+</details>
+<div class="q">
+<p>Order these from slowest to fastest growth: <span
+class="math inline">n!,\ n^2,\ \log n,\ 2^n,\ n\log n,\ n,\ n^3,\
+1</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">1 &lt; \log n &lt; n &lt; n\log n &lt; n^2
+&lt; n^3 &lt; 2^n &lt; n!</span></p>
+</div>
+</details>
+<div class="q">
+<p>What is the best-case and worst-case input for insertion sort, with
+comparison counts?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Best:</strong> already sorted. <span
+class="math inline">n-1</span> comparisons, 0 swaps, <span
+class="math inline">\Theta(n)</span>.</li>
+<li><strong>Worst:</strong> strictly decreasing. <span
+class="math inline">\frac{n(n-1)}{2}</span> comparisons and swaps, <span
+class="math inline">\Theta(n^2)</span>.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p>How is the number of swaps in insertion sort related to
+inversions?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The number of swaps <strong>equals</strong> the number of inversions
+(pairs <span class="math inline">i&lt;j</span> with <span
+class="math inline">a_i&gt;a_j</span>). Each swap fixes exactly one
+inversion. So swaps <span class="math inline">\le</span> comparisons
+always.</p>
+</div>
+</details>
+<div class="q">
+<p>Define a <strong>stable</strong> sort and an
+<strong>in-place</strong> sort. Which sorts in this course are stable?
+In-place?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Stable:</strong> equal keys keep their input order.</li>
+<li><strong>In-place:</strong> uses only <span
+class="math inline">O(1)</span> extra memory (quicksort’s recursion
+stack is usually still counted as in-place).</li>
+<li>Stable: insertion sort, mergesort (with the usual “take left on
+ties” merge; the lecture’s merge pseudocode is not stable with
+duplicates, see AY21/22 S2 1(b)), counting sort (backward loop), radix
+sort. Not stable: heapsort, quicksort.</li>
+<li>In-place: insertion sort, heapsort, quicksort. Mergesort needs an
+<span class="math inline">O(n)</span> buffer.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p>Write the three steps of a <strong>loop invariant</strong> proof.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Initialisation:</strong> the invariant is true before the
+first iteration.</li>
+<li><strong>Maintenance:</strong> if it is true before an iteration, it
+is true before the next.</li>
+<li><strong>Termination:</strong> when the loop stops, the invariant
+plus the exit condition gives the property we want (correctness).</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p>What is the loop invariant of insertion sort’s outer loop?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>At the start of the iteration for index <span
+class="math inline">i</span>, the subarray <span
+class="math inline">A[0..i-1]</span> holds the <strong>original</strong>
+first <span class="math inline">i</span> elements, in sorted order. At
+termination <span class="math inline">i=n</span>, so the whole array is
+sorted.</p>
+</div>
+</details>
+<div class="q">
+<p>Prove: if <span class="math inline">f_1=O(g)</span> and <span
+class="math inline">f_2=O(g)</span>, then <span
+class="math inline">f_1+f_2=O(g)</span>. Which constants do you
+pick?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Take <span class="math inline">f_1\le c_1 g</span> for <span
+class="math inline">n\ge n_1</span> and <span class="math inline">f_2\le
+c_2 g</span> for <span class="math inline">n\ge n_2</span>. For <span
+class="math inline">n\ge\max(n_1,n_2)</span> both hold, so <span
+class="math inline">f_1+f_2\le(c_1+c_2)g</span>. The witnesses are <span
+class="math inline">c=c_1+c_2</span> and <span
+class="math inline">n_0=\max(n_1,n_2)</span>.</p>
+</div>
+</details>
+<h2 id="problems">Problems</h2>
+<h3 id="problem-1-a-function-that-defeats-the-limit-test">Problem 1: a
+function that defeats the limit test</h3>
+<div class="q">
+<p><strong>(a)</strong> Let <span class="math inline">f(n)=n(2+\sin
+n)</span> and <span class="math inline">g(n)=n</span>. Does <span
+class="math inline">\lim f/g</span> exist? Which of <span
+class="math inline">O</span>, <span class="math inline">\Omega</span>,
+<span class="math inline">\Theta</span> relate <span
+class="math inline">f</span> and <span class="math inline">g</span>?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">f/g=2+\sin n</span> oscillates between 1
+and 3, so the limit does not exist. But <span class="math inline">1\cdot
+g\le f\le 3g</span> for all <span class="math inline">n\ge1</span>, so
+<span class="math inline">f=\Theta(g)</span> with <span
+class="math inline">c_1=1</span>, <span
+class="math inline">c_2=3</span>, <span
+class="math inline">n_0=1</span>. The limit test only fails to
+<strong>decide</strong>; it does not say the relation is false.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Now <span class="math inline">f(n)=n^{1+\sin
+n}</span> (an exponent that oscillates) and <span
+class="math inline">g(n)=n</span>. Is <span
+class="math inline">f=O(g)</span>? Is <span
+class="math inline">f=\Omega(g)</span>?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Neither. When <span class="math inline">\sin n</span> is close to 1,
+<span class="math inline">f\approx n^2</span>, which beats every <span
+class="math inline">c\,n</span>. When <span class="math inline">\sin
+n</span> is close to <span class="math inline">-1</span>, <span
+class="math inline">f\approx n^0=1</span>, which falls below every <span
+class="math inline">c\,n</span>. Since <span
+class="math inline">n</span> takes values arbitrarily close to both
+extremes infinitely often, no <span class="math inline">c,n_0</span>
+work in either direction. This is the “two functions that cannot be
+compared” case of Tutorial 1.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(c)</strong> Link to sorting: insertion sort runs on an array
+with exactly <span class="math inline">k</span> inversions. State its
+running time in terms of <span class="math inline">n</span> and <span
+class="math inline">k</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">\Theta(n+k)</span>. It makes one pass for
+the <span class="math inline">n-1</span> outer iterations plus exactly
+<span class="math inline">k</span> swaps. So it is linear when <span
+class="math inline">k=O(n)</span> (“nearly sorted”) and quadratic when
+<span class="math inline">k=\Theta(n^2)</span>. This is why insertion
+sort is used for small or almost-sorted arrays.</p>
+</div>
+</details>
+<h2 id="past-year-questions">Past-year questions</h2>
+<p>Questions from past papers (SC2001/CZ2101/CE2001). Every answer was
+worked out and checked by code; where a circulated official solution
+exists it was compared, and disagreements are flagged.</p>
+<div class="q">
+<p><strong>AY24/25 S2 1(a)</strong> To sort the input array into
+ascending order, give the number of key comparisons and the number of
+swaps made by in-place Insertion Sort (lecture version). (i) The input
+array is <span class="math inline">[1,2,3,4,5,6]</span>. (ii) The input
+array is <span class="math inline">[1,2,1,2,1,2]</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Lecture code: for each <span class="math inline">i</span>, swap
+<code>slot[j]</code> with <code>slot[j-1]</code> while
+<code>slot[j] &lt; slot[j-1]</code>; stop at the first comparison that
+fails (or when <span class="math inline">j=0</span>). Each comparison
+counts once, and each swap happens only when its comparison is true.</p>
+<ul>
+<li><strong>(i) 5 comparisons, 0 swaps.</strong> Each of the 5 keys is
+compared once with its left neighbour, which is smaller, so the loop
+stops at once.</li>
+<li><strong>(ii) 8 comparisons, 3 swaps.</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th>key</th>
+<th>array after the step</th>
+<th>comparisons</th>
+<th>swaps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>1 2 1 2 1 2</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>1 1 2 2 1 2</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>1 1 2 2 1 2</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1</td>
+<td>1 1 1 2 2 2</td>
+<td>3</td>
+<td>2</td>
+</tr>
+<tr>
+<td>5</td>
+<td>2</td>
+<td>1 1 1 2 2 2</td>
+<td>1</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>Equal keys never swap (the test is strict), so the duplicates also
+show that insertion sort is stable.</p>
+<p><strong>Link.</strong> Swaps <span class="math inline">=</span>
+number of inversions: <span class="math inline">[1,2,1,2,1,2]</span> has
+exactly 3 pairs out of order (the 2 at index 1 with the 1s at indices 2
+and 4, and the 2 at index 3 with the 1 at index 4). Comparisons <span
+class="math inline">=</span> swaps <span class="math inline">+</span>
+one failing comparison per key that does not reach the front, here <span
+class="math inline">3+5=8</span>. Both counts come from the inversion
+count, which mergesort can also compute (see the mixed page).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S2 1(a)</strong> Consider the in-place Insertion Sort
+algorithm taught in the lecture. (i) If the input array has <span
+class="math inline">n</span> elements, how many key comparisons are
+required exactly for the <strong>best</strong> case? (ii) … exactly for
+the <strong>worst</strong> case? (iii) … exactly for the
+<strong>average</strong> case?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Lecture code: for each <span class="math inline">i=1..n-1</span>,
+swap <code>slot[j]</code> with <code>slot[j-1]</code> while
+<code>slot[j] &lt; slot[j-1]</code>, starting at <span
+class="math inline">j=i</span>; stop at the first failing comparison or
+when <span class="math inline">j=0</span>. Every test counts as one
+comparison.</p>
+<ul>
+<li><strong>(i) Best: <span class="math inline">n-1</span>.</strong>
+Sorted input: each key is compared once with its left neighbour and
+stays.</li>
+<li><strong>(ii) Worst: <span
+class="math inline">n(n-1)/2</span>.</strong> Reversed input: key <span
+class="math inline">i</span> travels all the way to the front, making
+<span class="math inline">i</span> comparisons (it never fails, since it
+stops at <span class="math inline">j=0</span> without a test): <span
+class="math inline">1+2+\dots+(n-1)</span>.</li>
+<li><strong>(iii) Average: <span
+class="math inline">\dfrac{n^2+3n}{4}-H_n\approx\dfrac{n^2}4</span></strong>,
+where <span class="math inline">H_n=1+\frac12+\dots+\frac1n</span>.</li>
+</ul>
+<p><em>Derivation of (iii).</em> Comparisons <span
+class="math inline">=</span> swaps <span class="math inline">+</span>
+(one failing comparison for every key that does <strong>not</strong>
+reach the front).</p>
+<ol type="1">
+<li>Swaps <span class="math inline">=</span> number of inversions. Each
+of the <span class="math inline">\binom n2</span> pairs is inverted with
+probability <span class="math inline">\frac12</span>, so the average is
+<span class="math inline">\frac{n(n-1)}4</span>.</li>
+<li>Key <span class="math inline">i</span> (0-indexed, <span
+class="math inline">i\ge1</span>) reaches the front exactly when it is
+smaller than all <span class="math inline">i</span> keys before it,
+which has probability <span class="math inline">\frac1{i+1}</span>. The
+expected number of such keys is <span
+class="math inline">\sum_{i=1}^{n-1}\frac1{i+1}=H_n-1</span>.</li>
+<li>So the average is <span
+class="math inline">\frac{n(n-1)}4+(n-1)-(H_n-1)=\frac{n(n-1)}4+n-H_n=\frac{n^2+3n}4-H_n</span>.</li>
+</ol>
+<p>Checked against all <span class="math inline">n!</span> permutations
+for <span class="math inline">n=2..8</span> (for example <span
+class="math inline">n=6</span>: 11.05, <span
+class="math inline">n=8</span>: 19.28). If your course counts “swaps
+<span class="math inline">+\,(n-1)</span>” and ignores the early stop at
+the front, the average is <span
+class="math inline">\frac{n(n-1)}4+n-1</span>; both are <span
+class="math inline">\Theta(n^2)</span>, about <span
+class="math inline">n^2/4</span>.</p>
+<p><strong>Link.</strong> Best, average and worst are <span
+class="math inline">n-1</span>, <span class="math inline">\approx
+n^2/4</span> and <span class="math inline">n^2/2</span>: the average is
+<strong>exactly half</strong> the worst to first order, because a random
+pair is inverted with probability <span
+class="math inline">\tfrac12</span>. The same inversion count controls
+bubble sort’s swaps (see AY2324 S1 1(b)).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S1 1(a)(i)</strong> True or False? Suppose we run
+Insertion Sort on <span class="math inline">N</span> elements. If we use
+an “insert” operation on a linked list instead of “swap” on continuous
+memory, we can achieve better than <span
+class="math inline">O(N^2)</span> time complexity.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A linked list makes the <em>move</em> cheap:
+once the position is known, the key is linked in with <span
+class="math inline">O(1)</span> work and nothing is shifted. But the
+algorithm must still <strong>find</strong> the position by comparing the
+key with the sorted part one key at a time, because a list has no random
+access (binary search is impossible). That costs <span
+class="math inline">\sum_{i=1}^{N-1} i=N(N-1)/2</span> comparisons in
+the worst case and about <span class="math inline">N^2/4</span> on
+average, so the total is still <span
+class="math inline">\Theta(N^2)</span>.</p>
+<p><strong>Link.</strong> Insertion sort pays for
+<strong>finding</strong> the place plus <strong>making room</strong>. An
+array can binary-search the place (<span class="math inline">O(\lg
+i)</span>) but must shift (<span class="math inline">O(i)</span>). A
+linked list inserts in <span class="math inline">O(1)</span> but must
+scan (<span class="math inline">O(i)</span>). One of the two is always
+linear, so both are <span class="math inline">\Theta(N^2)</span>. Only a
+structure where both are logarithmic (a heap or a balanced tree) breaks
+the barrier. That is the idea of heapsort.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S1 1(b)</strong> Use big-<span
+class="math inline">O</span> notation to analyse the sorting algorithm
+<code>bubbleSort</code> in Figure Q1. (i) What is the best-case time
+complexity in terms of the “swap” operation? When does the best case
+happen? (ii) What are the best-case, average-case and worst-case time
+complexities in terms of the number of comparisons?</p>
+<figure>
+<img src="img/pyp/2324s1_q1.png"
+alt="Figure Q1 (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1 (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Each pass of the <code>for</code> loop bubbles the largest remaining
+key to the end, so <code>n = n-1</code> shrinks the range by one. The
+<code>repeat</code> loop stops after the first pass that makes no
+swap.</p>
+<p><strong>(i) <span class="math inline">O(1)</span>, in fact exactly 0
+swaps.</strong> It happens when the input is <strong>already
+sorted</strong>: the first pass finds no
+<code>arr[i-1] &gt; arr[i]</code>, <code>swapped</code> stays false, and
+the loop ends. (Swaps always equal the number of inversions, so 0 swaps
+means sorted.)</p>
+<p><strong>(ii)</strong></p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>case</th>
+<th>input</th>
+<th>comparisons</th>
+<th>complexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>best</td>
+<td>sorted: one pass</td>
+<td><span class="math inline">n-1</span></td>
+<td><span class="math inline">O(n)</span></td>
+</tr>
+<tr>
+<td>worst</td>
+<td>reversed: every pass swaps; pass <span class="math inline">p</span>
+makes <span class="math inline">n-p</span> comparisons</td>
+<td><span
+class="math inline">(n-1)+(n-2)+\dots+1=\dfrac{n(n-1)}2</span></td>
+<td><span class="math inline">O(n^2)</span></td>
+</tr>
+<tr>
+<td>average</td>
+<td>random order</td>
+<td>between those two; see below</td>
+<td><span class="math inline">O(n^2)</span> (in fact <span
+class="math inline">\Theta(n^2)</span>)</td>
+</tr>
+</tbody>
+</table>
+<p><em>Why the average is quadratic.</em> Each pass reduces by exactly 1
+the count of larger keys to the left of every key, so the number of
+passes is <span class="math inline">1+\max_j L_j</span>, where <span
+class="math inline">L_j</span> is that count for key <span
+class="math inline">j</span> (checked for all permutations of up to 7
+keys). In a random permutation <span class="math inline">L_n</span> for
+the last position is uniform on <span
+class="math inline">0,\dots,n-1</span>, so with probability at least
+<span class="math inline">\tfrac12</span> there are more than <span
+class="math inline">n/2</span> passes. Each of the first <span
+class="math inline">n/2</span> passes makes at least <span
+class="math inline">n/2</span> comparisons. So the cost is at least
+<span class="math inline">n^2/4</span> with probability at least <span
+class="math inline">\tfrac12</span>, and the average is <span
+class="math inline">\Omega(n^2)</span>. With the <span
+class="math inline">O(n^2)</span> worst case this gives <span
+class="math inline">\Theta(n^2)</span>. Exact averages over all inputs:
+13.88 comparisons for <span class="math inline">n=6</span> (worst 15)
+and 26.0 for <span class="math inline">n=8</span> (worst 28).</p>
+<p>(The circulated solution writes the worst case as <span
+class="math inline">n(n-1)</span>. That forgets the line
+<code>n = n-1</code>; the correct count is <span
+class="math inline">n(n-1)/2</span>. The big-<span
+class="math inline">O</span> is the same.)</p>
+<p><strong>Link.</strong> Bubble sort and insertion sort make the
+<strong>same number of swaps</strong> on every input (both equal the
+number of inversions). Bubble sort compares more: averaged over all 8!
+inputs of 8 keys, 26.0 comparisons against 19.3 for the lecture
+insertion sort, because bubble sort keeps scanning the sorted tail while
+insertion sort stops at the first smaller key. Both are <span
+class="math inline">\Theta(n)</span> on sorted input and <span
+class="math inline">\Theta(n^2)</span> otherwise. Code:
+<code>verify/v_pyp_2324.py</code>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 1(a)</strong> Consider the in-place Insertion Sort
+algorithm taught in the lecture. (i) If the input array has <span
+class="math inline">n</span> elements, how many iterations (of the outer
+loop) are needed to sort the input array in ascending order? (ii) What
+are the time complexities, in big-<span class="math inline">O</span>,
+for the best, worst and average cases? (iii) If the input array <span
+class="math inline">A</span> has seven elements <span
+class="math inline">1,3,5,7,2,4,6</span>, what is the order of the
+elements to be the best case? What is the order to be the worst case?
+Give an example of the order for the two cases.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) <span class="math inline">n-1</span>.</strong> The outer
+loop runs <span class="math inline">i=1,2,\dots,n-1</span> (the first
+element is already a sorted prefix of length 1), whatever the input.</p>
+<p><strong>(ii)</strong> Best case <span class="math inline">O(n)</span>
+(sorted input: <span class="math inline">n-1</span> comparisons, no
+swaps). Worst case <span class="math inline">O(n^2)</span> (reversed
+input: <span class="math inline">n(n-1)/2</span> comparisons and swaps).
+Average case <span class="math inline">O(n^2)</span> (about <span
+class="math inline">n^2/4</span> swaps, each pair being inverted with
+probability <span class="math inline">\tfrac12</span>).</p>
+<p><strong>(iii)</strong> The seven keys are <span
+class="math inline">\{1,2,3,4,5,6,7\}</span>.</p>
+<ul>
+<li><strong>Best case:</strong> already <strong>ascending</strong>:
+<span class="math inline">[1,2,3,4,5,6,7]</span>, with 6 comparisons and
+0 swaps.</li>
+<li><strong>Worst case:</strong> <strong>descending</strong>: <span
+class="math inline">[7,6,5,4,3,2,1]</span>, with 21 comparisons and 21
+swaps.</li>
+</ul>
+<p>For reference the given order <span
+class="math inline">[1,3,5,7,2,4,6]</span> needs 12 comparisons and 6
+swaps (it has 6 inversions: each of 3, 5 and 7 is above the 2, and 5 and
+7 are above the 4, and 7 is above the 6, making 3+2+1=6) (checked by
+code).</p>
+<p><strong>Link.</strong> The count of outer iterations is fixed (<span
+class="math inline">n-1</span>); what varies is the inner loop, from 1
+test per key to <span class="math inline">i</span> tests per key. Best
+and worst correspond to 0 and <span class="math inline">\binom n2</span>
+inversions. See the average-case formula <span
+class="math inline">\frac{n^2+3n}4-H_n</span> on the AY2324 S2 1(a)
+answer.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S1 1(a)</strong> Consider an input array <span
+class="math inline">A=[7,2,5,6,3,1,4]</span> to be sorted in ascending
+order with the in-place Insertion Sort algorithm taught in the lecture.
+(i) How many key comparisons are required? (ii) How many swaps are
+required? (iii) Rearrange the elements of <span
+class="math inline">A</span> so that Insertion Sort needs the
+<strong>minimum</strong> number of key comparisons. What is this
+minimum? (iv) Rearrange the elements so that it needs the
+<strong>maximum</strong> number of key comparisons. What is this
+maximum?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Lecture code: for each <span class="math inline">i=1..n-1</span>,
+swap <code>A[j]</code> with <code>A[j-1]</code> while
+<code>A[j] &lt; A[j-1]</code>, starting at <span
+class="math inline">j=i</span>. Every test counts as one comparison, and
+the loop stops at the first failing test or when <span
+class="math inline">j=0</span>.</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th>key</th>
+<th>array after the pass</th>
+<th>comparisons</th>
+<th>swaps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>2 7 5 6 3 1 4</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>5</td>
+<td>2 5 7 6 3 1 4</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>6</td>
+<td>2 5 6 7 3 1 4</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>3</td>
+<td>2 3 5 6 7 1 4</td>
+<td>4</td>
+<td>3</td>
+</tr>
+<tr>
+<td>5</td>
+<td>1</td>
+<td>1 2 3 5 6 7 4</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>6</td>
+<td>4</td>
+<td>1 2 3 4 5 6 7</td>
+<td>4</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>(i) 18 comparisons.</strong> <strong>(ii) 14
+swaps.</strong></p>
+<p><strong>(iii) 6</strong> comparisons (<span
+class="math inline">n-1</span>), for the <strong>sorted</strong> array
+<span class="math inline">[1,2,3,4,5,6,7]</span>: each key is compared
+once with its left neighbour and stays.</p>
+<p><strong>(iv) 21</strong> comparisons (<span
+class="math inline">n(n-1)/2</span>), for the <strong>reversed</strong>
+array <span class="math inline">[7,6,5,4,3,2,1]</span>: key <span
+class="math inline">i</span> travels to the front and makes <span
+class="math inline">i</span> comparisons (<span
+class="math inline">1+2+\dots+6=21</span>).</p>
+<p><strong>Link.</strong> Swaps <span class="math inline">=</span>
+inversions: <span class="math inline">[7,2,5,6,3,1,4]</span> has exactly
+14 pairs out of order. Comparisons <span class="math inline">=</span>
+swaps <span class="math inline">+</span> one failing test for each key
+that does <strong>not</strong> reach the front. Here two keys (2 and 1)
+reach the front, so <span class="math inline">14+(7-1)-2=18</span>. Best
+and worst correspond to 0 and <span class="math inline">\binom n2</span>
+inversions.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S2 1(a)(i)</strong> Consider an input array <span
+class="math inline">A=[8,1,4,5,1,9,2,5]</span>. How many key comparisons
+and swaps are performed respectively when running Insertion Sort on
+<span class="math inline">A</span>?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Lecture code: for <span class="math inline">i=1..n-1</span>, swap
+<code>A[j]</code> with <code>A[j-1]</code> while
+<code>A[j] &lt; A[j-1]</code>, starting at <span
+class="math inline">j=i</span>; stop at the first failing test or at
+<span class="math inline">j=0</span>. Each test counts as one
+comparison.</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th>key</th>
+<th>array after the pass</th>
+<th>comparisons</th>
+<th>swaps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>1 8 4 5 1 9 2 5</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>4</td>
+<td>1 4 8 5 1 9 2 5</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>5</td>
+<td>1 4 5 8 1 9 2 5</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1</td>
+<td>1 1 4 5 8 9 2 5</td>
+<td>4</td>
+<td>3</td>
+</tr>
+<tr>
+<td>5</td>
+<td>9</td>
+<td>1 1 4 5 8 9 2 5</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>6</td>
+<td>2</td>
+<td>1 1 2 4 5 8 9 5</td>
+<td>5</td>
+<td>4</td>
+</tr>
+<tr>
+<td>7</td>
+<td>5</td>
+<td>1 1 2 4 5 5 8 9</td>
+<td>3</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p><strong>18 comparisons and 12 swaps.</strong> The equal keys never
+swap past each other (the test is strict): in pass 4 the second 1 stops
+when it meets the first 1 (it moves past 8, 5 and 4 but not past the 1),
+and in pass 7 the last 5 stops behind the earlier 5.</p>
+<p><strong>Link.</strong> Swaps equal the number of inversions: <span
+class="math inline">[8,1,4,5,1,9,2,5]</span> has 12 pairs out of order
+(equal pairs do not count). Comparisons <span
+class="math inline">=</span> swaps <span class="math inline">+</span>
+one failing test per key that does not reach the front: <span
+class="math inline">12+7-1=18</span> (only the first key moved to the
+front, key 1 in pass 1).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S1 1(a)</strong> (MCQ, choose one) A weak point of
+the InsertionSort algorithm is: A. Perform poorly when the unordered
+list is almost sorted. B. When starting, some entries may not be in the
+final position. C. For a new insertion, movements for inserted entries
+in ordered list are always performed. D. When an entry is inserted, it
+may still not be in the final position. E. For a new insertion,
+movements for inserted entries in ordered list are not performed. F.
+When completed, some entries may still not be in the final position.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>D.</strong></p>
+<ul>
+<li>A false: insertion sort is <strong>good</strong> on an almost sorted
+list, about one comparison per key (<span class="math inline">\approx
+n</span> in total).</li>
+<li>B is true of any algorithm before it has finished, so it is not a
+weakness of this one.</li>
+<li>C false: if the new key is already at least as large as the end of
+the sorted part, nothing moves.</li>
+<li>D <strong>true</strong>: the sorted prefix is only <em>sorted</em>,
+not <em>final</em>. A later, smaller key pushes earlier keys one place
+to the right, so a key can move many times.</li>
+<li>E false: movements happen whenever the new key is smaller than its
+left neighbour.</li>
+<li>F false: when the algorithm has finished, every key is in its final
+position.</li>
+</ul>
+<p><strong>Link.</strong> Take <span class="math inline">[3,1,2]</span>:
+the 3 moves from index 0 to 1 when 1 is inserted, and moves again to
+index 2 when 2 is inserted. Contrast selection sort, which puts each key
+in its <strong>final</strong> place and never moves it again. This
+repeated movement is why insertion sort makes <span
+class="math inline">\Theta(n^2)</span> moves on reversed input, and why
+it is still the right tool when the input is nearly sorted (few keys
+have to move).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY19/20 S1 2(a)</strong> Insertion Sort is used to sort an
+input array <span class="math inline">A=[7,5,13,9,5,2,10]</span> in
+ascending order. How many key comparisons and swaps are performed
+respectively when the element “2” reaches the first position of the
+array?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Lecture insertion sort: swap <code>A[j]</code> with
+<code>A[j-1]</code> while <code>A[j] &lt; A[j-1]</code>. Passes <span
+class="math inline">i=1..5</span> bring the 2 to index 0:</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th>key</th>
+<th>array after the pass</th>
+<th>comparisons</th>
+<th>swaps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>5</td>
+<td>5 7 13 9 5 2 10</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td>13</td>
+<td>5 7 13 9 5 2 10</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>3</td>
+<td>9</td>
+<td>5 7 9 13 5 2 10</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>5</td>
+<td>5 5 7 9 13 2 10</td>
+<td>4</td>
+<td>3</td>
+</tr>
+<tr>
+<td>5</td>
+<td>2</td>
+<td>2 5 5 7 9 13 10</td>
+<td>5</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>13 comparisons and 10 swaps</strong> when the 2 reaches the
+front. (In pass 4 the second 5 stops behind the first 5, because the
+test is strict; in pass 5 the 2 passes everything and stops at index 0
+without a further test.) The remaining pass (<span
+class="math inline">i=6</span>, key 10) is not counted.</p>
+<p><strong>Link.</strong> The 5 swaps of key 2 are the 5 keys before it
+that are larger (7, 5, 13, 9, 5). Over the whole array swaps equal the
+inversions: 10 for the first five passes, plus 1 for the 10 passed by
+the 13: 11 in total.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S2 1(a)</strong> Let <span
+class="math inline">f(n)=10^n</span> and <span
+class="math inline">g(n)=n!</span>, where <span
+class="math inline">n</span> is a positive integer. State whether <span
+class="math inline">f</span> is in <span
+class="math inline">O(g)</span>; whether <span
+class="math inline">f</span> is in <span
+class="math inline">\Omega(g)</span>; and whether <span
+class="math inline">f</span> is in <span
+class="math inline">\Theta(g)</span>. Justify your answers.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Compare the growth with the ratio <span
+class="math display">\frac{f(n)}{g(n)}=\frac{10^n}{n!}=\frac{10}1\cdot\frac{10}2\cdot\frac{10}3\cdots\frac{10}n.</span>
+The first ten factors are at least 1 (<span
+class="math inline">\frac{10}j\ge1</span> for <span
+class="math inline">j\le10</span>), but from <span
+class="math inline">j=11</span> on each factor is below 1, and for <span
+class="math inline">j\ge20</span> each factor is at most <span
+class="math inline">\frac12</span>. So for <span
+class="math inline">n&gt;20</span> <span
+class="math display">\frac{10^n}{n!}=\frac{10^{20}}{20!}\prod_{j=21}^{n}\frac{10}j\le\frac{10^{20}}{20!}\Big(\frac12\Big)^{n-20}\longrightarrow0.</span>
+(The ratio rises to its maximum <span
+class="math inline">\approx2756</span> at <span
+class="math inline">n=9</span> and <span class="math inline">n=10</span>
+and then falls: 41.1 at <span class="math inline">n=20</span>, 0.0038 at
+<span class="math inline">n=30</span>.)</p>
+<ul>
+<li><strong><span class="math inline">f\in O(g)</span>: true.</strong>
+The ratio tends to 0, so it is bounded: <span
+class="math inline">10^n\le c\cdot n!</span> for all <span
+class="math inline">n\ge1</span> with <span
+class="math inline">c=2756</span> (its maximum).</li>
+<li><strong><span class="math inline">f\in\Omega(g)</span>:
+false.</strong> <span class="math inline">10^n\ge c\,n!</span> would
+need the ratio to stay above <span class="math inline">c&gt;0</span>,
+but it tends to 0.</li>
+<li><strong><span class="math inline">f\in\Theta(g)</span>:
+false</strong>, since <span class="math inline">\Omega</span>
+fails.</li>
+</ul>
+<p><strong>Link.</strong> The factorial beats <strong>every</strong>
+exponential <span class="math inline">c^n</span> (the factors <span
+class="math inline">c/j</span> eventually go below 1), but the crossover
+can be late: here 10 and the maximum is at <span
+class="math inline">n=10</span>. Exponentials are not “one level”: <span
+class="math inline">2^n\ll3^n\ll n!\ll n^n</span>. Compare AY1819 S1
+2(a)(ii), where the exponentials <span
+class="math inline">a^{n+1}</span> and <span
+class="math inline">(a+1)^n</span> have a limit 0 for the same
+reason.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S1 1(a)</strong> State TRUE or FALSE for each of the
+following statements. (i) If <span class="math inline">f(n)\in
+O(g(n))</span>, <span class="math inline">f(n)</span> is bounded above
+by the function <span class="math inline">g(n)</span>. (ii) If <span
+class="math inline">f(n)\in\Omega(g(n))</span> and <span
+class="math inline">g(n)\in\Omega(f(n))</span>, then <span
+class="math inline">f(n)\in\Theta(g(n))</span>. (iii) The best-case time
+complexity of binary search is <span class="math inline">\Theta(\log
+n)</span>. (iv) The worst-case time complexity of inserting a new item
+into a hash table using chained hashing is <span
+class="math inline">n</span>, where <span class="math inline">n</span>
+is the number of items in the hash table. (v) If any NP-complete problem
+is in P, we have P=NP.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) True</strong>, in the sense of the definition: <span
+class="math inline">f(n)\le c\,g(n)</span> for some constant <span
+class="math inline">c&gt;0</span> and all <span class="math inline">n\ge
+n_0</span>. (Strictly, “bounded above by <span
+class="math inline">g</span>” hides the constant <span
+class="math inline">c</span> and the threshold <span
+class="math inline">n_0</span>.)</p>
+<p><strong>(ii) True.</strong> <span
+class="math inline">g\in\Omega(f)</span> means <span
+class="math inline">g(n)\ge c_1f(n)</span> for large <span
+class="math inline">n</span>, i.e. <span
+class="math inline">f(n)\le\frac1{c_1}g(n)</span>, so <span
+class="math inline">f\in O(g)</span>. Together with <span
+class="math inline">f\in\Omega(g)</span> this is <span
+class="math inline">f\in\Theta(g)</span>.</p>
+<p><strong>(iii) False.</strong> The best case of binary search is <span
+class="math inline">\Theta(1)</span>: the key is the middle element and
+is found at the first probe. <span class="math inline">\Theta(\log
+n)</span> is the worst and the average case. (The circulated solution
+marks (iii) as True. That is correct only for a version of binary search
+that never stops early and always narrows the range to one element; the
+lecture’s analysis, <span class="math inline">W(n)=W(n/2)+2</span>, is
+for the worst case.)</p>
+<p><strong>(iv) True</strong> (hash tables are <strong>not in your
+course</strong>). If the insertion first checks that the key is absent,
+the whole chain must be scanned; in the worst case all <span
+class="math inline">n</span> items hash to the same slot, so the chain
+has <span class="math inline">n</span> items: <span
+class="math inline">\Theta(n)</span>. (If duplicates are not checked,
+inserting at the head of the chain is <span
+class="math inline">O(1)</span>.)</p>
+<p><strong>(v) True.</strong> Every problem in NP reduces to an
+NP-complete problem in polynomial time. If that problem is solvable in
+polynomial time, then so is every problem in NP, so NP <span
+class="math inline">\subseteq</span> P, and P <span
+class="math inline">\subseteq</span> NP always holds.</p>
+<p><strong>Link.</strong> Statement (ii) is the symmetric
+characterisation of <span class="math inline">\Theta</span>: <span
+class="math inline">f\in\Theta(g)</span> exactly when each bounds the
+other from above (equivalently each from below). Statement (v) is the
+reason all NP-complete problems stand or fall together (AY2324 S2
+4(b)(ii)).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S1 2(a)</strong> For each of the following pairs of
+functions <span class="math inline">f(n)</span> and <span
+class="math inline">g(n)</span>, show <strong>with a formal
+justification</strong> whether <span class="math inline">f</span> is in
+<span class="math inline">O(g)</span>, whether <span
+class="math inline">f</span> is in <span
+class="math inline">\Omega(g)</span> and whether <span
+class="math inline">f</span> is in <span
+class="math inline">\Theta(g)</span>. (i) <span
+class="math inline">f(n)=\log_2n</span>, <span
+class="math inline">g(n)=\log_4(n^2)</span>. (ii) <span
+class="math inline">f(n)=a^{n+1}</span>, <span
+class="math inline">g(n)=(a+1)^n</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> <span
+class="math inline">g(n)=\log_4(n^2)=2\log_4n=2\cdot\dfrac{\log_2n}{\log_24}=2\cdot\dfrac{\log_2n}2=\log_2n=f(n)</span>.
+So <span class="math inline">f(n)=g(n)</span> for all <span
+class="math inline">n</span>, and with <span
+class="math inline">c=1</span>, <span class="math inline">n_0=1</span>
+both <span class="math inline">f\le g</span> and <span
+class="math inline">f\ge g</span> hold. <strong><span
+class="math inline">f\in O(g)</span>: true. <span
+class="math inline">f\in\Omega(g)</span>: true. <span
+class="math inline">f\in\Theta(g)</span>: true.</strong></p>
+<p><strong>(ii)</strong> Take <span class="math inline">a</span> to be a
+positive constant. Then <span
+class="math display">\frac{f(n)}{g(n)}=\frac{a\cdot
+a^n}{(a+1)^n}=a\Big(\frac
+a{a+1}\Big)^n\longrightarrow0\quad(n\to\infty),</span> because <span
+class="math inline">0&lt;\frac a{a+1}&lt;1</span>.</p>
+<ul>
+<li><span class="math inline">f\in O(g)</span>: <strong>true.</strong>
+With <span class="math inline">c=a</span> and <span
+class="math inline">n_0=1</span>: <span
+class="math inline">a^{n+1}=a\cdot a^n\le a\,(a+1)^n</span>.</li>
+<li><span class="math inline">f\in\Omega(g)</span>:
+<strong>false.</strong> Suppose <span class="math inline">f(n)\ge
+c\,g(n)</span> for some <span class="math inline">c&gt;0</span> and all
+large <span class="math inline">n</span>. Then <span
+class="math inline">a(\frac a{a+1})^n\ge c</span>, which fails once
+<span class="math inline">n&gt;\log_{(a+1)/a}(a/c)</span>, since the
+left side tends to 0.</li>
+<li><span class="math inline">f\in\Theta(g)</span>:
+<strong>false</strong>, since <span class="math inline">\Omega</span>
+fails.</li>
+</ul>
+<p><strong>Link.</strong> Both parts reduce to one rule: look at the
+<strong>limit of <span class="math inline">f/g</span></strong>. A limit
+of a positive constant gives <span class="math inline">\Theta</span>
+(here (i), the limit is 1); a limit of 0 gives <span
+class="math inline">O</span> but not <span
+class="math inline">\Omega</span> (here (ii)); a limit of <span
+class="math inline">\infty</span> gives the reverse. The base of an
+exponential matters (<span class="math inline">a^n</span> versus <span
+class="math inline">(a+1)^n</span>), the base of a logarithm does
+not.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S1 3(a)</strong> Consider an input array <span
+class="math inline">A=[4,18,7,34,7,2]</span>. How many key comparisons
+and swaps are performed respectively when Insertion Sort is used to sort
+<span class="math inline">A</span> in non-decreasing order?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Lecture insertion sort (swap while <code>A[j] &lt; A[j-1]</code>,
+stop at the first failing test or at index 0):</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th>key</th>
+<th>array after the pass</th>
+<th>comparisons</th>
+<th>swaps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>18</td>
+<td>4 18 7 34 7 2</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>7</td>
+<td>4 7 18 34 7 2</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>34</td>
+<td>4 7 18 34 7 2</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>4</td>
+<td>7</td>
+<td>4 7 7 18 34 2</td>
+<td>3</td>
+<td>2</td>
+</tr>
+<tr>
+<td>5</td>
+<td>2</td>
+<td>2 4 7 7 18 34</td>
+<td>5</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<p><strong>12 comparisons and 8 swaps.</strong> In pass 4 the second 7
+stops behind the first 7 (strict test, so the equal keys are not
+swapped). In pass 5 the key 2 passes five larger keys (34, 18, 7, 7, 4),
+which is 5 swaps and no failing test because it reaches index 0.</p>
+<p>(The circulated solution gives 7 swaps by counting 4 swaps in pass 5.
+The correct number is 8, which also equals the number of inversions of
+<span class="math inline">A</span>: <span
+class="math inline">(4,2)</span>, <span
+class="math inline">(18,7)</span>, <span
+class="math inline">(18,7)</span>, <span
+class="math inline">(18,2)</span>, <span
+class="math inline">(7,2)</span>, <span
+class="math inline">(34,7)</span>, <span
+class="math inline">(34,2)</span>, <span
+class="math inline">(7,2)</span>.)</p>
+<p><strong>Link.</strong> Comparisons <span class="math inline">=</span>
+swaps <span class="math inline">+</span> one failing test per key that
+does not reach the front <span class="math inline">=8+5-1=12</span>
+(only the key 2 reaches the front). The equal keys 7 keep their original
+order, so the sort is stable.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY17/18 S1 2(a)</strong> For each of the following pairs of
+functions <span class="math inline">f(n)</span> and <span
+class="math inline">g(n)</span>, show with a brief justification whether
+<span class="math inline">f</span> is in <span
+class="math inline">O(g)</span>, whether <span
+class="math inline">f</span> is in <span
+class="math inline">\Omega(g)</span> and whether <span
+class="math inline">f</span> is in <span
+class="math inline">\Theta(g)</span>. (i) <span
+class="math inline">f(n)=\log_2n</span>; <span
+class="math inline">g(n)=\log_4(n^4+n)</span>. (ii) <span
+class="math inline">f(n)=2^n</span>; <span
+class="math inline">g(n)=3^{n/2}</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> <span
+class="math inline">g(n)=\log_4(n^4+n)=\log_4\!\big(n^4(1+n^{-3})\big)=4\log_4n+\log_4(1+n^{-3})=2\log_2n+o(1)</span>.
+Hence <span
+class="math display">\frac{f(n)}{g(n)}=\frac{\log_2n}{2\log_2n+o(1)}\longrightarrow\frac12.</span>
+A positive constant limit means <span
+class="math inline">f\in\Theta(g)</span>: <strong><span
+class="math inline">O</span> true, <span
+class="math inline">\Omega</span> true, <span
+class="math inline">\Theta</span> true.</strong> (Numerically 0.4999,
+0.5, 0.5, 0.5 for <span
+class="math inline">n=10,10^3,10^6,10^{12}</span>.)</p>
+<p><strong>(ii)</strong> <span
+class="math inline">g(n)=3^{n/2}=(\sqrt3)^n\approx1.732^n</span>, so
+<span
+class="math display">\frac{f(n)}{g(n)}=\Big(\frac2{\sqrt3}\Big)^n\longrightarrow\infty,</span>
+because <span
+class="math inline">\frac2{\sqrt3}\approx1.155&gt;1</span>. So <span
+class="math inline">f</span> grows faster: <strong><span
+class="math inline">O</span> false, <span
+class="math inline">\Omega</span> true, <span
+class="math inline">\Theta</span> false.</strong></p>
+<p><strong>Link.</strong> The same recipe as AY1819 S1 2(a): take the
+limit of <span class="math inline">f/g</span>. In (ii) the trap is the
+exponent <span class="math inline">n/2</span>: <span
+class="math inline">3^{n/2}</span> is <em>smaller</em> than <span
+class="math inline">2^n</span> (since <span
+class="math inline">\sqrt3&lt;2</span>), although “3 is bigger than
+2”.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY17/18 S1 3(a)</strong> Suppose our goal is to sort an array
+in ascending order, and in the input array <span
+class="math inline">A</span> of size 600 there are no more than 10
+inversions, i.e. pairs of array indices <span
+class="math inline">(i,j)</span> such that <span
+class="math inline">i&lt;j</span> and <span
+class="math inline">A[i]&gt;A[j]</span>. Which of the sorting algorithms
+learnt in the lectures would you use to sort array <span
+class="math inline">A</span>? Briefly justify your answer.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Insertion Sort.</strong> Insertion sort does one swap per
+inversion and one extra failing comparison per key, so <span
+class="math display">\text{comparisons}\le(\text{inversions})+(n-1)\le10+599=609,\qquad\text{swaps}=\text{inversions}\le10.</span>
+That is <span class="math inline">O(n+I)</span> with <span
+class="math inline">I\le10</span> the number of inversions,
+i.e. <strong><span class="math inline">O(n)</span></strong> here. The
+other sorts cost <span class="math inline">\Theta(n\log n)</span>
+(mergesort, heapsort, average quicksort: about <span
+class="math inline">600\cdot9.2\approx5500</span> comparisons) or can be
+<span class="math inline">\Theta(n^2)</span> (quicksort’s worst case).
+Tested on 300 random arrays of 600 keys with 10 adjacent swaps: the
+maximum was exactly 609 comparisons.</p>
+<p><strong>Link.</strong> Insertion sort’s cost depends on the
+<strong>number of inversions</strong>, which is the measure of “how
+unsorted”; that is why it is excellent on almost-sorted data and the
+right <em>finishing</em> pass inside faster sorts. Compare AY2425 S2
+1(a).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY17/18 S1 3(d)</strong> A sorting algorithm is called
+<em>stable</em> if elements of equal keys remain their original order
+after being sorted by the algorithm. For each of the three sorting
+algorithms (i.e. Insertion sort, Mergesort and Quicksort), decide if it
+is stable. If you believe an algorithm is not stable, give an example to
+show that the order of two elements with equal keys is changed by the
+algorithm.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Insertion sort: stable.</strong> A key moves left only while
+it is <strong>strictly</strong> smaller than its left neighbour, so an
+equal key stops behind its twin.</li>
+<li><strong>Mergesort: stable with the usual merge</strong> (on equal
+heads take the left one first): equal keys never overtake each other and
+each half is stable by induction. This is the intended answer. Caveat:
+the lecture’s merge pseudocode takes one equal head from each half; with
+duplicates in the left half that can reorder them, e.g. <span
+class="math inline">[2_a,2_b,2_c]\to[2_a,2_c,2_b]</span> (see AY21/22 S2
+1(b)). If the question stresses “the algorithm learnt in lectures”,
+mention this.</li>
+<li><strong>Quicksort: not stable</strong>, because partitioning swaps
+keys that are far apart. Example with the lecture’s partition on <span
+class="math inline">[3,5,1_a,1_b]</span>: the middle element 5 is the
+pivot (swapped to the front: <span
+class="math inline">[5,3,1_a,1_b]</span>), the three smaller keys stay
+in order and the final swap of the pivot with <code>A[3]</code> gives
+<span class="math inline">[1_b,3,1_a,5]</span>. The two 1’s have changed
+order (<span class="math inline">1_b</span> before <span
+class="math inline">1_a</span>). (Checked by running the lecture
+partition.)</li>
+</ul>
+<p><strong>Link.</strong> What makes quicksort and heapsort unstable is
+the same: a swap over a <strong>distance</strong> jumps a key over equal
+keys in between. Insertion sort (adjacent swaps) and the stable merge
+never do. Radix sort needs the stable kind (Tutorial 3 Q2 and the links
+page, Problem 5).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY16/17 S2 1(a)</strong> State TRUE or FALSE for each of the
+following statements. (i) Given that <span class="math inline">f(n)\in
+O(g(n))</span>, we say that <span class="math inline">f(n)</span> is the
+asymptotic upper bound for <span class="math inline">g(n)</span>. (ii)
+If <span class="math inline">f(n)\in\Omega(g(n))</span>, then <span
+class="math inline">g(n)\in\Theta(f(n))</span>. (iii) Given <span
+class="math inline">f(n)=100n+3\log(n)</span>, then <span
+class="math inline">f(n)\in\Omega(n)</span>. (iv) The average time
+complexity of searching in a hash table using chained hashing is <span
+class="math inline">O(l)</span>, where <span
+class="math inline">l</span> is the load factor of the table. (v) If a
+problem is in NP, it cannot be solved by a deterministic algorithm in
+polynomial time.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) False.</strong> The roles are reversed: <span
+class="math inline">f\in O(g)</span> means <span
+class="math inline">g</span> is an asymptotic <strong>upper bound for
+<span class="math inline">f</span></strong>.</p>
+<p><strong>(ii) False.</strong> <span
+class="math inline">f\in\Omega(g)</span> only says <span
+class="math inline">g\in O(f)</span> (<span class="math inline">g</span>
+grows no faster than <span class="math inline">f</span>). <span
+class="math inline">g\in\Theta(f)</span> would need the reverse bound
+too. Counter-example: <span class="math inline">f=n^2</span>, <span
+class="math inline">g=n</span>: <span
+class="math inline">f\in\Omega(g)</span> but <span
+class="math inline">g\notin\Theta(f)</span>.</p>
+<p><strong>(iii) True.</strong> <span class="math inline">100n+3\log
+n\ge100n\ge n</span> for <span class="math inline">n\ge1</span> (with
+<span class="math inline">c=100</span>, <span
+class="math inline">n_0=1</span>; the log is positive).</p>
+<p><strong>(iv) True</strong> in the usual reading (hash tables are
+<strong>not in your course</strong>). With chaining and a good hash
+function the expected cost of a search is <span
+class="math inline">\Theta(1+l)</span>: the table lookup plus an
+expected chain of length <span class="math inline">l</span>. The common
+statement “<span class="math inline">O(l)</span>” is loose for <span
+class="math inline">l&lt;1</span> (the cost is at least a constant), so
+“<span class="math inline">O(1+l)</span>” is the precise form.</p>
+<p><strong>(v) False.</strong> Every problem in P is also in NP (<span
+class="math inline">P\subseteq NP</span>): a polynomial-time algorithm
+is its own verifier. What is not known is whether <em>all</em> NP
+problems can be solved in polynomial time.</p>
+<p><strong>Link.</strong> (i) and (ii) test the direction of the
+notation: <span class="math inline">f\in O(g)</span> reads “<span
+class="math inline">f</span> is at most <span
+class="math inline">g</span>”, <span class="math inline">\Omega</span>
+is the reverse, and <span class="math inline">\Theta</span> is both.
+Compare AY1819 S1 1(a)(ii), where <span
+class="math inline">\Omega</span> in both directions gave <span
+class="math inline">\Theta</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY16/17 S2 2(a)</strong> For each of the following pairs of
+functions <span class="math inline">f(n)</span> and <span
+class="math inline">g(n)</span>, show with a brief justification whether
+<span class="math inline">f</span> is in <span
+class="math inline">O(g)</span>, whether <span
+class="math inline">f</span> is in <span
+class="math inline">\Omega(g)</span> and whether <span
+class="math inline">f</span> is in <span
+class="math inline">\Theta(g)</span>. (i) <span
+class="math inline">f(n)=5n^2+\log_2n</span>; <span
+class="math inline">g(n)=(n^4+n^2+1)^{1/2}</span>. (ii) <span
+class="math inline">f(n)=3^n</span>; <span
+class="math inline">g(n)=3^{n/2}</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> <span
+class="math inline">g(n)=\sqrt{n^4+n^2+1}=n^2\sqrt{1+n^{-2}+n^{-4}}\sim
+n^2</span>. So <span
+class="math inline">\dfrac{f(n)}{g(n)}=\dfrac{5n^2+\log_2n}{n^2\sqrt{1+n^{-2}+n^{-4}}}\to5</span>
+(numerically 5.008, 5.0004, 5.0000 for <span
+class="math inline">n=10,100,10^4</span>). A positive constant limit:
+<strong><span class="math inline">O</span> true, <span
+class="math inline">\Omega</span> true, <span
+class="math inline">\Theta</span> true.</strong></p>
+<p><strong>(ii)</strong> <span
+class="math inline">\dfrac{f(n)}{g(n)}=\dfrac{3^n}{3^{n/2}}=3^{n/2}\to\infty</span>.
+So <strong><span class="math inline">f\in\Omega(g)</span>: true; <span
+class="math inline">f\in O(g)</span>: false; <span
+class="math inline">f\in\Theta(g)</span>: false.</strong></p>
+<p><strong>Link.</strong> The same recipe as AY1718 S1 2(a): the limit
+of <span class="math inline">f/g</span>. The square root in <span
+class="math inline">g</span> in (i) only halves the exponent of the
+dominant term (<span class="math inline">\sqrt{n^4}=n^2</span>).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY16/17 S2 2(b)</strong> Given three functions <span
+class="math inline">f(n)</span>, <span class="math inline">g(n)</span>
+and <span class="math inline">h(n)</span> such that <span
+class="math inline">f(n)\in\Theta(h(n))</span> and <span
+class="math inline">g(n)\in\Theta(h(n))</span>, show that <span
+class="math inline">f(n)+g(n)\in\Theta(h(n))</span> with a formal
+proof.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Assume the functions are non-negative (as running times are). By
+definition of <span class="math inline">\Theta</span> there are
+constants <span class="math inline">c_1,c_2,n_1</span> and <span
+class="math inline">d_1,d_2,n_2</span> with <span
+class="math display">c_1h(n)\le f(n)\le c_2h(n)\ (n\ge n_1),\qquad
+d_1h(n)\le g(n)\le d_2h(n)\ (n\ge n_2).</span> For all <span
+class="math inline">n\ge n_0=\max(n_1,n_2)</span> add the inequalities:
+<span class="math display">(c_1+d_1)\,h(n)\le
+f(n)+g(n)\le(c_2+d_2)\,h(n).</span> The constants <span
+class="math inline">c_1+d_1&gt;0</span> and <span
+class="math inline">c_2+d_2</span> do not depend on <span
+class="math inline">n</span>, so <span
+class="math inline">f(n)+g(n)\in\Theta(h(n))</span>. <span
+class="math inline">\blacksquare</span></p>
+<p><strong>Link.</strong> This is the “sum rule”: the cost of two phases
+of the same order is that order. It is why a loop followed by a loop is
+not worse than the larger one, and why building a heap (<span
+class="math inline">\Theta(n)</span>) before <span
+class="math inline">n</span> deletions (<span
+class="math inline">\Theta(n\lg n)</span>) leaves heapsort at <span
+class="math inline">\Theta(n\lg n)</span>. (For sums of
+<strong>different</strong> orders the larger wins, which is a different
+rule.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY16/17 S2 3(a)</strong> A sorting algorithm is called
+<em>stable</em> if it preserves the original order of any two equal
+elements in its input. For each of the two sorting algorithms, Mergesort
+and Quicksort, is it stable or not? Briefly justify your answers.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Quicksort is not stable.</strong> Partitioning swaps keys
+that are far apart, so an equal key can jump over another one. Example
+with the lecture’s partition (middle pivot, keys <span
+class="math inline">&lt;</span> pivot go left): <span
+class="math inline">[3,5,1_a,1_b]\to[1_b,3,1_a,5]</span>; the two 1’s
+changed order. (Checked by running the partition.)</p>
+<p><strong>Mergesort is stable when the merge takes the left element
+first on equal keys.</strong> Every merge outputs the left list’s key
+before an equal key of the right list, and by induction each half is
+already stable, so equal keys keep their order. Example: <span
+class="math inline">[4,3_a,3_b,5,1]</span> sorts to <span
+class="math inline">[1,3_a,3_b,4,5]</span>. The same algorithm becomes
+unstable if the merge takes the right element first on a tie (<span
+class="math inline">[1,3_b,3_a,4,5]</span>).</p>
+<p>Caveat on the lecture: the lecture’s merge pseudocode takes
+<strong>one equal head from each half</strong> on a tie. With duplicates
+inside the left half that can reorder them (<span
+class="math inline">[2_a,2_b,2_c]\to[2_a,2_c,2_b]</span>); see AY21/22
+S2 1(b). The intended answer to this question is “stable”.</p>
+<p><strong>Link.</strong> Stability is a property of the <strong>tie
+rule</strong> of the merge, not of divide and conquer. It matters when
+you sort records by one field after another (radix sort needs it).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY16/17 S2 3(c)</strong> Show that the average-case time
+complexity of Insertion sort, measured in the number of key comparisons
+performed on an array of size <span class="math inline">n</span>, is
+approximately <span class="math inline">n^2/4</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Insertion sort makes one swap per <strong>inversion</strong> (a pair
+<span class="math inline">i&lt;j</span> with <span
+class="math inline">A[i]&gt;A[j]</span>), and the number of comparisons
+is the number of swaps plus at most one failing comparison per key, so
+<span class="math display">\#\text{inversions}\ \le\
+\#\text{comparisons}\ \le\ \#\text{inversions}+(n-1).</span> For a
+random permutation each of the <span class="math inline">\binom
+n2</span> pairs is inverted with probability <span
+class="math inline">\frac12</span> (swapping the two values turns an
+inverted pair into a non-inverted one, so the two cases are equally
+many). By linearity of expectation <span
+class="math display">E[\#\text{inversions}]=\frac12\binom
+n2=\frac{n(n-1)}4.</span> Therefore the average number of comparisons is
+<span
+class="math inline">\dfrac{n(n-1)}4+O(n)=\dfrac{n^2}4+O(n)\approx\dfrac{n^2}4.</span>
+<span class="math inline">\blacksquare</span></p>
+<p>Exact value (derived on AY2324 S2 1(a)): <span
+class="math inline">\dfrac{n^2+3n}4-H_n</span> with <span
+class="math inline">H_n=1+\frac12+\dots+\frac1n</span>. Brute-force
+averages over all <span class="math inline">n!</span> permutations:
+4.92, 7.72, 11.05, 14.91 for <span class="math inline">n=4,5,6,7</span>
+against <span class="math inline">n^2/4=4,6.25,9,12.25</span>; the gap
+is the <span class="math inline">O(n)</span> term. (The circulated
+solution gets <span class="math inline">\frac{n^2+n}4-\frac12</span> by
+averaging <span class="math inline">i</span> comparisons per key with
+probability <span class="math inline">\frac1i</span> each, which has the
+same leading term.)</p>
+<p><strong>Link.</strong> The best case is <span
+class="math inline">n-1</span>, the worst case <span
+class="math inline">n(n-1)/2</span> and the average <span
+class="math inline">\approx n^2/4</span> comparisons, exactly the
+midpoint: a random input has half of the possible inversions.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S2 1(a)</strong> State TRUE or FALSE for each of the
+following statements. (i) Given that <span
+class="math inline">f(n)\in\Omega(g(n))</span>, we can derive that <span
+class="math inline">f(n)</span> is the asymptotic upper bound for <span
+class="math inline">g(n)</span>. (ii) If <span
+class="math inline">f(n)\in O(g(n))</span>, then <span
+class="math inline">f(n)\in\Theta(g(n))</span>. (iii) If <span
+class="math inline">f(n)\in O(g(n))</span> and <span
+class="math inline">g(n)\in\Theta(h(n))</span>, then <span
+class="math inline">f(n)\in O(h(n))</span>. (iv) NP means Non-Polynomial
+time complexity. (v) If an NP-Hard problem can be solved in polynomial
+time, it implies that P = NP.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) True.</strong> <span
+class="math inline">f\in\Omega(g)</span> means <span
+class="math inline">f(n)\ge c\,g(n)</span> for large <span
+class="math inline">n</span>, i.e. <span
+class="math inline">g(n)\le\frac1cf(n)</span>, so <span
+class="math inline">g\in O(f)</span>: <span class="math inline">f</span>
+is an asymptotic upper bound for <span class="math inline">g</span>.</p>
+<p><strong>(ii) False.</strong> <span class="math inline">O</span> is
+only an upper bound. Counter-example: <span
+class="math inline">f(n)=n</span>, <span
+class="math inline">g(n)=n^2</span>: <span class="math inline">f\in
+O(g)</span> but <span class="math inline">f\notin\Theta(g)</span>.</p>
+<p><strong>(iii) True.</strong> <span class="math inline">f\le
+c_1g</span> and <span class="math inline">g\le c_2h</span> for large
+<span class="math inline">n</span> (the <span
+class="math inline">\Theta</span> gives an upper bound with some <span
+class="math inline">c_2</span>), so <span class="math inline">f\le
+c_1c_2h</span>.</p>
+<p><strong>(iv) False.</strong> NP means
+<strong>N</strong>ondeterministic <strong>P</strong>olynomial time:
+decision problems whose YES answers can be verified in polynomial time.
+It does not mean “not polynomial” (every problem in P is in NP).</p>
+<p><strong>(v) True.</strong> Every problem in NP reduces in polynomial
+time to an NP-hard problem. If the NP-hard problem has a polynomial-time
+algorithm, so does every NP problem: NP <span
+class="math inline">\subseteq</span> P, and since P <span
+class="math inline">\subseteq</span> NP, P = NP.</p>
+<p><strong>Link.</strong> (i) and (iii) are the transitivity and
+reversal rules of <span class="math inline">O/\Omega/\Theta</span>, and
+(v) is the reduction logic of the NP page. Compare AY1617 S2 1(a) and
+AY1819 S1 1(a), which test the same notation.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S2 2(a)</strong> For each of the following pairs of
+functions <span class="math inline">f(n)</span> and <span
+class="math inline">g(n)</span>, show with formal justification whether
+<span class="math inline">f</span> is in <span
+class="math inline">O(g)</span>, whether <span
+class="math inline">f</span> is in <span
+class="math inline">\Omega(g)</span> and whether <span
+class="math inline">f</span> is in <span
+class="math inline">\Theta(g)</span>. (i) <span
+class="math inline">f(n)=\log_{10}(n)</span>; <span
+class="math inline">g(n)=\log_e(n)^e</span>. (ii) <span
+class="math inline">f(n)=3^n</span>; <span
+class="math inline">g(n)=e^n</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> (Ambiguous item: the printed <span
+class="math inline">g(n)=\log_e(n)^e</span> can mean <span
+class="math inline">(\ln n)^e</span> or <span
+class="math inline">\ln(n^e)</span>. Both readings are answered.)</p>
+<ul>
+<li><strong>Reading 1, <span class="math inline">g(n)=(\ln
+n)^e</span></strong> with <span
+class="math inline">e\approx2.718&gt;1</span>. <span
+class="math inline">\log_{10}n=\dfrac{\ln n}{\ln10}</span>, so <span
+class="math display">\frac{f(n)}{g(n)}=\frac{\ln n}{\ln10\,(\ln
+n)^e}=\frac{1}{\ln10}(\ln n)^{1-e}\longrightarrow0,</span> because <span
+class="math inline">1-e&lt;0</span>. <strong><span
+class="math inline">f\in O(g)</span> true, <span
+class="math inline">f\in\Omega(g)</span> false, <span
+class="math inline">f\in\Theta(g)</span> false.</strong> (A power <span
+class="math inline">&gt;1</span> of a logarithm beats the logarithm
+itself, though both are far below any power of <span
+class="math inline">n</span>.)</li>
+<li><strong>Reading 2, <span class="math inline">g(n)=\ln(n^e)=e\ln
+n</span>.</strong> Then <span class="math inline">\dfrac
+fg=\dfrac{1}{e\ln10}</span>, a positive constant: <strong><span
+class="math inline">O</span>, <span class="math inline">\Omega</span>
+and <span class="math inline">\Theta</span> all true.</strong></li>
+</ul>
+<p><strong>(ii)</strong> <span
+class="math inline">\dfrac{f(n)}{g(n)}=\Big(\dfrac3e\Big)^n\to\infty</span>
+since <span class="math inline">3&gt;e\approx2.718</span>. <strong><span
+class="math inline">f\in\Omega(g)</span> true; <span
+class="math inline">f\in O(g)</span> false; <span
+class="math inline">f\in\Theta(g)</span> false.</strong></p>
+<p><strong>Link.</strong> Base matters for exponentials (<span
+class="math inline">3^n\gg e^n</span>) and not for logarithms (<span
+class="math inline">\log_{10}n</span> and <span class="math inline">\ln
+n</span> differ by a constant). Compare AY1718 S1 2(a) for the same
+recipe.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S2 3(b)</strong> Given an array <span
+class="math inline">A</span> of <span class="math inline">n</span>
+elements, an <em>inversion</em> in <span class="math inline">A</span> is
+defined as a pair of indices <span class="math inline">(i,j)</span> such
+that <span class="math inline">i&lt;j</span> and <span
+class="math inline">A[i]&gt;A[j]</span>. (i) Give an example array of
+<span class="math inline">n</span> elements with <span
+class="math inline">\Theta(n^2)</span> inversions. Justify your answer.
+(ii) Show that the running time of the Insertion sort algorithm,
+measured by the number of swaps between array elements, is <span
+class="math inline">O(n+I)</span>, where <span
+class="math inline">I</span> is the number of inversions in the input
+array of <span class="math inline">n</span> elements.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> The <strong>reversed</strong> array <span
+class="math inline">[n,n-1,\dots,1]</span>: every pair <span
+class="math inline">i&lt;j</span> is an inversion, so there are <span
+class="math inline">\binom n2=\frac{n(n-1)}2=\Theta(n^2)</span>
+inversions. (Check for <span class="math inline">n=6</span>: 15.)</p>
+<p><strong>(ii)</strong> Insertion sort swaps adjacent keys <span
+class="math inline">A[j-1]&gt;A[j]</span>, and each such swap removes
+<strong>exactly one</strong> inversion (the pair that was swapped) and
+creates none. The sorted array has 0 inversions, so the number of swaps
+is <strong>exactly <span class="math inline">I</span></strong>. The
+remaining work is the outer loop (<span class="math inline">n-1</span>
+iterations) and at most one failing comparison per key, <span
+class="math inline">\le n-1</span>. So the total is <span
+class="math display">\#\text{swaps}+\#\text{comparisons}\le
+I+(I+n-1)=O(n+I).\ \blacksquare</span> (Verified on 300 random arrays:
+swaps <span class="math inline">=I</span> and comparisons <span
+class="math inline">\le I+n-1</span> every time.)</p>
+<p><strong>Link.</strong> This is why insertion sort is the right tool
+for “no more than 10 inversions in 600 keys” (AY1718 S1 3(a)): <span
+class="math inline">O(n+10)=O(n)</span>. The count of inversions
+measures how unsorted the input is, and insertion sort’s cost is linear
+in it.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S1 2(a)</strong> For each of the following pairs of
+functions <span class="math inline">f(n)</span> and <span
+class="math inline">g(n)</span>, show with justification whether <span
+class="math inline">f</span> is in <span
+class="math inline">O(g)</span>, whether <span
+class="math inline">f</span> is in <span
+class="math inline">\Omega(g)</span> and whether <span
+class="math inline">f</span> is in <span
+class="math inline">\Theta(g)</span>. (i) <span
+class="math inline">f(n)=n\lg^2(n)</span>; <span
+class="math inline">g(n)=\lg(n^2)\lg(n^3)</span>. (ii) <span
+class="math inline">f(n)=2^n</span>; <span
+class="math inline">g(n)=2^{1.1n}</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> <span
+class="math inline">g(n)=\lg(n^2)\lg(n^3)=(2\lg n)(3\lg
+n)=6\lg^2n</span>. So <span
+class="math inline">\dfrac{f(n)}{g(n)}=\dfrac{n\lg^2n}{6\lg^2n}=\dfrac
+n6\to\infty</span>. <strong><span
+class="math inline">f\in\Omega(g)</span> true; <span
+class="math inline">f\in O(g)</span> false; <span
+class="math inline">f\in\Theta(g)</span> false.</strong></p>
+<p><strong>(ii)</strong> <span
+class="math inline">\dfrac{f(n)}{g(n)}=\dfrac{2^n}{2^{1.1n}}=2^{-0.1n}\to0</span>.
+<strong><span class="math inline">f\in O(g)</span> true; <span
+class="math inline">f\in\Omega(g)</span> false; <span
+class="math inline">f\in\Theta(g)</span> false.</strong> (The base-2
+exponent <span class="math inline">1.1n</span> beats <span
+class="math inline">n</span> by the factor <span
+class="math inline">2^{0.1n}</span>, which is not a constant.)</p>
+<p><strong>Link.</strong> The constants in an exponent do change the
+order (<span class="math inline">2^n\ll2^{1.1n}</span>), unlike
+constants in front (<span class="math inline">6\lg^2n</span> against
+<span class="math inline">\lg^2n</span>). Compare AY1718 S1
+2(a)(ii).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S1 2(b)</strong> Given two functions <span
+class="math inline">f(n)</span> and <span
+class="math inline">g(n)</span> such that <span
+class="math inline">f(n)\in O(g(n))</span>, state whether <span
+class="math inline">g(n)\in\Omega(f(n))</span> is TRUE or FALSE. Justify
+your answer with a proof.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>TRUE.</strong> <span class="math inline">f\in O(g)</span>
+means there are constants <span class="math inline">c&gt;0</span> and
+<span class="math inline">n_0</span> with <span
+class="math inline">f(n)\le c\,g(n)</span> for all <span
+class="math inline">n\ge n_0</span>. Divide by <span
+class="math inline">c</span>: <span
+class="math inline">g(n)\ge\frac1c\,f(n)</span> for all <span
+class="math inline">n\ge n_0</span>. This is the definition of <span
+class="math inline">g\in\Omega(f)</span> with the constant <span
+class="math inline">\frac1c&gt;0</span> and the same <span
+class="math inline">n_0</span>. <span
+class="math inline">\blacksquare</span></p>
+<p>(Flag: the circulated solution marks the statement False with the
+“counter-example” <span class="math inline">f=n</span>, <span
+class="math inline">g=n^2</span>. That example does not contradict it:
+<span class="math inline">g=n^2\ge n=f</span>, so <span
+class="math inline">g\in\Omega(f)</span> holds. The statement is the
+standard duality <span class="math inline">f\in O(g)\iff
+g\in\Omega(f)</span>.)</p>
+<p><strong>Link.</strong> <span class="math inline">O</span> and <span
+class="math inline">\Omega</span> are mirror images, and <span
+class="math inline">\Theta</span> is both at once: <span
+class="math inline">f\in\Theta(g)\iff f\in O(g)\text{ and }g\in
+O(f)</span>. This duality is what AY1617 S2 1(a)(i) and AY1516 S2
+1(a)(i) test.</p>
+</div>
+</details>
+<h2 id="tutorials">Tutorials</h2>
+<h3 id="tutorial-1-q1.-other-worst-cases-for-insertion-sort">Tutorial 1
+Q1. Other worst cases for insertion sort</h3>
+<div class="q">
+<p>The worst case for insertion sort occurs when the input list contains
+the keys <span class="math inline">a_1 &lt; \dots &lt; a_n</span> in
+decreasing order: <span class="math inline">[a_n, \dots, a_1]</span>.
+Suppose the performance of insertion sort is measured by the total
+number of comparisons between array elements (not counting the number of
+swaps). Show at least two other initial arrangements of keys that are
+also worst cases for insertion sort.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Concepts: when does one insertion make the most
+comparisons?</strong> <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Insertion sort takes the next element, <code>slot[i]</code>, and
+compares it with its left neighbour, again and again.</p>
+<ul>
+<li>If the left neighbour is bigger, the two swap.</li>
+<li>If the left neighbour is not bigger, the loop stops. That costs one
+comparison.</li>
+<li>If the element reaches index 0, the loop stops with no further
+comparison.</li>
+</ul>
+<p>So iteration <span class="math inline">i</span> makes between 1 and
+<span class="math inline">i</span> comparisons. The worst total is <span
+class="math inline">1 + 2 + \dots + (n-1) = \frac{n(n-1)}{2}</span>.
+Every iteration must make <span class="math inline">i</span> comparisons
+to reach it.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Two other worst cases:</p>
+<p><span class="math display">(n, n-1, n-2, \dots, 3, 1, 2) \qquad
+\text{and} \qquad (1, n, n-1, n-2, \dots, 2).</span></p>
+<p>In each list, the <span class="math inline">i</span>-th key still
+needs <span class="math inline">i</span> comparisons to find its place.
+But a comparison is not always followed by a swap.</p>
+<ul>
+<li><strong><span class="math inline">(n, n-1, \dots, 3, 1,
+2)</span>.</strong> Every key up to 1 is smaller than everything on its
+left, so it travels to index 0. The last key, 2, swaps past <span
+class="math inline">n, \dots, 3</span>. Then it compares with 1, which
+is smaller, and stops. That last comparison has no swap, but it is still
+the <span class="math inline">i</span>-th comparison.</li>
+<li><strong><span class="math inline">(1, n, n-1, \dots,
+2)</span>.</strong> Each new key is smaller than every key on its left
+except 1. It swaps all the way to index 1, then compares with 1 and
+stops. Again <span class="math inline">i</span> comparisons.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: test an input for the comparison worst
+case</strong> <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Iteration <span class="math inline">i</span> makes all <span
+class="math inline">i</span> comparisons exactly when the new element
+reaches <strong>index 1</strong>. After that, either it moves to index
+0, or the element at index 0 stops it. Both cost <span
+class="math inline">i</span> comparisons.</p>
+<p>So an input is a worst case for comparisons when <strong>each new
+element is smaller than every element on its left, except possibly the
+smallest one</strong>.</p>
+<ul>
+<li>Check this for each position from left to right.</li>
+<li>Comparisons and swaps are different counts. Swaps equal the number
+of <strong>inversions</strong> (pairs in the wrong order). Only the
+reversed array has the most swaps, <span
+class="math inline">\frac{n(n-1)}{2}</span>.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 1.1.</strong> Insertion sort runs on the array
+<span class="math inline">[2, 4, 3, 1]</span>. Count the comparisons and
+the swaps. Is this array a worst case for comparisons? Is it a worst
+case for swaps?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 1.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<table>
+<thead>
+<tr>
+<th>Iteration</th>
+<th>Element</th>
+<th>What happens</th>
+<th>Comparisons</th>
+<th>Swaps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>4</td>
+<td>4 against 2: not smaller, stop</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>3</td>
+<td>swaps past 4, then 3 against 2: stop</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1</td>
+<td>swaps past 4, 3 and 2, reaches index 0</td>
+<td>3</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>Comparisons: <span class="math inline">1 + 2 + 3 = 6 = \frac{4 \cdot
+3}{2}</span>. So it <strong>is</strong> a worst case for comparisons.
+Each new element is smaller than everything on its left except the
+smallest, as the method says.</p>
+<p>Swaps: 4, which equals the inversions <span
+class="math inline">(2,1), (4,3), (4,1), (3,1)</span>. The maximum is 6.
+So it is <strong>not</strong> a worst case for swaps.</p>
+</div>
+</details>
+<h3 id="tutorial-1-q2.-theta-is-o-and-omega-together">Tutorial 1 Q2.
+Theta is O and Omega together</h3>
+<div class="q">
+<p>Prove that, for any two functions <span
+class="math inline">f(n)</span> and <span
+class="math inline">g(n)</span>, we have <span class="math inline">f(n)
+= \Theta(g(n))</span> if and only if <span class="math inline">f(n) =
+O(g(n))</span> and <span class="math inline">f(n) =
+\Omega(g(n))</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>The → direction.</strong> Suppose <span
+class="math inline">f(n) = \Theta(g(n))</span>. By definition, there are
+<span class="math inline">c_1, c_2, n_0 &gt; 0</span> such that</p>
+<p><span class="math display">0 \le c_1 g(n) \le f(n) \le c_2 g(n) \quad
+\text{for all } n \ge n_0.</span></p>
+<p>Pick the constants from here. The pair <span class="math inline">c_2,
+n_0</span> satisfies the definition of <span
+class="math inline">O(g(n))</span>. The pair <span
+class="math inline">c_1, n_0</span> satisfies the definition of <span
+class="math inline">\Omega(g(n))</span>. So <span
+class="math inline">f(n)</span> lies in both sets.</p>
+<p><strong>The ← direction.</strong> Suppose <span
+class="math inline">f(n) = O(g(n))</span> and <span
+class="math inline">f(n) = \Omega(g(n))</span>. Then, for some constants
+<span class="math inline">c_3</span> and <span
+class="math inline">c_4</span>:</p>
+<p><span class="math display">0 \le c_3 g(n) \le f(n) \quad \text{for
+all } n \ge n_1,</span></p>
+<p><span class="math display">0 \le f(n) \le c_4 g(n) \quad \text{for
+all } n \ge n_2.</span></p>
+<p>Pick <span class="math inline">n_3 = \max\{n_1, n_2\}</span>. Both
+inequalities hold from <span class="math inline">n_3</span> on, so merge
+them:</p>
+<p><span class="math display">0 \le c_3 g(n) \le f(n) \le c_4 g(n) \quad
+\text{for all } n \ge n_3.</span></p>
+<p>That is the definition of <span class="math inline">f(n) =
+\Theta(g(n))</span>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: prove a fact about O, Omega and Theta</strong>
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Write out each definition you are given, with its own constants:
+“<span class="math inline">\exists\, c, n_0</span> such that … for all
+<span class="math inline">n \ge n_0</span>”. Give each one a new name
+(<span class="math inline">c_1, n_1</span>, then <span
+class="math inline">c_2, n_2</span>).</li>
+<li>Write out the definition you must reach.</li>
+<li>Build its constants from the ones you have. Two tools cover most
+proofs:
+<ul>
+<li><strong>Take the maximum of the thresholds.</strong> Each fact holds
+from its own <span class="math inline">n_i</span>. All of them hold from
+<span class="math inline">\max_i n_i</span>.</li>
+<li><strong>Multiply or add the constants.</strong> If <span
+class="math inline">f \le c_1 g</span> and <span class="math inline">g
+\le c_2 h</span>, then <span class="math inline">f \le c_1 c_2
+h</span>.</li>
+</ul></li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 2.1.</strong> Prove that <span
+class="math inline">O</span> is transitive: if <span
+class="math inline">f(n) = O(g(n))</span> and <span
+class="math inline">g(n) = O(h(n))</span>, then <span
+class="math inline">f(n) = O(h(n))</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 2.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>From the first fact: <span class="math inline">0 \le f(n) \le c_1
+g(n)</span> for all <span class="math inline">n \ge n_1</span>. From the
+second: <span class="math inline">0 \le g(n) \le c_2 h(n)</span> for all
+<span class="math inline">n \ge n_2</span>.</p>
+<p>Take <span class="math inline">n_0 = \max\{n_1, n_2\}</span>. For
+<span class="math inline">n \ge n_0</span>, both hold, so</p>
+<p><span class="math display">0 \le f(n) \le c_1 g(n) \le c_1 c_2\,
+h(n).</span></p>
+<p>With <span class="math inline">c = c_1 c_2</span>, this is the
+definition of <span class="math inline">f(n) = O(h(n))</span>. The proof
+used both tools of the method: the maximum threshold and the product of
+constants.</p>
+</div>
+</details>
+<h3 id="tutorial-1-q3.-two-functions-that-cannot-be-compared">Tutorial 1
+Q3. Two functions that cannot be compared</h3>
+<div class="q">
+<p>Give an example of non-negative functions <span
+class="math inline">f(n)</span> and <span
+class="math inline">g(n)</span> such that <span class="math inline">f(n)
+\notin O(g(n))</span> and <span class="math inline">g(n) \notin
+O(f(n))</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Take</p>
+<p><span class="math display">f(n) = n \qquad \text{and} \qquad g(n) =
+\begin{cases} 1 &amp; \text{if } n \text{ is even}, \\ n^2 &amp;
+\text{otherwise}. \end{cases}</span></p>
+<p><strong>Proof that <span class="math inline">f(n) \notin
+O(g(n))</span>.</strong> Suppose, for a contradiction, that <span
+class="math inline">f(n) \in O(g(n))</span>. Then for some positive
+constants <span class="math inline">c</span> and <span
+class="math inline">n_1</span>:</p>
+<p><span class="math display">0 \le n \le c\,g(n) \quad \text{for all }
+n \ge n_1. \qquad (*)</span></p>
+<p>Let <span class="math inline">n_2</span> be the smallest even number
+strictly larger than <span class="math inline">\max\{n_1, c\}</span>. In
+particular, <span class="math inline">n_2 &gt; c</span>. <span
+class="math inline">(**)</span></p>
+<p>Put <span class="math inline">n_2</span> into <span
+class="math inline">(*)</span>. Since <span
+class="math inline">n_2</span> is even, <span class="math inline">g(n_2)
+= 1</span>, so <span class="math inline">0 \le n_2 \le c</span>. This
+contradicts <span class="math inline">(**)</span>.</p>
+<p><strong>Proof that <span class="math inline">g(n) \notin
+O(f(n))</span>.</strong> The official solution leaves this as an
+exercise. The proof is the same, with an <strong>odd</strong> number.
+Suppose <span class="math inline">g(n) \le c\,n</span> for all <span
+class="math inline">n \ge n_1</span>. Let <span
+class="math inline">n_2</span> be an odd number larger than <span
+class="math inline">\max\{n_1, c\}</span>. Then <span
+class="math inline">g(n_2) = n_2^2</span>, so <span
+class="math inline">n_2^2 \le c\,n_2</span>, which gives <span
+class="math inline">n_2 \le c</span>. This contradicts <span
+class="math inline">n_2 &gt; c</span>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: show that f is not O(g)</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Assume the constants exist: <span class="math inline">f(n) \le
+c\,g(n)</span> for all <span class="math inline">n \ge n_0</span>.</li>
+<li>Choose <strong>one</strong> value of <span
+class="math inline">n</span> that is larger than <span
+class="math inline">n_0</span> and breaks the inequality. Usually you
+pick <span class="math inline">n</span> larger than both <span
+class="math inline">n_0</span> and <span class="math inline">c</span>,
+from the part of the domain where <span class="math inline">g</span> is
+small.</li>
+<li>Put it in and reach a contradiction such as <span
+class="math inline">n \le c</span> with <span class="math inline">n &gt;
+c</span>.</li>
+</ol>
+<p>To build two functions that cannot be compared, make one of them
+<strong>jump</strong> between a value below the other and a value above
+it, for example on even and odd <span class="math inline">n</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 3.1.</strong> Let <span class="math inline">f(n) =
+n</span> and <span class="math inline">g(n) = n^{1.5}</span> for even
+<span class="math inline">n</span> and <span class="math inline">g(n) =
+n^{0.5}</span> for odd <span class="math inline">n</span>. Is <span
+class="math inline">f(n) = O(g(n))</span>? Is <span
+class="math inline">g(n) = O(f(n))</span>?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Neither.</strong></p>
+<ul>
+<li><span class="math inline">f \ne O(g)</span>: suppose <span
+class="math inline">n \le c\,g(n)</span> for <span class="math inline">n
+\ge n_0</span>. Take an odd <span class="math inline">n &gt; \max\{n_0,
+c^2\}</span>. Then <span class="math inline">n \le c\sqrt{n}</span>, so
+<span class="math inline">\sqrt{n} \le c</span>, so <span
+class="math inline">n \le c^2</span>. Contradiction.</li>
+<li><span class="math inline">g \ne O(f)</span>: suppose <span
+class="math inline">g(n) \le c\,n</span> for <span class="math inline">n
+\ge n_0</span>. Take an even <span class="math inline">n &gt; \max\{n_0,
+c^2\}</span>. Then <span class="math inline">n^{1.5} \le c\,n</span>, so
+<span class="math inline">\sqrt{n} \le c</span>. Contradiction.</li>
+</ul>
+<p>Here <span class="math inline">g</span> jumps above <span
+class="math inline">f</span> on even <span class="math inline">n</span>
+and below it on odd <span class="math inline">n</span>, as the method
+says.</p>
+</div>
+</details>
+<h3 id="tutorial-1-q4.-a-loop-invariant-for-a-primality-test">Tutorial 1
+Q4. A loop invariant for a primality test</h3>
+<div class="q">
+<p>Consider the following function for testing primality of a natural
+number <span class="math inline">n &gt; 1</span>:</p>
+<pre><code>def isPrime(n):
+    p = True
+    for i = 2 to floor(sqrt(n)):
+        if n is divisible by i then:
+            p = False
+    return p</code></pre>
+<p>State a (non-trivial) loop invariant for the function above, and use
+your invariant to prove the function’s correctness.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Concepts: the three parts of a loop-invariant proof</strong>
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A <strong>loop invariant</strong> is a statement that is true before
+every iteration of the loop.</p>
+<ol type="1">
+<li><strong>Initialization:</strong> it is true before the first
+iteration.</li>
+<li><strong>Maintenance:</strong> if it is true before one iteration, it
+is true before the next.</li>
+<li><strong>Termination:</strong> when the loop stops, the invariant
+shows that the answer is correct.</li>
+</ol>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>First rewrite the <code>for</code> loop as a <code>while</code> loop.
+Then you can see the value of <code>i</code> when the loop stops.</p>
+<pre><code>def isPrime(n):
+    p = true
+    i = 2
+    while (i &lt;= floor(sqrt(n))):
+        if n is divisible by i then:
+            p = false
+        i++
+    return p</code></pre>
+<p><strong>Invariant:</strong> “<span class="math inline">p</span> is
+true if and only if there is no integer <span
+class="math inline">k</span> such that <span class="math inline">2 \le k
+&lt; i</span> and <span class="math inline">k</span> divides <span
+class="math inline">n</span>.”</p>
+<p><strong>Initialization.</strong> At the start, <span
+class="math inline">i = 2</span>. No integer <span
+class="math inline">k</span> satisfies <span class="math inline">2 \le k
+&lt; 2</span>, and <span class="math inline">p</span> is true. So the
+invariant holds before the loop.</p>
+<p><strong>Maintenance.</strong> After one full iteration, <span
+class="math inline">i</span> has grown by 1. The iteration tested the
+number that is now <span class="math inline">i - 1</span>. There are two
+cases.</p>
+<ul>
+<li>If <span class="math inline">i - 1</span> divides <span
+class="math inline">n</span>, the code set <span
+class="math inline">p</span> to false. The invariant for the new <span
+class="math inline">i</span> holds, because <span class="math inline">k
+= i - 1</span> divides <span class="math inline">n</span>.</li>
+<li>If <span class="math inline">i - 1</span> does not divide <span
+class="math inline">n</span>, <span class="math inline">p</span> is
+unchanged. By the inductive hypothesis, the old value of <span
+class="math inline">p</span> was correct for the range <span
+class="math inline">2 \le k &lt; i - 1</span>. The range grew by one
+number, <span class="math inline">i - 1</span>, and that number does not
+divide <span class="math inline">n</span>. So the answer to “is there a
+divisor in the range?” did not change, and <span
+class="math inline">p</span> is still correct. (The official solution
+asks “why?”. This is the reason.)</li>
+</ul>
+<p><strong>Termination.</strong> The loop stops when <span
+class="math inline">i = \lfloor \sqrt{n} \rfloor + 1</span>. By the
+invariant, <span class="math inline">p</span> is true if and only if no
+integer <span class="math inline">k</span> with <span
+class="math inline">2 \le k &lt; \lfloor \sqrt{n} \rfloor + 1</span>
+divides <span class="math inline">n</span>.</p>
+<p>This condition means <span class="math inline">n</span> is prime, for
+every <span class="math inline">n &gt; 1</span>. (The official solution
+says “prove it!”. Here is the proof.) Suppose <span
+class="math inline">n</span> is not prime, so <span
+class="math inline">n = a \cdot b</span> with <span
+class="math inline">2 \le a \le b</span>. Then <span
+class="math inline">a \cdot a \le a \cdot b = n</span>, so <span
+class="math inline">a \le \sqrt{n}</span>, and <span
+class="math inline">a \le \lfloor \sqrt{n} \rfloor</span> because <span
+class="math inline">a</span> is a whole number. So a composite <span
+class="math inline">n</span> always has a divisor in the range, and
+<span class="math inline">p</span> is false. A prime <span
+class="math inline">n</span> has no divisor in the range, and <span
+class="math inline">p</span> stays true.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: write a loop-invariant proof</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Rewrite a <code>for</code> loop as a <code>while</code> loop, so the
+loop variable has a clear value at every check and at the end.</li>
+<li>State the invariant as <strong>what the loop has done so
+far</strong>, in terms of the loop variable: “the first <span
+class="math inline">i</span> elements are sorted”, “<span
+class="math inline">m</span> is the largest of <span
+class="math inline">A[0..i-1]</span>”, “no divisor below <span
+class="math inline">i</span>”.</li>
+<li><strong>Initialization:</strong> put in the start value of the loop
+variable. The range is usually empty, so the statement is easy.</li>
+<li><strong>Maintenance:</strong> follow one iteration. Split into cases
+by the <code>if</code> inside the loop.</li>
+<li><strong>Termination:</strong> put in the stop value. The invariant
+must now say exactly what the function returns.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 4.1.</strong> State a loop invariant for the
+function below, and use it to prove that the function returns the
+largest element of <span class="math inline">A[0..n-1]</span>, for <span
+class="math inline">n \ge 1</span>.</p>
+<pre><code>def findMax(A, n):
+    m = A[0]
+    i = 1
+    while i &lt; n:
+        if A[i] &gt; m:
+            m = A[i]
+        i = i + 1
+    return m</code></pre>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 4.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Invariant:</strong> “<span class="math inline">m</span> is
+the largest element of <span class="math inline">A[0..i-1]</span>.”</p>
+<ul>
+<li><strong>Initialization.</strong> <span class="math inline">i =
+1</span>, and <span class="math inline">m = A[0]</span>, the largest
+(only) element of <span class="math inline">A[0..0]</span>.</li>
+<li><strong>Maintenance.</strong> The iteration looks at <span
+class="math inline">A[i]</span>. If <span class="math inline">A[i] &gt;
+m</span>, then <span class="math inline">A[i]</span> is the new largest
+of <span class="math inline">A[0..i]</span>, and <span
+class="math inline">m</span> becomes <span
+class="math inline">A[i]</span>. Otherwise <span
+class="math inline">m</span> is still the largest. Then <span
+class="math inline">i</span> grows by 1, so <span
+class="math inline">m</span> is the largest of <span
+class="math inline">A[0..i-1]</span> for the new <span
+class="math inline">i</span>.</li>
+<li><strong>Termination.</strong> The loop stops at <span
+class="math inline">i = n</span>. Then <span
+class="math inline">m</span> is the largest of <span
+class="math inline">A[0..n-1]</span>, the whole array.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<hr />
+</div>
+
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="drill.js"></script>
+</body></html>

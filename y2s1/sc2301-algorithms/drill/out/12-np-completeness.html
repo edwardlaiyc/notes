@@ -1,0 +1,1795 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>12. NP-completeness</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="drill.css">
+</head><body data-page="12-np-completeness">
+<nav class="top"><a href="index.html">All topics</a><span id="count"></span>
+<label><input type="checkbox" id="onlyshaky"> only shaky</label>
+<button id="export">Copy progress</button></nav>
+<main>
+<h1 id="np-completeness">12. NP-completeness</h1>
+<h2 id="facts">Facts</h2>
+<div class="q">
+<p>What is a decision problem, and how is an optimisation problem turned
+into one?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A decision problem has a YES/NO answer. An optimisation problem
+becomes a decision problem by adding a threshold <span
+class="math inline">k</span>: “is there a path of weight <span
+class="math inline">\le k</span>?”, “is there a clique of size <span
+class="math inline">\ge k</span>?”, “is there a tour of cost <span
+class="math inline">\le k</span>?”, “is there a subset with weight <span
+class="math inline">\le W</span> and profit <span
+class="math inline">\ge P</span>?”. If the optimisation problem is easy,
+so is its decision version. Conversely, binary search on <span
+class="math inline">k</span> solves the optimisation problem with a
+logarithmic number of decision calls.</p>
+</div>
+</details>
+<div class="q">
+<p>Define the class <strong>P</strong>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Decision problems solvable by a <strong>deterministic</strong>
+algorithm in polynomial time <span class="math inline">O(n^k)</span> in
+the input size. Examples: shortest paths, MST, connectivity, sorting,
+searching.</p>
+</div>
+</details>
+<div class="q">
+<p>Define the class <strong>NP</strong> (two equivalent ways).</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Decision problems for which a proposed solution
+(<strong>certificate</strong>) to a YES instance can be
+<strong>verified</strong> in polynomial time by a deterministic
+algorithm. (2) Problems solvable in polynomial time by a
+<strong>nondeterministic</strong> algorithm: a <em>guess</em> phase
+produces any candidate certificate, and a deterministic <em>verify</em>
+phase checks it in polynomial time. NP does <strong>not</strong> mean
+“not polynomial”.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p>How are P and NP related, and what is the open question?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">P\subseteq NP</span> (a polynomial-time
+solver can ignore the certificate and solve the problem directly). The
+open question is whether <span class="math inline">P=NP</span>: can
+everything checkable quickly also be found quickly? Most researchers
+believe <span class="math inline">P\ne NP</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>What does <span class="math inline">A\le_pB</span> mean?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>There is a <strong>polynomial-time</strong> computable function <span
+class="math inline">f</span> mapping instances <span
+class="math inline">x</span> of <span class="math inline">A</span> to
+instances <span class="math inline">f(x)</span> of <span
+class="math inline">B</span> such that <span
+class="math inline">x</span> is YES for <span
+class="math inline">A</span> <strong>if and only if</strong> <span
+class="math inline">f(x)</span> is YES for <span
+class="math inline">B</span>. Intuition: <span
+class="math inline">B</span> is at least as hard as <span
+class="math inline">A</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>State the two consequences of <span
+class="math inline">A\le_pB</span> for P.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>If <span class="math inline">B\in P</span> then <span
+class="math inline">A\in P</span> (solve <span
+class="math inline">A</span> by transforming and calling the solver for
+<span class="math inline">B</span>). Equivalently, if <span
+class="math inline">A\notin P</span> then <span
+class="math inline">B\notin P</span>. Reductions are also
+<strong>transitive</strong>: <span class="math inline">A\le_pB</span>
+and <span class="math inline">B\le_pC</span> give <span
+class="math inline">A\le_pC</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Define NP-hard and NP-complete.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">X</span> is <strong>NP-hard</strong> if
+every problem in NP reduces to it in polynomial time. <span
+class="math inline">X</span> is <strong>NP-complete</strong> if it is
+NP-hard <strong>and</strong> in NP. NP-complete problems are the hardest
+problems in NP; if any one has a polynomial-time algorithm, then <span
+class="math inline">P=NP</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>What does the Cook-Levin theorem say, and why does it matter?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>SAT (Boolean satisfiability of a CNF formula) is NP-complete. It is
+the first NP-complete problem, proved directly. Every other
+NP-completeness proof then reduces <strong>from</strong> a known
+NP-complete problem, so we never again have to reduce every NP
+problem.</p>
+</div>
+</details>
+<div class="q">
+<p>Give the four-step recipe for proving a problem <span
+class="math inline">B</span> is NP-complete.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Show <span class="math inline">B\in NP</span>: give a certificate
+and a polynomial-time verifier. 2. Pick a known NP-complete problem
+<span class="math inline">A</span>. 3. Give a polynomial-time reduction
+<span class="math inline">f</span> from instances of <span
+class="math inline">A</span> to instances of <span
+class="math inline">B</span>. 4. Prove correctness both ways: <span
+class="math inline">x</span> is YES for <span
+class="math inline">A</span> iff <span class="math inline">f(x)</span>
+is YES for <span class="math inline">B</span>.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p>Which direction is the reduction when you prove <span
+class="math inline">B</span> NP-complete? State the common mistake.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>From the <strong>known</strong> hard problem <strong>to</strong> the
+new one: <span class="math inline">A\le_pB</span>. The common mistake is
+reducing <span class="math inline">B</span> to <span
+class="math inline">A</span>, which only shows <span
+class="math inline">B</span> is no harder than <span
+class="math inline">A</span> and proves nothing about <span
+class="math inline">B</span>’s hardness.</p>
+</div>
+</details>
+<div class="q">
+<p>List the chain of reductions used in the lecture for the canonical
+problems.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>SAT <span class="math inline">\to</span> 3-CNF-SAT <span
+class="math inline">\to</span> CLIQUE and VERTEX COVER; VERTEX COVER
+<span class="math inline">\to</span> HAMILTONIAN CYCLE <span
+class="math inline">\to</span> TSP; SUBSET-SUM <span
+class="math inline">\to</span> KNAPSACK. All are NP-complete in their
+decision versions.</p>
+</div>
+</details>
+<div class="q">
+<p>What is a certificate for CLIQUE, 3-CNF-SAT and TSP, and what is the
+verifier’s cost?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>CLIQUE: the vertex set <span class="math inline">V&#39;</span>; check
+<span class="math inline">|V&#39;|\ge k</span> and all pairs adjacent,
+<span class="math inline">O(|V|^2)</span>. 3-CNF-SAT: a truth
+assignment; evaluate each clause, <span class="math inline">O(m)</span>.
+TSP: an ordering of the cities; check it visits each city once and the
+total weight is <span class="math inline">\le k</span>, <span
+class="math inline">O(n)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Name four ways to cope with an NP-complete problem.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Exact search for small <span class="math inline">n</span> (about
+<span class="math inline">\le25</span>): branch and bound or
+backtracking. 2. Pseudo-polynomial dynamic programming when numbers are
+small (knapsack <span class="math inline">O(nW)</span>). 3. Special
+cases that are in P (2-SAT in linear time; many graph problems on
+trees). 4. Approximation algorithms or heuristics (2-approximation for
+vertex cover; Christofides 1.5 for metric TSP).</li>
+</ol>
+</div>
+</details>
+<h2 id="problems">Problems</h2>
+<h3 id="problem-1-certificates">Problem 1: certificates</h3>
+<div class="q">
+<p><strong>(a)</strong> A 3-CNF formula over <span
+class="math inline">x_1,x_2,x_3</span> has clauses <span
+class="math inline">(x_1\lor\neg x_2\lor x_3)</span>, <span
+class="math inline">(\neg x_1\lor x_2\lor x_3)</span>, <span
+class="math inline">(\neg x_1\lor\neg x_2\lor\neg x_3)</span>, <span
+class="math inline">(x_1\lor x_2\lor\neg x_3)</span>. Is <span
+class="math inline">(x_1,x_2,x_3)=(T,T,F)</span> a valid certificate?
+How long does verification take?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Evaluate each clause: clause 1 has <span
+class="math inline">x_1=T</span>, true. Clause 2 has <span
+class="math inline">x_2=T</span>, true. Clause 3 has <span
+class="math inline">\neg x_3=T</span>, true. Clause 4 has <span
+class="math inline">x_1=T</span>, true. All four are true, so the
+certificate is valid. Verification costs <span
+class="math inline">O(1)</span> per clause, <span
+class="math inline">O(m)</span> in total, linear in the input size.
+(Exhaustive search finds four satisfying assignments out of 8.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Why does a valid certificate show the problem is
+in NP, while finding one is not known to be easy?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>NP only requires that a given certificate can be
+<strong>checked</strong> in polynomial time, which takes <span
+class="math inline">O(m)</span> here. Finding a satisfying assignment
+may require trying up to <span class="math inline">2^n</span>
+assignments, and no polynomial algorithm is known for 3-SAT (it is
+NP-complete). Contrast with 2-SAT, which is in P.</p>
+</div>
+</details>
+<h3 id="problem-2-a-reduction-in-action">Problem 2: a reduction in
+action</h3>
+<div class="q">
+<p><strong>(a)</strong> Graph <span class="math inline">G</span> has
+vertices <span class="math inline">1..5</span> and edges <span
+class="math inline">12,13,23,24,34,45</span>. Does it have a 3-clique? A
+4-clique?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Yes for 3: <span class="math inline">\{1,2,3\}</span> and <span
+class="math inline">\{2,3,4\}</span> (all pairs adjacent). No for 4: any
+4 vertices include a non-adjacent pair (for example <span
+class="math inline">\{1,2,3,4\}</span> lacks <span
+class="math inline">14</span>). (Checked by brute force.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Show how CLIQUE reduces to VERTEX COVER on this
+graph with <span class="math inline">k=3</span>, and then with <span
+class="math inline">k=4</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The reduction builds the <strong>complement graph</strong> <span
+class="math inline">\bar G</span> (edges between exactly the
+non-adjacent pairs): <span class="math inline">\bar G</span> has edges
+<span class="math inline">14,15,25,35</span>. Then <span
+class="math inline">G</span> has a <span
+class="math inline">k</span>-clique iff <span class="math inline">\bar
+G</span> has a vertex cover of size <span
+class="math inline">n-k</span>. For <span class="math inline">k=3</span>
+ask for a cover of size 2: <span class="math inline">\{1,5\}</span> and
+<span class="math inline">\{4,5\}</span> both work, matching the cliques
+<span class="math inline">\{2,3,4\}</span> and <span
+class="math inline">\{1,2,3\}</span> (a clique’s vertices are exactly
+the complement of a cover). For <span class="math inline">k=4</span> ask
+for a cover of size 1: no single vertex touches all four edges <span
+class="math inline">14,15,25,35</span>, so there is no cover, matching
+the absence of a 4-clique. Building <span class="math inline">\bar
+G</span> takes <span class="math inline">O(n^2)</span> time, so the
+reduction is polynomial.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(c)</strong> What does this reduction prove, given that
+CLIQUE is NP-complete?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">\text{CLIQUE}\le_p\text{VERTEX
+COVER}</span>, so VERTEX COVER is NP-hard. Together with VERTEX COVER
+<span class="math inline">\in NP</span> (certificate: the vertex set,
+check every edge is covered in <span class="math inline">O(|E|)</span>),
+it is NP-complete. This is the pattern of the four-step recipe.</p>
+</div>
+</details>
+<h3 id="problem-3-hamiltonian-cycle-to-tsp">Problem 3: Hamiltonian cycle
+to TSP</h3>
+<div class="q">
+<p><strong>(a)</strong> Reduce HAMILTONIAN CYCLE to TSP. Describe the
+instance you build and the threshold <span
+class="math inline">k</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Given a graph <span class="math inline">G</span> on <span
+class="math inline">n</span> vertices, build a complete weighted graph
+on the same vertices with weight <strong>1</strong> on edges of <span
+class="math inline">G</span> and weight <strong>2</strong> on non-edges.
+Set <span class="math inline">k=n</span>. A tour of weight <span
+class="math inline">\le n</span> must use only weight-1 edges (a tour
+has <span class="math inline">n</span> edges, each of weight at least
+1), so it is a Hamiltonian cycle of <span class="math inline">G</span>.
+Conversely a Hamiltonian cycle of <span class="math inline">G</span> is
+a tour of weight exactly <span class="math inline">n</span>. The
+construction takes <span class="math inline">O(n^2)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Check on two graphs: a 4-cycle <span
+class="math inline">1\text{-}2\text{-}3\text{-}4\text{-}1</span> with
+chord <span class="math inline">13</span>, and the star with centre 1
+and leaves 2, 3, 4.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The 4-cycle has a Hamiltonian cycle, and the cheapest tour has weight
+4, which is <span class="math inline">\le n=4</span>: YES. The star has
+no Hamiltonian cycle, and the cheapest tour has weight 6 (it must use
+weight-2 non-edges), which is <span class="math inline">&gt;4</span>:
+NO. Both agree with the reduction. (Verified by trying every tour.)</p>
+</div>
+</details>
+<h3 id="problem-4-link-back-to-other-chapters">Problem 4: link back to
+other chapters</h3>
+<div class="q">
+<p><strong>(a)</strong> Shortest path is in P but longest simple path is
+NP-complete (decision version). MST is in P but TSP is NP-complete. What
+do these pairs suggest about problem structure?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Both easy problems have a <strong>greedy or DP structure</strong>:
+the principle of optimality or the greedy-choice property holds, so
+local decisions are safe (Dijkstra, Prim, Kruskal). The hard versions
+lack it: a longest path through part of the graph cannot reuse an
+optimal sub-path because it may revisit vertices already used (simple
+paths are not “memoryless”), and a TSP tour must be a single cycle
+through everything, so locally cheap edges can force expensive ones
+later.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Knapsack has an <span
+class="math inline">O(nC)</span> algorithm, yet is NP-complete. Is that
+a contradiction?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>No. <span class="math inline">O(nC)</span> is
+<strong>pseudo-polynomial</strong>: polynomial in the <em>value</em> of
+<span class="math inline">C</span>, but <span
+class="math inline">C</span> is written with <span
+class="math inline">\log C</span> bits, so the running time is
+exponential in the <strong>input size</strong>. NP-completeness refers
+to polynomial time in the input size. For small capacities (such as
+<span class="math inline">C\le10^6</span>) the DP is perfectly
+practical.</p>
+</div>
+</details>
+<h2 id="past-year-questions">Past-year questions</h2>
+<p>Questions from past papers (SC2001/CZ2101/CE2001). Every answer was
+worked out and checked by code; where a circulated official solution
+exists it was compared, and disagreements are flagged.</p>
+<div class="q">
+<p><strong>AY25/26 S2 4(b)(i)</strong> What is a P problem, an NP
+problem and an NP-complete problem? If a problem is in P, is it an NP
+problem?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>P:</strong> decision problems solvable in polynomial time by
+a deterministic algorithm. <strong>NP:</strong> decision problems whose
+YES answers can be verified in polynomial time given a certificate.
+<strong>NP-complete:</strong> problems in NP to which every problem in
+NP reduces in polynomial time. <strong>Yes</strong>, every P problem is
+in NP (<span class="math inline">P\subseteq NP</span>): a
+polynomial-time solver can ignore the certificate and decide the answer
+itself.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S2 4(b)(ii)</strong> Are the following P problems?
+(1) Given a graph, determine if a path exists that visits each vertex
+exactly once. (2) Given a connected weighted undirected graph, find a
+subset of edges that connects all vertices, without cycles, with minimum
+total weight.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(1) Not known to be in P.</strong> This is the Hamiltonian
+path problem, which is NP-complete. It is in NP (the certificate is the
+path), but a polynomial algorithm would imply <span
+class="math inline">P=NP</span>. Say “no, unless <span
+class="math inline">P=NP</span>”. <strong>(2) Yes, it is in P.</strong>
+It is the MST problem, solved by Kruskal or Prim in <span
+class="math inline">O(|E|\log|V|)</span> time.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S1 4(c)</strong> What is an NP problem? An
+NP-complete problem? Is the following an NP problem? Justify. “Decision
+problem for the longest path problem: given a graph <span
+class="math inline">G=(V,E)</span> and an integer <span
+class="math inline">k</span>, does <span class="math inline">G</span>
+contain a simple path of length at least <span
+class="math inline">k</span>? A simple path has no cycles; the length is
+the number of edges.”</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>NP:</strong> a decision problem whose YES answers can be
+<strong>verified</strong> in polynomial time given a certificate.
+<strong>NP-complete:</strong> a problem that is in NP and to which every
+problem in NP reduces in polynomial time (equivalently, in NP and
+NP-hard).</p>
+<p><strong>This problem is in NP.</strong> Certificate: a sequence of
+vertices <span class="math inline">v_0,\dots,v_\ell</span>. The verifier
+checks (1) <span class="math inline">\ell\ge k</span>, (2) all vertices
+are distinct (no repeats, so the path is simple), (3) each consecutive
+pair is an edge of <span class="math inline">G</span>. With an adjacency
+matrix this takes <span class="math inline">O(\ell^2)\le O(|V|^2)</span>
+(the distinctness check) and <span class="math inline">O(|V|)</span> for
+the edge checks, which is polynomial.</p>
+<p>It is also NP-complete: HAMILTONIAN PATH reduces to it with <span
+class="math inline">k=|V|-1</span>, since a simple path with <span
+class="math inline">|V|-1</span> edges visits every vertex. This was not
+asked, but it shows the contrast with shortest path (in P, by
+Dijkstra).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S2 4(b)(i)</strong> What is a P problem, an NP
+problem, and an NP-complete problem? If a problem is in P, is it an NP
+problem?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>P:</strong> decision problems that a deterministic algorithm
+solves in polynomial time.</li>
+<li><strong>NP:</strong> decision problems where a proposed solution (a
+certificate) can be <strong>verified</strong> in polynomial time.</li>
+<li><strong>NP-complete:</strong> problems that are in NP
+<strong>and</strong> every problem in NP reduces to them in polynomial
+time (so they are the hardest problems in NP).</li>
+<li><strong>Yes, <span class="math inline">P\subseteq
+NP</span>.</strong> If you can solve a problem in polynomial time, you
+can verify a certificate by ignoring it and solving the problem again.
+Whether <span class="math inline">P=NP</span> is open.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S2 4(b)(ii)</strong> Are the following P problems?
+(a) Given a set of integers and a target sum, determine if there is a
+subset that adds up to the target. (b) Given an unweighted graph and two
+vertices, determine the shortest path (the path with the fewest edges)
+between the two vertices.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(a) Not known to be in P.</strong> This is SUBSET SUM, which
+is NP-complete. The DP in <span class="math inline">O(nS)</span> (<span
+class="math inline">S</span> the target) is
+<strong>pseudo-polynomial</strong>, not polynomial: <span
+class="math inline">S</span> takes only <span class="math inline">\lg
+S</span> bits to write down, so <span class="math inline">O(nS)</span>
+is exponential in the input size. (If the target is written in unary, or
+<span class="math inline">S</span> is bounded by a polynomial in <span
+class="math inline">n</span>, the DP is polynomial.)</p>
+<p><strong>(b) Yes.</strong> BFS from the source finds a shortest path
+in <span class="math inline">O(V+E)</span>. (As a decision question, “is
+there a path of at most <span class="math inline">k</span> edges?”, it
+is also in P.)</p>
+<p><strong>Link.</strong> This is the “easy vs hard cousin” pair again:
+shortest path is in P but longest simple path is NP-complete, MST is in
+P but TSP is NP-complete, and here shortest path is in P but subset sum
+has no known polynomial algorithm. The same pseudo-polynomial remark
+applies to 0/1 knapsack (2425 S1 4(a)C).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S1 4(a)</strong> Which of the following statement(s)
+is (are) correct? A. An algorithm is said to be <strong>polynomially
+bounded</strong> if its best-case complexity is bounded by a polynomial
+function of the input size. B. A problem D is
+<strong>NP-complete</strong> if it is in NP and another problem Q in NP
+is reducible to D in polynomial time. C. The 0/1 Knapsack problem is a P
+problem because there is a dynamic programming solution. D. The
+Travelling Salesman Problem (TSP) is in NP because it cannot be solved
+in polynomial time. E. TSP is in NP because there is an <span
+class="math inline">O(n!)</span> solution. F. None of the above is
+correct.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>F (none).</strong></p>
+<ul>
+<li>A false: polynomially bounded refers to the <strong>worst
+case</strong>.</li>
+<li>B false: <strong>every</strong> problem in NP must reduce to D (or,
+equivalently, some known NP-complete problem reduces to D). One problem
+Q is not enough.</li>
+<li>C false: the DP takes <span class="math inline">\Theta(nW)</span>,
+which is polynomial in the <strong>value</strong> <span
+class="math inline">W</span> but exponential in the number of bits of
+<span class="math inline">W</span> (pseudo-polynomial). The decision
+version of 0/1 knapsack is NP-complete.</li>
+<li>D false: being in NP means YES answers can be
+<strong>verified</strong> in polynomial time. “Hard to solve” is not the
+reason.</li>
+<li>E false: an <span class="math inline">O(n!)</span> brute force shows
+only that the problem is decidable. TSP is in NP because a proposed tour
+can be checked in polynomial time (sum the edges and compare with the
+bound).</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S2 4(b)(i)</strong> What is an NP problem?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>NP is the class of <strong>decision problems</strong> (yes/no) for
+which a proposed solution to a YES instance, a
+<strong>certificate</strong>, can be <strong>verified in polynomial
+time</strong> by a deterministic algorithm. Equivalently, the problems
+that a nondeterministic algorithm solves in polynomial time (guess a
+certificate, then check it). “NP” stands for <em>nondeterministic
+polynomial</em>, <strong>not</strong> for “not polynomial”. Examples:
+SAT, Hamiltonian cycle, subset sum, clique.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S2 4(b)(ii)</strong> For each of the following
+sentences, state whether the sentence is known to be true, false, or
+unknown. Justify your answers with 1 to 2 sentences. (a) If a problem is
+in NP, it must also be in P. (b) If a problem is NP-complete, it must
+also be in NP. (c) There exists an NP-complete problem <span
+class="math inline">X</span> that can be solved with an efficient
+deterministic algorithm, even if there is none for CIRCUIT-SAT. (Hint:
+CIRCUIT-SAT is the decision problem of determining whether a given
+Boolean circuit has an assignment of its inputs that makes the output
+true.)</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(a) Unknown.</strong> We know <span
+class="math inline">P\subseteq NP</span>, but whether every NP problem
+is also in P is exactly the open question <span
+class="math inline">P=NP</span>. (For one particular easy problem the
+statement is of course true, but the sentence claims it for every
+problem in NP, and that holds exactly when <span
+class="math inline">P=NP</span>.)</p>
+<p><strong>(b) True.</strong> By definition, a problem is NP-complete if
+it is in NP <strong>and</strong> every NP problem reduces to it in
+polynomial time (NP-hard). Membership in NP is part of the
+definition.</p>
+<p><strong>(c) False.</strong> CIRCUIT-SAT is in NP, so it reduces in
+polynomial time to the NP-complete problem <span
+class="math inline">X</span>. If <span class="math inline">X</span> had
+an efficient deterministic algorithm, then “reduce, then solve <span
+class="math inline">X</span>” would give an efficient deterministic
+algorithm for CIRCUIT-SAT as well. That contradicts the assumption that
+there is none. So no NP-complete problem can be efficiently solvable
+unless <strong>every</strong> NP-complete problem (CIRCUIT-SAT included)
+is.</p>
+<p><strong>Link.</strong> (c) is the reason a proof of NP-completeness
+has the form “reduce a known NP-complete problem to the new one”.
+Hardness travels <strong>forward</strong> along a reduction (<span
+class="math inline">A\le_pB</span> means that if <span
+class="math inline">B</span> is easy then <span
+class="math inline">A</span> is easy, equivalently if <span
+class="math inline">A</span> is hard then <span
+class="math inline">B</span> is hard), so all NP-complete problems stand
+or fall together. The three sentences also show the logical shape of the
+field: (b) is a definition, (c) is a consequence of that definition, and
+(a) is the open question.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S1 4(b)</strong> (<strong>Not in your
+course:</strong> the shortest-link heuristic is not in your slides;
+Lecture 12 introduces TSP only. The greedy method itself is the same as
+Kruskal’s.) Solve the travelling salesman problem in Figure Q4 using the
+Shortest-link algorithm. Give the sequence of edges chosen by the
+shortest-link algorithm for the path of the travelling salesman and the
+total distance travelled. Is it an optimal solution? Give reasons why
+the Greedy heuristic is a suitable approach for solving the travelling
+salesman problem.</p>
+<figure>
+<img src="img/pyp/2324s1_q4.png"
+alt="Figure Q4 (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q4 (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Shortest-link rule.</strong> Go through the edges in
+increasing order of weight. Accept an edge unless it would give some
+vertex degree 3, or would close a cycle that does not yet contain all
+vertices. The accepted edges form the tour when it is complete.</p>
+<table>
+<thead>
+<tr>
+<th>edge</th>
+<th>weight</th>
+<th>decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>a-c</td>
+<td>2</td>
+<td>accept</td>
+</tr>
+<tr>
+<td>c-d</td>
+<td>3</td>
+<td>accept</td>
+</tr>
+<tr>
+<td>a-d</td>
+<td>4</td>
+<td>reject: closes the cycle a-c-d without b and e</td>
+</tr>
+<tr>
+<td>d-e</td>
+<td>5</td>
+<td>accept</td>
+</tr>
+<tr>
+<td>c-b</td>
+<td>6</td>
+<td>reject: c would have degree 3</td>
+</tr>
+<tr>
+<td>c-e</td>
+<td>7</td>
+<td>reject: c would have degree 3</td>
+</tr>
+<tr>
+<td>a-e</td>
+<td>8</td>
+<td>reject: closes the cycle a-c-d-e without b</td>
+</tr>
+<tr>
+<td>a-b</td>
+<td>9</td>
+<td>accept</td>
+</tr>
+<tr>
+<td>e-b</td>
+<td>10</td>
+<td>accept: closes the full tour</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sequence: a-c, c-d, d-e, a-b, e-b. Tour a - c - d - e - b -
+a, total <span class="math inline">2+3+5+10+9=29</span>.</strong></p>
+<figure>
+<img src="fig/pyp2324s1_tsp_greedy.svg"
+alt="Shortest-link tour, total 29" />
+<figcaption aria-hidden="true">Shortest-link tour, total 29</figcaption>
+</figure>
+<p><strong>Not optimal.</strong> Trying all 12 directed Hamiltonian
+cycles from a (the graph has no edge b-d; code) gives total costs 27,
+29, 31 and 33. The optimum is <strong>27</strong>, the tour <strong>a -
+c - b - e - d - a</strong> with <span
+class="math inline">2+6+10+5+4=27</span> (the same cycle read in the
+other direction is the only other tour with that cost).</p>
+<figure>
+<img src="fig/pyp2324s1_tsp_opt.svg" alt="Optimal tour, total 27" />
+<figcaption aria-hidden="true">Optimal tour, total 27</figcaption>
+</figure>
+<p>The greedy method took the cheap edges a-c, c-d, d-e early, which
+forced the two most expensive edges 9 and 10 at the end. It never
+reconsiders an early choice.</p>
+<p><strong>Why a greedy heuristic is still suitable.</strong></p>
+<ul>
+<li>TSP is <strong>NP-hard</strong> (its decision version is
+NP-complete, see the NP page), so no polynomial algorithm is known; an
+exact search tries up to <span class="math inline">(n-1)!/2</span>
+tours, or <span class="math inline">O(n^22^n)</span> with dynamic
+programming.</li>
+<li>Shortest-link needs one sort of the edges and a cycle check: <span
+class="math inline">O(E\lg E)</span>, polynomial.</li>
+<li>It does not promise the optimum, but it usually gives a tour of
+reasonable length quickly; for large <span class="math inline">n</span>
+a good tour in seconds is worth more than the perfect tour never.</li>
+<li>One caveat: the greedy rule can fail on a graph that is not
+complete, because it may leave a vertex that cannot be linked into a
+tour even though a Hamiltonian cycle exists. Figure Q4 lacks the edge
+b-d and the greedy still succeeds.</li>
+</ul>
+<p><strong>Link.</strong> Shortest-link is <strong>Kruskal’s algorithm
+with a degree limit of 2</strong>: the same sorted edge list, the same
+cycle test (Union-Find), plus one extra rejection rule. Kruskal’s greedy
+is <em>exactly right</em> for MST because of the cut property; with the
+degree constraint no such property holds, so the greedy is only a
+heuristic. Where a greedy method is exact and where it is only a guess
+is the main theme of the greedy and NP pages.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 4(b)(i)</strong> Please explain the definition of
+the NP-complete problem.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A problem <span class="math inline">D</span> is
+<strong>NP-complete</strong> if (1) <span class="math inline">D</span>
+is in <strong>NP</strong> (a YES answer has a certificate that can be
+verified in polynomial time) and (2) <span class="math inline">D</span>
+is <strong>NP-hard</strong>: every problem <span
+class="math inline">Q</span> in NP can be reduced to <span
+class="math inline">D</span> in polynomial time (<span
+class="math inline">Q\le_pD</span>). Consequently, if any NP-complete
+problem is solved in polynomial time, then <span
+class="math inline">P=NP</span>. Examples from the lectures:
+CIRCUIT-SAT, SAT, 3-CNF-SAT, CLIQUE, VERTEX-COVER, HAMILTONIAN-CYCLE,
+TSP (decision version).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 4(b)(ii)</strong> Explain whether the following
+problem is a P/NP problem. “Find the minimal number of colours <span
+class="math inline">m</span>, such that no two adjacent vertices are
+coloured using the same colour on a graph with <span
+class="math inline">n</span> vertices.”</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>This is the <strong>chromatic number</strong> problem, an
+<strong>optimisation</strong> problem, not a decision problem, so
+strictly it is not “in NP” (NP contains only yes/no problems). What can
+be said:</p>
+<ul>
+<li>Its <strong>decision version</strong> “can the graph be coloured
+with <span class="math inline">k</span> colours?” is in
+<strong>NP</strong>: a colouring is a certificate and is verified in
+<span class="math inline">O(|V|+|E|)</span> by checking each edge. It is
+<strong>NP-complete</strong> for <span class="math inline">k\ge3</span>
+(beyond the lecture; for <span class="math inline">k=2</span> it is the
+bipartite test, which is in P).</li>
+<li>The optimisation problem is <strong>NP-hard</strong>: if we could
+compute the minimum <span class="math inline">m</span> in polynomial
+time, we could answer “is <span class="math inline">m\le k</span>?” in
+polynomial time. So it is <strong>not known to be in P</strong>, and is
+in P only if <span class="math inline">P=NP</span>.</li>
+<li>An algorithm that tries all colourings is exponential: <span
+class="math inline">m^n</span> assignments.</li>
+</ul>
+<p>(Flag: the wording “P/NP problem” is loose. The safe answer states
+the difference between the optimisation and decision versions, as above.
+A grader expecting one word probably wants “NP-complete (decision
+version) / NP-hard”, not “in P”.)</p>
+<p><strong>Link.</strong> The optimisation and decision versions are
+tied by a polynomial number of decision queries (binary search on <span
+class="math inline">k</span>, or just try <span
+class="math inline">k=1,2,\dots</span>), so one is polynomial exactly
+when the other is. That is why NP-completeness results are stated for
+decision problems without loss of generality.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 4(b)(iii)</strong> For each of the following
+sentences, state whether the sentence is known to be true, false, or
+unknown. (a) If a problem is NP-complete, it must also be in NP. (b) If
+a problem is NP-complete, it must not be in P. (c) If a problem is not
+in P, it must be NP-complete.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(a) True.</strong> Being in NP is part of the definition of
+NP-complete.</p>
+<p><strong>(b) Unknown.</strong> An NP-complete problem is in P exactly
+when <span class="math inline">P=NP</span>, and that is the open
+question. So the sentence is true if <span class="math inline">P\ne
+NP</span> (which most researchers believe) and false if <span
+class="math inline">P=NP</span>; nobody has proved either.</p>
+<p><strong>(c) False.</strong> Not being in P does not make a problem
+NP-complete, because it may lie <strong>outside NP</strong>, or inside
+NP but not NP-complete. A proven example: the halting problem is not in
+P (it is undecidable) and is not NP-complete, since it is not even in NP
+(every NP problem is decidable). (Beyond the lecture.) Another: any
+problem that is provably harder than NP, such as one that needs
+exponential space.</p>
+<p><strong>Link.</strong> The three sentences go in order from
+definition (a), to the open question (b), to a <strong>non
+sequitur</strong> (c): “hard” and “NP-complete” are different notions.
+NP-complete is a narrow class inside NP; “not in P” is a vast class that
+also contains undecidable problems.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S1 4(b)</strong> What is an NP problem, and an
+NP-complete problem? Is the following problem an NP problem? Justify
+your yes/no answers. “Is it possible to colour the vertices of a graph
+by <span class="math inline">k</span> colours such that no two adjacent
+vertices have the same colour?”</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>NP problem.</strong> A <strong>decision</strong> problem
+(yes/no) for which a given solution, a <em>certificate</em>, to a YES
+instance can be <strong>verified in polynomial time</strong> by a
+deterministic algorithm. Equivalently, solvable in polynomial time by a
+nondeterministic algorithm (guess a certificate, then check it). “NP” is
+not “not polynomial”.</p>
+<p><strong>NP-complete problem.</strong> A problem <span
+class="math inline">D</span> that is (1) in NP and (2) NP-hard: every
+problem <span class="math inline">Q</span> in NP reduces to <span
+class="math inline">D</span> in polynomial time (<span
+class="math inline">Q\le_pD</span>).</p>
+<p><strong>Is graph <span class="math inline">k</span>-colouring an NP
+problem? Yes.</strong> It is a decision problem. If the answer is yes, a
+certificate is a colouring <span
+class="math inline">c(v)\in\{1..k\}</span> for every vertex. It can be
+checked in <span class="math inline">O(|V|+|E|)</span> time: for every
+edge <span class="math inline">\{u,v\}</span> test <span
+class="math inline">c(u)\ne c(v)</span>, and test that every colour is
+at most <span class="math inline">k</span>. Both tests are polynomial.
+So <span class="math inline">k</span>-colouring is in NP.</p>
+<p>(Beyond the lecture: for <span class="math inline">k\ge3</span> the
+problem is NP-complete, and for <span class="math inline">k=2</span> it
+is in P, since it asks whether the graph is bipartite, which BFS answers
+in linear time. The question only asks about NP.)</p>
+<p><strong>Link.</strong> “In NP” is a statement about
+<strong>checking</strong>, not solving. The colouring verifier is the
+same shape as every NP verifier in the NP page: a short certificate plus
+a polynomial test. This question is the same pattern as the Hamiltonian
+cycle and subset-sum membership checks.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S2 4(b)(i)</strong> What is an NP-complete problem?
+For each of the following sentences, state whether the sentence is known
+to be true, false, or unknown. (a) If a problem is in P, it must also be
+in NP. (b) If a problem is in NP, it must also be in P. (c) If a problem
+is NP-complete, it must also be in NP.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>NP-complete.</strong> A problem is NP-complete if it is
+<strong>in NP</strong> (a YES answer has a certificate that can be
+verified in polynomial time) and <strong>NP-hard</strong> (every problem
+in NP reduces to it in polynomial time).</p>
+<p><strong>(a) True.</strong> A polynomial-time algorithm that solves
+the problem can also serve as the verifier (ignore the certificate and
+solve the instance), so <span class="math inline">P\subseteq
+NP</span>.</p>
+<p><strong>(b) Unknown.</strong> It holds for every problem exactly when
+<span class="math inline">P=NP</span>, which is still open. (For
+individual easy problems it is of course true, but the sentence claims
+it for every problem in NP.)</p>
+<p><strong>(c) True.</strong> Being in NP is part of the definition of
+NP-complete.</p>
+<p><strong>Link.</strong> The three sentences are <span
+class="math inline">P\subseteq NP</span> (proved), <span
+class="math inline">NP\subseteq P</span> (open) and NP-complete <span
+class="math inline">\subseteq NP</span> (definition). Compare AY2324 S2
+4(b)(ii) and AY2223 S2 4(b)(iii), which test the same trio.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S2 4(b)(ii)</strong> Explain whether the following
+problems are P problems. If the problem is not P, try to solve it with a
+polynomial-time heuristic algorithm. Describe your solution. No
+pseudocode is needed. Vertex colouring problem: find the minimal number
+of colours <span class="math inline">m</span>, such that no two adjacent
+vertices are coloured using the same colour on a graph with <span
+class="math inline">n</span> vertices. Linear programming: maximize a
+linear function subject to linear inequality constraints.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Vertex colouring (minimum number of colours): not known to be
+in P.</strong> Its decision version “can the graph be coloured with
+<span class="math inline">k</span> colours?” is NP-complete for <span
+class="math inline">k\ge3</span> (beyond the lecture), so the
+optimisation problem is NP-hard. No polynomial algorithm is known, and
+one would give <span class="math inline">P=NP</span>.</p>
+<p><em>Polynomial-time heuristic: greedy colouring.</em> Visit the
+vertices in some order (for example in decreasing order of degree, the
+Welsh-Powell rule). Give each vertex the <strong>smallest colour not
+used by its already coloured neighbours</strong>. The cost is <span
+class="math inline">O(n+|E|)</span> after the ordering (plus <span
+class="math inline">O(n\log n)</span> to sort the degrees), and it uses
+at most <span class="math inline">\Delta+1</span> colours, where <span
+class="math inline">\Delta</span> is the largest degree. It is
+<strong>not optimal in general</strong>: on a bipartite graph (optimum
+2) the order of visiting can force more. Example: take <span
+class="math inline">u_1,u_2,u_3,v_1,v_2,v_3</span> with <span
+class="math inline">u_i</span> adjacent to <span
+class="math inline">v_j</span> for <span class="math inline">i\ne
+j</span>. Visiting <span
+class="math inline">u_1,v_1,u_2,v_2,u_3,v_3</span> gives <span
+class="math inline">u_1\to1</span>, <span
+class="math inline">v_1\to1</span>, <span
+class="math inline">u_2\to2</span>, <span
+class="math inline">v_2\to2</span>, <span
+class="math inline">u_3\to3</span>, <span
+class="math inline">v_3\to3</span>: <strong>3</strong> colours, while
+the best is 2 (code check). Visiting all <span
+class="math inline">u</span>’s first gives 2.</p>
+<p><strong>Linear programming: it is in P.</strong> Polynomial-time
+algorithms exist: the ellipsoid method (Khachiyan, 1979) and
+interior-point methods (Karmarkar, 1984). The simplex method is
+exponential in the worst case but fast in practice. So no heuristic is
+needed. (Both facts are <strong>beyond the lecture</strong>.)</p>
+<p><strong>Link.</strong> Two problems that look alike (optimise a
+function under constraints) fall on opposite sides of the P versus NP
+line. LP is easy because the feasible region is <strong>convex</strong>;
+colouring is a discrete problem with no such structure. The greedy
+colouring heuristic has the same flavour as shortest-link for TSP
+(AY2324 S1 4(b)): fast, plausible and with no optimality guarantee.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY20/21 S2 4(a)</strong> Show that if NP = P, then
+NP-Complete = NP = P <span class="math inline">\subset</span>
+NP-hard.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Assume <span class="math inline">P=NP</span>.</p>
+<ol type="1">
+<li><strong>NP-complete <span class="math inline">\subseteq</span> NP
+<span class="math inline">=</span> P.</strong> By definition every
+NP-complete problem is in NP.</li>
+<li><strong>NP <span class="math inline">\subseteq</span>
+NP-complete.</strong> Let <span class="math inline">X</span> be any
+problem in NP <span class="math inline">=</span> P (not trivial: it has
+at least one YES and one NO instance, <span
+class="math inline">x_{\text{yes}}</span> and <span
+class="math inline">x_{\text{no}}</span>). To show <span
+class="math inline">X</span> is NP-hard take any problem <span
+class="math inline">Q</span> in NP. Since NP <span
+class="math inline">=</span> P, <span class="math inline">Q</span> has a
+polynomial-time algorithm. The reduction <span
+class="math inline">Q\le_pX</span> is: given an instance <span
+class="math inline">q</span> of <span class="math inline">Q</span>,
+<strong>solve it</strong> in polynomial time, and output <span
+class="math inline">x_{\text{yes}}</span> if the answer is YES and <span
+class="math inline">x_{\text{no}}</span> otherwise. This is a
+polynomial-time reduction that preserves the answer. So <span
+class="math inline">X</span> is NP-hard, and since it is also in NP it
+is NP-complete. Hence NP <span class="math inline">\subseteq</span>
+NP-complete.</li>
+<li>From 1 and 2, NP-complete <span class="math inline">=</span> NP
+<span class="math inline">=</span> P.</li>
+<li><strong>P <span class="math inline">\subset</span> NP-hard
+(proper).</strong> Every NP-complete problem is NP-hard, so P <span
+class="math inline">=</span> NP-complete <span
+class="math inline">\subseteq</span> NP-hard. The inclusion is strict
+because NP-hard also contains problems that are <strong>not in
+NP</strong>, for example the halting problem (undecidable, so not in P,
+and still NP-hard since every NP problem reduces to it). <span
+class="math inline">\blacksquare</span></li>
+</ol>
+<p>(Flags: the two trivial problems, the empty language and the set of
+all strings, are in P but are not NP-complete, since no reduction can
+map a YES and a NO instance onto them; the statement “NP-complete <span
+class="math inline">=</span> NP” is for the non-trivial problems, which
+is what the question intends. The halting problem example is
+<strong>beyond the lecture</strong>.)</p>
+<p><strong>Link.</strong> This is why the P versus NP question is so
+central: if the answer is “equal”, the <strong>whole</strong> class NP
+collapses into one level of difficulty, “every non-trivial problem in P
+is complete”. If the answer is “not equal”, the three classes are all
+different (Ladner’s theorem even adds a layer in between, <strong>beyond
+the lecture</strong>). Compare the three true/false/unknown sentences in
+AY2324 S2 4(b)(ii) and AY2122 S2 4(b)(i).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY20/21 S2 4(b)</strong> For a conventional computer, <span
+class="math inline">n</span> bits can represent only 1 <em>state</em> at
+a time (e.g., 4-bit 1000 or 0101); for a quantum computer, amazingly,
+<span class="math inline">n</span> <em>qu-bits</em> can represent <span
+class="math inline">2^n</span> states at the same time. Therefore,
+someone proposes to show NP = P by using a quantum computer. Do you
+believe that such a quantum computer can make NP = P? Justify your
+opinion. (Hint: Is a quantum computer non-deterministic?)</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>No.</strong> (Beyond the lecture, so the answer is a short
+argument.)</p>
+<ul>
+<li><strong>A quantum computer is not a nondeterministic
+machine.</strong> NP is defined by a <em>nondeterministic</em> machine
+that <strong>guesses</strong> a certificate and is <em>credited with
+success</em> if any branch accepts. A quantum computer is a physical
+device that evolves deterministically (unitary evolution of amplitudes)
+and, when measured, returns <strong>one</strong> random outcome with
+probability given by the amplitudes. It does not hold <span
+class="math inline">2^n</span> independent answers that you can read
+out; a measurement collapses the superposition to a single state.</li>
+<li><strong>Being able to hold <span class="math inline">2^n</span>
+states does not mean you can pick the right one.</strong> To solve an NP
+problem by search you need the machine to reveal a satisfying assignment
+among the <span class="math inline">2^n</span>. Without extra structure,
+Grover’s algorithm needs about <span
+class="math inline">\sqrt{2^n}=2^{n/2}</span> steps, which is still
+exponential, and it is known to be optimal for unstructured search.</li>
+<li><strong>P versus NP is a statement about the machine
+models</strong>, and a classical computer can simulate a quantum
+computer (with an exponential slowdown). Building a quantum computer
+therefore cannot prove or disprove <span
+class="math inline">P=NP</span>; the class BQP of quantum-polynomial
+problems is <strong>not believed</strong> to contain the NP-complete
+problems. (Shor’s algorithm factors integers in polynomial time on a
+quantum computer, but factoring is not known to be NP-complete.)</li>
+</ul>
+<p><strong>Link.</strong> The “magic” of nondeterminism in NP is
+one-sided: <em>guess and verify</em>. Quantum parallelism gives a
+quadratic search speed-up at best for unstructured problems, which is a
+different resource. Notice again the lecture’s definition of NP as
+“verifiable in polynomial time”: a verifier is deterministic, and it is
+the <em>guessing</em> that no real machine has.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY19/20 S1 4(a)</strong> The Travelling Salesman Problem for
+the cities is given in Figure Q4. (<strong>Not in your course:</strong>
+the shortest-link and nearest neighbour heuristics are not in your
+slides, although this predecessor paper teaches them. They are worked
+here.) (i) Show the total distance and the sequence of the edges of the
+graph chosen by using the Shortest-link algorithm. (ii) Show the total
+distance and the sequence of the edges chosen by using the Nearest
+Neighbour algorithm, starting from node A.</p>
+<figure>
+<img src="img/pyp/1920s1_q4.png"
+alt="Figure Q4 (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q4 (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Edges: <span class="math inline">AF\,13</span>, <span
+class="math inline">AC\,12</span>, <span
+class="math inline">AD\,3</span>, <span
+class="math inline">FE\,5</span>, <span
+class="math inline">FB\,10</span>, <span
+class="math inline">CE\,7</span>, <span
+class="math inline">CD\,9</span>, <span
+class="math inline">ED\,15</span>, <span
+class="math inline">EB\,11</span>, <span
+class="math inline">BD\,8</span>. There is no edge <span
+class="math inline">AB</span>, <span class="math inline">FC</span>,
+<span class="math inline">FD</span> or <span
+class="math inline">CB</span>.</p>
+<p><strong>(i) Shortest-link:</strong> take edges in increasing order;
+reject an edge that would give a vertex degree 3 or close a cycle before
+all vertices are in the tour.</p>
+<table>
+<thead>
+<tr>
+<th>edge</th>
+<th>weight</th>
+<th>decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AD</td>
+<td>3</td>
+<td>take</td>
+</tr>
+<tr>
+<td>FE</td>
+<td>5</td>
+<td>take</td>
+</tr>
+<tr>
+<td>CE</td>
+<td>7</td>
+<td>take</td>
+</tr>
+<tr>
+<td>BD</td>
+<td>8</td>
+<td>take</td>
+</tr>
+<tr>
+<td>CD</td>
+<td>9</td>
+<td>reject: <span class="math inline">D</span> would have degree 3 (A,
+B, C)</td>
+</tr>
+<tr>
+<td>FB</td>
+<td>10</td>
+<td>take</td>
+</tr>
+<tr>
+<td>EB</td>
+<td>11</td>
+<td>reject: <span class="math inline">B</span> would have degree 3</td>
+</tr>
+<tr>
+<td>AC</td>
+<td>12</td>
+<td>take: closes the tour</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sequence AD, FE, CE, BD, FB, AC; total distance <span
+class="math inline">3+5+7+8+10+12=45</span>.</strong> The tour is <span
+class="math inline">A-D-B-F-E-C-A</span>.</p>
+<p><strong>(ii) Nearest neighbour from <span
+class="math inline">A</span>:</strong> from the current city go to the
+nearest unvisited city.</p>
+<ul>
+<li>A: neighbours D (3), C (12), F (13): go to <strong>D</strong>
+(3).</li>
+<li>D: unvisited B (8), C (9), E (15): go to <strong>B</strong>
+(8).</li>
+<li>B: unvisited F (10), E (11): go to <strong>F</strong> (10).</li>
+<li>F: unvisited E (5) (and A is visited): go to <strong>E</strong>
+(5).</li>
+<li>E: unvisited C (7): go to <strong>C</strong> (7).</li>
+<li>C: all visited: return to <strong>A</strong> (12).</li>
+</ul>
+<p><strong>Sequence AD, DB, BF, FE, EC, CA; total distance <span
+class="math inline">3+8+10+5+7+12=45</span>.</strong></p>
+<figure>
+<img src="fig/pyp1920s1_tsp.svg"
+alt="The tour found by both heuristics: A-D-B-F-E-C-A, length 45 (red)" />
+<figcaption aria-hidden="true">The tour found by both heuristics:
+A-D-B-F-E-C-A, length 45 (red)</figcaption>
+</figure>
+<p>Both heuristics give the <strong>same tour, length 45</strong>, and
+it is <strong>optimal</strong>: of the 10 directed Hamiltonian cycles
+from <span class="math inline">A</span> the lengths are 45, 53, 58, 65,
+70 (code). The paper does not ask whether the tour is optimal; here the
+greedy choices happen to be right.</p>
+<p><strong>Link.</strong> Compare AY2324 S1 4(b), where shortest-link
+produced 29 against an optimum of 27. Both heuristics are cheap (<span
+class="math inline">O(E\log E)</span> and <span
+class="math inline">O(V^2)</span>) and neither guarantees the optimum;
+on this graph the cheap edges AD, FE, CE, BD all belong to the best
+tour, which is why greedy succeeds.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY19/20 S1 4(b)</strong> The graph colouring problem is to
+determine the minimum number of colours needed to colour a given
+undirected graph <span class="math inline">G</span> such that each node
+is assigned a different colour from all its neighbours. State its
+decision problem.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Graph <span class="math inline">k</span>-colouring (decision
+version):</strong> given an undirected graph <span
+class="math inline">G</span> and a natural number <span
+class="math inline">k</span>, <strong>can <span
+class="math inline">G</span> be coloured with at most <span
+class="math inline">k</span> colours</strong> such that every node has a
+colour different from all its neighbours?</p>
+<p>The minimisation problem in the question is an optimisation problem,
+and NP is defined for yes/no problems, so it is turned into a decision
+problem by adding the bound <span class="math inline">k</span>. The
+optimisation answer is the smallest <span class="math inline">k</span>
+for which the decision answer is yes.</p>
+<p>(Flag: the circulated solution says “can <span
+class="math inline">G</span> be coloured with <strong>more than</strong>
+<span class="math inline">k</span> colours”. That is wrong: with a <span
+class="math inline">k</span> below the number of nodes you can always
+use more colours, so the question would be trivial. The standard bound
+is “at most <span class="math inline">k</span>”.)</p>
+<p><strong>Link.</strong> The decision problem is in NP: a colouring is
+a certificate and each edge is checked in <span
+class="math inline">O(1)</span> (see AY2223 S1 4(b)). Answering the
+decision problem for <span class="math inline">k=1,2,3,\dots</span>
+solves the optimisation problem, so the two are equally hard.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY19/20 S1 4(c)</strong> The clique problem is the
+optimization problem of finding a clique of maximum size in a graph. (i)
+Find the number of vertex subsets of size 4 in a 7-vertex graph. (ii)
+Design a brute-force search algorithm for the decision problem of the
+clique problem. Write down the pseudo code. You may assume that the
+functions of combination and permutation are given. (iii) Write down the
+time complexity of the algorithm in Q4(c)(ii) in Big-<span
+class="math inline">O</span> notation.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> <span
+class="math inline">\binom74=\dfrac{7!}{4!\,3!}=\mathbf{35}</span>
+subsets.</p>
+<p><strong>(ii)</strong> The decision problem: given <span
+class="math inline">G</span> and an integer <span
+class="math inline">k</span>, does <span class="math inline">G</span>
+contain a <strong>clique</strong> (a set of vertices in which every two
+are joined by an edge) of size <span class="math inline">k</span>? (A
+clique with more than <span class="math inline">k</span> vertices
+contains one of size exactly <span class="math inline">k</span>, so
+testing size <span class="math inline">k</span> is enough.)</p>
+<pre><code>cliqueExists(G, k):
+    for each subset S of k vertices of G:          // combination(n, k): C(n,k) subsets
+        isClique = true
+        for each pair (u, v) of distinct vertices in S:   // k(k-1)/2 pairs
+            if there is no edge (u, v) in G: isClique = false; break
+        if isClique: return YES
+    return NO</code></pre>
+<p><strong>(iii)</strong> There are <span class="math inline">\binom
+nk</span> subsets, and each needs up to <span class="math inline">\binom
+k2=O(k^2)</span> edge tests: <strong><span
+class="math inline">O\!\big(\binom nk k^2\big)</span></strong>, which is
+<span class="math inline">O(n^kk^2)</span> since <span
+class="math inline">\binom nk\le n^k</span>. For <span
+class="math inline">n=7</span>, <span class="math inline">k=4</span>
+that is <span class="math inline">35</span> subsets with 6 pairs each.
+This is polynomial only if <span class="math inline">k</span> is a fixed
+constant; when <span class="math inline">k</span> grows with <span
+class="math inline">n</span> (for example <span
+class="math inline">k=n/2</span>) it is exponential, as expected for an
+NP-complete problem. (The brute force was tested against a second
+implementation on 300 random graphs, all answers agreeing.)</p>
+<p><strong>Link.</strong> The algorithm is the typical
+<strong>certificate search</strong>: the certificate is the set <span
+class="math inline">S</span> and the verification (all pairs adjacent)
+is the polynomial part; the exponential part is the number of
+candidates. Compare AY2324 S2 4(b)(ii) and the NP page: finding is hard,
+checking is easy.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S2 4</strong> We introduce the <em>longest path
+problem</em> (LP): finding a <em>simple</em> path of maximum length in a
+graph. A path is <em>simple</em> if it does NOT have repeated vertices.
+Suppose that the graph has <em>non-negative integer weights</em>. (a)
+What is the corresponding decision problem of LP? (b) Show that LP is
+NP. (c) Show that LP is NP-hard (Hint: try to reduce from the Travelling
+Salesman Path problem (TSP)). (d) Show that LP is NP-complete.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(a) Decision problem:</strong> given a graph <span
+class="math inline">G</span> with non-negative integer edge weights and
+an integer <span class="math inline">k</span>, does <span
+class="math inline">G</span> contain a <strong>simple path of length at
+least <span class="math inline">k</span></strong>? (Length = total
+weight of the edges.) The paper’s solution says “longer than <span
+class="math inline">k</span>”; “at least <span
+class="math inline">k</span>” and “more than <span
+class="math inline">k</span>” are equivalent up to replacing <span
+class="math inline">k</span> by <span
+class="math inline">k-1</span>.</p>
+<p><strong>(b) LP is in NP.</strong> The certificate is a path, a
+sequence of at most <span class="math inline">|V|</span> vertices. A
+verifier checks in polynomial time that (1) consecutive vertices are
+joined by an edge, (2) no vertex repeats (a scan or a marker array,
+<span class="math inline">O(|V|^2)</span> or <span
+class="math inline">O(|V|)</span>), and (3) the sum of the edge weights
+is at least <span class="math inline">k</span>. All three are
+polynomial. (The <em>search</em> for a longest simple path needs, as far
+as we know, an exponential number of candidate paths, but verifying one
+is easy.)</p>
+<p><strong>(c) LP is NP-hard: reduce the Travelling Salesman Path
+problem to it.</strong> TSP-Path (decision): given a complete graph with
+non-negative integer weights <span class="math inline">w</span> and a
+bound <span class="math inline">B</span>, is there a <strong>Hamiltonian
+path</strong> (a simple path through all <span
+class="math inline">n</span> vertices) of total weight at most <span
+class="math inline">B</span>? This problem is NP-hard (it is the TSP
+with the return edge removed).</p>
+<p>Reduction: let <span class="math inline">S</span> be the sum of all
+weights and <span class="math inline">M=S+1</span>. Build the same graph
+with new weights <span class="math inline">w&#39;(e)=M-w(e)\ge1</span>
+(still non-negative integers) and ask LP with the bound <span
+class="math inline">k=(n-1)M-B</span>.</p>
+<ul>
+<li>A simple path with <span class="math inline">j</span> edges has
+<span class="math inline">w&#39;</span>-length <span
+class="math inline">jM-w(\text{path})</span>. Because <span
+class="math inline">0\le w(\text{path})\le S&lt;M</span>, this lies in
+<span class="math inline">((j-1)M,\,jM]</span>. So a path with more
+edges is <strong>always longer</strong>; the longest simple path is
+therefore a path with the most edges, a Hamiltonian path with <span
+class="math inline">n-1</span> edges (the graph is complete, so one
+exists).</li>
+<li>For a Hamiltonian path <span class="math inline">P</span>: <span
+class="math inline">w&#39;(P)=(n-1)M-w(P)</span>, so <span
+class="math inline">w&#39;(P)\ge(n-1)M-B</span> exactly when <span
+class="math inline">w(P)\le B</span>.</li>
+</ul>
+<p>So the TSP-Path instance is a YES instance if and only if the LP
+instance is a YES instance. The construction takes polynomial time
+(<span class="math inline">O(n^2)</span> weights). Hence LP is NP-hard.
+(The reduction formula was tested on 100 random complete graphs with
+<span class="math inline">n=4</span> to <span
+class="math inline">6</span>: the longest simple path in <span
+class="math inline">w&#39;</span> always had length <span
+class="math inline">(n-1)M-(\text{shortest Hamiltonian
+path})</span>.)</p>
+<p><strong>(d) LP is NP-complete</strong>, because it is in NP by (b)
+and NP-hard by (c). <span class="math inline">\blacksquare</span></p>
+<p><strong>Link.</strong> Turning “minimise” into “maximise” is done by
+subtracting from a big constant, and the constant has to be big enough
+(<span class="math inline">M&gt;S</span>) that the number of edges
+dominates; this is the same trick as turning a shortest-path problem
+into a longest-path problem. In an acyclic graph the longest path is
+easy (<span class="math inline">O(V+E)</span> with DP on a topological
+order, see the DP page), so the NP-hardness comes entirely from allowing
+<strong>cycles</strong> (the simplicity condition). Compare the
+Hamiltonian-cycle and TSP chain on the NP page.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S1 2(c)</strong> Given a knapsack of capacity <span
+class="math inline">C</span> and <span class="math inline">n</span>
+objects with sizes <span class="math inline">s_1,\dots,s_n</span> and
+profits <span class="math inline">p_1,\dots,p_n</span>, the optimisation
+problem is to find the largest total profit of any subset of the objects
+that fits in the knapsack. State the decision problem version of the
+knapsack problem. Explain briefly whether the problem is in NP.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Decision version:</strong> given the capacity <span
+class="math inline">C</span>, the sizes <span
+class="math inline">s_i</span>, the profits <span
+class="math inline">p_i</span> and a target profit <span
+class="math inline">P</span>, is there a subset of the objects with
+total size <span class="math inline">\le C</span> and total profit <span
+class="math inline">\ge P</span>?</p>
+<p><strong>It is in NP.</strong> A certificate is the subset itself (a
+list of at most <span class="math inline">n</span> indices). A
+deterministic verifier adds the sizes and compares the sum with <span
+class="math inline">C</span>, adds the profits and compares with <span
+class="math inline">P</span>: <span class="math inline">O(n)</span>
+steps, polynomial in the input size. So a YES answer can be verified in
+polynomial time, which is the definition of NP.</p>
+<p>(Note on a trap: the DP algorithm runs in <span
+class="math inline">O(nC)</span>, but <span class="math inline">C</span>
+is written in <span class="math inline">\log C</span> bits, so <span
+class="math inline">O(nC)</span> is exponential in the input size.
+Knapsack is therefore still NP-complete, as the DP page explains.)</p>
+<p><strong>Link.</strong> The optimisation and decision versions are
+linked by binary search on <span class="math inline">P</span> (about
+<span class="math inline">\log</span> of the total profit decision
+queries), so each is polynomial exactly when the other is. Compare the
+colouring and clique decision versions (AY1920 S1 4(b), 4(c)).</p>
+</div>
+</details>
+<h2 id="tutorials">Tutorials</h2>
+<h3
+id="tutorial-12-q1-classification-of-decision-problem-into-p-vs.-np">Tutorial
+12 Q1: Classification of Decision Problem into P vs. NP</h3>
+<div class="q">
+<p>Is the following problem in the class P or NP? Justify your
+answer:</p>
+<blockquote>
+<p><em>Given a network of cities <span class="math inline">G</span> with
+non-negative edge weights and a positive integer <span
+class="math inline">k</span>. Are the shortest paths between all pairs
+of cities not longer than <span class="math inline">k</span>?</em></p>
+</blockquote>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Classification: The problem is in P</strong> (and
+consequently in NP).</li>
+<li><strong>Justification:</strong>
+<ol type="1">
+<li>Dijkstra’s algorithm computes the shortest paths from a single
+source vertex to all other vertices in <span
+class="math inline">O(|V|^2)</span> time (using an adjacency matrix) or
+<span class="math inline">O(|E| + |V| \log |V|)</span> time (using a
+min-heap).</li>
+<li>Running Dijkstra’s algorithm from every vertex <span
+class="math inline">u \in V</span> computes all-pairs shortest paths in
+<span class="math inline">|V| \times O(|V|^2) = O(|V|^3)</span> time.
+<em>(Alternatively, the Floyd-Warshall dynamic programming algorithm
+solves all-pairs shortest paths directly in <span
+class="math inline">\Theta(|V|^3)</span> time).</em></li>
+<li>Once all-pairs shortest path distances <span
+class="math inline">dist[u][v]</span> are computed, checking whether
+every pairwise distance satisfies <span class="math inline">dist[u][v]
+\le k</span> takes <span class="math inline">O(|V|^2)</span>
+comparisons.</li>
+<li>Total execution time is <span class="math inline">O(|V|^3)</span>,
+which is strictly bounded by a polynomial in the input size.</li>
+<li>Because a deterministic algorithm can solve this decision problem in
+polynomial time, the problem belongs to <strong>Class P</strong>.</li>
+</ol></li>
+</ul>
+</div>
+</details>
+<h3 id="tutorial-12-q2-proving-the-clique-problem-is-in-np">Tutorial 12
+Q2: Proving the CLIQUE Problem is in NP</h3>
+<div class="q">
+<p>Given a graph <span class="math inline">G = (V, E)</span> and
+positive integer <span class="math inline">k \le |V|</span>. The
+<strong>CLIQUE</strong> problem asks whether <span
+class="math inline">G</span> contains a <span
+class="math inline">k</span>-clique (a subset <span
+class="math inline">V&#39; \subseteq V</span> of size <span
+class="math inline">|V&#39;| \ge k</span> such that every pair of
+vertices in <span class="math inline">V&#39;</span> is connected by an
+edge in <span class="math inline">E</span>). Show that the CLIQUE
+problem is in NP.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>To prove CLIQUE <span class="math inline">\in NP</span>, we specify a
+polynomial-time verification algorithm:</p>
+<ol type="1">
+<li><strong>Certificate (Witness):</strong> The candidate subset of
+vertices <span class="math inline">V&#39; \subseteq V</span>.</li>
+<li><strong>Verification Protocol:</strong>
+<ul>
+<li>Step 1: Verify that every vertex in <span
+class="math inline">V&#39;</span> belongs to <span
+class="math inline">V</span>. Time: <span
+class="math inline">O(|V&#39;|) \le O(|V|)</span>.</li>
+<li>Step 2: Verify that <span class="math inline">|V&#39;| \ge k</span>.
+Time: <span class="math inline">O(1)</span> (or <span
+class="math inline">O(|V|)</span>).</li>
+<li>Step 3: For every distinct pair of vertices <span
+class="math inline">u, v \in V&#39;</span>, verify that edge <span
+class="math inline">(u, v) \in E</span>.
+<ul>
+<li>Number of pairs checked: <span
+class="math inline">\binom{|V&#39;|}{2} = \frac{|V&#39;|(|V&#39;| -
+1)}{2} = O(|V|^2)</span>.</li>
+<li>Checking edge existence takes <span class="math inline">O(1)</span>
+in an adjacency matrix, or <span class="math inline">O(|V|)</span> in an
+adjacency list.</li>
+<li>Total edge verification time: <span
+class="math inline">O(|V|^2)</span>.</li>
+</ul></li>
+</ul></li>
+<li><strong>Conclusion:</strong> The verification algorithm runs in
+deterministic <strong><span class="math inline">O(|V|^2)</span>
+polynomial time</strong>. If <span class="math inline">G</span> contains
+a <span class="math inline">k</span>-clique, the verifier outputs YES
+given <span class="math inline">V&#39;</span>. Thus, <strong>CLIQUE
+<span class="math inline">\in</span> NP</strong>.</li>
+</ol>
+</div>
+</details>
+<h3 id="tutorial-12-q3-proving-3-cnf-sat-is-in-np">Tutorial 12 Q3:
+Proving 3-CNF-SAT is in NP</h3>
+<div class="q">
+<p>In the 3-CNF-SAT problem, we are given a set of boolean variables
+<span class="math inline">U = \{u_1, \dots, u_n\}</span> and a
+collection of clauses <span class="math inline">C = \{c_1, \dots,
+c_m\}</span> where each clause <span class="math inline">c_j</span> is a
+disjunction (<span class="math inline">\lor</span>) of exactly 3
+literals. The problem asks if there exists a truth assignment satisfying
+all clauses simultaneously. Show that 3-CNF-SAT is in NP.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li><strong>Certificate:</strong> An assignment of boolean truth values
+to the <span class="math inline">n</span> variables: <span
+class="math inline">A = (u_1 \in \{T, F\}, u_2 \in \{T, F\}, \dots, u_n
+\in \{T, F\})</span>.</li>
+<li><strong>Verification Protocol:</strong>
+<ul>
+<li>For each of the <span class="math inline">m</span> clauses <span
+class="math inline">c_j = (l_{j,1} \lor l_{j,2} \lor l_{j,3})</span>:
+<ul>
+<li>Evaluate the truth value of the 3 literals under assignment <span
+class="math inline">A</span>.</li>
+<li>The clause evaluates to <code>True</code> if at least one literal is
+<code>True</code>. This requires at most 3 lookups: <span
+class="math inline">O(1)</span> time per clause.</li>
+</ul></li>
+<li>Total verification time across all <span
+class="math inline">m</span> clauses: <span class="math display">m
+\times O(1) = \mathbf{O(m)}.</span></li>
+</ul></li>
+<li><strong>Conclusion:</strong> The verifier validates the certificate
+in deterministic linear time <span class="math inline">O(m) =
+O(\text{Input Size})</span>. Therefore, <strong>3-CNF-SAT <span
+class="math inline">\in</span> NP</strong>.</li>
+</ol>
+</div>
+</details>
+<h3
+id="tutorial-12-q4-proving-3-cnf-sat-is-np-complete-via-reduction-from-sat">Tutorial
+12 Q4: Proving 3-CNF-SAT is NP-Complete via Reduction from SAT</h3>
+<div class="q">
+<p>Given that SAT (satisfiability of arbitrary CNF formulas) is
+NP-complete, prove that <strong>3-CNF-SAT</strong> is also
+NP-complete.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><p><strong>1. Membership in NP:</strong> From Tutorial 12 Q3, a
+truth assignment certificate can be verified across all <span
+class="math inline">m</span> clauses in <span
+class="math inline">O(m)</span> linear time. Thus 3-CNF-SAT <span
+class="math inline">\in</span> NP.</p></li>
+<li><p><strong>2. Reduction: <span class="math inline">\text{SAT} \le_p
+\text{3-CNF-SAT}</span>:</strong> We must transform an arbitrary CNF
+formula <span class="math inline">\phi = C_1 \land C_2 \land \dots \land
+C_m</span> where clauses have arbitrary length into a 3-CNF formula
+<span class="math inline">\phi&#39;</span> where every clause has
+exactly 3 literals. Transform each clause <span class="math inline">C =
+(x_1 \lor x_2 \lor \dots \lor x_k)</span> independently:</p>
+<ul>
+<li><strong>Case 1 (<span class="math inline">k = 1</span> literal,
+<span class="math inline">C = (x_1)</span>):</strong> Introduce two new
+dummy variables <span class="math inline">y_1, y_2</span> and expand
+into 4 clauses of 3 literals: <span class="math display">C&#39; = (x_1
+\lor y_1 \lor y_2) \land (x_1 \lor \neg y_1 \lor y_2) \land (x_1 \lor
+y_1 \lor \neg y_2) \land (x_1 \lor \neg y_1 \lor \neg y_2)</span>
+<em>(For all 4 clauses to be true simultaneously, <span
+class="math inline">x_1</span> must evaluate to True).</em></li>
+<li><strong>Case 2 (<span class="math inline">k = 2</span> literals,
+<span class="math inline">C = (x_1 \lor x_2)</span>):</strong> Introduce
+one dummy variable <span class="math inline">z_1</span> and expand into
+2 clauses: <span class="math display">C&#39; = (x_1 \lor x_2 \lor z_1)
+\land (x_1 \lor x_2 \lor \neg z_1)</span> <em>(Independent of whether
+<span class="math inline">z_1</span> is True or False, <span
+class="math inline">x_1 \lor x_2</span> must be True).</em></li>
+<li><strong>Case 3 (<span class="math inline">k = 3</span>
+literals):</strong> Retain clause unmodified: <span
+class="math inline">C&#39; = (x_1 \lor x_2 \lor x_3)</span>.</li>
+<li><strong>Case 4 (<span class="math inline">k &gt; 3</span> literals,
+<span class="math inline">C = (x_1 \lor x_2 \lor \dots \lor
+x_k)</span>):</strong> Introduce <span class="math inline">k - 3</span>
+auxiliary variables <span class="math inline">w_1, w_2, \dots,
+w_{k-3}</span> and construct a chain of <span class="math inline">k -
+2</span> clauses: <span class="math display">\begin{aligned} C&#39; ={}
+&amp; (x_1 \lor x_2 \lor w_1) \land (\neg w_1 \lor x_3 \lor w_2) \\
+&amp; \land (\neg w_2 \lor x_4 \lor w_3) \land \dots \land (\neg w_{k-3}
+\lor x_{k-1} \lor x_k) \end{aligned}</span></li>
+</ul></li>
+<li><p><strong>3. Correctness &amp; Equivalence Proof:</strong></p>
+<ul>
+<li>If original clause <span class="math inline">C</span> is satisfied:
+At least one literal <span class="math inline">x_i = \text{True}</span>.
+<ul>
+<li>If <span class="math inline">i \in \{1, 2\}</span>, setting <span
+class="math inline">w_1 = w_2 = \dots = w_{k-3} = \text{False}</span>
+satisfies all subsequent clauses.</li>
+<li>If <span class="math inline">i \in \{k-1, k\}</span>, setting all
+<span class="math inline">w_j = \text{True}</span> satisfies all
+preceding clauses.</li>
+<li>If <span class="math inline">2 &lt; i &lt; k-1</span>, set <span
+class="math inline">w_1 \dots w_{i-2} = \text{True}</span> and <span
+class="math inline">w_{i-1} \dots w_{k-3} = \text{False}</span>,
+satisfying every clause in the chain.</li>
+</ul></li>
+<li>If all <span class="math inline">x_i = \text{False}</span>: The
+chain collapses to: <span class="math display">(w_1) \land (\neg w_1
+\lor w_2) \land \dots \land (\neg w_{k-3}),</span> which requires <span
+class="math inline">w_1 \implies w_2 \implies \dots \implies w_{k-3}
+\implies \text{False}</span>, making simultaneous satisfaction
+impossible.</li>
+</ul></li>
+<li><p><strong>4. Complexity:</strong> A clause of <span
+class="math inline">k</span> literals yields at most <span
+class="math inline">k - 2</span> new 3-literal clauses and <span
+class="math inline">k - 3</span> variables. The reduction runs in <span
+class="math inline">O(|\phi|)</span> linear time. Therefore, <span
+class="math inline">\text{SAT} \le_p \text{3-CNF-SAT}</span>,
+establishing that <strong>3-CNF-SAT is NP-Complete</strong>.</p></li>
+</ul>
+</div>
+</details>
+
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="drill.js"></script>
+</body></html>

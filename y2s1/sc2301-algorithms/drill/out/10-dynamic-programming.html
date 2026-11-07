@@ -1,0 +1,4372 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>10. Dynamic programming</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="drill.css">
+</head><body data-page="10-dynamic-programming">
+<nav class="top"><a href="index.html">All topics</a><span id="count"></span>
+<label><input type="checkbox" id="onlyshaky"> only shaky</label>
+<button id="export">Copy progress</button></nav>
+<main>
+<h1 id="dynamic-programming">10. Dynamic programming</h1>
+<h2 id="facts">Facts</h2>
+<div class="q">
+<p>What is the difference between divide and conquer and dynamic
+programming?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>In divide and conquer the sub-problems are
+<strong>independent</strong> (mergesort’s two halves share nothing). In
+DP the sub-problems <strong>overlap</strong>, so plain recursion
+recomputes the same one many times. DP solves each sub-problem
+<strong>once</strong>, stores the answer, and reuses it.</p>
+</div>
+</details>
+<div class="q">
+<p>Two conditions under which DP applies.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Overlapping sub-problems</strong> (otherwise plain recursion
+is already efficient) and the <strong>principle of optimality</strong>:
+an optimal solution contains optimal solutions to its sub-problems. Both
+must hold for an optimisation problem.</p>
+</div>
+</details>
+<div class="q">
+<p>State the principle of optimality and the cut-and-paste argument for
+it.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The sub-solutions of an optimal solution are themselves optimal for
+their sub-problems. Cut-and-paste: suppose some part is not optimal for
+its sub-problem. Replace it by a better part. The whole solution
+improves and is still valid, contradicting optimality. (Check the pasted
+part still fits.)</p>
+</div>
+</details>
+<div class="q">
+<p>List the five steps of the DP recipe.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Define the sub-problems (in words, exactly). 2. Write the recursive
+function and base cases. 3. Draw the subproblem graph (a DAG) and find a
+topological order. 4. Choose a dictionary (table) with one entry per
+sub-problem. 5. Write the iterative function that fills the table in
+that order; keep parent pointers to recover the solution itself.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p>Time of a DP algorithm in terms of its table.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">\text{time}\approx(\text{number of
+sub-problems})\times(\text{work per sub-problem})</span>. Space is the
+table size (reducible if only the last row or two are needed, but then
+the solution cannot be rebuilt).</p>
+</div>
+</details>
+<div class="q">
+<p>Compare memoization and tabulation.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Memoization (top-down):</strong> keep the recursion, add a
+dictionary, check it before each recursive call, store the answer before
+returning. It solves only the sub-problems actually reached.
+<strong>Tabulation (bottom-up):</strong> fill the table with loops in
+reverse topological order of the subproblem graph; you choose the order,
+and it solves all sub-problems.</p>
+</div>
+</details>
+<div class="q">
+<p>Why does naive <code>fib(n)</code> take exponential time, and what is
+the DP time?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The call tree has <span class="math inline">\Theta(\varphi^n)</span>
+nodes (between <span class="math inline">2^{n/2}</span> and <span
+class="math inline">2^n</span>) but only <span
+class="math inline">n+1</span> different sub-problems, so it repeats
+work. With a dictionary each sub-problem is solved once at <span
+class="math inline">O(1)</span>: <span
+class="math inline">\Theta(n)</span> time.</p>
+</div>
+</details>
+<div class="q">
+<p>State the LCS recurrence and its cost.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">c[i,j]=0</span> if <span
+class="math inline">i=0</span> or <span class="math inline">j=0</span>;
+<span class="math inline">c[i-1,j-1]+1</span> if <span
+class="math inline">x_i=y_j</span>; <span
+class="math inline">\max(c[i-1,j],c[i,j-1])</span> otherwise. Time and
+space <span class="math inline">\Theta(nm)</span>. The traceback from
+<span class="math inline">(n,m)</span> takes <span
+class="math inline">O(n+m)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>How do you recover the LCS itself from the table?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Start at <span class="math inline">(n,m)</span>. If <span
+class="math inline">x_i=y_j</span>, output that character and move
+diagonally to <span class="math inline">(i-1,j-1)</span>. Otherwise move
+to the neighbour with the larger value (up if <span
+class="math inline">c[i-1,j]\ge c[i,j-1]</span>, else left). Reverse the
+output.</p>
+</div>
+</details>
+<div class="q">
+<p>State the 0/1 knapsack recurrence and cost.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">P(r,j)=0</span> if <span
+class="math inline">r=0</span> or <span class="math inline">j=0</span>.
+If <span class="math inline">w_j&gt;r</span>: <span
+class="math inline">P(r,j)=P(r,j-1)</span>. Else <span
+class="math inline">P(r,j)=\max\big(P(r,j-1),\,p_j+P(r-w_j,j-1)\big)</span>.
+Table <span class="math inline">(C+1)\times(n+1)</span>: time and space
+<span class="math inline">\Theta(nC)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Why is <span class="math inline">\Theta(nC)</span> called
+pseudo-polynomial?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>It is polynomial in the <strong>value</strong> of <span
+class="math inline">C</span> but exponential in the <strong>number of
+bits</strong> of <span class="math inline">C</span> (<span
+class="math inline">C=2^b</span> for <span class="math inline">b</span>
+bits). The input size is <span class="math inline">n+\log C</span>, so a
+100-bit capacity is hopeless. Knapsack is still NP-complete in the usual
+sense.</p>
+</div>
+</details>
+<div class="q">
+<p>How can 0/1 knapsack use only <span class="math inline">O(C)</span>
+space for the optimal value?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Keep one array indexed by capacity and update it for each object with
+capacity running <strong>backwards</strong> (<span
+class="math inline">r=C</span> down to <span
+class="math inline">w_j</span>), so each <span
+class="math inline">P[r-w_j]</span> still holds the previous object’s
+value. Looping forwards would let an object be used twice (unbounded
+knapsack).</p>
+</div>
+</details>
+<div class="q">
+<p>How does greedy differ from DP in the choice at each step?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Greedy commits to the choice that looks best now and never
+reconsiders. DP <strong>computes all</strong> choices for the last
+decision and takes the best. Greedy is correct only when a greedy-choice
+property can be proved (for example MST, Dijkstra).</p>
+</div>
+</details>
+<h2 id="problems">Problems</h2>
+<h3 id="problem-1-when-greedy-fails-coin-change">Problem 1: when greedy
+fails (coin change)</h3>
+<p>Coins <span class="math inline">\{1,3,4\}</span>. Make the amount 6
+with the <strong>fewest</strong> coins.</p>
+<div class="q">
+<p><strong>(a)</strong> What does greedy (always take the largest coin
+that fits) give? Is it optimal?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Greedy takes <span class="math inline">4+1+1</span>, three coins. The
+optimum is <span class="math inline">3+3</span>, two coins. So greedy is
+<strong>not</strong> optimal for this coin set. (Greedy works for some
+coin systems, such as <span class="math inline">\{1,5,10,25\}</span>,
+but not for arbitrary ones.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Write the five-step solution: sub-problem,
+recurrence, base case, order, answer.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li><span class="math inline">f(a)</span> = the fewest coins that sum to
+exactly <span class="math inline">a</span>.</li>
+<li><span class="math inline">f(0)=0</span>; <span
+class="math inline">f(a)=1+\min_{c\le a}f(a-c)</span> over coins <span
+class="math inline">c</span> (the last coin used is some <span
+class="math inline">c</span>; the rest is optimal for <span
+class="math inline">a-c</span> by cut and paste). Use <span
+class="math inline">\infty</span> if no coin fits and no way
+exists.</li>
+<li>Each <span class="math inline">a</span> points to <span
+class="math inline">a-c</span>: a DAG; order <span
+class="math inline">a=0,1,\dots,A</span>.</li>
+<li>Array <span class="math inline">f[0..A]</span>.</li>
+<li>Fill left to right. Answer <span class="math inline">f[A]</span>.
+Time <span class="math inline">\Theta(A\cdot k)</span> for <span
+class="math inline">k</span> coins, space <span
+class="math inline">\Theta(A)</span> (pseudo-polynomial in <span
+class="math inline">A</span>).</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">a</span></th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">f(a)</span></td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p>For example <span
+class="math inline">f(6)=1+\min(f(5),f(3),f(2))=1+\min(2,1,2)=2</span>,
+taking the coin 3 last.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(c)</strong> How many different ways make 6 if the order of
+coins does not matter? What recurrence changes?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>4 ways: <span class="math inline">1\times6</span>; <span
+class="math inline">3+1\times3</span>; <span
+class="math inline">3+3</span>; <span class="math inline">4+1+1</span>.
+Loop over coins in the <strong>outer</strong> loop and amounts inside,
+with <span
+class="math inline">\text{ways}[a]\mathrel{+}=\text{ways}[a-c]</span>.
+The table is <span class="math inline">[1,1,1,2,3,3,4]</span> for <span
+class="math inline">a=0..6</span>. Putting amounts in the outer loop
+would count orderings (compositions) separately, giving 9 instead of
+4.</p>
+</div>
+</details>
+<h3 id="problem-2-longest-increasing-subsequence">Problem 2: longest
+increasing subsequence</h3>
+<div class="q">
+<p><strong>(a)</strong> Find the length of the longest strictly
+increasing subsequence of <span
+class="math inline">[10,9,2,5,3,7,101,18]</span> and give the DP
+table.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Sub-problem: <span class="math inline">L(i)</span> = length of the
+longest increasing subsequence <strong>ending at</strong> index <span
+class="math inline">i</span>. Recurrence: <span
+class="math inline">L(i)=1+\max\{L(j):j&lt;i,\ x_j&lt;x_i\}</span> (or 1
+if no such <span class="math inline">j</span>). Order: left to right.
+Answer <span class="math inline">\max_iL(i)</span>.</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">x_i</span></td>
+<td>10</td>
+<td>9</td>
+<td>2</td>
+<td>5</td>
+<td>3</td>
+<td>7</td>
+<td>101</td>
+<td>18</td>
+</tr>
+<tr>
+<td><span class="math inline">L(i)</span></td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p>The answer is <strong>4</strong>, for example <span
+class="math inline">2,5,7,101</span> or <span
+class="math inline">2,3,7,18</span>. (Checked by brute force over all
+subsequences.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Time and space? Why does the sub-problem say
+“ending at <span class="math inline">i</span>” instead of “within the
+first <span class="math inline">i</span> elements”?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">\Theta(n^2)</span> time (each <span
+class="math inline">i</span> looks at all <span
+class="math inline">j&lt;i</span>), <span
+class="math inline">\Theta(n)</span> space. “Within the first <span
+class="math inline">i</span> elements” does not tell you whether you can
+<strong>extend</strong> the sequence with <span
+class="math inline">x_i</span> (you do not know its last value), so the
+recurrence cannot be written. Fixing the last element makes the
+extension test <span class="math inline">x_j&lt;x_i</span> possible.
+This is the same idea as fixing the last decision in LCS and
+knapsack.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(c)</strong> Link to LCS: show LIS reduces to an LCS
+computation.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Sort a copy of the sequence (removing duplicates) to get <span
+class="math inline">y</span>. The LIS of <span
+class="math inline">x</span> is the LCS of <span
+class="math inline">x</span> and <span class="math inline">y</span>: a
+common subsequence is increasing (it is a subsequence of the sorted
+<span class="math inline">y</span>) and lies in <span
+class="math inline">x</span>. Time <span
+class="math inline">\Theta(n^2)</span> again. This shows LCS is a more
+general tool than it looks.</p>
+</div>
+</details>
+<h3 id="problem-3-edit-distance">Problem 3: edit distance</h3>
+<div class="q">
+<p><strong>(a)</strong> The edit distance between strings is the fewest
+insert, delete or replace operations to turn one into the other. Define
+the sub-problem and recurrence, then fill the table for <span
+class="math inline">s=</span> “kitten”, <span
+class="math inline">t=</span> “sitting”.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">D(i,j)</span> = edit distance between the
+first <span class="math inline">i</span> characters of <span
+class="math inline">s</span> and the first <span
+class="math inline">j</span> of <span class="math inline">t</span>.
+<span class="math inline">D(i,0)=i</span>, <span
+class="math inline">D(0,j)=j</span>. Otherwise <span
+class="math inline">D(i,j)=\min\big(D(i-1,j)+1,\ D(i,j-1)+1,\
+D(i-1,j-1)+[s_i\ne t_j]\big)</span>: delete <span
+class="math inline">s_i</span>, insert <span
+class="math inline">t_j</span>, or replace/match.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>-</th>
+<th>s</th>
+<th>i</th>
+<th>t</th>
+<th>t</th>
+<th>i</th>
+<th>n</th>
+<th>g</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>-</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>k</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>7</td>
+</tr>
+<tr>
+<td>i</td>
+<td>2</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr>
+<td>t</td>
+<td>3</td>
+<td>3</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+</tr>
+<tr>
+<td>t</td>
+<td>4</td>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr>
+<td>e</td>
+<td>5</td>
+<td>5</td>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr>
+<td>n</td>
+<td>6</td>
+<td>6</td>
+<td>5</td>
+<td>4</td>
+<td>3</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>The answer is <span class="math inline">D(6,7)=3</span>: replace k by
+s, replace e by i, insert g.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> How does the recurrence compare with LCS, and
+what are the time and space?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Same shape: a table indexed by prefix lengths, each cell depending on
+its up, left and diagonal neighbours, with the diagonal depending on
+whether the two characters match. Time and space <span
+class="math inline">\Theta(nm)</span>. With only the previous row kept,
+space falls to <span class="math inline">O(m)</span> for the distance
+alone.</p>
+</div>
+</details>
+<h3 id="problem-4-grid-path">Problem 4: grid path</h3>
+<div class="q">
+<p><strong>(a)</strong> A robot moves only right or down from the
+top-left to the bottom-right of this grid. Each cell has a cost. Find
+the minimum total cost.</p>
+<p><span
+class="math display">\begin{array}{cccc}1&amp;3&amp;1&amp;2\\1&amp;5&amp;1&amp;9\\4&amp;2&amp;1&amp;1\end{array}</span></p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">M(i,j)</span> = minimum cost to reach cell
+<span class="math inline">(i,j)</span> = <span
+class="math inline">g_{ij}+\min(M(i-1,j),M(i,j-1))</span> (only one
+neighbour exists on the first row or column).</p>
+<table>
+<thead>
+<tr>
+<th>1</th>
+<th>4</th>
+<th>5</th>
+<th>7</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>7</td>
+<td>6</td>
+<td>15</td>
+</tr>
+<tr>
+<td>6</td>
+<td>8</td>
+<td>7</td>
+<td><strong>8</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The minimum is <strong>8</strong>. Trace back from the bottom-right
+cell, each time stepping to the smaller of the cell above and the cell
+to the left: <span class="math inline">8\to7</span> (left; above is 15),
+<span class="math inline">7\to6</span> (above; left is 8), <span
+class="math inline">6\to5</span> (above; left is 7), <span
+class="math inline">5\to4</span> (left, the only neighbour), <span
+class="math inline">4\to1</span>. The path is right, right, down, down,
+right with cell costs <span class="math inline">1+3+1+1+1+1=8</span>.
+(Checked by enumerating all paths.)</p>
+</div>
+</details>
+<h3 id="problem-5-subset-sum">Problem 5: subset sum</h3>
+<div class="q">
+<p><strong>(a)</strong> Is there a subset of <span
+class="math inline">\{3,34,4,12,5,2\}</span> with sum 9? Give the table,
+and recover a subset.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">S(i,t)</span> = true if some subset of the
+first <span class="math inline">i</span> numbers sums to <span
+class="math inline">t</span>. <span class="math inline">S(i,0)</span> =
+true; <span class="math inline">S(i,t)=S(i-1,t)</span> or (<span
+class="math inline">t\ge v_i</span> and <span
+class="math inline">S(i-1,t-v_i)</span>).</p>
+<table>
+<thead>
+<tr>
+<th>item</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(none)</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+</tr>
+<tr>
+<td>3</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+</tr>
+<tr>
+<td>34</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+</tr>
+<tr>
+<td>4</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+</tr>
+<tr>
+<td>12</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+</tr>
+<tr>
+<td>5</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+</tr>
+<tr>
+<td>2</td>
+<td>T</td>
+<td>F</td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+<td>T</td>
+</tr>
+</tbody>
+</table>
+<p><span class="math inline">S(6,9)</span> is true. Trace back from the
+bottom-right cell: <span class="math inline">S(5,9)</span> is also true,
+so the number 2 is not needed. <span class="math inline">S(4,9)</span>
+is false, so the number 5 is used and we continue at <span
+class="math inline">S(4,4)</span>. <span
+class="math inline">S(3,4)</span> is true, so 12 is not needed. <span
+class="math inline">S(2,4)</span> is false, so the number 4 is used and
+we reach <span class="math inline">S(2,0)</span>. The subset is <span
+class="math inline">\{5,4\}</span>. (Brute force finds exactly two
+subsets, <span class="math inline">\{4,5\}</span> and <span
+class="math inline">\{3,4,2\}</span>.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Subset sum is the special case of knapsack in
+which profit equals weight. What does that say about its time and about
+NP-completeness?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The DP takes <span class="math inline">\Theta(nT)</span>,
+pseudo-polynomial in the target <span class="math inline">T</span>.
+Subset sum is NP-complete (chapter 12), so no polynomial-time algorithm
+is known: the DP is fast only when <span class="math inline">T</span> is
+small. This is the standard example of a problem that is NP-complete yet
+easy for small numbers.</p>
+</div>
+</details>
+<h2 id="past-year-questions">Past-year questions</h2>
+<p>Questions from past papers (SC2001/CZ2101/CE2001). Every answer was
+worked out and checked by code; where a circulated official solution
+exists it was compared, and disagreements are flagged.</p>
+<figure>
+<img src="img/pyp/2526s2_q4a.png"
+alt="Figure Q4a: the robot grid (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q4a: the robot grid (clipped from
+the paper)</figcaption>
+</figure>
+<div class="q">
+<p><strong>AY25/26 S2 4(a)(i)</strong> A robot on an <span
+class="math inline">m\times n</span> grid starts at the top-left cell
+<span class="math inline">(0,0)</span> and moves only down or right. Let
+<span class="math inline">C(i,j)</span> be the number of unique paths
+from <span class="math inline">(0,0)</span> to <span
+class="math inline">(i,j)</span>. Define a recursive function for <span
+class="math inline">C(i,j)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">C(0,j)=1</span> and <span
+class="math inline">C(i,0)=1</span> (only one way along the first row or
+column). For <span class="math inline">i,j\ge1</span>: <span
+class="math display">C(i,j)=C(i-1,j)+C(i,j-1).</span> The last move into
+<span class="math inline">(i,j)</span> came from above or from the left,
+and these cases share no path.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S2 4(a)(ii)</strong> Draw the subproblem graph for
+<span class="math inline">C(2,3)</span>. Label each node with the
+computed value.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The nodes are the cells <span class="math inline">(i,j)</span> with
+<span class="math inline">0\le i\le2</span>, <span
+class="math inline">0\le j\le3</span>. Each node with <span
+class="math inline">i,j\ge1</span> has an arrow to <span
+class="math inline">(i-1,j)</span> and to <span
+class="math inline">(i,j-1)</span>. The values are in the figure above
+(the node’s value is in the circle and its <span
+class="math inline">(i,j)</span> is beneath it):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><span class="math inline">j=0</span></th>
+<th><span class="math inline">j=1</span></th>
+<th><span class="math inline">j=2</span></th>
+<th><span class="math inline">j=3</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">i=0</span></td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td><span class="math inline">i=1</span></td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr>
+<td><span class="math inline">i=2</span></td>
+<td>1</td>
+<td>3</td>
+<td>6</td>
+<td><strong>10</strong></td>
+</tr>
+</tbody>
+</table>
+<p><span class="math inline">C(2,3)=10=\binom52</span> (choose which 2
+of the 5 moves go down). Only 12 sub-problems exist, against
+exponentially many calls without memoisation.</p>
+<figure>
+<img src="fig/pyp2526s2_q4.svg"
+alt="Subproblem graph for C(2,3), values in each node" />
+<figcaption aria-hidden="true">Subproblem graph for C(2,3), values in
+each node</figcaption>
+</figure>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S2 4(a)(iii)</strong> Given <span
+class="math inline">m</span> and <span class="math inline">n</span>,
+design a bottom-up DP algorithm to count the unique paths to <span
+class="math inline">(m-1,n-1)</span>, with a brief time and space
+analysis.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<pre><code>C[0..m-1][0..n-1]
+for i = 0 to m-1: C[i][0] = 1
+for j = 0 to n-1: C[0][j] = 1
+for i = 1 to m-1:
+    for j = 1 to n-1:
+        C[i][j] = C[i-1][j] + C[i][j-1]
+return C[m-1][n-1]</code></pre>
+<p>Row by row, left to right, so both neighbours are ready (a reverse
+topological order of the subproblem graph). <strong>Time <span
+class="math inline">\Theta(mn)</span></strong> (one <span
+class="math inline">O(1)</span> step per cell). <strong>Space <span
+class="math inline">\Theta(mn)</span></strong>, which can be reduced to
+<span class="math inline">\Theta(n)</span> by keeping one row, because
+each row needs only the row above and the cell to its left.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S1 4(a)</strong> Decide whether each statement about
+dynamic programming is true (T/F). A. DP divides problems into
+subproblems, finds solutions to the subproblems, and synthesises larger
+solutions from smaller ones. B. DP solves subproblems in a sequential
+order according to problem size. C. DP divides a problem at prespecified
+deterministic points. D. DP builds solutions through a sequence of
+individual steps. E. DP makes a selection out of a collection of choices
+at each step. F. At each step, DP computes its locally optimal choice.
+G. DP stores the solutions of subproblems and reuses them. H.
+Subproblems are independent.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>A T, B T, C F, D T, E T, F F, G T, H F.</strong></p>
+<ul>
+<li>A true: the definition. B true: tabulation fills smaller
+sub-problems first (reverse topological order, which is by size in the
+standard problems).</li>
+<li>C false: that describes divide and conquer (fixed split at the
+middle). DP tries <strong>all</strong> split points or choices.</li>
+<li>D true: a solution is built up through successive decisions (this
+one is the least certain; it is also true of greedy, so read it as “DP
+builds up a solution step by step”).</li>
+<li>E true: at each step DP considers the set of choices for the last
+decision and takes the best. F false: “locally optimal choice” is
+greedy; DP computes all choices and compares.</li>
+<li>G true: that is the point of memoisation. H false: sub-problems
+<strong>overlap</strong>.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S1 4(b)(i)</strong> A robber chooses houses along a
+row of <span class="math inline">n\ge1</span> houses with cash <span
+class="math inline">C[i]</span> and will not rob adjacent houses. Give a
+recursive definition of <span class="math inline">M(n)</span>, the
+maximum money from the first <span class="math inline">n</span>
+houses.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">M(0)=0</span>, <span
+class="math inline">M(1)=C[1]</span>, and for <span
+class="math inline">n\ge2</span>: <span
+class="math display">M(n)=\max\big(M(n-1),\ M(n-2)+C[n]\big).</span>
+Either skip house <span class="math inline">n</span> (best of the first
+<span class="math inline">n-1</span>) or rob it (then house <span
+class="math inline">n-1</span> is skipped, and the best of the first
+<span class="math inline">n-2</span> is added). (Checked against brute
+force over all non-adjacent subsets for 200 random arrays.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S1 4(b)(ii)</strong> Prove that the house robber
+problem satisfies the principle of optimality.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Take an optimal selection <span class="math inline">S</span> for the
+first <span class="math inline">n</span> houses.</p>
+<ul>
+<li>If <span class="math inline">S</span> does <strong>not</strong>
+contain house <span class="math inline">n</span>, then <span
+class="math inline">S</span> is a valid selection among the first <span
+class="math inline">n-1</span> houses. It must be optimal for <span
+class="math inline">M(n-1)</span>: if a better selection <span
+class="math inline">S&#39;</span> existed for the first <span
+class="math inline">n-1</span> houses, then <span
+class="math inline">S&#39;</span> is also valid for <span
+class="math inline">n</span> houses (it does not use house <span
+class="math inline">n</span>), with more money than <span
+class="math inline">S</span>, contradicting that <span
+class="math inline">S</span> is optimal.</li>
+<li>If <span class="math inline">S</span> contains house <span
+class="math inline">n</span>, then it does not contain house <span
+class="math inline">n-1</span>, and <span
+class="math inline">S\setminus\{n\}</span> is a valid selection among
+the first <span class="math inline">n-2</span>. It must be optimal for
+<span class="math inline">M(n-2)</span>: a better selection <span
+class="math inline">S&#39;</span> among the first <span
+class="math inline">n-2</span> houses can be combined with house <span
+class="math inline">n</span> (<span class="math inline">n-2</span> and
+<span class="math inline">n</span> are not adjacent), giving a valid
+selection with more money than <span class="math inline">S</span>, a
+contradiction.</li>
+</ul>
+<p>So an optimal solution always contains optimal solutions to its
+sub-problems (cut and paste).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S2 4(a)</strong> A stack of glasses is arranged in a
+pyramid. Row 1 has 1 glass, row 2 has 2, row 3 has 3, and so on. Each
+glass holds 1 unit. Champagne poured into the top glass fills it, and
+any excess spills equally to the two glasses directly below (left and
+right). Let <span class="math inline">C(i,j)</span> be the amount in the
+<span class="math inline">j</span>th glass of the <span
+class="math inline">i</span>th row (both 0-indexed) after pouring <span
+class="math inline">k</span> units into the topmost glass <span
+class="math inline">(0,0)</span> (Figure Q4a). (i) Define a recursive
+function to compute <span class="math inline">C(i,j)</span>. Hint:
+instead of recursing on the actual value <span
+class="math inline">C(i,j)</span>, introduce intermediate variables.
+(ii) Draw the subproblem graph for <span
+class="math inline">C(4,2)</span> after pouring 10 units. Label each
+node with the value of the recursive function. (iii) Design a bottom-up
+DP algorithm that computes the amount in the glass <span
+class="math inline">(m,n)</span> after pouring <span
+class="math inline">k</span> units. Analyse time and space.</p>
+<figure>
+<img src="img/pyp/2425s2_q4a.png"
+alt="Figure Q4a (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q4a (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) Recursive definition.</strong> <span
+class="math inline">C(i,j)</span> cannot be defined from the two glasses
+above it, because a glass above may hold only 1 unit while it passes on
+much more. Use the <strong>flow</strong> <span
+class="math inline">F(i,j)</span>, the total amount that arrives at
+glass <span class="math inline">(i,j)</span> (before the 1-unit cap).
+Then <span class="math inline">C(i,j)=\min(1,F(i,j))</span> and <span
+class="math display">F(0,0)=k,\qquad
+F(i,j)=\frac{\max(0,F(i-1,j-1)-1)}{2}+\frac{\max(0,F(i-1,j)-1)}{2}</span>
+for <span class="math inline">i\ge1</span>, where a term is dropped if
+the parent glass does not exist (<span
+class="math inline">j-1&lt;0</span> or <span
+class="math inline">j&gt;i-1</span>). A parent with flow <span
+class="math inline">F</span> keeps 1 unit and sends <span
+class="math inline">\frac{F-1}2</span> to each child, but only if <span
+class="math inline">F&gt;1</span>.</p>
+<p><strong>(ii) Subproblem graph for <span
+class="math inline">C(4,2)</span>, <span
+class="math inline">k=10</span>.</strong> An arrow means “needs the
+value of”. Only 9 of the 15 glasses in rows 0 to 4 are needed.</p>
+<figure>
+<img src="fig/pyp2425s2_q4.svg"
+alt="Subproblem graph for C(4,2); the value C is next to each node" />
+<figcaption aria-hidden="true">Subproblem graph for C(4,2); the value C
+is next to each node</figcaption>
+</figure>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+<col style="width: 10%" />
+</colgroup>
+<thead>
+<tr>
+<th>glass</th>
+<th>(0,0)</th>
+<th>(1,0)</th>
+<th>(1,1)</th>
+<th>(2,0)</th>
+<th>(2,1)</th>
+<th>(2,2)</th>
+<th>(3,1)</th>
+<th>(3,2)</th>
+<th>(4,2)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>flow <span class="math inline">F</span></td>
+<td>10</td>
+<td>4.5</td>
+<td>4.5</td>
+<td>1.75</td>
+<td>3.5</td>
+<td>1.75</td>
+<td>1.625</td>
+<td>1.625</td>
+<td>0.625</td>
+</tr>
+<tr>
+<td><span class="math inline">C=\min(1,F)</span></td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td><strong>0.625</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Check one step: (1,0) and (1,1) each get <span
+class="math inline">(10-1)/2=4.5</span>, keep 1, and pass on <span
+class="math inline">1.75</span> each. Glass (2,1) gets <span
+class="math inline">1.75+1.75=3.5</span>. Glass (3,1) gets <span
+class="math inline">\frac{3.5-1}{2}=1.25</span> from (2,1) and <span
+class="math inline">\frac{1.75-1}{2}=0.375</span> from (2,0), so <span
+class="math inline">1.625</span>; glass (3,2) gets the same by symmetry.
+Each of them keeps 1 and sends <span
+class="math inline">\frac{1.625-1}{2}=0.3125</span> down, so (4,2) gets
+<span class="math inline">0.3125+0.3125=0.625</span>.</p>
+<p><strong>(iii) Bottom-up.</strong> Fill the rows from the top. Only
+the first <span class="math inline">m+1</span> rows are needed.</p>
+<pre><code>F[0][0] = k
+for i = 1 to m:
+    for j = 0 to i:
+        F[i][j] = 0
+        if j &gt;= 1:  F[i][j] += max(0, F[i-1][j-1] - 1) / 2
+        if j &lt;= i-1: F[i][j] += max(0, F[i-1][j] - 1) / 2
+return min(1, F[m][n])</code></pre>
+<p>Time <span class="math inline">\Theta(m^2)</span> (row <span
+class="math inline">i</span> has <span class="math inline">i+1</span>
+glasses), <strong>independent of <span
+class="math inline">k</span></strong>. Space <span
+class="math inline">\Theta(m^2)</span> for the table, or <span
+class="math inline">\Theta(m)</span> keeping only the previous row.</p>
+<p><strong>Link (properties worth knowing).</strong></p>
+<ul>
+<li>The graph is <strong>Pascal’s triangle</strong>: every glass has up
+to two parents, as in the robot grid and the binomial coefficient <span
+class="math inline">C(n,k)=C(n-1,k-1)+C(n-1,k)</span> (Tutorial 10 Q3).
+Without the <span class="math inline">\max(0,\cdot-1)</span> and halving
+it would be Pascal’s rule exactly. The recursion on a naive “amount in
+the glass” would recompute shared parents: heavy overlap, the signal for
+DP.</li>
+<li>No liquid is lost. With 8 rows and <span
+class="math inline">k=10</span> the glasses hold exactly 10 units
+(code). A glass in row <span class="math inline">i</span> starts to
+receive champagne only after a threshold: <span
+class="math inline">(1,0)</span> needs <span
+class="math inline">k&gt;1</span>, <span
+class="math inline">(2,1)</span> needs <span
+class="math inline">k&gt;3</span>, <span
+class="math inline">(4,2)</span> needs <span
+class="math inline">k&gt;8</span> for any liquid at all, and <span
+class="math inline">k\ge11</span> to fill it (code).</li>
+<li>Compare with Catalan (2425 S1 4(b)): there each state depends on
+<strong>all</strong> smaller states and the table costs <span
+class="math inline">\Theta(N^2)</span> time; here each state depends on
+two, but there are <span class="math inline">\Theta(m^2)</span> of them,
+so the time is also <span class="math inline">\Theta(m^2)</span>.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S1 4(b)</strong> The Catalan numbers are defined by
+<span class="math inline">C(0)=C(1)=1</span> and <span
+class="math inline">C(n)=C(0)C(n-1)+C(1)C(n-2)+\dots+C(n-1)C(0)</span>
+for <span class="math inline">n\ge2</span>. (i) Give a recursive
+algorithm to compute <span class="math inline">C(n)</span> for an
+arbitrary <span class="math inline">n</span> as suggested by the
+recurrence. (ii) Draw the subproblem graph for <span
+class="math inline">C(6)</span>. (iii) Write an iterative algorithm
+using the dynamic programming approach (bottom-up) to compute <span
+class="math inline">C(n)</span>. What are the time complexity and space
+complexity?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> Follow the recurrence directly:</p>
+<pre><code>Cat(n):
+    if n &lt;= 1: return 1
+    s = 0
+    for i = 0 to n-1:
+        s = s + Cat(i) * Cat(n-1-i)
+    return s</code></pre>
+<p>Without memoisation the number of calls <span
+class="math inline">F(n)</span> satisfies <span
+class="math inline">F(n)=1+2\sum_{i&lt;n}F(i)</span>, which gives <span
+class="math inline">1,1,5,15,45,135,\dots=5\cdot3^{n-2}</span>, so <span
+class="math inline">\Theta(3^n)</span> calls (checked by code).</p>
+<p><strong>(ii)</strong> <span class="math inline">C(n)</span> depends
+on <strong>every</strong> smaller value, so each node has an arrow to
+all lower nodes. The values are in red under each node.</p>
+<figure>
+<img src="fig/pyp2425s1_q4.svg" alt="Subproblem graph for C(6)" />
+<figcaption aria-hidden="true">Subproblem graph for C(6)</figcaption>
+</figure>
+<p>Only 7 distinct subproblems exist (<span
+class="math inline">C(0)</span> to <span
+class="math inline">C(6)</span>), but there are 21 arrows (each pair
+once): heavy overlap, which is the signal for DP.</p>
+<p><strong>(iii)</strong></p>
+<pre><code>C[0] = C[1] = 1
+for n = 2 to N:
+    C[n] = 0
+    for i = 0 to n-1:
+        C[n] = C[n] + C[i] * C[n-1-i]
+return C[N]</code></pre>
+<p>Values: <span class="math inline">1,1,2,5,14,42,132,429,\dots</span>.
+<strong>Time <span class="math inline">\Theta(N^2)</span></strong> (the
+inner loop has <span class="math inline">n</span> steps, and <span
+class="math inline">\sum_{n=2}^N n=\Theta(N^2)</span> multiplications).
+<strong>Space <span class="math inline">\Theta(N)</span></strong> for
+the array. (Big-number growth is ignored, as usual.)</p>
+<p>Cross-topic: this is DP where each state depends on
+<strong>all</strong> smaller states, unlike the robot grid (<span
+class="math inline">C(i,j)</span> uses two neighbours, <span
+class="math inline">\Theta(mn)</span>) or house robber (two
+predecessors, <span class="math inline">\Theta(n)</span>).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S2 4(a)</strong> (Rod cutting is not in your slides,
+but it is the same recurrence as the coin-change problem on this page.)
+The retired IronMan is selling his steel rods left in the lab. Each
+steel rod is of length <span class="math inline">n\le7</span> and can be
+cut up into pieces for sale. The market price <span
+class="math inline">p_i</span> for a rod of length <span
+class="math inline">i</span> is: <span
+class="math inline">i=1,\dots,7</span>: <span
+class="math inline">4,6,8,15,17,25,28</span>. IronMan wants an optimal
+way of cutting the rods to get the maximum profit. (i) Let <span
+class="math inline">r(n)</span> be the maximum profit he can get from a
+steel rod of length <span class="math inline">n</span>. Give a recursive
+definition of <span class="math inline">r(n)</span>. (ii) Draw the
+subproblem graph for <span class="math inline">r(5)</span>. (iii)
+Compute the time complexity of recursively solving <span
+class="math inline">r(n)</span> using the top-down approach
+<strong>without</strong> dictionary/memoization. (iv) Design a dynamic
+programming algorithm of <span class="math inline">r(n)</span> using the
+bottom-up approach. Write the pseudo code and put the answers in the
+table (lengths 0 to 7).</p>
+<figure>
+<img src="img/pyp/2324s2_q4a.png"
+alt="Prices (clipped from the paper)" />
+<figcaption aria-hidden="true">Prices (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) Recursive definition.</strong> Fix the <strong>first
+piece</strong> to be cut off (any length <span
+class="math inline">i</span> from 1 to <span
+class="math inline">n</span>); the rest is the same problem for <span
+class="math inline">n-i</span>: <span class="math display">r(0)=0,\qquad
+r(n)=\max_{1\le i\le n}\big(p_i+r(n-i)\big)\quad(n\ge1).</span> (Taking
+<span class="math inline">i=n</span> means “do not cut”.)</p>
+<p><strong>(ii) Subproblem graph for <span
+class="math inline">r(5)</span>.</strong> One node per length <span
+class="math inline">0,\dots,5</span>. <span
+class="math inline">r(j)</span> needs <span
+class="math inline">r(j-i)</span> for every <span
+class="math inline">i=1..j</span>, so there is an arrow from each node
+<span class="math inline">r(j)</span> to <strong>every</strong> smaller
+node: <span class="math inline">\binom62=15</span> arrows. The values
+are on the nodes.</p>
+<figure>
+<img src="fig/pyp2324s2_rod.svg"
+alt="Subproblem graph of r(5): an arrow from r(j) to each r(k) with k&lt;j; values r=0,4,8,12,16,20" />
+<figcaption aria-hidden="true">Subproblem graph of <span
+class="math inline">r(5)</span>: an arrow from <span
+class="math inline">r(j)</span> to each <span
+class="math inline">r(k)</span> with <span
+class="math inline">k&lt;j</span>; values <span
+class="math inline">r=0,4,8,12,16,20</span></figcaption>
+</figure>
+<p><strong>(iii) Top-down without memoization: <span
+class="math inline">\Theta(2^n)</span>.</strong> Let <span
+class="math inline">T(n)</span> be the number of calls of <span
+class="math inline">r(n)</span>: one call for itself plus the calls for
+<span class="math inline">r(0),\dots,r(n-1)</span>: <span
+class="math display">T(0)=1,\qquad T(n)=1+\sum_{j=0}^{n-1}T(j).</span>
+Subtracting <span class="math inline">T(n-1)</span> from <span
+class="math inline">T(n)</span> gives <span
+class="math inline">T(n)=2T(n-1)</span>, so <span
+class="math inline">T(n)=2^n</span>. The call counts are 1, 2, 4, 8, 16,
+32, 64, 128 for <span class="math inline">n=0..7</span> (code), so <span
+class="math inline">r(5)</span> makes 32 calls, though there are only 6
+distinct subproblems. The work per call is constant plus the loop, and
+the loop iterations are the calls, so the time is <strong><span
+class="math inline">\Theta(2^n)</span></strong>.</p>
+<p><strong>(iv) Bottom-up algorithm</strong>, filling <span
+class="math inline">r</span> from small to large:</p>
+<pre><code>r[0] = 0
+for n = 1 to N:
+    best = -infinity
+    for i = 1 to n:
+        best = max(best, p[i] + r[n-i])
+    r[n] = best
+return r[N]</code></pre>
+<p>Time <span class="math inline">\Theta(N^2)</span> (the two loops),
+space <span class="math inline">\Theta(N)</span>. Values:</p>
+<table>
+<thead>
+<tr>
+<th>Length <span class="math inline">n</span></th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">r(n)</span></td>
+<td>0</td>
+<td>4</td>
+<td>8</td>
+<td>12</td>
+<td>16</td>
+<td>20</td>
+<td>25</td>
+<td>29</td>
+</tr>
+</tbody>
+</table>
+<p>Working: <span class="math inline">r(1)=4</span>. <span
+class="math inline">r(2)=\max(6,\,4+4)=8</span>. <span
+class="math inline">r(3)=\max(8,\,4+8,\,6+4)=12</span>. <span
+class="math inline">r(4)=\max(15,\,4+12,\,6+8,\,8+4)=16</span>. <span
+class="math inline">r(5)=\max(17,\,4+16,\,6+12,\,8+8,\,15+4)=20</span>.
+<span class="math inline">r(6)=\max(25,\,4+20,\,\dots)=25</span>. <span
+class="math inline">r(7)=\max(28,\,4+25,\,6+20,\,8+16,\,15+12,\,17+8,\,25+4)=29</span>,
+from the cut <span class="math inline">6+1</span>. Recording the best
+<span class="math inline">i</span> at each step recovers the cuts: for
+<span class="math inline">n=1..5</span> the best is <span
+class="math inline">i=1</span> (so <span class="math inline">r(5)</span>
+is five pieces of length 1, 20) and for 6 and 7 it is <span
+class="math inline">i=6</span> (7 is cut into 6 and 1 for 29). All
+values were confirmed by the code.</p>
+<p>Notice that the prices are <strong>not</strong> monotone in price per
+length: the ratio <span class="math inline">p_i/i</span> is <span
+class="math inline">4,3,2.67,3.75,3.4,4.17,4</span>, so selling a rod of
+length 4 whole (15) is worse than four pieces of length 1 (16).</p>
+<p><strong>Link.</strong> Rod cutting is the <strong>unbounded
+knapsack</strong>: piece lengths are the weights, prices the values, and
+the rod length is the capacity. It has the same recurrence as coin
+change (<span class="math inline">f(a)=1+\min_c f(a-c)</span>) and the
+same all-previous-subproblems graph, unlike Fibonacci whose graph has
+two arrows per node. The no-memo cost <span
+class="math inline">2^n</span> against the memoized <span
+class="math inline">n^2</span> is the standard example of the
+exponential-to-polynomial gain of DP.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S1 4(a)</strong> (<strong>Not in your
+course:</strong> matrix-chain multiplication and
+<code>matrixOrder()</code> are not in your lecture slides, although this
+paper says “learnt in our lectures” (an earlier year taught it). The
+method is short, so it is worked here.) Suppose the dimensions of the
+matrices <span class="math inline">A,B,C</span> and <span
+class="math inline">D</span> are <span
+class="math inline">10\times2</span>, <span
+class="math inline">2\times20</span>, <span
+class="math inline">20\times5</span> and <span
+class="math inline">5\times30</span>, and we want to know how best to
+compute <span class="math inline">A\times B\times C\times D</span>. (i)
+Show the arrays <code>cost</code> and <code>last</code> computed by
+Algorithm <code>matrixOrder()</code> learnt in our lectures. (ii)
+Consider another algorithm for computing the optimal order. Instead of
+considering the position of the <strong>last</strong> matrix
+multiplication as in <code>matrixOrder()</code>, consider the position
+of the <strong>first</strong> matrix multiplication. Does this method
+work? If yes, draw the subproblem graph and describe your dictionary. If
+no, give your reasons. As an example, you may use the 4-matrices problem
+represented by <span class="math inline">(0,1,2,3,4)</span>, which are
+the indices of the array <span class="math inline">d</span> that stores
+the dimensions.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Set-up.</strong> Matrix <span class="math inline">A_i</span>
+has size <span class="math inline">d_{i-1}\times d_i</span>, so <span
+class="math inline">d=[10,2,20,5,30]</span> and <span
+class="math inline">A_1..A_4=A,B,C,D</span>. Multiplying a <span
+class="math inline">p\times q</span> matrix by a <span
+class="math inline">q\times r</span> matrix costs <span
+class="math inline">pqr</span> scalar multiplications.
+<code>cost[i][j]</code> is the least cost of computing <span
+class="math inline">A_i\cdots A_j</span> and <code>last[i][j]</code> is
+the <span class="math inline">k</span> of the <strong>last</strong>
+multiplication <span class="math inline">(A_i\cdots A_k)(A_{k+1}\cdots
+A_j)</span>: <span class="math display">\text{cost}[i][i]=0,\qquad
+\text{cost}[i][j]=\min_{i\le
+k&lt;j}\big(\text{cost}[i][k]+\text{cost}[k+1][j]+d_{i-1}d_kd_j\big).</span></p>
+<p><strong>(i)</strong> Entries by diagonal:</p>
+<ul>
+<li>Length 2: cost[1][2]<span
+class="math inline">=10\cdot2\cdot20=400</span>, cost[2][3]<span
+class="math inline">=2\cdot20\cdot5=200</span>, cost[3][4]<span
+class="math inline">=20\cdot5\cdot30=3000</span>.</li>
+<li>cost[1][3]: <span class="math inline">k=1</span>: <span
+class="math inline">0+200+10\cdot2\cdot5=300</span>; <span
+class="math inline">k=2</span>: <span
+class="math inline">400+0+10\cdot20\cdot5=1400</span>. Minimum 300, last
+1.</li>
+<li>cost[2][4]: <span class="math inline">k=2</span>: <span
+class="math inline">0+3000+2\cdot20\cdot30=4200</span>; <span
+class="math inline">k=3</span>: <span
+class="math inline">200+0+2\cdot5\cdot30=500</span>. Minimum 500, last
+3.</li>
+<li>cost[1][4]: <span class="math inline">k=1</span>: <span
+class="math inline">0+500+10\cdot2\cdot30=1100</span>; <span
+class="math inline">k=2</span>: <span
+class="math inline">400+3000+10\cdot20\cdot30=9400</span>; <span
+class="math inline">k=3</span>: <span
+class="math inline">300+0+10\cdot5\cdot30=1800</span>. Minimum 1100,
+last 1.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>cost</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>400</td>
+<td>300</td>
+<td><strong>1100</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td>0</td>
+<td>200</td>
+<td>500</td>
+</tr>
+<tr>
+<td>3</td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>3000</td>
+</tr>
+<tr>
+<td>4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>last</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>-</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2</td>
+<td></td>
+<td>-</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>3</td>
+<td></td>
+<td></td>
+<td>-</td>
+<td>3</td>
+</tr>
+<tr>
+<td>4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p>Read the order from <code>last</code>: <code>last[1][4]=1</code>
+gives <span class="math inline">A_1\,(A_2A_3A_4)</span>;
+<code>last[2][4]=3</code> gives <span
+class="math inline">(A_2A_3)\,A_4</span>. The best order is
+<strong><span class="math inline">A\,((B\,C)\,D)</span> with 1100
+multiplications.</strong> For comparison the left-to-right order <span
+class="math inline">((AB)C)D</span> costs <span
+class="math inline">400+1000+1500=2900</span>.</p>
+<p><strong>(ii) It works, but it is exponential.</strong> (The
+circulated official solution says it does not work because “optimal
+substructure fails”. That is too strong: the method gives the correct
+answer. What fails is that the subproblems are no longer cheap.)</p>
+<ul>
+<li><em>Recursion.</em> Choose which adjacent pair is multiplied
+<strong>first</strong>: <span class="math inline">A_kA_{k+1}</span>,
+costing <span class="math inline">d_{k-1}d_kd_{k+1}</span>. The product
+acts like one matrix of size <span class="math inline">d_{k-1}\times
+d_{k+1}</span>, so the rest is the same problem with <strong>one fewer
+matrix</strong>, whose dimension array is <span
+class="math inline">d</span> with the entry <span
+class="math inline">d_k</span> deleted. This is correct (the rest must
+itself be multiplied optimally by cut and paste). On the 4-matrix
+example it gives 1100, and it equals the standard answer on 200 random
+chains (code).</li>
+<li><em>Dictionary.</em> A subproblem is no longer a contiguous interval
+<span class="math inline">(i,j)</span>, because deleting the interior
+entries leaves arbitrary subsets. The key is the <strong>tuple of
+surviving indices</strong> of <span class="math inline">d</span>, for
+example <span class="math inline">(0,2,3,4)</span>, and the value is the
+least cost of multiplying the remaining chain.</li>
+<li><em>Subproblem graph for <span
+class="math inline">(0,1,2,3,4)</span>.</em> Each arrow deletes one
+interior index (the first multiplication joins the two matrices that
+meet there):</li>
+</ul>
+<figure>
+<img src="fig/pyp2324s1_chain.svg"
+alt="States of the “first multiplication” recursion for 4 matrices; “rest” = cheapest cost of the chain that remains" />
+<figcaption aria-hidden="true">States of the “first multiplication”
+recursion for 4 matrices; “rest” = cheapest cost of the chain that
+remains</figcaption>
+</figure>
+<p>There are <span class="math inline">1+3+3+1=8=2^{3}</span>
+states.</p>
+<ul>
+<li><em>Size.</em> In general there are <span
+class="math inline">2^{n-1}</span> states (each interior index is kept
+or deleted; confirmed by code for <span
+class="math inline">n=2..10</span>), and each state tries up to <span
+class="math inline">n</span> choices: <span
+class="math inline">O(n2^n)</span>. The last-multiplication method has
+only <span class="math inline">\binom{n+1}2</span> states (here 10,
+namely the intervals), because splitting at the last multiplication
+always leaves two <strong>contiguous</strong> sub-chains. That is why
+the lecture chooses the last multiplication.</li>
+</ul>
+<p><strong>What to write in an exam.</strong> Say both: the
+first-multiplication recursion is correct but its subproblems are
+subsets, giving <span class="math inline">2^{n-1}</span> of them and
+exponential time, so it is not a useful DP. If the mark scheme says only
+“does not work”, your reason (“subproblems are not contiguous
+sub-chains, so there is no polynomial subproblem graph”) still matches
+it.</p>
+<p><strong>Link.</strong> Choosing the <strong>last</strong> decision is
+the standard DP move (LCS, knapsack and coin change fix the last item or
+coin too). The choice of decision decides whether the subproblems are
+few. It is also why the DP page’s longest-increasing-subsequence
+question fixes the last element.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 4(a)</strong> Consider an unlimited supply of
+coins of denominations <span
+class="math inline">d_1,d_2,\dots,d_m</span> dollars. Let <span
+class="math inline">\text{change}(n)</span> compute the minimum number
+of coins that add up to <span class="math inline">n</span> dollars. We
+want to find the minimum number of coins that add up to a given <span
+class="math inline">n</span> dollars. (i) Give a recursive definition of
+the function <span class="math inline">\text{change}(n)</span>. (ii)
+Draw the subproblem graph for <span
+class="math inline">\text{change}(11)</span> where the denominations of
+coins are $1, $3, $5. (iii) Design a dynamic programming algorithm of
+<span class="math inline">\text{change}(n)</span> using the bottom-up
+approach.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> Fix the <strong>last coin</strong> used; the
+rest is the same problem for a smaller amount: <span
+class="math display">\text{change}(0)=0,\qquad
+\text{change}(n)=1+\min_{d_i\le
+n}\text{change}(n-d_i)\quad(n\ge1),</span> with <span
+class="math inline">\text{change}(n)=\infty</span> if no coin fits and
+<span class="math inline">n&gt;0</span> (this cannot happen when a <span
+class="math inline">1</span> dollar coin exists).</p>
+<p><strong>(ii)</strong> One node for each amount <span
+class="math inline">0,\dots,11</span>. <span
+class="math inline">\text{change}(n)</span> needs <span
+class="math inline">\text{change}(n-1)</span>, <span
+class="math inline">\text{change}(n-3)</span> (if <span
+class="math inline">n\ge3</span>) and <span
+class="math inline">\text{change}(n-5)</span> (if <span
+class="math inline">n\ge5</span>): 12 nodes and <span
+class="math inline">11+9+7=27</span> arrows. The red number under each
+node is its value <span
+class="math inline">\text{change}(n)=0,1,2,1,2,1,2,3,2,3,2,3</span>, so
+<span class="math inline">\text{change}(11)=3</span> (<span
+class="math inline">5+5+1</span>).</p>
+<figure>
+<img src="fig/pyp2223s2_coin.svg"
+alt="Subproblem graph of change(11) for coins 1, 3, 5; arrows run from n to n-1, n-3, n-5" />
+<figcaption aria-hidden="true">Subproblem graph of change(11) for coins
+1, 3, 5; arrows run from n to n-1, n-3, n-5</figcaption>
+</figure>
+<p>Plain recursion makes <strong>203 calls</strong> for <span
+class="math inline">\text{change}(11)</span> (checked by running it)
+although there are only 12 distinct subproblems.</p>
+<p><strong>(iii) Bottom-up algorithm</strong>, filling amounts from
+small to large (a node only depends on smaller amounts):</p>
+<pre><code>change[0] = 0
+for n = 1 to N:
+    change[n] = infinity
+    for each coin d in {d1, ..., dm}:
+        if d &lt;= n and change[n-d] + 1 &lt; change[n]:
+            change[n] = change[n-d] + 1
+            last[n] = d                     // remember the coin to rebuild the answer
+return change[N]</code></pre>
+<p>Time <span class="math inline">\Theta(Nm)</span> (the table has <span
+class="math inline">N+1</span> entries and each tries <span
+class="math inline">m</span> coins), space <span
+class="math inline">\Theta(N)</span>. The coins are recovered by
+following <code>last</code>: for <span class="math inline">N=11</span>,
+<span class="math inline">\text{last}[11]=1</span>, <span
+class="math inline">\text{last}[10]=5</span>, <span
+class="math inline">\text{last}[5]=5</span>, which gives <span
+class="math inline">1+5+5</span>.</p>
+<p><strong>Link.</strong> This is the same recurrence as rod cutting
+(AY2324 S2 4(a)): the amounts are the rod lengths, coins are the piece
+lengths, and “fewest coins” replaces “largest total price”. Both have
+the complete-looking subproblem graph with arrows to <span
+class="math inline">n-d_i</span>, and both turn an exponential recursion
+into a <span class="math inline">\Theta(Nm)</span> table. A greedy “take
+the largest coin” would also work for <span
+class="math inline">\{1,3,5\}</span> on this amount (<span
+class="math inline">5+5+1</span>), but not for every coin system (for
+<span class="math inline">\{1,3,4\}</span> and <span
+class="math inline">n=6</span> greedy takes <span
+class="math inline">4+1+1</span>, while <span
+class="math inline">3+3</span> uses fewer), which is why the DP is
+needed.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S1 4(a)</strong> A palindrome is a string that reads
+the same backward or forward, e.g. “racecar”. The problem of the longest
+palindromic substring is to find the longest palindrome substring for a
+given string <span class="math inline">X=x_1x_2\dots x_n</span>. Note
+that a substring must be contiguous. Let <span
+class="math inline">p[i][j]=</span> true if <span
+class="math inline">X[i..j]</span> is a palindrome. Then <span
+class="math inline">p[i][i]=</span> true for <span
+class="math inline">i=1..n</span>; <span
+class="math inline">p[i][i+1]=</span> true if <span
+class="math inline">x_i==x_{i+1}</span>, false otherwise; <span
+class="math inline">p[i][j]=(x_i==x_j\text{ and
+}p[i+1][j-1]=\text{true})</span> for <span
+class="math inline">j&gt;i+1</span>. A dynamic programming algorithm
+<span class="math inline">LP(m,n)</span> computes table <span
+class="math inline">p</span>. (i) Draw the subproblem graph for <span
+class="math inline">LP(1,5)</span>. (ii) Fill in the table entries <span
+class="math inline">p[i][j]</span> for all <span
+class="math inline">j\ge i</span> for string <span
+class="math inline">X=</span> “ACCACA”, where <span
+class="math inline">i=1..6</span>, <span
+class="math inline">j=1..6</span>. (iii) Design a dynamic programming
+algorithm of <span class="math inline">LP(m,n)</span> using the
+bottom-up approach. What is the time complexity of your algorithm?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> <span class="math inline">LP(1,5)</span> asks
+whether <span class="math inline">X[1..5]</span> is a palindrome. By the
+rule <span class="math inline">p[1][5]</span> depends only on <span
+class="math inline">p[2][4]</span>, and <span
+class="math inline">p[2][4]</span> on <span
+class="math inline">p[3][3]</span>, which is a base case. The subproblem
+graph is a <strong>chain</strong> (arrows point to the subproblem
+needed):</p>
+<figure>
+<img src="fig/pyp2223s1_lp.svg" alt="Subproblem graph of LP(1,5)" />
+<figcaption aria-hidden="true">Subproblem graph of LP(1,5)</figcaption>
+</figure>
+<p><strong>(ii)</strong> <span class="math inline">X=</span> A C C A C A
+(positions 1 to 6). Rows are <span class="math inline">i</span>, columns
+<span class="math inline">j</span>; T means true, F false.</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i\backslash j</span></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 (A)</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+</tr>
+<tr>
+<td>2 (C)</td>
+<td></td>
+<td>T</td>
+<td>T</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+</tr>
+<tr>
+<td>3 (C)</td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>F</td>
+<td>T</td>
+<td>F</td>
+</tr>
+<tr>
+<td>4 (A)</td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>F</td>
+<td>T</td>
+</tr>
+<tr>
+<td>5 (C)</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+<td>F</td>
+</tr>
+<tr>
+<td>6 (A)</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>T</td>
+</tr>
+</tbody>
+</table>
+<p>True entries beyond the diagonal: “ACCA” (<span
+class="math inline">i=1,j=4</span>), “CC” (2,3), “CAC” (3,5), “ACA”
+(4,6). Example: <span class="math inline">p[1][4]</span>: <span
+class="math inline">x_1=x_4=A</span> and <span
+class="math inline">p[2][3]</span> (“CC”) is true, so true. <span
+class="math inline">p[1][5]</span>: <span class="math inline">x_1=A\ne
+x_5=C</span>, false. The longest palindromic substring of ACCACA is
+<strong>ACCA</strong>, of length 4.</p>
+<p><strong>(iii) Bottom-up algorithm.</strong> <span
+class="math inline">p[i][j]</span> needs <span
+class="math inline">p[i+1][j-1]</span>, which is a
+<strong>shorter</strong> substring, so fill the table by increasing
+length (or with <span class="math inline">i</span> from <span
+class="math inline">n</span> down to 1):</p>
+<pre><code>for i = 1 to n:        p[i][i] = true
+for i = 1 to n-1:      p[i][i+1] = (x[i] == x[i+1])
+for len = 3 to n:
+    for i = 1 to n-len+1:
+        j = i + len - 1
+        p[i][j] = (x[i] == x[j]) and p[i+1][j-1]</code></pre>
+<p>and keep the longest <span class="math inline">(i,j)</span> with
+<span class="math inline">p[i][j]</span> true. There are <span
+class="math inline">\approx n^2/2</span> table entries and each is <span
+class="math inline">O(1)</span>, so the time is <strong><span
+class="math inline">\Theta(n^2)</span></strong> (the circulated solution
+writes <span class="math inline">O(n^2)</span> as “two nested loops”)
+and the space is <span class="math inline">\Theta(n^2)</span>.</p>
+<p>(Flag: the circulated solution’s code fills the table with <span
+class="math inline">i</span> <strong>ascending</strong> and <span
+class="math inline">j</span> ascending. That order is wrong: when it
+computes <span class="math inline">p[i][j]</span> the entry <span
+class="math inline">p[i+1][j-1]</span> is still false (not yet
+computed). Run on ACCACA it gets <span
+class="math inline">p[1][4]</span>, <span
+class="math inline">p[3][5]</span> and <span
+class="math inline">p[4][6]</span> wrong (false instead of true).
+Filling by increasing length, or with <span class="math inline">i</span>
+descending, is correct; both were checked against a direct palindrome
+test on 300 random strings.)</p>
+<p><strong>Link.</strong> For one <strong>single</strong> question, “is
+<span class="math inline">X[1..n]</span> a palindrome?”, the recursion
+is the chain of (i): about <span class="math inline">n/2</span> steps,
+<strong>no overlapping subproblems</strong>, so memoization gives
+nothing. The table is needed only because we want the longest
+palindromic <strong>substring</strong>, and then the same entries <span
+class="math inline">p[i+1][j-1]</span> are reused by several larger
+substrings. DP pays off exactly when subproblems overlap; compare
+Fibonacci or champagne, where the plain recursion revisits the same
+entries.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S2 4(a)</strong> A carpenter has a piece of wood of a
+certain length that must be cut at positions <span
+class="math inline">a_1,a_2,\dots,a_n</span>, where <span
+class="math inline">a_i</span> is the distance from the left end of the
+original piece of wood. All lengths in this question are integers.
+Notice that after making the first cut, the carpenter now has two pieces
+of wood; after making the second cut, the carpenter has three pieces of
+wood, etc. Assume that the cost of making a cut in a piece of wood of
+length <span class="math inline">l</span> is equal to <span
+class="math inline">l</span>, and the cost is the same no matter which
+position in that piece of wood is being cut. Let <span
+class="math inline">L</span> be the length of the original piece of
+wood. (i) Give a recursive function <span
+class="math inline">C[i,j]</span> for the minimum cost of the cut of the
+wood whose end positions are <span class="math inline">i</span> and
+<span class="math inline">j</span> respectively, where <span
+class="math inline">i=0,1,\dots,n</span> and <span
+class="math inline">j=0,1,\dots,n+1</span>. Use <span
+class="math inline">k</span> to denote the cut point between <span
+class="math inline">i</span> and <span class="math inline">j</span>. Use
+<span class="math inline">l_{ij}</span> to denote the length of the wood
+whose end positions are <span class="math inline">i</span> and <span
+class="math inline">j</span> respectively. (ii) Given a 100 meter wood
+with 4 cut points at positions <span
+class="math inline">a_1,\dots,a_4=\{12,25,56,81\}</span> meter, use a
+bottom-up recursive dynamic programming algorithm to find the minimum
+total cost for making all the cuts and the order in which to make the
+cuts that minimizes the total cost. Fill in Tables Q4a and Q4b and give
+the cutting order with minimum cost.</p>
+<figure>
+<img src="img/pyp/2122s2_q4a.png"
+alt="Table Q4a (clipped from the paper)" />
+<figcaption aria-hidden="true">Table Q4a (clipped from the
+paper)</figcaption>
+</figure>
+<figure>
+<img src="img/pyp/2122s2_q4b.png"
+alt="Table Q4b (clipped from the paper)" />
+<figcaption aria-hidden="true">Table Q4b (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Let <span class="math inline">a_0=0</span> and <span
+class="math inline">a_{n+1}=L</span>, so the end positions <span
+class="math inline">0,\dots,n+1</span> are the cut points and the two
+ends of the wood. <span class="math inline">C[i,j]</span> is the least
+cost of making <strong>all</strong> cuts strictly between positions
+<span class="math inline">i</span> and <span
+class="math inline">j</span> in the piece from <span
+class="math inline">a_i</span> to <span
+class="math inline">a_j</span>.</p>
+<p><strong>(i)</strong> <span class="math display">C[i,j]=0\quad\text{if
+}j\le i+1\ (\text{no cut point inside}),\qquad
+C[i,j]=\min_{i&lt;k&lt;j}\big(l_{ij}+C[i,k]+C[k,j]\big),\quad
+l_{ij}=a_j-a_i.</span> The first cut of the piece is at some <span
+class="math inline">k</span> with <span
+class="math inline">i&lt;k&lt;j</span>. It costs the whole length <span
+class="math inline">l_{ij}</span>, and then the two pieces <span
+class="math inline">(i,k)</span> and <span
+class="math inline">(k,j)</span> are cut independently and
+optimally.</p>
+<p><strong>(ii)</strong> Positions: <span
+class="math inline">0\,(0),1\,(12),2\,(25),3\,(56),4\,(81),5\,(100)</span>.
+Fill by increasing <span class="math inline">j-i</span> (a piece depends
+on shorter pieces). Entries with <span class="math inline">j\le
+i+1</span> are 0.</p>
+<p><em>Table Q4a (cost <span class="math inline">C[i,j]</span>), rows
+<span class="math inline">i</span>, columns <span
+class="math inline">j=0..5</span>:</em></p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th>0 (0)</th>
+<th>1 (12)</th>
+<th>2 (25)</th>
+<th>3 (56)</th>
+<th>4 (81)</th>
+<th>5 (100)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>25</td>
+<td>81</td>
+<td>162</td>
+<td><strong>225</strong></td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>44</td>
+<td>113</td>
+<td>176</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>56</td>
+<td>119</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>44</td>
+</tr>
+<tr>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p><em>Table Q4b (first cut point <span class="math inline">k</span> for
+<span class="math inline">C[i,j]</span>), columns <span
+class="math inline">j=1..5</span>:</em></p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>2</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>Example entries: <span class="math inline">C[0,3]</span> (wood from 0
+to 56): cut at 25: <span
+class="math inline">56+C[0,2]+C[2,3]=56+25+0=81</span>; cut at 12: <span
+class="math inline">56+0+44=100</span>; so 81 with first cut 2. <span
+class="math inline">C[0,5]</span> (the whole wood): cut at 56 (<span
+class="math inline">k=3</span>): <span
+class="math inline">100+C[0,3]+C[3,5]=100+81+44=225</span>; cut at 25:
+<span class="math inline">100+25+119=244</span>; cut at 12: <span
+class="math inline">100+0+176=276</span>; cut at 81: <span
+class="math inline">100+162+0=262</span>. The minimum is
+<strong>225</strong> with first cut <span
+class="math inline">k=3</span>.</p>
+<p><strong>Cutting order.</strong> First cut at position 56 (cost 100),
+which gives <span class="math inline">[0,56]</span> and <span
+class="math inline">[56,100]</span>. For <span
+class="math inline">[0,56]</span> the table says first cut <span
+class="math inline">k=2</span>, position 25 (cost 56), then <span
+class="math inline">[0,25]</span> needs the cut at 12 (cost 25). For
+<span class="math inline">[56,100]</span> the first cut is <span
+class="math inline">k=4</span>, position 81 (cost 44). Order <strong>56,
+25, 12, 81</strong>, with costs <span
+class="math inline">100+56+25+44=\mathbf{225}</span>. (Any order that
+respects the tree, for example 56, 81, 25, 12, is equally cheap; a
+brute-force search over all 24 orders finds exactly 3 optimal orders,
+minimum 225 and maximum 319.)</p>
+<p><strong>Link.</strong> This is the <strong>matrix-chain</strong>
+structure (AY2324 S1 4(a)): an interval <span
+class="math inline">(i,j)</span>, a split point <span
+class="math inline">k</span>, two independent sub-intervals, and an
+added cost for the whole interval; the table is filled by increasing
+interval length and runs in <span
+class="math inline">\Theta(n^3)</span>. Another way to see the cost:
+every gap between consecutive cut points pays once for each piece that
+contains it when a cut is made. The gaps have lengths 12, 13, 31, 25 and
+19, and in the optimal order they take part in 3, 3, 2, 2 and 2 cuts, so
+the total is <span
+class="math inline">12\cdot3+13\cdot3+31\cdot2+25\cdot2+19\cdot2=36+39+62+50+38=225</span>.
+That is the cost of a binary tree of cuts weighted by gap lengths, the
+same shape as an <strong>optimal binary search tree</strong>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S1 4(a)</strong> <span class="math inline">S1</span>
+is a sequence of <span class="math inline">n1</span> characters and
+<span class="math inline">S2</span> is a sequence of <span
+class="math inline">n2</span> characters. All characters are from the
+set <span class="math inline">\{a,c,g,t\}</span>. An alignment is
+defined by inserting any number of characters “<em>” (the underscore
+character) into <span class="math inline">S1</span> and <span
+class="math inline">S2</span> so that the resulting sequences <span
+class="math inline">S1&#39;</span> and <span
+class="math inline">S2&#39;</span> are of equal length. Each character
+in <span class="math inline">S1&#39;</span> has to be aligned with the
+same character or an underscore in the same position in <span
+class="math inline">S2&#39;</span> and vice versa. The cost of an
+alignment of <span class="math inline">S1</span> and <span
+class="math inline">S2</span> is defined as the number of underscore
+characters inserted in <span class="math inline">S1</span> and <span
+class="math inline">S2</span>. For example, <span
+class="math inline">S1=</span> ”ctatg” and <span
+class="math inline">S2=</span> ”ttaagc”. One possible alignment is <span
+class="math inline">S1&#39;=</span> ”ct_at_g</em>” and <span
+class="math inline">S2&#39;=</span> “_tta_agc”. Both <span
+class="math inline">S1&#39;</span> and <span
+class="math inline">S2&#39;</span> have length 8 and the cost is 5. We
+want to find the minimum cost of aligning two sequences, denoted as
+alignment(<span class="math inline">n1,n2</span>). (i) Give a recursive
+definition of alignment(<span class="math inline">n1,n2</span>). (ii)
+Draw the subproblem graph for alignment(3,4). (iii) Design a dynamic
+programming algorithm of alignment(<span
+class="math inline">n1,n2</span>) using the bottom-up approach.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Let alignment(<span class="math inline">i,j</span>) be the minimum
+cost for the first <span class="math inline">i</span> characters of
+<span class="math inline">S1</span> and the first <span
+class="math inline">j</span> characters of <span
+class="math inline">S2</span>.</p>
+<p><strong>(i)</strong> <span
+class="math display">\text{alignment}(i,j)=\begin{cases}j&amp;i=0\\
+i&amp;j=0\\ \text{alignment}(i-1,j-1)&amp;S1[i]=S2[j]\\
+1+\min\big(\text{alignment}(i-1,j),\
+\text{alignment}(i,j-1)\big)&amp;\text{otherwise.}\end{cases}</span> If
+one sequence is empty, the other must be matched against underscores
+only. If the last characters are equal, align them at no cost (this is
+always optimal: any optimal alignment can be changed to align them
+without increasing the cost). Otherwise they cannot be aligned with each
+other, so at least one of them faces an underscore: put the underscore
+under <span class="math inline">S1[i]</span> (cost 1, continue with
+<span class="math inline">i-1,j</span>) or under <span
+class="math inline">S2[j]</span> (cost 1, continue with <span
+class="math inline">i,j-1</span>).</p>
+<p><strong>(ii)</strong> The general subproblem graph for alignment(3,4)
+has one node per pair <span class="math inline">(i,j)</span> with <span
+class="math inline">0\le i\le3</span>, <span class="math inline">0\le
+j\le4</span> (20 nodes), and arrows from <span
+class="math inline">(i,j)</span> to <span
+class="math inline">(i-1,j)</span>, <span
+class="math inline">(i,j-1)</span> and <span
+class="math inline">(i-1,j-1)</span> (grey and red in the figure). For
+the example strings (<span class="math inline">S1[1..3]=</span> “cta”,
+<span class="math inline">S2[1..4]=</span> “ttaa”) the equal-character
+rule prunes it: from <span class="math inline">(3,4)</span> (<span
+class="math inline">a=a</span>) only the diagonal arrow is used, and so
+on. The red part is the graph that the recursion really visits:
+<strong>10 nodes</strong> <span
+class="math inline">(3,4),(2,3),(1,3),(2,2),(0,3),(1,2),(1,1),(0,2),(0,1),(1,0)</span>
+and 10 arrows.</p>
+<figure>
+<img src="fig/pyp2122s1_align.svg"
+alt="Subproblem graph for alignment(3,4); red arrows are those the recursion uses for “ctatg” and “ttaagc”" />
+<figcaption aria-hidden="true">Subproblem graph for alignment(3,4); red
+arrows are those the recursion uses for “ctatg” and
+“ttaagc”</figcaption>
+</figure>
+<p>The values on the nodes visited are: alignment(3,4) <span
+class="math inline">=3</span>, (2,3) <span
+class="math inline">=3</span>, (1,3) <span
+class="math inline">=4</span>, (2,2) <span
+class="math inline">=2</span>, (0,3) <span
+class="math inline">=3</span>, (1,2) <span
+class="math inline">=3</span>, (1,1) <span
+class="math inline">=2</span>, (0,2) <span
+class="math inline">=2</span>, (0,1) <span
+class="math inline">=1</span>, (1,0) <span
+class="math inline">=1</span>.</p>
+<p><strong>(iii) Bottom-up.</strong> Fill a table
+<code>dp[0..n1][0..n2]</code> row by row, so that each entry only needs
+entries above or to the left (smaller <span class="math inline">i</span>
+or <span class="math inline">j</span>):</p>
+<pre><code>for i = 0 to n1:
+    for j = 0 to n2:
+        if i == 0:           dp[i][j] = j
+        else if j == 0:      dp[i][j] = i
+        else if S1[i] == S2[j]:  dp[i][j] = dp[i-1][j-1]
+        else:                dp[i][j] = 1 + min(dp[i-1][j], dp[i][j-1])
+return dp[n1][n2]</code></pre>
+<p>Time <span class="math inline">\Theta(n1\cdot n2)</span> and space
+<span class="math inline">\Theta(n1\cdot n2)</span> (only the last two
+rows are needed if only the cost is wanted). For “ctatg” and “ttaagc”
+the table is:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>j=0</th>
+<th>t</th>
+<th>t</th>
+<th>a</th>
+<th>a</th>
+<th>g</th>
+<th>c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>i=0</td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr>
+<td>c</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>5</td>
+</tr>
+<tr>
+<td>t</td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr>
+<td>a</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+</tr>
+<tr>
+<td>t</td>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr>
+<td>g</td>
+<td>5</td>
+<td>4</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>4</td>
+<td><strong>5</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The minimum cost is <strong>5</strong>, which equals the cost of the
+example alignment (so the paper’s alignment is optimal).</p>
+<p>(Flag: the circulated solution’s code mixes the table with recursive
+calls (<code>alignment(i-1,j)</code>) and writes
+<code>min(alignment(i-1,j), alignment(i,j-1)+1</code>, which adds 1 to
+only one argument. The correct update is <span
+class="math inline">1+\min(\cdot,\cdot)</span> using table entries.)</p>
+<p><strong>Link.</strong> The alignment cost equals <span
+class="math inline">n1+n2-2\cdot\text{LCS}</span>: here <span
+class="math inline">5+6-2\cdot3=5</span> with the common subsequence
+“tag”. Each character outside the common subsequence costs one
+underscore. That identity is verified by brute force on the links page
+(Problem 7). So this DP is the longest-common-subsequence DP in
+disguise, and both have the same table shape.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S1 4(b)</strong> We have a knapsack of size 20 and 5
+objects. The profits and the sizes of the objects are given in Table Q4.
+Find a subset of the objects that fits in the knapsack that maximizes
+the total profit by the greedy heuristic algorithm. What is the time
+complexity of the greedy heuristic algorithm?</p>
+<figure>
+<img src="img/pyp/2122s1_q4b.png"
+alt="Table Q4 (clipped from the paper)" />
+<figcaption aria-hidden="true">Table Q4 (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The greedy heuristic is to take the objects in decreasing order of
+profit per unit size <span class="math inline">P/S</span>, skipping any
+object that no longer fits. Profit/size: object 1 (profit 10, size 5):
+2; object 2 (40, 4): 10; object 3 (35, 7): 5; object 4 (45, 5): 9;
+object 5 (6, 3): 2.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>step</th>
+<th>object (profit, size)</th>
+<th><span class="math inline">P/S</span></th>
+<th>fits?</th>
+<th>total size</th>
+<th>total profit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>(40, 4)</td>
+<td>10</td>
+<td>yes</td>
+<td>4</td>
+<td>40</td>
+</tr>
+<tr>
+<td>2</td>
+<td>(45, 5)</td>
+<td>9</td>
+<td>yes</td>
+<td>9</td>
+<td>85</td>
+</tr>
+<tr>
+<td>3</td>
+<td>(35, 7)</td>
+<td>5</td>
+<td>yes</td>
+<td>16</td>
+<td>120</td>
+</tr>
+<tr>
+<td>4</td>
+<td>(10, 5)</td>
+<td>2</td>
+<td>no (<span class="math inline">16+5=21&gt;20</span>)</td>
+<td>16</td>
+<td>120</td>
+</tr>
+<tr>
+<td>5</td>
+<td>(6, 3)</td>
+<td>2</td>
+<td>yes</td>
+<td>19</td>
+<td><strong>126</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Chosen objects: 2, 4, 3 and 5 (profits 40, 45, 35, 6), total
+size 19, profit 126.</strong> (The two objects with ratio 2 can be tried
+in either order: trying the profit-6 object first also gives 126, since
+then the profit-10 object no longer fits.)</p>
+<p><strong>Time complexity: <span class="math inline">O(n\log
+n)</span>.</strong> Computing the ratios is <span
+class="math inline">O(n)</span>, sorting by ratio is <span
+class="math inline">O(n\log n)</span> (with mergesort, heapsort or
+quicksort on average), and the single pass to pick the objects is <span
+class="math inline">O(n)</span>. Sorting dominates. (With insertion sort
+the total would be <span class="math inline">O(n^2)</span>.)</p>
+<p>Here the greedy answer is also the <strong>optimum</strong> (a
+brute-force search over all 32 subsets gives 126 as the maximum). That
+is luck, not a guarantee.</p>
+<p><strong>Link.</strong> For the <strong>0/1</strong> knapsack the
+greedy heuristic can be wrong. Example: capacity 50 and objects (profit,
+size) <span class="math inline">=(60,10),(100,20),(120,30)</span> have
+ratios <span class="math inline">6,5,4</span>; greedy takes the first
+two for 160, but the best is the last two for 220. (In a code
+experiment, greedy missed the optimum in 250 of 2000 random 5-object
+instances.) The <strong>fractional</strong> knapsack, where a part of an
+object may be taken, is solved exactly by this greedy rule. The exact
+0/1 solution is the dynamic programming algorithm of the DP page in
+<span class="math inline">O(nC)</span> time, which is only
+pseudo-polynomial.</p>
+</div>
+</details>
+<h2 id="tutorials">Tutorials</h2>
+<h3 id="tutorial-9-q5.-fibonacci-with-memoization">Tutorial 9 Q5.
+Fibonacci with memoization</h3>
+<div class="q">
+<p>Recall the recursive computation of Fibonacci numbers using
+memoization.</p>
+<ol type="a">
+<li><p>Draw the pruned recursion tree containing all recursive calls
+needed to calculate Fib(6).</p></li>
+<li><p>In order to calculate the first n Fibonacci numbers, the
+memoization approach presented in the lecture needs an array of size
+O(n). Can the computation be performed using only O(1) memory
+space?</p></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Concepts: memoization and the recursion tree</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>The Fibonacci numbers are <span class="math inline">F_0 = 0</span>,
+<span class="math inline">F_1 = 1</span> and <span
+class="math inline">F_n = F_{n-1} + F_{n-2}</span>.</li>
+<li>The <strong>regular recursion tree</strong> has one node for every
+call of the plain recursive function. Each node <span
+class="math inline">F_n</span> has two children, <span
+class="math inline">F_{n-1}</span> and <span
+class="math inline">F_{n-2}</span>. The same sub-problem appears many
+times: <span class="math inline">F_4</span> is computed twice and <span
+class="math inline">F_3</span> three times in the tree for <span
+class="math inline">F_6</span>. That is why the plain version takes
+<span class="math inline">O(2^n)</span> time.</li>
+<li><strong>Memoization</strong> keeps a dictionary of solved
+sub-problems. Before a call, check the dictionary. If the answer is
+there, use it. If not, call, then store the answer.</li>
+<li>In the <strong>pruned tree</strong>, a sub-problem is expanded only
+the <strong>first</strong> time. Every later appearance is a leaf that
+reads the dictionary.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer (a)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>The regular tree</strong> for <span
+class="math inline">F_6</span> has 25 nodes. <span
+class="math inline">F_6</span> calls <span
+class="math inline">F_5</span> and <span class="math inline">F_4</span>.
+<span class="math inline">F_5</span> calls <span
+class="math inline">F_4</span> and <span class="math inline">F_3</span>,
+and so on. <span class="math inline">F_4</span> appears twice, <span
+class="math inline">F_3</span> three times, <span
+class="math inline">F_2</span> five times. Each appearance is expanded
+in full.</p>
+<p><strong>The pruned tree</strong> expands each <span
+class="math inline">F_i</span> once. The calls run left first, so the
+left spine <span class="math inline">F_6 \to F_5 \to F_4 \to F_3 \to
+F_2</span> goes down to the base cases. As each call returns, it stores
+its answer. Then the right child of each node finds the answer in the
+dictionary.</p>
+<ul>
+<li><strong>Green</strong> (base case): <span
+class="math inline">F_0</span> and <span class="math inline">F_1</span>
+under <span class="math inline">F_2</span>, and <span
+class="math inline">F_1</span> under <span
+class="math inline">F_3</span>.</li>
+<li><strong>Yellow</strong> (computed for the first time and stored):
+<span class="math inline">F_6, F_5, F_4, F_3, F_2</span>.</li>
+<li><strong>Purple</strong> (read from the dictionary): <span
+class="math inline">F_2</span> under <span
+class="math inline">F_4</span>, <span class="math inline">F_3</span>
+under <span class="math inline">F_5</span>, and <span
+class="math inline">F_4</span> under <span
+class="math inline">F_6</span>.</li>
+</ul>
+<figure>
+<img src="img/tutorial-9-artifacts/fib6-pruned.png" style="width:55.0%"
+alt="The pruned recursion tree for Fib(6). Yellow nodes are computed the first time and stored. Purple nodes are read from the dictionary. Green nodes are base cases (Tutorial 9 solutions)." />
+<figcaption aria-hidden="true">The pruned recursion tree for Fib(6).
+Yellow nodes are computed the first time and stored. Purple nodes are
+read from the dictionary. Green nodes are base cases (Tutorial 9
+solutions).</figcaption>
+</figure>
+<p>The tree has <strong>11 nodes</strong>, against 25 in the regular
+tree. The slide’s grey nodes are the calls that never happen.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer (b)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Yes.</strong> <span class="math inline">F_n</span> depends
+only on <span class="math inline">F_{n-1}</span> and <span
+class="math inline">F_{n-2}</span>. So after computing <span
+class="math inline">F_j</span>, the numbers before <span
+class="math inline">F_{j-1}</span> are never read again. Keep only the
+last two numbers, in 2 variables.</p>
+<pre><code>a = 0; b = 1;                 // F(0), F(1)
+for j = 2 to n {
+    c = a + b;                // F(j)
+    a = b;                    // F(j-1) becomes the older one
+    b = c;                    // F(j) becomes the newer one
+}
+return b;                     // F(n), for n &gt;= 1</code></pre>
+<p>Time is <span class="math inline">O(n)</span>, the same as the array.
+Memory is 3 variables (<span class="math inline">a</span>, <span
+class="math inline">b</span>, <span class="math inline">c</span>), which
+is <span class="math inline">O(1)</span>.</p>
+<p>Trace for <span class="math inline">n = 6</span>:</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">j</span></th>
+<th>start</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>a</code></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>b</code></td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>5</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p>The loop returns <span class="math inline">F_6 = 8</span>.</p>
+<p><em>(new)</em> This version uses a loop, not recursion. A recursive
+version still uses <span class="math inline">O(n)</span> stack space for
+its <span class="math inline">n</span> nested calls, even with no
+array.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: memoization</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li><strong>Draw the regular tree.</strong> Mark the repeated
+sub-problems.</li>
+<li><strong>Prune it.</strong> Expand a sub-problem only the first time.
+Any later appearance becomes a leaf that reads the dictionary.</li>
+<li><strong>Count the calls.</strong> There is one expanded call for
+each <strong>distinct</strong> sub-problem, and each expanded call makes
+a bounded number of other calls. So the total is (distinct sub-problems)
+<span class="math inline">\times</span> (work per call). For Fibonacci:
+<span class="math inline">n+1</span> sub-problems, <span
+class="math inline">O(1)</span> each, so <span
+class="math inline">O(n)</span> time.</li>
+<li><strong>Look at what each answer needs.</strong> If each row depends
+only on the last few, keep only those: <span
+class="math inline">O(1)</span> space. If you need to rebuild the whole
+solution later, keep the full table.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 5.1.</strong> Count the calls that the memoized
+<code>fibDP(n)</code> makes, including the calls that only read the
+dictionary. Give the answer for <span class="math inline">n = 6</span>
+and for general <span class="math inline">n \ge 1</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 5.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Count the nodes of the pruned tree.</p>
+<ul>
+<li>The left spine has nodes <span class="math inline">F_n, F_{n-1},
+\ldots, F_2</span>. That is <span class="math inline">n - 1</span>
+nodes.</li>
+<li><span class="math inline">F_2</span> has two children, <span
+class="math inline">F_1</span> and <span class="math inline">F_0</span>.
+That is 2 nodes.</li>
+<li>Each of <span class="math inline">F_n, \ldots, F_3</span> has one
+right child (<span class="math inline">F_{n-2}, \ldots, F_1</span>).
+That is <span class="math inline">n - 2</span> nodes.</li>
+</ul>
+<p>Total: <span class="math inline">(n-1) + 2 + (n-2) = 2n -
+1</span>.</p>
+<p>For <span class="math inline">n = 6</span>: <span
+class="math inline">2 \cdot 6 - 1 = 11</span>. This matches the 11 nodes
+in the figure. Check for small <span class="math inline">n</span>: <span
+class="math inline">n = 1</span> gives 1 node (<span
+class="math inline">F_1</span>), and <span class="math inline">n =
+2</span> gives 3 nodes (<span class="math inline">F_2, F_1,
+F_0</span>).</p>
+<p>Only <span class="math inline">n + 1 = 7</span> of these 11 nodes do
+real work (the yellow and green nodes). The other <span
+class="math inline">n - 2 = 4</span> are purple dictionary reads. The
+count is <span class="math inline">O(n)</span> either way. The regular
+tree has <span class="math inline">2F_{n+1} - 1</span> nodes, which is
+25 for <span class="math inline">n = 6</span>.</p>
+</div>
+</details>
+<div class="q">
+<hr />
+</div>
+<h3 id="tutorial-10-q1.-lcs-of-cagag-and-actgg">Tutorial 10 Q1. LCS of
+CAGAG and ACTGG</h3>
+<div class="q">
+<p>Find the length of the longest common subsequence and a longest
+common subsequence of CAGAG and ACTGG by the dynamic programming
+algorithm in the lecture notes.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Concepts: the c table and the h table</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><span class="math inline">c[i][j]</span> is the length of an LCS of
+the first <span class="math inline">i</span> letters of <span
+class="math inline">x</span> and the first <span
+class="math inline">j</span> letters of <span
+class="math inline">y</span>. Row 0 and column 0 are 0, because an empty
+string has no common letters with anything.</li>
+<li><span class="math inline">h[i][j]</span> records which neighbour
+gave <span class="math inline">c[i][j]</span>. It is the arrow you
+follow to read the answer back.</li>
+<li>The lecture code uses three cases, in this order:
+<code>x[i] == y[j]</code> gives <code>\</code> (diagonal, take the
+letter). Otherwise <code>c[i-1][j] &gt;= c[i][j-1]</code> gives
+<code>|</code> (up, drop <span class="math inline">x_i</span>).
+Otherwise <code>—</code> (left, drop <span
+class="math inline">y_j</span>). The <code>&gt;=</code> is the
+<strong>tie rule</strong>: when both neighbours are equal, go up.</li>
+<li>Chapter 10 explains why this is correct. This page only fills and
+traces the tables.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The lecture code, with <span class="math inline">x</span> = CAGAG
+(<span class="math inline">n</span> = 5) and <span
+class="math inline">y</span> = ACTGG (<span class="math inline">m</span>
+= 5):</p>
+<pre><code>for i = 1 to n
+    for j = 1 to m
+        if x[i] == y[j] {
+            c[i][j] = c[i-1][j-1] + 1;
+            h[i][j] = &#39;\&#39;;
+        }
+        else if c[i-1][j] &gt;= c[i][j-1] {
+            c[i][j] = c[i-1][j];
+            h[i][j] = &#39;|&#39;;
+        }
+        else {
+            c[i][j] = c[i][j-1];
+            h[i][j] = &#39;—&#39;;
+        }</code></pre>
+<p>The <span class="math inline">c</span> table:</p>
+<table>
+<thead>
+<tr>
+<th>c</th>
+<th>∅</th>
+<th>A</th>
+<th>C</th>
+<th>T</th>
+<th>G</th>
+<th>G</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>∅</strong></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>C</strong></td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>A</strong></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>G</strong></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>A</strong></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>G</strong></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>The <span class="math inline">h</span> table (the lecture shows
+<code>|</code> in column 0 and <code>—</code> in row 0):</p>
+<table>
+<thead>
+<tr>
+<th>h</th>
+<th>∅</th>
+<th>A</th>
+<th>C</th>
+<th>T</th>
+<th>G</th>
+<th>G</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>∅</strong></td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>C</strong></td>
+<td>|</td>
+<td>|</td>
+<td>\</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>A</strong></td>
+<td>|</td>
+<td>\</td>
+<td>|</td>
+<td>|</td>
+<td>|</td>
+<td>|</td>
+</tr>
+<tr>
+<td><strong>G</strong></td>
+<td>|</td>
+<td>|</td>
+<td>|</td>
+<td>|</td>
+<td>\</td>
+<td>\</td>
+</tr>
+<tr>
+<td><strong>A</strong></td>
+<td>|</td>
+<td>\</td>
+<td>|</td>
+<td>|</td>
+<td>|</td>
+<td>|</td>
+</tr>
+<tr>
+<td><strong>G</strong></td>
+<td>|</td>
+<td>|</td>
+<td>|</td>
+<td>|</td>
+<td>\</td>
+<td>\</td>
+</tr>
+</tbody>
+</table>
+<p>The length of an LCS is <span class="math inline">c[5][5] =
+3</span>.</p>
+<p>Now follow the arrows from <span
+class="math inline">(5,5)</span>:</p>
+<ol type="1">
+<li><span class="math inline">(5,5)</span> is <code>\</code>. G = G.
+Write down G. Go to <span class="math inline">(4,4)</span>.</li>
+<li><span class="math inline">(4,4)</span> is <code>|</code>. Go up to
+<span class="math inline">(3,4)</span>.</li>
+<li><span class="math inline">(3,4)</span> is <code>\</code>. G = G.
+Write down G. Go to <span class="math inline">(2,3)</span>.</li>
+<li><span class="math inline">(2,3)</span> is <code>|</code>. Go up to
+<span class="math inline">(1,3)</span>.</li>
+<li><span class="math inline">(1,3)</span> is <code>—</code>. Go left to
+<span class="math inline">(1,2)</span>.</li>
+<li><span class="math inline">(1,2)</span> is <code>\</code>. C = C.
+Write down C. Go to <span class="math inline">(0,1)</span>. Row 0 stops
+the walk.</li>
+</ol>
+<p>The letters come out backwards: G, G, C. Read them in reverse.
+<strong>LCS = CGG</strong>, length 3.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: fill and trace an LCS table by hand</strong>
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Draw a grid with <span class="math inline">x</span> down the side
+and <span class="math inline">y</span> across the top. Add a row 0 and a
+column 0 of zeros.</li>
+<li>Fill row by row, left to right. For each cell, compare the two
+letters that label it.
+<ul>
+<li>Same letters: copy the diagonal cell and add 1. Mark
+<code>\</code>.</li>
+<li>Different letters: take the larger of the cell above and the cell to
+the left. If they are equal, take the one above (<code>|</code>). Mark
+the one you took.</li>
+</ul></li>
+<li>The bottom-right cell is the length.</li>
+<li>Start at the bottom-right cell. Follow the marks. Write down a
+letter only at a <code>\</code>. Stop at row 0 or column 0.</li>
+<li>Reverse what you wrote.</li>
+<li>Check: the answer must be a subsequence of both strings, and its
+length must equal <span class="math inline">c[n][m]</span>.</li>
+</ol>
+<p>The grid has <span class="math inline">(n+1)(m+1)</span> cells and
+each costs <span class="math inline">O(1)</span>, so the time is <span
+class="math inline">O(nm)</span>. The trace walks at most <span
+class="math inline">n + m</span> steps.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 1.1.</strong> Find the LCS of <span
+class="math inline">x</span> = ABAB and <span
+class="math inline">y</span> = BABA. Use the lecture tie rule.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 1.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<table>
+<thead>
+<tr>
+<th>c</th>
+<th>∅</th>
+<th>B</th>
+<th>A</th>
+<th>B</th>
+<th>A</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>∅</strong></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>A</strong></td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>B</strong></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>A</strong></td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>B</strong></td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>Two cells in full:</p>
+<ul>
+<li><span class="math inline">c[2][3]</span>: B = B, so <span
+class="math inline">c[2][3] = c[1][2] + 1 = 1 + 1 = 2</span>.</li>
+<li><span class="math inline">c[4][4]</span>: B <span
+class="math inline">\ne</span> A. The cell above is 3 and the cell to
+the left is 3. They tie, so take the one above: <span
+class="math inline">c[4][4] = 3</span>, mark <code>|</code>.</li>
+</ul>
+<p>Trace:</p>
+<ol type="1">
+<li><span class="math inline">(4,4)</span> is <code>|</code>. Go up to
+<span class="math inline">(3,4)</span>.</li>
+<li><span class="math inline">(3,4)</span>: A = A. Write A. Go to <span
+class="math inline">(2,3)</span>.</li>
+<li><span class="math inline">(2,3)</span>: B = B. Write B. Go to <span
+class="math inline">(1,2)</span>.</li>
+<li><span class="math inline">(1,2)</span>: A = A. Write A. Go to <span
+class="math inline">(0,1)</span>. Stop.</li>
+</ol>
+<p>Reversed: <strong>ABA</strong>, length 3. BAB is also an LCS of
+length 3. An LCS is not unique. The tie rule decides which one the trace
+finds.</p>
+</div>
+</details>
+<h3 id="tutorial-10-q2.-the-h-number">Tutorial 10 Q2. The H-number</h3>
+<div class="q">
+<p>The H-number <span class="math inline">H(n)</span> is defined as
+follows: <span class="math inline">H(0) = 1</span>, and for <span
+class="math inline">n &gt; 0</span>:</p>
+<ul>
+<li><span class="math inline">H(n) = H(n-1) + H(n-3) + H(n-5) + \dots +
+H(0)</span>, when <span class="math inline">n</span> is odd;</li>
+<li><span class="math inline">H(n) = H(n-2) + H(n-4) + H(n-6) + \dots +
+H(0)</span>, when <span class="math inline">n</span> is even.</li>
+</ul>
+<ol type="a">
+<li>Give a recursive algorithm to compute <span
+class="math inline">H(n)</span> for an arbitrary <span
+class="math inline">n</span> as suggested by the recurrence equation
+given for <span class="math inline">H(n)</span>. Draw the tree that
+represents the recursive calls made when <span
+class="math inline">H(8)</span> is computed.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Concepts: subproblem graph and repeated calls</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>A <strong>subproblem</strong> is one value the answer needs, here
+one <span class="math inline">H(k)</span>. A <strong>subproblem
+graph</strong> has one node per subproblem and an arrow from <span
+class="math inline">H(a)</span> to <span class="math inline">H(b)</span>
+when computing <span class="math inline">H(a)</span> needs <span
+class="math inline">H(b)</span>.</li>
+<li>The graph has no cycles, because every arrow goes to a smaller
+index. So it is a DAG. You can solve the subproblems in an order where
+every arrow points to something already solved. That is the order that
+goes from the sinks (here <span class="math inline">H(0)</span>) up to
+the answer.</li>
+<li>A <strong>call tree</strong> is different. It has one node for each
+<em>call</em>. If two calls ask for the same <span
+class="math inline">H(k)</span>, the tree shows both. Repeated nodes in
+the call tree are the wasted work that dynamic programming removes.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer (a)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<pre><code>int hn(int n) {
+    if (n == 0) return 1;
+    else {
+        S = 0;
+        if (n mod 2) j = n-1;
+        else j = n-2;
+        for (k = 0; k &lt;= j; k = k+2)
+            S += hn(k);
+    }
+    return S;
+}</code></pre>
+<p>The loop starts at <span class="math inline">k = 0</span> and steps
+by 2. So it adds <span class="math inline">H(0), H(2), \dots,
+H(j)</span>, where <span class="math inline">j</span> is the largest
+even number below <span class="math inline">n</span>. For odd <span
+class="math inline">n</span> this is <span
+class="math inline">n-1</span>. For even <span
+class="math inline">n</span> this is <span
+class="math inline">n-2</span>. Both cases of the definition reduce to a
+sum over the even indices below <span class="math inline">n</span>.</p>
+<figure>
+<img src="img/tutorial-10-artifacts/h8-call-tree.png"
+style="width:55.0%"
+alt="The tree of recursive calls for H(8). The number in a node is n for that call. The root 8 has children 6, 4, 2, 0. Node 6 has children 4, 2, 0. Node 4 has children 2, 0. Node 2 has the child 0 (Tutorial 10 solutions)." />
+<figcaption aria-hidden="true">The tree of recursive calls for H(8). The
+number in a node is n for that call. The root 8 has children 6, 4, 2, 0.
+Node 6 has children 4, 2, 0. Node 4 has children 2, 0. Node 2 has the
+child 0 (Tutorial 10 solutions).</figcaption>
+</figure>
+<p>The tree has 16 nodes. The call for <span
+class="math inline">H(0)</span> appears 8 times and the call for <span
+class="math inline">H(2)</span> appears 4 times.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer (a), call counts</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><em>(new)</em> Let <span class="math inline">T(n)</span> be the
+number of calls made by <span class="math inline">\text{hn}(n)</span>,
+counting the first call. Then <span class="math inline">T(0) = 1</span>,
+<span class="math inline">T(2) = 1 + T(0) = 2</span>, <span
+class="math inline">T(4) = 1 + T(0) + T(2) = 4</span>, <span
+class="math inline">T(6) = 8</span> and <span class="math inline">T(8) =
+16</span>. In general <span class="math inline">T(2m) = 2^m</span>. The
+recursive algorithm takes exponential time, because it solves the same
+<span class="math inline">H(k)</span> again and again.</p>
+</div>
+</details>
+<div class="q">
+<ol start="2" type="a">
+<li>Draw the subproblem graph for <span class="math inline">H(8)</span>
+and <span class="math inline">H(9)</span>.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (b)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<figure>
+<img src="img/tutorial-10-artifacts/h8-subproblem-graph.png"
+style="width:60.0%"
+alt="The subproblem graph for H(8). The nodes are 8, 6, 4, 2, 0, in a row. Each node has an arrow to every node on its right (Tutorial 10 solutions)." />
+<figcaption aria-hidden="true">The subproblem graph for H(8). The nodes
+are 8, 6, 4, 2, 0, in a row. Each node has an arrow to every node on its
+right (Tutorial 10 solutions).</figcaption>
+</figure>
+<p><span class="math inline">H(8)</span> uses only the
+<strong>even</strong> indices: nodes 8, 6, 4, 2, 0. Each node has an
+arrow to every even node below it. There are 5 nodes and 10 arrows.</p>
+<figure>
+<img src="img/tutorial-10-artifacts/h9-subproblem-graph.png"
+style="width:60.0%"
+alt="The subproblem graph for H(9). The nodes are 9, 8, 6, 4, 2, 0, in a row. Node 9 has an arrow to each of 8, 6, 4, 2, 0. The other nodes have arrows as in the graph for H(8) (Tutorial 10 solutions)." />
+<figcaption aria-hidden="true">The subproblem graph for H(9). The nodes
+are 9, 8, 6, 4, 2, 0, in a row. Node 9 has an arrow to each of 8, 6, 4,
+2, 0. The other nodes have arrows as in the graph for H(8) (Tutorial 10
+solutions).</figcaption>
+</figure>
+<p><span class="math inline">H(9)</span> needs <span
+class="math inline">H(8), H(6), H(4), H(2), H(0)</span>. So the graph
+for <span class="math inline">H(9)</span> is the graph for <span
+class="math inline">H(8)</span> plus one new node 9, with an arrow to
+each of 8, 6, 4, 2, 0. There are 6 nodes and 15 arrows.</p>
+<p>Both graphs have 5 or 6 nodes, not 9 or 10, so a DP needs few
+subproblems. A valid order to solve them is <span
+class="math inline">H(0)</span> first, then <span
+class="math inline">H(2)</span>, <span class="math inline">H(4)</span>,
+and so on up to the target.</p>
+</div>
+</details>
+<div class="q">
+<ol start="3" type="a">
+<li>Write an iterative algorithm using dynamic programming (bottom-up).
+Analyze time and space complexity.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (c)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<pre><code>int hn_DP(int n)
+{   // Make use of an array S[0..n]
+    S[0] = 1;
+    for (i = 1; i &lt;= n; i++) {
+        S[i] = 0;
+        if (i mod 2) j = i-1;
+        else j = i-2;
+        while (j &gt;= 0) {
+            S[i] += S[j];
+            j -= 2;
+        }
+    }
+    return S[n];
+}</code></pre>
+<p>The array <span class="math inline">S[0..n]</span> stores every <span
+class="math inline">H(i)</span> as it is found. Each <span
+class="math inline">S[i]</span> only needs smaller indices, and those
+are already stored.</p>
+<ul>
+<li><strong>Space:</strong> <span class="math inline">O(n)</span>, for
+the array <span class="math inline">S</span>.</li>
+<li><strong>Time:</strong> <span class="math inline">O(n^2)</span>. The
+loop for <span class="math inline">i</span> adds about <span
+class="math inline">i/2</span> values. The total is about <span
+class="math inline">\frac{1}{2}(1 + 2 + \dots + n) = O(n^2)</span>.</li>
+</ul>
+<p>The slide then asks: <em>Is there a faster algorithm?</em> Yes. See
+the next drawer.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer (c), a faster algorithm</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><em>(new)</em> The slide asks the question and gives no answer. Here
+is one.</p>
+<p>For odd <span class="math inline">n = 2m - 1</span> with <span
+class="math inline">m \ge 1</span>, the terms are <span
+class="math inline">H(2m-2), H(2m-4), \dots, H(0)</span>. For even <span
+class="math inline">2m</span>, the terms are the same list. So:</p>
+<ul>
+<li><span class="math inline">H(2m) = H(2m-1)</span> for <span
+class="math inline">m \ge 1</span>.</li>
+</ul>
+<p>For odd <span class="math inline">n = 2m + 1</span> with <span
+class="math inline">m \ge 1</span>, the terms are <span
+class="math inline">H(2m)</span> plus <span class="math inline">H(2m-2)
++ \dots + H(0)</span>. That second part is exactly <span
+class="math inline">H(2m)</span>. So:</p>
+<ul>
+<li><span class="math inline">H(2m+1) = 2 \cdot H(2m)</span> for <span
+class="math inline">m \ge 1</span>.</li>
+<li><span class="math inline">H(0) = H(1) = 1</span>. The rule <span
+class="math inline">H(1) = 2H(0)</span> does not hold, because <span
+class="math inline">H(1) = H(0)</span> has only one term.</li>
+</ul>
+<p>Check against the definition:</p>
+<table>
+<thead>
+<tr>
+<th>n</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H(n)</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>4</td>
+<td>4</td>
+<td>8</td>
+<td>8</td>
+</tr>
+</tbody>
+</table>
+<p>Each step looks only at the previous value, so one variable is
+enough. Loop from <span class="math inline">i = 3</span> to <span
+class="math inline">n</span>: if <span class="math inline">i</span> is
+odd, double the value. If <span class="math inline">i</span> is even,
+keep it. Start from 1. This runs in <strong><span
+class="math inline">O(n)</span> time and <span
+class="math inline">O(1)</span> space</strong>. (In fact <span
+class="math inline">H(n) = 2^{\lfloor (n-1)/2 \rfloor}</span> for <span
+class="math inline">n \ge 1</span>, but the <span
+class="math inline">O(n)</span> loop shows the DP idea.)</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: from a recurrence to a DP</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Write the recurrence. Find its subproblems: the values the answer
+calls for.</li>
+<li>Draw the subproblem graph. Check that it is a DAG (every arrow goes
+to a smaller problem). If a call tree repeats nodes, DP will help.</li>
+<li>Fix an order that solves every subproblem after the ones it points
+to. This is the reverse of a topological order. Here it is <span
+class="math inline">i = 0, 1, 2, \dots, n</span>.</li>
+<li>Store each answer in an array indexed by the subproblem. Fill it in
+that order.</li>
+<li><strong>Time</strong> <span class="math inline">\approx</span>
+(number of subproblems) <span class="math inline">\times</span> (work
+per subproblem). Here: <span class="math inline">n</span> subproblems,
+each adds up to <span class="math inline">O(n)</span> stored values, so
+<span class="math inline">O(n^2)</span>.</li>
+<li><strong>Space</strong> <span class="math inline">\approx</span> the
+size of the array, unless a later step needs only the last few
+values.</li>
+<li>Look for a pattern in the recurrence. When two subproblems share
+almost all their terms, one can be computed from the other in <span
+class="math inline">O(1)</span> time. That is how <span
+class="math inline">H</span> drops to <span
+class="math inline">O(n)</span>.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 2.1.</strong> Use the <span
+class="math inline">O(n)</span> rule to compute <span
+class="math inline">H(10)</span> and <span
+class="math inline">H(11)</span>. Check <span
+class="math inline">H(10)</span> against the definition.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 2.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Start from <span class="math inline">H(8) = 8</span>.</p>
+<ul>
+<li><span class="math inline">H(9) = 2 \cdot H(8) = 16</span> (9 is
+odd).</li>
+<li><span class="math inline">H(10) = H(9) = 16</span> (10 is
+even).</li>
+<li><span class="math inline">H(11) = 2 \cdot H(10) = 32</span> (11 is
+odd).</li>
+</ul>
+<p>Check <span class="math inline">H(10)</span> from the definition:
+<span class="math inline">H(10) = H(8) + H(6) + H(4) + H(2) + H(0) = 8 +
+4 + 2 + 1 + 1 = 16</span>. It matches.</p>
+</div>
+</details>
+<h3 id="tutorial-10-q3.-binomial-coefficients">Tutorial 10 Q3. Binomial
+coefficients</h3>
+<div class="q">
+<p>The binomial coefficients can be defined by the recurrence
+equation:</p>
+<ul>
+<li><span class="math inline">C(n, k) = C(n-1, k-1) + C(n-1, k)</span>
+for <span class="math inline">n &gt; 0</span> and <span
+class="math inline">k &gt; 0</span>;</li>
+<li><span class="math inline">C(n, 0) = 1</span> for <span
+class="math inline">n \ge 0</span>;</li>
+<li><span class="math inline">C(0, k) = 0</span> for <span
+class="math inline">k &gt; 0</span>.</li>
+</ul>
+<p><span class="math inline">C(n, k)</span> is also called “n choose k”.
+It is the number of ways to choose <span class="math inline">k</span>
+distinct objects from a set of <span class="math inline">n</span>
+objects.</p>
+<ol type="a">
+<li>Give a recursive algorithm as suggested by the recurrence equation
+given for <span class="math inline">C(n, k)</span>.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (a)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<pre><code>int C(int n, int k)
+{
+    if (k == 0) return 1;
+    if (n == 0) return 0;
+    return C(n-1, k-1) + C(n-1, k);
+}</code></pre>
+<p>The two base cases come first: <span class="math inline">k = 0</span>
+gives 1 and <span class="math inline">n = 0</span> gives 0. Because the
+<span class="math inline">k = 0</span> test is first, <span
+class="math inline">C(0, 0) = 1</span>, as the definition says.</p>
+</div>
+</details>
+<div class="q">
+<ol start="2" type="a">
+<li>Draw the subproblem graph for <span class="math inline">C(5,
+3)</span>.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (b)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<figure>
+<img src="img/tutorial-10-artifacts/c53-subproblem-graph.png"
+style="width:50.0%"
+alt="The subproblem graph for C(5,3). Rows are n from 0 to 5 and columns are k from 0 to 3. Node (n,k) has an arrow to (n-1,k-1) and to (n-1,k). The nodes are rows 0 to 2 in all four columns, then (3,1) to (3,3), (4,2), (4,3) and (5,3) (Tutorial 10 solutions)." />
+<figcaption aria-hidden="true">The subproblem graph for C(5,3). Rows are
+n from 0 to 5 and columns are k from 0 to 3. Node (n,k) has an arrow to
+(n-1,k-1) and to (n-1,k). The nodes are rows 0 to 2 in all four columns,
+then (3,1) to (3,3), (4,2), (4,3) and (5,3) (Tutorial 10
+solutions).</figcaption>
+</figure>
+<p>Each node <span class="math inline">(n, k)</span> with <span
+class="math inline">n &gt; 0</span> and <span class="math inline">k &gt;
+0</span> has two arrows: to <span class="math inline">(n-1, k-1)</span>
+and to <span class="math inline">(n-1, k)</span>. Nodes with <span
+class="math inline">k = 0</span> or <span class="math inline">n =
+0</span> are base cases and have no arrows. The graph has 18 nodes, not
+the 24 cells of a full <span class="math inline">6 \times 4</span> grid,
+because the answer never needs <span class="math inline">(3,0)</span>,
+<span class="math inline">(4,0)</span>, <span
+class="math inline">(4,1)</span>, <span
+class="math inline">(5,0)</span>, <span
+class="math inline">(5,1)</span>, <span
+class="math inline">(5,2)</span>.</p>
+<p>Several nodes have two incoming arrows. For example <span
+class="math inline">(3,2)</span> is needed by both <span
+class="math inline">(4,2)</span> and <span
+class="math inline">(4,3)</span>. A plain recursion would solve it
+twice.</p>
+</div>
+</details>
+<div class="q">
+<ol start="3" type="a">
+<li>Implement a top-down dynamic programming algorithm with memoization.
+State the data structure used for the dictionary.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (c)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The dictionary is a two-dimensional array
+<code>int dic[n+1][k+1]</code>, with <strong>every entry set to
+-1</strong> at the start. The value -1 means “not computed yet”. A real
+answer is never negative, so no clash is possible.</p>
+<pre><code>int C(int n, int k, int [][] dic)
+{
+    int c1, c2;
+
+    if (k == 0) {
+        dic[n][0] = 1;
+        return 1;
+    }
+    if (n == 0) {
+        dic[0][k] = 0;
+        return 0;
+    }
+
+    if (dic[n-1][k-1] == -1)
+        c1 = C(n-1, k-1, dic);
+    else c1 = dic[n-1][k-1];
+
+    if (dic[n-1][k] == -1)
+        c2 = C(n-1, k, dic);
+    else c2 = dic[n-1][k];
+
+    dic[n][k] = c1 + c2;
+    return dic[n][k];
+}</code></pre>
+<p>Before each recursive call, the code looks in <code>dic</code>. It
+calls only if the entry is -1. So each subproblem is solved once, and
+every later request reads the stored value.</p>
+<ul>
+<li><strong>Time:</strong> <span class="math inline">O(nk)</span>. There
+are at most <span class="math inline">(n+1)(k+1)</span> subproblems and
+each does <span class="math inline">O(1)</span> work besides its
+calls.</li>
+<li><strong>Space:</strong> <span class="math inline">O(nk)</span> for
+the array (plus <span class="math inline">O(n)</span> for the recursion
+stack).</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<ol start="4" type="a">
+<li>Implement a bottom-up approach and analyze its time and space
+complexity.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (d)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<pre><code>int C(int n, int k)
+{
+    int dic[n+1][k+1];
+
+    for (i = 1; i &lt;= k; i++) dic[0][i] = 0;
+    for (i = 0; i &lt;= n; i++) dic[i][0] = 1;
+    for (i = 1; i &lt;= n; i++)
+        for (j = 1; j &lt;= k; j++)
+            dic[i][j] = dic[i-1][j-1] + dic[i-1][j];
+
+    return dic[n][k];
+}</code></pre>
+<p>The first two loops fill the base cases: row 0 and column 0. The
+double loop then fills row by row. Each cell reads the row above, which
+is already full.</p>
+<ul>
+<li><strong>Time:</strong> <span class="math inline">O(nk)</span>.</li>
+<li><strong>Space:</strong> <span class="math inline">O(nk)</span>.</li>
+</ul>
+<p>The slide also gives a <strong>more optimized</strong> version:</p>
+<pre><code>int C(int n, int k)    // more optimized
+{
+    int dic[n+1][k+1];
+
+    for (i = 1; i &lt;= k; i++)
+        dic[0][i] = 0;
+    for (i = 0; i &lt;= n-k; i++)
+        dic[i][0] = 1;
+    for (i = 1; i &lt;= n; i++)
+        for (j = max(i-(n-k), 1); j &lt;= k; j++)
+            dic[i][j] = dic[i-1][j-1] + dic[i-1][j];
+
+    return dic[n][k];
+}</code></pre>
+<p>It fills only the cells that <span class="math inline">C(n, k)</span>
+really uses. Each step down a row adds 0 or 1 to <span
+class="math inline">j</span>, so from cell <span class="math inline">(i,
+j)</span> you can reach <span class="math inline">(n, k)</span> only if
+<span class="math inline">k - j \le n - i</span>. That means <span
+class="math inline">j \ge i - (n-k)</span>, which is the loop start.
+Cells to the left of that are never read, so the code skips them. For
+the same reason only the column 0 cells with <span class="math inline">i
+\le n-k</span> are needed. This is the shape of the graph in part (b).
+The loops visit about <span class="math inline">k(n-k)</span> cells. The
+worst-case bound is still <span class="math inline">O(nk)</span> time
+and <span class="math inline">O(nk)</span> space.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: memoized and bottom-up DP</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Both methods use the same subproblem graph. They differ only in the
+order.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Top-down (memoization)</th>
+<th>Bottom-up</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Order</td>
+<td>Follows the recursion. Starts at the answer.</td>
+<td>You choose it: a reverse topological order.</td>
+</tr>
+<tr>
+<td>Table start</td>
+<td>All entries -1</td>
+<td>Base cases filled first</td>
+</tr>
+<tr>
+<td>Solves</td>
+<td>Only the subproblems the answer needs</td>
+<td>All the cells in the loops</td>
+</tr>
+<tr>
+<td>Cost</td>
+<td>Stack space and call overhead</td>
+<td>None. Loops only.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Time</strong> is (number of distinct subproblems) <span
+class="math inline">\times</span> (work per subproblem). For <span
+class="math inline">C(n, k)</span>: <span class="math inline">O(nk)
+\times O(1)</span>.</li>
+<li><strong>Space</strong> is the table. If a row needs only the row
+above, you can keep one row. See Extension 3.1.</li>
+<li>To restrict the loops (the optimized version), ask which cells can
+reach the answer in the graph, and loop over those.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 3.1.</strong> Fill the bottom-up table for <span
+class="math inline">C(5, 3)</span>. Then show that one row of size <span
+class="math inline">k+1</span> is enough.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Cell <span class="math inline">(i, j)</span> is the sum of the cell
+above and the cell above-left.</p>
+<table>
+<thead>
+<tr>
+<th>i \ j</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>1</td>
+<td>2</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>1</td>
+<td>3</td>
+<td>3</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>1</td>
+<td>4</td>
+<td>6</td>
+<td>4</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td>1</td>
+<td>5</td>
+<td>10</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<p>So <span class="math inline">C(5, 3) = 10</span>. Two cells in full:
+<span class="math inline">C(4,3) = C(3,2) + C(3,3) = 3 + 1 = 4</span>.
+<span class="math inline">C(5,3) = C(4,2) + C(4,3) = 6 + 4 =
+10</span>.</p>
+<p><em>(new)</em> Row <span class="math inline">i</span> reads only row
+<span class="math inline">i-1</span>. Keep one array
+<code>row[0..k]</code>, with <code>row[0] = 1</code> and the rest 0. For
+each <span class="math inline">i</span> from 1 to <span
+class="math inline">n</span>, run <span class="math inline">j</span>
+<strong>downward</strong> from <span class="math inline">k</span> to 1
+and do <code>row[j] = row[j] + row[j-1]</code>. Going downward matters:
+<code>row[j-1]</code> must still hold the old value from row <span
+class="math inline">i-1</span> when you read it. Going upward would use
+the new value and give a wrong answer. Time is still <span
+class="math inline">O(nk)</span>. Space falls to <span
+class="math inline">O(k)</span>.</p>
+</div>
+</details>
+<h3 id="tutorial-10-q4.-knapsack">Tutorial 10 Q4. Knapsack</h3>
+<div class="q">
+<p>Given a knapsack of size 10 and 4 objects with:</p>
+<ul>
+<li>Profits (p): {10, 40, 30, 50},</li>
+<li>Sizes (s): {5, 4, 6, 3},</li>
+</ul>
+<p>determine the subset maximizing profit using dynamic programming.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Concepts: the 0/1 knapsack table</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>Each object is taken once or not at all. The goal is the largest
+total profit with total size at most <span
+class="math inline">C</span>.</li>
+<li><span class="math inline">\text{profit}[r][c]</span> is the best
+profit that uses only objects <span class="math inline">1..c</span> in a
+knapsack of size <span class="math inline">r</span>. The rows are
+capacities <span class="math inline">0..C</span>. The columns are
+objects <span class="math inline">0..n</span>. Column 0 (no objects) and
+row 0 (no space) are 0.</li>
+<li>To fill a cell, ask about object <span class="math inline">c</span>.
+<strong>Leave it:</strong> the value is <span
+class="math inline">\text{profit}[r][c-1]</span>. <strong>Take
+it</strong> (only if <span class="math inline">s_c \le r</span>): the
+value is <span class="math inline">\text{profit}[r - s_c][c-1] +
+p_c</span>. Keep the larger.</li>
+<li>Chapter 10 has the full argument.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The lecture code (the slide calls the sizes <code>w</code>):</p>
+<pre><code>for r = 1 to C
+    for c = 1 to n
+        profit[r][c] = profit[r][c-1];
+        if (w[c] &lt;= r)
+            if (profit[r][c] &lt; profit[r-w[c]][c-1] + p[c])
+                profit[r][c] = profit[r-w[c]][c-1] + p[c];</code></pre>
+<p>The table with <span class="math inline">C = 10</span>. Objects: 1
+(size 5, profit 10), 2 (size 4, profit 40), 3 (size 6, profit 30), 4
+(size 3, profit 50).</p>
+<table>
+<thead>
+<tr>
+<th>r \ c</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>0</strong></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>50</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td>0</td>
+<td>0</td>
+<td>40</td>
+<td>40</td>
+<td>50</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td>0</td>
+<td>10</td>
+<td>40</td>
+<td>40</td>
+<td>50</td>
+</tr>
+<tr>
+<td><strong>6</strong></td>
+<td>0</td>
+<td>10</td>
+<td>40</td>
+<td>40</td>
+<td>50</td>
+</tr>
+<tr>
+<td><strong>7</strong></td>
+<td>0</td>
+<td>10</td>
+<td>40</td>
+<td>40</td>
+<td>90</td>
+</tr>
+<tr>
+<td><strong>8</strong></td>
+<td>0</td>
+<td>10</td>
+<td>40</td>
+<td>40</td>
+<td>90</td>
+</tr>
+<tr>
+<td><strong>9</strong></td>
+<td>0</td>
+<td>10</td>
+<td>50</td>
+<td>50</td>
+<td>90</td>
+</tr>
+<tr>
+<td><strong>10</strong></td>
+<td>0</td>
+<td>10</td>
+<td>50</td>
+<td>70</td>
+<td>90</td>
+</tr>
+</tbody>
+</table>
+<p>The best profit is <span class="math inline">\text{profit}[10][4] =
+90</span>.</p>
+<p>Four cells in full:</p>
+<ul>
+<li><span class="math inline">(r, c) = (4, 1)</span>: object 1 has size
+5, and <span class="math inline">5 &gt; 4</span>. It does not fit. Copy
+the left cell: 0.</li>
+<li><span class="math inline">(5, 1)</span>: <span class="math inline">5
+\le 5</span>. Take it: <span class="math inline">\text{profit}[0][0] +
+10 = 10 &gt; 0</span>. Value 10.</li>
+<li><span class="math inline">(10, 3)</span>: leave object 3: <span
+class="math inline">\text{profit}[10][2] = 50</span>. Take it: <span
+class="math inline">\text{profit}[4][2] + 30 = 40 + 30 = 70</span>.
+<span class="math inline">70 &gt; 50</span>, so the value is 70.</li>
+<li><span class="math inline">(7, 4)</span>: leave object 4: <span
+class="math inline">\text{profit}[7][3] = 40</span>. Take it: <span
+class="math inline">\text{profit}[4][3] + 50 = 40 + 50 = 90</span>.
+<span class="math inline">90 &gt; 40</span>, so the value is 90.</li>
+</ul>
+<p>The slide gives the table and the code only. It does not name the
+subset. Trace it back. <em>(new)</em> At cell <span
+class="math inline">(r, c)</span>: if <span
+class="math inline">\text{profit}[r][c] \ne
+\text{profit}[r][c-1]</span>, object <span class="math inline">c</span>
+is taken, so move to <span class="math inline">(r - s_c, c-1)</span>. If
+they are equal, object <span class="math inline">c</span> is left, so
+move to <span class="math inline">(r, c-1)</span>.</p>
+<ol type="1">
+<li><span class="math inline">(10, 4)</span>: <span
+class="math inline">90 \ne \text{profit}[10][3] = 70</span>.
+<strong>Take object 4</strong> (size 3). Go to <span
+class="math inline">(7, 3)</span>.</li>
+<li><span class="math inline">(7, 3)</span>: <span
+class="math inline">40 = \text{profit}[7][2] = 40</span>. Leave object
+3. Go to <span class="math inline">(7, 2)</span>.</li>
+<li><span class="math inline">(7, 2)</span>: <span
+class="math inline">40 \ne \text{profit}[7][1] = 10</span>. <strong>Take
+object 2</strong> (size 4). Go to <span class="math inline">(3,
+1)</span>.</li>
+<li><span class="math inline">(3, 1)</span>: <span class="math inline">0
+= \text{profit}[3][0] = 0</span>. Leave object 1. Done.</li>
+</ol>
+<p>The subset is <strong>{object 2, object 4}</strong>, with total size
+<span class="math inline">4 + 3 = 7 \le 10</span> and total profit <span
+class="math inline">40 + 50 = 90</span>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: fill a knapsack table and trace it back</strong>
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Make a grid. Rows are capacities <span
+class="math inline">0..C</span>. Columns are objects <span
+class="math inline">0..n</span>. Fill row 0 and column 0 with 0.</li>
+<li>Fill row by row, left to right. For cell <span
+class="math inline">(r, c)</span>:
+<ul>
+<li>Copy the cell on the left (leave object <span
+class="math inline">c</span>).</li>
+<li>If <span class="math inline">s_c \le r</span>, compute <span
+class="math inline">\text{profit}[r - s_c][c-1] + p_c</span>. This looks
+one column left and <span class="math inline">s_c</span> rows up. If it
+is larger, use it.</li>
+</ul></li>
+<li>The bottom-right cell is the best profit.</li>
+<li>Trace back from <span class="math inline">(C, n)</span>. If the cell
+differs from its left neighbour, take object <span
+class="math inline">c</span> and go to <span class="math inline">(r -
+s_c, c-1)</span>. If equal, go to <span class="math inline">(r,
+c-1)</span>. Stop at column 0.</li>
+<li>Check: the sizes of the taken objects add to at most <span
+class="math inline">C</span>, and the profits add to the bottom-right
+cell.</li>
+</ol>
+<p>Time and space are both <span class="math inline">O(C \cdot
+n)</span>. This is <em>pseudo-polynomial</em>: it depends on the number
+<span class="math inline">C</span>, not on the number of bits in <span
+class="math inline">C</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 4.1.</strong> A knapsack has size 10. There are
+three objects with sizes {6, 5, 5} and profits {7, 5, 5}. A greedy rule
+takes objects in order of profit per unit of size, and stops when the
+next one does not fit. Show that it is not optimal.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 4.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The ratios are <span class="math inline">7/6 \approx 1.17</span>,
+<span class="math inline">5/5 = 1</span> and <span
+class="math inline">5/5 = 1</span>. Greedy takes object 1 first (size
+6). The space left is 4. Neither remaining object (size 5) fits. Greedy
+ends with profit <strong>7</strong>.</p>
+<p>The DP table gives the optimum:</p>
+<table>
+<thead>
+<tr>
+<th>r \ c</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>5</strong></td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>6</strong></td>
+<td>0</td>
+<td>7</td>
+<td>7</td>
+<td>7</td>
+</tr>
+<tr>
+<td><strong>10</strong></td>
+<td>0</td>
+<td>7</td>
+<td>7</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<p>Cell <span class="math inline">(10, 3)</span>: leave object 3 gives
+<span class="math inline">\text{profit}[10][2] = 7</span>. Take it gives
+<span class="math inline">\text{profit}[5][2] + 5 = 5 + 5 = 10</span>.
+So the value is 10. The trace takes objects 3 and 2 (sizes 5 + 5 = 10).
+The optimum is <strong>10</strong>.</p>
+<p>Greedy fails because an object cannot be split. It commits to object
+1 and wastes 4 units of space. The DP tries both choices for every
+object.</p>
+</div>
+</details>
+<h3 id="tutorial-10-q5.-alignment-of-two-sequences">Tutorial 10 Q5.
+Alignment of two sequences</h3>
+<div class="q">
+<p>Let <span class="math inline">S_1</span> and <span
+class="math inline">S_2</span> be sequences of characters from {‘a’,
+‘c’, ‘g’, ‘t’}. Alignment involves inserting ’_’ so both sequences have
+the same length. The cost is the number of insertions. Example: <span
+class="math inline">S_1</span> = “ctatg”, <span
+class="math inline">S_2</span> = “ttaagc”, <span
+class="math inline">S_1&#39;</span> = “ct_at_g_”, <span
+class="math inline">S_2&#39;</span> = “_tta_agc”. The cost is 5.</p>
+<ol type="a">
+<li>Give a recursive definition of alignment(<span
+class="math inline">n_1</span>, <span
+class="math inline">n_2</span>).</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (a)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Let <span class="math inline">\text{Alignment}(n_1, n_2)</span> be
+the least cost to align the first <span class="math inline">n_1</span>
+characters of <span class="math inline">S_1</span> with the first <span
+class="math inline">n_2</span> characters of <span
+class="math inline">S_2</span>. The official analysis:</p>
+<ul>
+<li><strong>Two base cases.</strong> (i) <span
+class="math inline">S_2</span> is empty: <span
+class="math inline">S_2&#39;</span> must have <span
+class="math inline">n_1</span> ‘<em>’ characters, so the cost is <span
+class="math inline">n_1</span>. (ii) <span
+class="math inline">S_1</span> is empty: <span
+class="math inline">S_1&#39;</span> must have <span
+class="math inline">n_2</span> ’</em>’ characters, so the cost is <span
+class="math inline">n_2</span>.</li>
+<li><strong>Both sequences are not empty.</strong> Look at the last
+characters. There are two possibilities.
+<ul>
+<li><ol type="i">
+<li><span class="math inline">S_1[n_1] = S_2[n_2]</span>. No insertion
+is needed. The last character of <span
+class="math inline">S_1&#39;</span> and of <span
+class="math inline">S_2&#39;</span> is this character. Before it comes
+the best alignment of the shorter strings: <span
+class="math inline">\text{Alignment}(n_1 - 1, n_2 - 1)</span>.</li>
+</ol></li>
+<li><ol start="2" type="i">
+<li><span class="math inline">S_1[n_1] \ne S_2[n_2]</span>. Either align
+the last character of <span class="math inline">S_1</span> with ‘<em>’,
+and find <span class="math inline">\text{Alignment}(n_1 - 1,
+n_2)</span>. Or align the last character of <span
+class="math inline">S_2</span> with ’</em>’, and find <span
+class="math inline">\text{Alignment}(n_1, n_2 - 1)</span>. Take the
+smaller and add 1 for the new ’_’.</li>
+</ol></li>
+</ul></li>
+</ul>
+<p>The recursive definition:</p>
+<ul>
+<li><span class="math inline">\text{Alignment}(n_1, 0) = n_1</span></li>
+<li><span class="math inline">\text{Alignment}(0, n_2) = n_2</span></li>
+<li><span class="math inline">\text{Alignment}(n_1, n_2) =
+\text{Alignment}(n_1 - 1, n_2 - 1)</span> if <span
+class="math inline">S_1[n_1] = S_2[n_2]</span></li>
+<li><span class="math inline">\text{Alignment}(n_1, n_2) =
+\min(\text{Alignment}(n_1 - 1, n_2),\ \text{Alignment}(n_1, n_2 - 1)) +
+1</span> otherwise</li>
+</ul>
+<p><em>(new)</em> A mismatch is never paired with a mismatch. The
+alignment may only insert ‘<em>’, so two different letters cannot share
+a column. The only choices are to put a ’</em>’ under one of them.</p>
+</div>
+</details>
+<div class="q">
+<ol start="2" type="a">
+<li>Draw the subproblem graph for alignment(3, 4).</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (b)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The nodes are all pairs <span class="math inline">(x, y)</span> with
+<span class="math inline">0 \le x \le 3</span> and <span
+class="math inline">0 \le y \le 4</span>:</p>
+<table>
+<tbody>
+<tr>
+<td>(0, 0)</td>
+<td>(0, 1)</td>
+<td>(0, 2)</td>
+<td>(0, 3)</td>
+<td>(0, 4)</td>
+</tr>
+<tr>
+<td>(1, 0)</td>
+<td>(1, 1)</td>
+<td>(1, 2)</td>
+<td>(1, 3)</td>
+<td>(1, 4)</td>
+</tr>
+<tr>
+<td>(2, 0)</td>
+<td>(2, 1)</td>
+<td>(2, 2)</td>
+<td>(2, 3)</td>
+<td>(2, 4)</td>
+</tr>
+<tr>
+<td>(3, 0)</td>
+<td>(3, 1)</td>
+<td>(3, 2)</td>
+<td>(3, 3)</td>
+<td>(3, 4)</td>
+</tr>
+</tbody>
+</table>
+<p>For each <span class="math inline">(x, y)</span> where <span
+class="math inline">x \ne 0</span> and <span class="math inline">y \ne
+0</span>, there is an edge to <span class="math inline">(x-1,
+y-1)</span>, <span class="math inline">(x-1, y)</span> and <span
+class="math inline">(x, y-1)</span>. Nodes in row 0 and column 0 are
+base cases and have no edges.</p>
+<p>The graph has 20 nodes and <span class="math inline">3 \times 4
+\times 3 = 36</span> edges. Every edge goes up, left, or up-left, so the
+graph is a DAG. Solving the rows from top to bottom, and each row from
+left to right, solves every node after the nodes it points to.</p>
+<p>(The recurrence uses the diagonal edge only when the characters
+match, and the two other edges only when they do not. The graph shows
+all the edges that any input could use.)</p>
+</div>
+</details>
+<div class="q">
+<ol start="3" type="a">
+<li>Design a dynamic programming algorithm of alignment(<span
+class="math inline">n_1</span>, <span class="math inline">n_2</span>)
+using the bottom-up approach.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (c)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<pre><code>for (r = 0 to n1) cost[r][0] = r;
+for (c = 1 to n2) cost[0][c] = c;
+
+for (r = 1 to n1)
+    for (c = 1 to n2)
+        if (S1[r] == S2[c])
+            cost[r][c] = cost[r-1][c-1];
+        else if (cost[r-1][c] &lt; cost[r][c-1])
+            cost[r][c] = cost[r-1][c] + 1;
+        else
+            cost[r][c] = cost[r][c-1] + 1;
+
+return cost[n1][n2];</code></pre>
+<p>The first two lines fill the base cases. The loops then follow the
+order of the graph in part (b). The <code>else if</code> picks the
+smaller of the cell above and the cell to the left, then adds 1. This is
+the <span class="math inline">\min(\dots) + 1</span> of part (a).</p>
+<ul>
+<li><strong>Time:</strong> <span class="math inline">O(n_1
+n_2)</span>.</li>
+<li><strong>Space:</strong> <span class="math inline">O(n_1
+n_2)</span>.</li>
+</ul>
+<p><em>(new)</em> The table for <span class="math inline">S_1</span> =
+“ctatg” (rows) and <span class="math inline">S_2</span> = “ttaagc”
+(columns):</p>
+<table>
+<thead>
+<tr>
+<th>cost</th>
+<th>∅</th>
+<th>t</th>
+<th>t</th>
+<th>a</th>
+<th>a</th>
+<th>g</th>
+<th>c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>∅</strong></td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr>
+<td><strong>c</strong></td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>t</strong></td>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr>
+<td><strong>a</strong></td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+</tr>
+<tr>
+<td><strong>t</strong></td>
+<td>4</td>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>6</td>
+</tr>
+<tr>
+<td><strong>g</strong></td>
+<td>5</td>
+<td>4</td>
+<td>3</td>
+<td>4</td>
+<td>5</td>
+<td>4</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<p>The answer is <span class="math inline">\text{cost}[5][6] = 5</span>,
+as the question states. Two cells in full:</p>
+<ul>
+<li><span class="math inline">\text{cost}[2][1]</span>: t = t, so it
+copies the diagonal cell <span class="math inline">\text{cost}[1][0] =
+1</span>.</li>
+<li><span class="math inline">\text{cost}[1][1]</span>: c <span
+class="math inline">\ne</span> t. The cell above is <span
+class="math inline">\text{cost}[0][1] = 1</span> and the cell to the
+left is <span class="math inline">\text{cost}[1][0] = 1</span>. The test
+“above <span class="math inline">&lt;</span> left” fails, so the
+<code>else</code> branch runs: <span
+class="math inline">\text{cost}[1][0] + 1 = 2</span>.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: design a DP from the last decision</strong>
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Define the subproblem as a <strong>prefix pair</strong>: <span
+class="math inline">f(i, j)</span> is the answer for the first <span
+class="math inline">i</span> items of one input and the first <span
+class="math inline">j</span> of the other.</li>
+<li>Ask what happens to the <strong>last</strong> item of each prefix.
+List every choice. Here: the last characters are matched in one column
+(free if equal), or one of them sits above a ’_’ (cost 1).</li>
+<li>Each choice leaves a smaller prefix pair. Write <span
+class="math inline">f(i, j)</span> as the best of those choices.</li>
+<li>Write the base cases: one prefix empty.</li>
+<li>The subproblem graph is the grid of <span class="math inline">(i,
+j)</span> pairs. Edges go to smaller <span class="math inline">i</span>,
+smaller <span class="math inline">j</span>, or both. Fill the grid row
+by row.</li>
+<li>Time is (number of cells) <span class="math inline">\times</span>
+(choices per cell) <span class="math inline">= O(n_1 n_2)</span>. Space
+is the grid.</li>
+</ol>
+<p>This is the same shape as the LCS in Q1. Both are two-string
+prefix-pair tables.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 5.1.</strong> Show that <span
+class="math inline">\text{Alignment}(n_1, n_2) = n_1 + n_2 - 2 \cdot
+\text{LCS}(n_1, n_2)</span>. Check it on “ctatg” and “ttaagc”.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 5.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><em>(new)</em> Look at an alignment. Each column has two characters,
+or one character and a ‘<em>’. Call a column <strong>matched</strong> if
+it holds the same character in both rows. The matched columns, read left
+to right, spell a common subsequence of <span
+class="math inline">S_1</span> and <span class="math inline">S_2</span>.
+Every other character of <span class="math inline">S_1</span> or <span
+class="math inline">S_2</span> sits above or below a ’</em>’.</p>
+<ul>
+<li>If <span class="math inline">L</span> columns are matched, <span
+class="math inline">L</span> characters of <span
+class="math inline">S_1</span> and <span class="math inline">L</span> of
+<span class="math inline">S_2</span> are used. The other <span
+class="math inline">n_1 - L</span> characters of <span
+class="math inline">S_1</span> and <span class="math inline">n_2 -
+L</span> of <span class="math inline">S_2</span> each need one ’_’.</li>
+<li>The cost is <span class="math inline">(n_1 - L) + (n_2 - L) = n_1 +
+n_2 - 2L</span>.</li>
+<li>The cost is smallest when <span class="math inline">L</span> is
+largest. The largest <span class="math inline">L</span> is the length of
+an LCS. So the minimum cost is <span class="math inline">n_1 + n_2 - 2
+\cdot \text{LCS}</span>.</li>
+</ul>
+<p>(The two characters in a column are never different letters, because
+an alignment can only insert ’_’.)</p>
+<p>Check on the example. Take <span class="math inline">S_1</span> =
+“ctatg” and <span class="math inline">S_2</span> = “ttaagc”. An LCS is
+“tag”: the t at position 2 of <span class="math inline">S_1</span> and
+position 1 or 2 of <span class="math inline">S_2</span>, then a, then g.
+It has length 3.</p>
+<p>Length 4 is not possible. The LCS table of the two strings has
+bottom-right cell 3:</p>
+<table>
+<thead>
+<tr>
+<th>c</th>
+<th>∅</th>
+<th>t</th>
+<th>t</th>
+<th>a</th>
+<th>a</th>
+<th>g</th>
+<th>c</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>∅</strong></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>c</strong></td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>t</strong></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td><strong>a</strong></td>
+<td>0</td>
+<td>1</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>t</strong></td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>g</strong></td>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>3</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>So <span class="math inline">\text{Alignment}(5, 6) = 5 + 6 - 2 \cdot
+3 = 5</span>. This matches the cost 5 in the question and the <span
+class="math inline">\text{cost}[5][6]</span> cell in part (c).</p>
+</div>
+</details>
+
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="drill.js"></script>
+</body></html>

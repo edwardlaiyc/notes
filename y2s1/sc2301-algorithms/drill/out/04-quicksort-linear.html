@@ -1,0 +1,2070 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>4. Quicksort, the sorting lower bound, linear-time sorts</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="drill.css">
+</head><body data-page="04-quicksort-linear">
+<nav class="top"><a href="index.html">All topics</a><span id="count"></span>
+<label><input type="checkbox" id="onlyshaky"> only shaky</label>
+<button id="export">Copy progress</button></nav>
+<main>
+<h1 id="quicksort-the-sorting-lower-bound-linear-time-sorts">4.
+Quicksort, the sorting lower bound, linear-time sorts</h1>
+<h2 id="facts">Facts</h2>
+<div class="q">
+<p>Describe the lecture’s partition. How many comparisons does it make
+on <span class="math inline">k</span> elements?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Swap the middle element to the front as pivot. Scan <span
+class="math inline">i=low+1..high</span>: if <span
+class="math inline">slot[i]&lt;</span> pivot, increment
+<code>last_small</code> and swap <span
+class="math inline">slot[i]</span> with <span
+class="math inline">slot[last\_small]</span>. Finally swap the pivot
+into position <code>last_small</code>. Every non-pivot element is
+compared with the pivot once: exactly <span
+class="math inline">k-1</span> comparisons.</p>
+</div>
+</details>
+<div class="q">
+<p>Give quicksort’s best, worst and average running time, and the input
+that causes the worst case.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Best <span class="math inline">\Theta(n\log n)</span> (balanced
+splits). Worst <span class="math inline">\Theta(n^2)</span>: <span
+class="math inline">T(n)=T(n-1)+(n-1)</span>, when the pivot is always
+the minimum or maximum. Average <span
+class="math inline">\approx1.39\,n\lg n=\Theta(n\log n)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Does choosing the median of three (<span
+class="math inline">A[low]</span>, <span
+class="math inline">A[mid]</span>, <span
+class="math inline">A[high]</span>) remove the <span
+class="math inline">\Theta(n^2)</span> worst case?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>No. It avoids the worst case on sorted and reverse-sorted input, but
+an adversary can arrange keys so the median of the three is always the
+second smallest, giving splits of sizes <span
+class="math inline">1</span> and <span class="math inline">n-2</span>:
+<span class="math inline">T(n)=T(n-2)+\Theta(n)=\Theta(n^2)</span>. Only
+an <span class="math inline">O(n)</span> exact median guarantees <span
+class="math inline">O(n\log n)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Space and stability of quicksort.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>In place apart from the recursion stack: <span
+class="math inline">O(\log n)</span> expected, <span
+class="math inline">O(n)</span> worst case. <strong>Not stable</strong>,
+because partitioning swaps distant elements.</p>
+</div>
+</details>
+<div class="q">
+<p>What is the Dutch national flag problem, and its cost?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Partition an array into three groups (red, white, blue) in one pass.
+Keep pointers <span class="math inline">r</span> (end of reds), <span
+class="math inline">u</span> (first unexamined) and <span
+class="math inline">b</span> (start of blues), examine <span
+class="math inline">slot[u]</span> and swap it into the right region.
+<span class="math inline">O(n)</span> time, <span
+class="math inline">O(1)</span> space. It is a 3-way partition, useful
+with many duplicate keys.</p>
+</div>
+</details>
+<div class="q">
+<p>State the comparison-sort lower bound and its proof idea.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Every comparison sort needs <span class="math inline">\Omega(n\log
+n)</span> comparisons in the worst case. A decision tree for <span
+class="math inline">n</span> keys has at least <span
+class="math inline">n!</span> leaves (one per permutation) and is
+binary, so height <span
+class="math inline">h\ge\lceil\lg(n!)\rceil=\Omega(n\log n)</span>
+(since <span class="math inline">\lg n!\ge\frac n2\lg\frac n2</span>).
+The height is the worst-case comparisons.</p>
+</div>
+</details>
+<div class="q">
+<p>What is the depth of the shallowest leaf in the decision tree of a
+correct comparison sort?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">n-1</span>. The comparisons on the path to
+a leaf must connect all <span class="math inline">n</span> keys
+(otherwise two keys were never related and the order is not determined),
+and connecting <span class="math inline">n</span> nodes needs at least
+<span class="math inline">n-1</span> edges.</p>
+</div>
+</details>
+<div class="q">
+<p>Counting sort: assumptions, steps, time and space.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Keys are integers in <span class="math inline">[0..k]</span>. Count
+each key, prefix-sum the counts into final positions, then place
+elements. Time <span class="math inline">\Theta(n+k)</span>, extra space
+<span class="math inline">\Theta(n+k)</span>, not in place. It does no
+comparisons, so the <span class="math inline">n\log n</span> bound does
+not apply.</p>
+</div>
+</details>
+<div class="q">
+<p>What must the placement loop of counting sort do for stability, and
+what happens if it runs forward instead?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>It must run <strong>backwards</strong> (<span
+class="math inline">j=n-1</span> down to <span
+class="math inline">0</span>), because the count array gives the
+<em>last</em> slot of each key. Running forwards still sorts correctly
+but <strong>reverses</strong> the order of equal keys, so the sort is no
+longer stable.</p>
+</div>
+</details>
+<div class="q">
+<p>Radix sort: order of digits, cost, and the requirement on the inner
+sort.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Sort by the <strong>least significant</strong> digit first, then the
+next, up to the most significant. With <span
+class="math inline">d</span> digits in base <span
+class="math inline">k</span>: <span
+class="math inline">\Theta(d(n+k))</span> using counting sort per digit.
+The inner sort <strong>must be stable</strong>, otherwise later passes
+destroy the order set by earlier passes.</p>
+</div>
+</details>
+<div class="q">
+<p>When is radix sort faster than <span class="math inline">n\log
+n</span>? Give a case.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">n</span> integers below <span
+class="math inline">n^c</span> (constant <span
+class="math inline">c</span>): use base <span
+class="math inline">n</span>, so <span class="math inline">d=c</span>
+digits and <span class="math inline">\Theta(c\,(n+n))=\Theta(n)</span>.
+It is not faster in general: with <span class="math inline">d</span>
+about <span class="math inline">\lg n</span> it is again <span
+class="math inline">\Theta(n\log n)</span>.</p>
+</div>
+</details>
+<h2 id="problems">Problems</h2>
+<h3 id="problem-1-one-array-three-sorts">Problem 1: one array, three
+sorts</h3>
+<div class="q">
+<p><strong>(a)</strong> Partition <span
+class="math inline">[6,3,9,1,8,2,7]</span> with the lecture partition
+(middle element as pivot). Give the array after partitioning, the
+returned index, and the number of comparisons.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">low=0</span>, <span
+class="math inline">high=6</span>, <span
+class="math inline">mid=3</span>. The pivot is <span
+class="math inline">A[3]=1</span>. Swap <span
+class="math inline">A[0]\leftrightarrow A[3]</span>: <span
+class="math inline">[1,3,9,6,8,2,7]</span>, pivot 1,
+<code>last_small</code>=0. No other key is smaller than 1, so no swaps
+happen. Finally swap <span class="math inline">A[0]</span> with <span
+class="math inline">A[0]</span>. Result <span
+class="math inline">[1,3,9,6,8,2,7]</span>, return index 0, <strong>6
+comparisons</strong> (<span class="math inline">k-1</span> with <span
+class="math inline">k=7</span>). The left part is empty and the right
+part has 6 elements, the worst possible split.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> The pivot was the minimum. Does one bad
+partition ruin the running time? What input makes it happen at
+<strong>every</strong> level with this middle-element rule?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>One bad split costs only one extra level. The total is <span
+class="math inline">\Theta(n^2)</span> only if it happens at every
+level. For the middle-element rule this needs the minimum (or maximum)
+of every sub-array to sit in its middle. Example (checked by running all
+<span class="math inline">7!</span> orderings): <span
+class="math inline">[6,5,4,0,3,1,2]</span> makes exactly <span
+class="math inline">21=\frac{7\cdot6}{2}</span> comparisons, the
+maximum. Sorted input is <strong>not</strong> a worst case for the
+middle-element pivot (sorted 9 keys take 16 comparisons, against a worst
+case of 36), unlike for a first-element pivot.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(c)</strong> You must sort <span
+class="math inline">10^6</span> integers in <span
+class="math inline">[0,999]</span>. Compare quicksort with counting sort
+in time and space, and say which you would choose.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Counting sort: <span class="math inline">\Theta(n+k)=10^6+10^3</span>
+operations and about <span class="math inline">10^6</span> extra cells.
+Quicksort: about <span
+class="math inline">1.39\cdot10^6\cdot20\approx2.8\times10^7</span>
+comparisons, in place. Counting sort wins on time because <span
+class="math inline">k\ll n</span> and the keys are small integers.
+Choose quicksort only if memory is very tight or keys are not small
+integers.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(d)</strong> Link to the lower bound: why does counting sort
+not contradict <span class="math inline">\Omega(n\log n)</span>?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The bound is for the <strong>comparison model</strong>, where the
+only way to learn about keys is to compare two of them. Counting sort
+uses keys as array <strong>indices</strong>, which gives it far more
+information per step than a two-way comparison, so the decision-tree
+argument does not apply. The price is the assumption that keys are
+integers in a small known range.</p>
+</div>
+</details>
+<h3 id="problem-2-radix-sort-trace">Problem 2: radix sort trace</h3>
+<div class="q">
+<p>Sort <span class="math inline">[329,457,657,839,436,720,355]</span>
+with LSD radix sort (base 10). Show the array after each pass.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>After units digit: <span
+class="math inline">[720,355,436,457,657,329,839]</span></li>
+<li>After tens digit: <span
+class="math inline">[720,329,436,839,355,457,657]</span></li>
+<li>After hundreds digit: <span
+class="math inline">[329,355,436,457,657,720,839]</span></li>
+</ul>
+<p>Stability shows in the tens pass. The keys 720 and 329 tie on tens
+digit 2, and the units pass had placed 720 first, so a stable pass keeps
+720 before 329. Likewise 436 stays before 839 (digit 3), and 355, 457,
+657 keep their order (digit 5). An unstable inner sort could swap such
+pairs and the final order would be wrong.</p>
+</div>
+</details>
+<h2 id="past-year-questions">Past-year questions</h2>
+<p>Questions from past papers (SC2001/CZ2101/CE2001). Every answer was
+worked out and checked by code; where a circulated official solution
+exists it was compared, and disagreements are flagged.</p>
+<div class="q">
+<p><strong>AY25/26 S2 1(c)</strong> Quick Sort. A. It is better to use
+the middle element as pivot than the first element. B. It has best-case
+running time <span class="math inline">O(n)</span>. C. We need an extra
+array to perform the partition. D. Each element participates in at most
+<span class="math inline">O(\log n)</span> partitions. E. None of the
+above.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>A only.</strong></p>
+<ul>
+<li>A true: with the first element as pivot, sorted and reverse-sorted
+input give the <span class="math inline">\Theta(n^2)</span> worst case.
+The middle element gives a balanced split on sorted input.</li>
+<li>B false: best case <span class="math inline">\Theta(n\log n)</span>.
+C false: partition is in place.</li>
+<li>D false as a worst-case claim: with bad splits an element can take
+part in up to <span class="math inline">n-1</span> partitions. (On
+average it is <span class="math inline">O(\log n)</span>.)</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S1 1(a)</strong> Which statements about QuickSort (on
+<span class="math inline">n</span> elements) are TRUE? A. After the
+partition function, the pivot is in its final location. B. The chosen
+pivot is guaranteed to be the median of the array. C. Its worst-case
+time complexity is <span class="math inline">O(n\log n)</span>. D. Its
+best-case time complexity is better than Insertion Sort’s best-case time
+complexity.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>A only.</strong></p>
+<ul>
+<li>A true: partition puts smaller keys left and larger keys right, so
+the pivot sits where it will be in the sorted array.</li>
+<li>B false: the pivot is just the middle element (or median of three),
+not the true median.</li>
+<li>C false: the worst case is <span
+class="math inline">\Theta(n^2)</span>.</li>
+<li>D false: quicksort’s best case is <span
+class="math inline">\Theta(n\log n)</span>, while insertion sort’s best
+case (sorted input) is <span class="math inline">\Theta(n)</span>, which
+is better.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S1 1(c)</strong> In-place sorting on an array <span
+class="math inline">A</span> of <span class="math inline">n</span>
+elements, on a buggy computer that crashes after exactly <span
+class="math inline">2n</span> comparisons. On a crash, changes already
+made to <span class="math inline">A</span> remain but all temporary
+state (loop indices, recursion stack) is lost. You restart the same
+algorithm on the current contents of <span class="math inline">A</span>,
+repeatedly. Is it possible to eventually sort <span
+class="math inline">A</span> using: (i) QuickSort, (ii) MergeSort, (iii)
+Insertion Sort? (True/False each)</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) False, (ii) False, (iii) True</strong> (for general <span
+class="math inline">n</span>).</p>
+<ul>
+<li><strong>Insertion sort converges.</strong> Each run restarts at the
+left. The sorted prefix is skipped at one comparison per element, and
+the first inversion lies within the first <span
+class="math inline">n-1</span> comparisons. The insertion that starts
+there uses swaps, and each swap removes exactly one inversion. So every
+run removes at least one inversion before the <span
+class="math inline">2n</span> budget ends, and the inversion count
+strictly falls to 0. There is a monotone measure of progress.</li>
+<li><strong>Quicksort does not.</strong> Each run restarts from the full
+array, and the pivot is re-chosen from the current middle element. The
+re-partition can move elements, including ones already in final place,
+so there is no progress measure. A run of <span
+class="math inline">2n</span> comparisons only completes the top
+partition and a little recursion. The array can fall into a cycle of
+states and never reach the sorted one.</li>
+<li><strong>Mergesort does not.</strong> Even on sorted data a full pass
+costs at least <span class="math inline">\frac n2\lg n</span>
+comparisons (every merge of <span class="math inline">m</span> items
+needs at least <span class="math inline">m/2</span>), which exceeds
+<span class="math inline">2n</span> for <span
+class="math inline">n&gt;16</span>. Each run re-merges the already
+sorted left part before it can reach new work, so the frontier stalls
+near <span class="math inline">s</span> with <span
+class="math inline">\frac s2\lg s\approx2n</span>.</li>
+</ul>
+<p>Simulation check (30 random permutations per size, restart until
+sorted or a state repeats, lecture partition with middle pivot, in-place
+merge by rotation): insertion sort always sorted; quicksort sorted for
+<span class="math inline">n\le8</span> and cycled for <span
+class="math inline">n\ge32</span> in all runs; mergesort sorted for
+<span class="math inline">n\le16</span> and cycled for <span
+class="math inline">n\ge32</span>. So the answer is “False” for general
+<span class="math inline">n</span> (small <span
+class="math inline">n</span> can work).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S2 1(c)</strong> Execute the partition function of
+QuickSort learnt in our lectures once on <span
+class="math inline">A=[2,1,6,5,4,3,9]</span>. Show the content of the
+resultant array.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">n=7</span>, <code>low</code>=0,
+<code>high</code>=6, <code>mid</code>=3. Swap <code>slot[0]</code> with
+<code>slot[3]</code>: <span class="math inline">[5,1,6,2,4,3,9]</span>,
+pivot 5.</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th><code>slot[i]</code></th>
+<th><span class="math inline">&lt;5</span>?</th>
+<th><code>last_small</code></th>
+<th>array</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>yes</td>
+<td>1</td>
+<td>5 1 6 2 4 3 9</td>
+</tr>
+<tr>
+<td>2</td>
+<td>6</td>
+<td>no</td>
+<td>1</td>
+<td>5 1 6 2 4 3 9</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>yes</td>
+<td>2</td>
+<td>5 1 2 6 4 3 9</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>yes</td>
+<td>3</td>
+<td>5 1 2 4 6 3 9</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3</td>
+<td>yes</td>
+<td>4</td>
+<td>5 1 2 4 3 6 9</td>
+</tr>
+<tr>
+<td>6</td>
+<td>9</td>
+<td>no</td>
+<td>4</td>
+<td>5 1 2 4 3 6 9</td>
+</tr>
+</tbody>
+</table>
+<p>Final swap of <code>slot[0]</code> with <code>slot[4]</code> puts the
+pivot in place: <strong><span
+class="math inline">[3,1,2,4,5,6,9]</span></strong>, pivot index 4,
+after <span class="math inline">k-1=6</span> comparisons.</p>
+<p>Common slip: using the first element (2) as the pivot. The lecture
+swaps the <strong>middle</strong> element to the front first.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S1 1(a)</strong> Which statements about the QuickSort
+algorithm (on <span class="math inline">n</span> elements) are TRUE? A.
+It has worst-case time complexity <span class="math inline">O(n\log
+n)</span> when all the elements in the array are distinct. B. We need at
+least <span class="math inline">O(n)</span> extra space for
+partitioning. C. It is an example of a divide-and-conquer algorithm, and
+it can be implemented to sort an array in-place. D. A stable sorting
+algorithm preserves the relative order of elements with equal values;
+QuickSort does not inherently guarantee this property. E. Choosing the
+pivot as the smallest element in the array ensures that QuickSort always
+runs in the best-case time complexity.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>C and D.</strong></p>
+<ul>
+<li>A false: distinct keys do not prevent bad splits. The worst case is
+still <span class="math inline">\Theta(n^2)</span>.</li>
+<li>B false: partition swaps inside the array, so the extra space is
+<span class="math inline">O(1)</span> (plus the recursion stack).</li>
+<li>C true. D true: partition swaps can jump an element over equal ones,
+so equal keys can change order.</li>
+<li>E false: the smallest element as pivot gives splits of size <span
+class="math inline">0</span> and <span class="math inline">n-1</span>
+every time, which is the <strong>worst</strong> case <span
+class="math inline">\Theta(n^2)</span>.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S2 1(c)</strong> Consider the in-place Quick Sort
+algorithm taught in the lecture, used to sort the input array <span
+class="math inline">A=[4,9,6,7,5,8]</span> in ascending order. (i) If we
+apply the <code>partition()</code> function on <span
+class="math inline">A</span> just once, which element is the pivot, and
+what is the resulting content of <span class="math inline">A</span>?
+(ii) When does the <strong>worst</strong> case happen in the Quick Sort
+algorithm? (iii) If the input size is <span
+class="math inline">n</span>, what is the worst-case time complexity in
+big-<span class="math inline">O</span>?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> <span class="math inline">n=6</span>,
+<code>low</code>=0, <code>high</code>=5, <code>mid</code><span
+class="math inline">=\lfloor(0+5)/2\rfloor=2</span>, so the pivot is
+<code>A[2]</code><span class="math inline">=</span> <strong>6</strong>
+(the lecture swaps the middle element to the front first). After the
+swap <span class="math inline">A=[6,9,4,7,5,8]</span>.</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th><code>A[i]</code></th>
+<th><span class="math inline">&lt;6</span>?</th>
+<th><code>last_small</code></th>
+<th>array</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>9</td>
+<td>no</td>
+<td>0</td>
+<td>6 9 4 7 5 8</td>
+</tr>
+<tr>
+<td>2</td>
+<td>4</td>
+<td>yes</td>
+<td>1</td>
+<td>6 4 9 7 5 8</td>
+</tr>
+<tr>
+<td>3</td>
+<td>7</td>
+<td>no</td>
+<td>1</td>
+<td>6 4 9 7 5 8</td>
+</tr>
+<tr>
+<td>4</td>
+<td>5</td>
+<td>yes</td>
+<td>2</td>
+<td>6 4 5 7 9 8</td>
+</tr>
+<tr>
+<td>5</td>
+<td>8</td>
+<td>no</td>
+<td>2</td>
+<td>6 4 5 7 9 8</td>
+</tr>
+</tbody>
+</table>
+<p>The final swap of <code>A[0]</code> with <code>A[2]</code> puts the
+pivot in place: <strong><span
+class="math inline">A=[5,4,6,7,9,8]</span></strong>, pivot at index 2,
+after 5 comparisons. (Keys left of the pivot are smaller, keys right of
+it larger, and each side is unsorted.)</p>
+<p><strong>(ii)</strong> The worst case happens when <strong>every
+partition is maximally unbalanced</strong>: the pivot is always the
+smallest or the largest key of its sub-array, so one side is empty and
+the other has <span class="math inline">n-1</span> keys. Then <span
+class="math inline">T(n)=T(n-1)+(n-1)</span>. With the lecture’s
+middle-element pivot a sorted array is <strong>not</strong> the worst
+case (the middle of a sorted array is its median); an input such as
+<span class="math inline">[1,4,5,2,3]</span> is: its pivots are 5, then
+4, then 3, then 1, and the comparisons are <span
+class="math inline">4+3+2+1=10=n(n-1)/2</span>. (Found by brute force:
+for <span class="math inline">n=5,6,7</span> there are 16, 32 and 64
+such inputs.) If the pivot were the first element, a sorted or reversed
+array would be the worst case.</p>
+<p><strong>(iii) <span class="math inline">O(n^2)</span></strong>: <span
+class="math inline">(n-1)+(n-2)+\dots+1=n(n-1)/2</span> comparisons.</p>
+<p><strong>Link.</strong> “Worst-case input” depends on the pivot rule.
+With a first-element pivot it is a sorted array (21 comparisons for
+<span class="math inline">n=7</span>); with the lecture’s middle element
+a sorted array costs only 10 (for <span class="math inline">n=7</span>,
+a near-best case). So inputs that look “bad” for one algorithm may be
+good for another, and no fixed pivot rule is safe against every input.
+Random pivots remove the pattern.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S2 1(d)</strong> Consider the complete binary tree
+<span class="math inline">T</span> shown in Figure Q1d. Apply the
+<code>fixHeap()</code> operation on <span class="math inline">T</span>
+to make it become a max-heap (maximizing partial order tree) and show
+the final tree.</p>
+<figure>
+<img src="img/pyp/2324s2_q1d.png"
+alt="Figure Q1d (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1d (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><code>fixHeap()</code> needs both subtrees of the root to be heaps
+already. Check: the left subtree (root 27) and the right subtree (root
+26) are both max-heaps, so only the root key 5 is out of place. Let it
+<strong>sink</strong>, each time swapping with the <strong>larger
+child</strong>:</p>
+<ol type="1">
+<li>Root 5: children 27 and 26. Larger is 27, and <span
+class="math inline">27&gt;5</span>, so swap. 5 is now the left child of
+the root.</li>
+<li>5: children 8 and 10. Larger is 10, swap. 5 is now at the position
+that held 10.</li>
+<li>5: children 3 and 6. Larger is 6, swap. 5 is now at the leaf
+position that held 6 and stops.</li>
+</ol>
+<p>In array form (level order) the result is <span
+class="math inline">[27,10,26,8,6,25,19,2,1,3,5,17,14,12,18]</span>
+(verified: every parent is at least its children).</p>
+<figure>
+<img src="fig/pyp2324s2_q1d_after.svg"
+alt="Heap after fixHeap: the sunk key 5 followed the path 27, 10, 6" />
+<figcaption aria-hidden="true">Heap after fixHeap: the sunk key 5
+followed the path 27, 10, 6</figcaption>
+</figure>
+<p>The cost is 3 levels with 2 comparisons each, 6 comparisons in total,
+which is the most <code>fixHeap</code> can do on a tree of height 3.</p>
+<p><strong>Link.</strong> The key that sinks follows the path of
+<strong>larger children</strong>, and the keys on that path each move up
+one level. That is why <code>fixHeap</code> is <span
+class="math inline">O(\lg n)</span> (at most the height) and why the
+bottom-up build (call it on every internal node from the last one up)
+works: each call finds both subtrees already heaps.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S1 1(a)(ii)</strong> True or False? If we use some
+“find median” function to find a good pivot, then we can achieve worst
+case <span class="math inline">O(N\lg N)</span> time complexity for
+Quick Sort on <span class="math inline">N</span> elements.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>True</strong>, provided finding the median costs <span
+class="math inline">O(N)</span> in the worst case (which is what the
+statement intends). The median pivot splits the array into two parts of
+at most <span class="math inline">N/2</span> each, so <span
+class="math display">T(N)=2T(N/2)+O(N)\quad(\text{median
+search}+\text{partition}),</span> which is master case 2 and gives <span
+class="math inline">O(N\lg N)</span> in the worst case.</p>
+<p>(Flag: a worst-case linear median algorithm, “median of medians”, is
+<strong>not in your lectures</strong>. If “find median” were done by
+sorting first, it would cost <span class="math inline">O(N\lg N)</span>
+per level and the total would become <span
+class="math inline">O(N\lg^2N)</span>, so the claim depends on the <span
+class="math inline">O(N)</span> assumption.)</p>
+<p><strong>Link.</strong> The worst case of Quick Sort comes only from
+unbalanced splits such as <span class="math inline">(N-1,0)</span>. A
+perfect pivot removes them and gives the <strong>mergesort
+recurrence</strong> <span class="math inline">2T(N/2)+\Theta(N)</span>.
+A random pivot gets <span class="math inline">O(N\lg N)</span>
+<em>expected</em> time without ever finding the median, which is why
+quicksort is used in practice.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 1(c)</strong> Consider the in-place Quick Sort
+algorithm taught in the lecture. (i) Suppose the input array is <span
+class="math inline">A=[5,2,3,6,1,4]</span> to be sorted in ascending
+order. If we apply the <code>partition()</code> function on <span
+class="math inline">A</span> just once, how is the content changed? Show
+the result content of <span class="math inline">A</span>. (ii) What are
+the time complexities, in big-<span class="math inline">O</span>, for
+the best and worst cases, respectively?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> <span class="math inline">n=6</span>,
+<code>low</code>=0, <code>high</code>=5, <code>mid</code><span
+class="math inline">=\lfloor5/2\rfloor=2</span>, so the pivot is
+<code>A[2]</code><span class="math inline">=</span> <strong>3</strong>.
+The lecture swaps the middle element to the front: <span
+class="math inline">A=[3,2,5,6,1,4]</span>.</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th><code>A[i]</code></th>
+<th><span class="math inline">&lt;3</span>?</th>
+<th><code>last_small</code></th>
+<th>array</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>yes</td>
+<td>1</td>
+<td>3 2 5 6 1 4</td>
+</tr>
+<tr>
+<td>2</td>
+<td>5</td>
+<td>no</td>
+<td>1</td>
+<td>3 2 5 6 1 4</td>
+</tr>
+<tr>
+<td>3</td>
+<td>6</td>
+<td>no</td>
+<td>1</td>
+<td>3 2 5 6 1 4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1</td>
+<td>yes</td>
+<td>2</td>
+<td>3 2 1 6 5 4</td>
+</tr>
+<tr>
+<td>5</td>
+<td>4</td>
+<td>no</td>
+<td>2</td>
+<td>3 2 1 6 5 4</td>
+</tr>
+</tbody>
+</table>
+<p>The final swap of <code>A[0]</code> with <code>A[2]</code> puts the
+pivot in place: <strong><span
+class="math inline">A=[1,2,3,6,5,4]</span></strong>, pivot at index 2,
+after 5 comparisons. Everything left of the pivot is smaller, everything
+right is larger, and neither side is sorted yet (6 5 4 is reversed).</p>
+<p><strong>(ii)</strong> Best case <strong><span
+class="math inline">O(n\lg n)</span></strong>: every pivot splits its
+sub-array in halves, <span
+class="math inline">T(n)=2T(n/2)+\Theta(n)</span>. Worst case
+<strong><span class="math inline">O(n^2)</span></strong>: every pivot is
+the smallest or largest key, so the split is <span
+class="math inline">(n-1,0)</span> and <span
+class="math inline">T(n)=T(n-1)+\Theta(n)</span>.</p>
+<p><strong>Link.</strong> Compare AY2324 S2 1(c) (the same partition on
+<span class="math inline">[4,9,6,7,5,8]</span>) for an input that gives
+the worst case under the lecture’s middle pivot (<span
+class="math inline">[1,4,5,2,3]</span>) and one that does not (a sorted
+array).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 1(d)</strong> Consider the complete binary tree
+<span class="math inline">T</span> shown in Figure Q1d. Apply the
+<code>fixHeap()</code> operation on <span class="math inline">T</span>
+to make it become a max-heap (maximizing partial order tree) and show
+the final tree.</p>
+<figure>
+<img src="img/pyp/2223s2_q1d.png"
+alt="Figure Q1d (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1d (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Level order: <span
+class="math inline">[1,11,25,9,6,19,22,2,5,3,2,17,18,12,14]</span>. Both
+subtrees of the root are already heaps (11 over 9, 6 and 25 over 19, 22,
+with the leaves below them smaller), so only the root key 1 is out of
+place. It <strong>sinks</strong>, each time swapping with the larger
+child:</p>
+<ol type="1">
+<li>Children 11 and 25: swap with 25. The root is now 25 and the key 1
+is at index 2.</li>
+<li>Children 19 and 22: swap with 22. The key 1 is now at index 6.</li>
+<li>Children 12 and 14: swap with 14. The key 1 is now at index 14, a
+leaf, so it stops.</li>
+</ol>
+<p>Final array: <strong><span
+class="math inline">[25,11,22,9,6,19,14,2,5,3,2,17,18,12,1]</span></strong>
+(checked: every parent is at least both children).</p>
+<figure>
+<img src="fig/pyp2223s2_q1d_after.svg"
+alt="Heap after fixHeap: the key 1 followed the path 25, 22, 14" />
+<figcaption aria-hidden="true">Heap after fixHeap: the key 1 followed
+the path 25, 22, 14</figcaption>
+</figure>
+<p>That is 3 levels with 2 comparisons each, so 6 comparisons: the
+longest sink possible on a tree of height 3.</p>
+<p><strong>Link.</strong> The key 1 is smaller than everything below it,
+so it sinks all the way to a leaf: the worst case for
+<code>fixHeap</code>, <span class="math inline">2\lfloor\lg15
+floor=6</span> comparisons. A root that was already at least as large as
+both children would cost just 2 comparisons.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S1 1(c)</strong> Consider the input array <span
+class="math inline">A=[8,4,5,9,1,6]</span> to be sorted with the
+in-place Quick Sort of the lecture. The execution is visualised in
+Figure Q1c. Fill in all the missing parts (marked “__“) of the
+graph.</p>
+<figure>
+<img src="img/pyp/2223s1_q1c.png"
+alt="Figure Q1c (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1c (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Quick Sort calls <code>partition()</code> on the sub-array of each
+call with at least 2 elements, then recurses on the left part and the
+right part. <code>quicksort():k</code> numbers the calls in the order
+they are made (an empty sub-array is also a call, drawn “Emp”);
+<code>partition()@k</code> is the partition of call <span
+class="math inline">k</span>. The lecture partition swaps the
+<strong>middle</strong> element <code>A[(low+high)/2]</code> to the
+front, scans, and finally swaps the pivot into its place.</p>
+<p><strong>Call 1</strong> (indices 0 to 5): the middle index is <span
+class="math inline">\lfloor(0+5)/2\rfloor=2</span>, so the pivot is 5
+(not 8): <span class="math inline">[5,4,8,9,1,6]</span>. Scan: <span
+class="math inline">4&lt;5</span> yes (last_small 1); <span
+class="math inline">8,9</span> no; <span
+class="math inline">1&lt;5</span> yes (swap with <code>A[2]</code>,
+giving <span class="math inline">[5,4,1,9,8,6]</span>); <span
+class="math inline">6</span> no. Final swap of the pivot with
+<code>A[2]</code>: <strong><span
+class="math inline">[1,4,5,9,8,6]</span></strong>, pivot at index 2.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>call</th>
+<th>indices</th>
+<th>array before</th>
+<th><code>partition()@</code> result</th>
+<th>note</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>quicksort():1</code></td>
+<td>0..5</td>
+<td>8 4 5 9 1 6</td>
+<td><span class="citation" data-cites="1">@1</span>: <strong>1 4 5 9 8
+6</strong>, pivot 5 at index 2</td>
+<td></td>
+</tr>
+<tr>
+<td><code>quicksort():2</code></td>
+<td>0..1</td>
+<td>1 4</td>
+<td><span class="citation" data-cites="2">@2</span>: <strong>1
+4</strong>, pivot 1 at index 0</td>
+<td>middle index is 0</td>
+</tr>
+<tr>
+<td><code>quicksort():3</code></td>
+<td>(empty)</td>
+<td>Emp</td>
+<td></td>
+<td>left of the pivot 1</td>
+</tr>
+<tr>
+<td><code>quicksort():4</code></td>
+<td>1..1</td>
+<td>4</td>
+<td></td>
+<td>right of the pivot 1</td>
+</tr>
+<tr>
+<td><code>quicksort():5</code></td>
+<td>3..5</td>
+<td>9 8 6</td>
+<td><span class="citation" data-cites="5">@5</span>: <strong>6 8
+9</strong>, pivot 8 at index 4</td>
+<td>middle index is 4</td>
+</tr>
+<tr>
+<td><code>quicksort():6</code></td>
+<td>3..3</td>
+<td>6</td>
+<td></td>
+<td>left of the pivot 8</td>
+</tr>
+<tr>
+<td><code>quicksort():7</code></td>
+<td>5..5</td>
+<td>9</td>
+<td></td>
+<td>right of the pivot 8</td>
+</tr>
+</tbody>
+</table>
+<p>So the blanks are: after <code>partition()@1</code>, boxes (index 0
+to 5) <span class="math inline">1,4,[5],9,8,6</span>; left call
+<code>:2</code> and right call <code>:5</code>; left box pair <span
+class="math inline">1,4</span> with <code>partition()@2</code> giving
+<span class="math inline">[1],4</span> with children <code>:3</code>
+(Emp) and <code>:4</code> (4, at index 1); right box triple <span
+class="math inline">9,8,6</span> with <code>partition()@5</code> giving
+<span class="math inline">6,[8],9</span> and children <code>:6</code>
+(6, index 3) and <code>:7</code> (9, index 5). The final array is <span
+class="math inline">[1,4,5,6,8,9]</span>. Also checked by running the
+lecture code.</p>
+<p><strong>Link.</strong> Every key ends up in its final place either as
+a <strong>pivot</strong> or as a one-element call (the shaded boxes).
+Here the three partitions place the pivots 5, 1 and 8, and the keys 4, 6
+and 9 are left alone in one-element calls. A partition costs <span
+class="math inline">k-1</span> comparisons on <span
+class="math inline">k</span> keys, so this run makes <span
+class="math inline">5+1+2=8</span> comparisons in all.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S1 1(d)</strong> Consider the complete binary tree
+<span class="math inline">T</span> shown in Figure Q1d. Apply the
+<code>fixHeap()</code> operation on <span class="math inline">T</span>
+to make it become a max-heap (maximizing partial order tree) and show
+the changes of <span class="math inline">T</span> iteration by
+iteration.</p>
+<figure>
+<img src="img/pyp/2223s1_q1d.png"
+alt="Figure Q1d (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1d (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Level order: <span
+class="math inline">[2,9,27,8,4,25,23,5,6,3,1,21,19,12,17]</span>.
+<code>fixHeap(i)</code> lets the key at node <span
+class="math inline">i</span> sink; it assumes both subtrees of <span
+class="math inline">i</span> are already heaps. Applying it bottom-up on
+the non-leaf nodes (indices 6 down to 0), as in the lecture’s heap
+construction:</p>
+<table>
+<thead>
+<tr>
+<th>iteration</th>
+<th>node (key)</th>
+<th>children</th>
+<th>action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>index 6 (23)</td>
+<td>12, 17</td>
+<td><span class="math inline">23\ge17</span>, no change</td>
+</tr>
+<tr>
+<td>2</td>
+<td>index 5 (25)</td>
+<td>21, 19</td>
+<td>no change</td>
+</tr>
+<tr>
+<td>3</td>
+<td>index 4 (4)</td>
+<td>3, 1</td>
+<td>no change</td>
+</tr>
+<tr>
+<td>4</td>
+<td>index 3 (8)</td>
+<td>5, 6</td>
+<td>no change</td>
+</tr>
+<tr>
+<td>5</td>
+<td>index 2 (27)</td>
+<td>25, 23</td>
+<td>no change</td>
+</tr>
+<tr>
+<td>6</td>
+<td>index 1 (9)</td>
+<td>8, 4</td>
+<td>no change</td>
+</tr>
+<tr>
+<td>7</td>
+<td>index 0 (<strong>2</strong>)</td>
+<td>9, 27</td>
+<td>the key 2 <strong>sinks</strong> (3 swaps, below)</td>
+</tr>
+</tbody>
+</table>
+<p>Only the root is out of place. Key 2 sinks, each time swapping with
+the <strong>larger child</strong>:</p>
+<ol type="1">
+<li>Children 9 and 27: swap with 27. The root is now 27 and the key 2 is
+at index 2.</li>
+<li>Children 25 and 23: swap with 25. The key 2 is now at index 5.</li>
+<li>Children 21 and 19: swap with 21. The key 2 is now at index 11, a
+leaf, so it stops.</li>
+</ol>
+<p>Final array: <strong><span
+class="math inline">[27,9,25,8,4,21,23,5,6,3,1,2,19,12,17]</span></strong>
+(checked: every parent is at least both children).</p>
+<figure>
+<img src="fig/pyp2223s1_q1d_after.svg"
+alt="Heap after fixHeap: the key 2 followed the path 27, 25, 21" />
+<figcaption aria-hidden="true">Heap after fixHeap: the key 2 followed
+the path 27, 25, 21</figcaption>
+</figure>
+<p>If your course reads “fixHeap on T” as the single sink of the root
+(the usual meaning, as both subtrees are already heaps), the three swaps
+are the whole answer; the 7-row table is the complete bottom-up version
+and gives the same tree.</p>
+<p><strong>Link.</strong> The sinking key follows the path of larger
+children, 27 then 25 then 21, so the heap order is restored along
+<strong>one root-to-leaf path</strong> of at most <span
+class="math inline">\lfloor\lg n\rfloor</span> steps, each with 2
+comparisons. That is why <code>fixHeap</code> is <span
+class="math inline">O(\lg n)</span> and why the bottom-up build is <span
+class="math inline">O(n)</span>: only nodes that really violate the
+order do any work, and most nodes sit near the leaves.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S2 1(a)(ii)</strong> Execute the partition function
+of Quicksort learnt in our lectures once on <span
+class="math inline">A=[8,1,4,5,1,9,2,5]</span>. Show the content of the
+resultant array.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">n=8</span>, <code>low</code>=0,
+<code>high</code>=7, <code>mid</code><span
+class="math inline">=\lfloor7/2\rfloor=3</span>, so the pivot is
+<code>A[3]</code><span class="math inline">=</span> <strong>5</strong>
+(the lecture swaps the middle key to the front first): <span
+class="math inline">A=[5,1,4,8,1,9,2,5]</span>. The key moves to the
+left part when it is <strong>strictly smaller</strong> than the
+pivot:</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th><code>A[i]</code></th>
+<th><span class="math inline">&lt;5</span>?</th>
+<th><code>last_small</code></th>
+<th>array</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>1</td>
+<td>yes</td>
+<td>1</td>
+<td>5 1 4 8 1 9 2 5</td>
+</tr>
+<tr>
+<td>2</td>
+<td>4</td>
+<td>yes</td>
+<td>2</td>
+<td>5 1 4 8 1 9 2 5</td>
+</tr>
+<tr>
+<td>3</td>
+<td>8</td>
+<td>no</td>
+<td>2</td>
+<td>5 1 4 8 1 9 2 5</td>
+</tr>
+<tr>
+<td>4</td>
+<td>1</td>
+<td>yes</td>
+<td>3</td>
+<td>5 1 4 1 8 9 2 5</td>
+</tr>
+<tr>
+<td>5</td>
+<td>9</td>
+<td>no</td>
+<td>3</td>
+<td>5 1 4 1 8 9 2 5</td>
+</tr>
+<tr>
+<td>6</td>
+<td>2</td>
+<td>yes</td>
+<td>4</td>
+<td>5 1 4 1 2 9 8 5</td>
+</tr>
+<tr>
+<td>7</td>
+<td>5</td>
+<td>no</td>
+<td>4</td>
+<td>5 1 4 1 2 9 8 5</td>
+</tr>
+</tbody>
+</table>
+<p>The final swap of <code>A[0]</code> with <code>A[4]</code> puts the
+pivot in place: <strong><span
+class="math inline">A=[2,1,4,1,5,9,8,5]</span></strong>, pivot at index
+4, after 7 comparisons. The keys left of the pivot (2, 1, 4, 1) are
+smaller; the keys right of it (9, 8, 5) are at least as large, including
+the <strong>second 5</strong>, which is not strictly smaller and
+therefore stays on the right.</p>
+<p><strong>Link.</strong> Equal keys all end up on one side (the right)
+with this partition. If all <span class="math inline">n</span> keys were
+equal, every partition would be <span class="math inline">(0,n-1)</span>
+and quicksort would take <span class="math inline">\Theta(n^2)</span>;
+this is the weak point of a one-sided partition on many duplicates.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S1 1(c)</strong> (MCQ) Which statement on the
+QuickSort algorithm is <strong>NOT</strong> true? A. Always selection of
+one element in array as pivot. B. Always partitioning of the list into
+two sublists with respect to the pivot. C. Always partitioning of the
+list into two sublists with respect to the median element. D. Recursive
+partitioning until the input list has one or zero element. E. The pivot
+found during partitioning is already at its final position. F. All
+elements in the right sublist are greater than or equal to the
+pivot.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>C.</strong> Quicksort partitions around the
+<strong>pivot</strong>, which is <em>a</em> chosen element and need not
+be the median. If the pivot were always the median the worst case would
+be <span class="math inline">O(n\lg n)</span> (see AY2324 S1 1(a)(ii));
+the standard algorithm does not guarantee that. A, B, D, E and F are all
+true: one element is chosen as pivot, the lists are split around it, the
+recursion stops at one or zero elements, the pivot ends in its final
+position, and the right part holds keys at least as large as the pivot
+(the lecture’s partition sends keys <span class="math inline">\ge</span>
+pivot to the right).</p>
+<p><strong>Link.</strong> Statement E is the property that makes
+quicksort efficient in memory: each partition <strong>finalises one
+key</strong> (the recursion tree has one pivot per key), so the
+recursion depth is the only thing that can go wrong.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY19/20 S1 2(c)</strong> Given an integer array <span
+class="math inline">B=[10,5,3,9,x]</span>, Quicksort is used to sort it
+in ascending order. List all possible values of <span
+class="math inline">x</span> such that each call of the partition
+function makes one of the subarrays to the left or right of the pivot
+empty. You should use the Quicksort algorithm learnt in the
+lectures.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Every partition must put its pivot at one end of its sub-array, so
+the pivot must always be the <strong>smallest or the largest</strong>
+key of its sub-array. The lecture’s partition takes the
+<strong>middle</strong> element as the pivot.</p>
+<ol type="1">
+<li><span class="math inline">[10,5,3,9,x]</span> (indices 0 to 4): the
+middle element is <span class="math inline">3</span>, the pivot. It is
+the smallest key only if <span class="math inline">x\ge3</span> (if
+<span class="math inline">x&lt;3</span> the key <span
+class="math inline">x</span> is smaller than the pivot, so the pivot is
+not at the front). The pivot goes to index 0 and the right part is the
+four keys <span class="math inline">5,10,9,x</span> (indices 1 to
+4).</li>
+<li>The right part has indices 1 to 4, so its middle index is 2 and the
+pivot is the key 10. It must be the largest, so <span
+class="math inline">x&lt;10</span>: if <span
+class="math inline">x=10</span> the key <span
+class="math inline">x</span> is not smaller than the pivot, stays on its
+right, and the right side is not empty. After this partition the pivot
+is at the end and the left part holds <span
+class="math inline">5,9,x</span>.</li>
+<li>The left part <span class="math inline">5,9,x</span> (arranged as
+<span class="math inline">x,5,9</span> by the partition) has 5 as its
+middle key. It must be the smallest, so <span
+class="math inline">x\ge5</span>.</li>
+<li>The remaining sub-arrays have at most two keys, where the pivot is
+automatically at one end.</li>
+</ol>
+<p>Together: <strong><span class="math inline">5\le
+x&lt;10</span></strong>, i.e. <span
+class="math inline">x\in\{5,6,7,8,9\}</span> for integers. A brute-force
+search over <span class="math inline">x</span> in steps of 0.5 from
+<span class="math inline">-5</span> to 24.5 with the lecture’s partition
+returns exactly <span class="math inline">5,5.5,\dots,9.5</span> (code),
+matching the circulated answer.</p>
+<p><strong>Link.</strong> Quicksort’s worst case (AY2324 S2 1(c)) is
+built from these conditions: the pivot must always be an extreme of its
+sub-array. With the middle-element pivot a <strong>sorted</strong> input
+is not a worst case, but a carefully placed middle key is: here the keys
+3, 10, 5, 9 are exactly the successive middles, arranged in an unlucky
+order.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S2 2(a)</strong> Given an input array <span
+class="math inline">[10,3,5,7,4]</span>, show the intermediate and
+output arrays running the partition function in Quicksort once. Assume
+the middle element is initially selected as the pivot.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">n=5</span>, <code>low</code>=0,
+<code>high</code>=4, <code>mid</code>=2, so the pivot is
+<code>A[2]</code><span class="math inline">=</span> <strong>5</strong>.
+Swap it to the front: <span class="math inline">[5,3,10,7,4]</span>.</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">i</span></th>
+<th><code>A[i]</code></th>
+<th><span class="math inline">&lt;5</span>?</th>
+<th><code>last_small</code></th>
+<th>array</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>3</td>
+<td>yes</td>
+<td>1</td>
+<td>5 3 10 7 4</td>
+</tr>
+<tr>
+<td>2</td>
+<td>10</td>
+<td>no</td>
+<td>1</td>
+<td>5 3 10 7 4</td>
+</tr>
+<tr>
+<td>3</td>
+<td>7</td>
+<td>no</td>
+<td>1</td>
+<td>5 3 10 7 4</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4</td>
+<td>yes</td>
+<td>2</td>
+<td>5 3 4 7 10</td>
+</tr>
+</tbody>
+</table>
+<p>The final swap of <code>A[0]</code> with <code>A[2]</code> puts the
+pivot in place: <strong>output <span
+class="math inline">[4,3,5,7,10]</span></strong>, the pivot 5 at index
+2, after 4 comparisons. (The circulated solution writes the same
+output.)</p>
+<p><strong>Link.</strong> Everything left of the pivot (4, 3) is smaller
+and everything right (7, 10) is larger, but the two sides are not sorted
+yet (4 3 is reversed). The recursion then sorts <span
+class="math inline">[4,3]</span> and <span
+class="math inline">[7,10]</span> separately.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S1 3(c)</strong> Consider an input array that
+contains five integers <span class="math inline">\{1,2,3,4,5\}</span>.
+Give an initial arrangement of the keys in the array such that when it
+is input to Quicksort, the subarray with keys smaller than the pivot at
+each call of the partition function is always empty. You should use the
+Quicksort algorithm learnt in the lectures.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>At every call the pivot must be the <strong>smallest</strong> key of
+its sub-array. The lecture’s partition takes the <strong>middle</strong>
+element as the pivot, so work backwards:</p>
+<ul>
+<li>the whole array of 5: the middle element (index 2) must be 1;</li>
+<li>after the partition the pivot sits at the front, and the remaining 4
+keys form the next sub-array, whose middle element must be its minimum
+(2);</li>
+<li>then 3 keys, whose middle must be the minimum (3);</li>
+<li>then 2 keys, where the pivot is the first element (index 0) and it
+must be the smaller (4).</li>
+</ul>
+<p><strong>Arrangement: <span
+class="math inline">[2,4,1,3,5]</span>.</strong> Trace (each pivot is
+the middle key, which is the minimum of its sub-array):</p>
+<table>
+<thead>
+<tr>
+<th>call</th>
+<th>sub-array</th>
+<th>middle key (pivot)</th>
+<th>after the partition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>2 4 1 3 5</td>
+<td>1</td>
+<td>1 4 2 3 5 (pivot at the front, nothing smaller)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>4 2 3 5</td>
+<td>2</td>
+<td>2 4 3 5</td>
+</tr>
+<tr>
+<td>3</td>
+<td>4 3 5</td>
+<td>3</td>
+<td>3 4 5</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4 5</td>
+<td>4 (first key of two)</td>
+<td>4 5</td>
+</tr>
+</tbody>
+</table>
+<p>Every left part is empty.</p>
+<p>A brute force over all <span class="math inline">120</span>
+arrangements finds that <strong><span
+class="math inline">[2,4,1,3,5]</span> is the only one</strong> (and the
+sorted array does not work, since its middle element is the median),
+which agrees with the circulated answer.</p>
+<p><strong>Link.</strong> The pivot rule decides what the worst case
+looks like: with a first-element pivot a sorted array is the worst case,
+but with the lecture’s middle pivot only a very specific interleaving
+is, and for <span class="math inline">n=5</span> there is exactly one.
+Compare AY1920 S1 2(c) and AY2324 S2 1(c).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S2 3(d)</strong> Show that the best-case time
+complexity of Quicksort algorithm on an array of <span
+class="math inline">n</span> distinct elements is <span
+class="math inline">O(n\lg n)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The partition of a sub-array of <span class="math inline">m</span>
+keys makes <span class="math inline">m-1</span> comparisons and splits
+it around the pivot. The <strong>best case</strong> is when each pivot
+splits its sub-array as evenly as possible: both parts have at most
+<span class="math inline">\lfloor m/2\rfloor</span> keys. Then, with
+<span class="math inline">c</span> the cost per key of the partition,
+<span class="math display">T(n)\le2\,T(n/2)+c\,n,\qquad T(1)=0,</span>
+the mergesort recurrence. It has <span class="math inline">\lg n</span>
+levels (the sizes halve until 1) and each level costs at most <span
+class="math inline">cn</span> in total, so <span
+class="math inline">T(n)\le c\,n\lg n=O(n\lg n)</span> (master case 2:
+<span class="math inline">a=b=2</span>, <span
+class="math inline">f(n)=\Theta(n)</span>). Any other split is more
+unbalanced and costs at least as much, so this is the best case. <span
+class="math inline">\blacksquare</span></p>
+<p>Such an input exists for the lecture’s middle-element pivot: a
+<strong>sorted</strong> array of <span
+class="math inline">n=2^k-1</span> distinct keys, since the middle key
+is always the median. The number of comparisons is <span
+class="math inline">C(n)=(n-1)+2C\!\big(\tfrac{n-1}2\big)</span>, which
+gives <span class="math inline">2,10,34,98,258,642</span> for <span
+class="math inline">n=3,7,15,31,63,127</span>, i.e. <span
+class="math inline">(k-2)2^k+2\approx n\lg n</span> (all checked by
+running the lecture’s quicksort).</p>
+<p><strong>Link.</strong> The best case is the same order as the worst
+case of mergesort, and also a lower bound for any comparison sort (<span
+class="math inline">\Omega(n\lg n)</span>). So <span
+class="math inline">O(n\lg n)</span> <strong>is</strong> <span
+class="math inline">\Theta(n\lg n)</span>: quicksort can never be faster
+than that, whatever the pivots.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S1 3(d)</strong> As a recursive function, Quicksort
+tends to call itself for many small subarrays, which would compromise
+the time efficiency. Describe a strategy of modifying the Quicksort
+algorithm, such that the running time for processing small subarrays can
+be reduced. [Hint: use Insertion sort.]</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Switch to insertion sort for small sub-arrays.</strong>
+Choose a cutoff <span class="math inline">M</span> (typically 5 to 20).
+In the recursion, if the sub-array has at most <span
+class="math inline">M</span> keys, sort it with insertion sort instead
+of partitioning it. Two ways:</p>
+<ol type="1">
+<li><strong>Per call:</strong>
+<code>if (end - start + 1 &lt;= M) { insertionSort(array, start, end); return; }</code>.</li>
+<li><strong>One final pass:</strong> make the recursion simply
+<strong>stop</strong> at sub-arrays of at most <span
+class="math inline">M</span> keys, leaving them unsorted, and run
+insertion sort once over the whole array at the end. After the recursion
+every key is within <span class="math inline">M</span> places of its
+final position, so this single pass costs <span
+class="math inline">O(nM)</span> (few inversions, see AY1516 S2
+3(b)).</li>
+</ol>
+<p><strong>Why it helps.</strong> Quicksort makes about <span
+class="math inline">2n</span> recursive calls, and <strong>most of them
+are on tiny sub-arrays</strong>: in a run on 20,000 random keys 87.6% of
+the calls were on at most 10 keys and half of them on 0 or 1 key. Each
+call has a fixed overhead (call, partition set-up, swaps), which is
+large next to the 1 to 45 comparisons that sort such a small piece.
+Insertion sort has no overhead and is fast on tiny arrays (about <span
+class="math inline">M^2/4</span> comparisons).</p>
+<p><strong>What it does not do.</strong> It does not reduce the number
+of comparisons: with cutoff 10 the same run needed 360,000 comparisons
+against 355,600 for plain quicksort (1% more). The saving is in the
+<strong>calls and constant factors</strong>, not in the comparison
+count. The asymptotic cost stays <span class="math inline">O(n\lg
+n)</span> on average. (Checked by running both variants.)</p>
+<p><strong>Link.</strong> The same idea, “use the asymptotically worse
+algorithm below a threshold because its constant is smaller”, is used in
+real library sorts (hybrid quicksort/insertion sort or introsort). It
+works because insertion sort is <span class="math inline">O(n+I)</span>
+and a small array has few inversions.</p>
+</div>
+</details>
+<h2 id="tutorials">Tutorials</h2>
+<h3 id="tutorial-3-q1.-the-shallowest-leaf-of-a-decision-tree">Tutorial
+3 Q1. The shallowest leaf of a decision tree</h3>
+<div class="q">
+<p>Recall the <span class="math inline">\Omega(n \log n)</span> lower
+bound on the worst-case runtime of any comparison sort, which was shown
+by considering the possible decision trees of the algorithm. What is the
+smallest possible depth of a leaf in a decision tree for a comparison
+sort?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Concepts: decision trees</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A comparison sort on <span class="math inline">n</span> elements can
+be drawn as a <strong>decision tree</strong>. Each internal node is one
+comparison. Each leaf is one final order. One run of the algorithm
+follows one path from the root to a leaf, and the number of comparisons
+is the length of that path.</p>
+<ul>
+<li>The <strong>height</strong> (the longest path) is the worst case. It
+is at least <span class="math inline">\lg(n!) = \Omega(n \log n)</span>,
+because the tree needs at least <span class="math inline">n!</span>
+leaves.</li>
+<li>The <strong>shallowest leaf</strong> is the best case. This question
+asks for it.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The smallest possible depth of a leaf is <span class="math inline">n
+- 1</span>.</p>
+<p><strong>Proof sketch.</strong></p>
+<ul>
+<li>Suppose, for a contradiction, that there is a leaf of depth <span
+class="math inline">k &lt; n - 1</span>.</li>
+<li>Construct a graph <span class="math inline">G</span> whose vertices
+are the elements of the array. Connect <span class="math inline">(i,
+j)</span> if the algorithm compared the elements at these positions on
+the path to that leaf. With <span class="math inline">k</span>
+comparisons, the graph has only <span class="math inline">k &lt; n -
+1</span> edges, so it <strong>cannot be connected</strong>.</li>
+<li>In particular, you can split the vertices into two non-empty parts
+<span class="math inline">A</span> and <span
+class="math inline">B</span>, such that no element of <span
+class="math inline">A</span> was compared to any element of <span
+class="math inline">B</span>.</li>
+<li>So the algorithm knows nothing about the order of any element of
+<span class="math inline">A</span> against any element of <span
+class="math inline">B</span>.</li>
+<li>So the order that the leaf gives must be wrong (not sorted) on some
+input. For example, take an input that agrees with every comparison
+made, then add a large constant to every element of <span
+class="math inline">A</span>. The comparisons give the same results, so
+the run reaches the same leaf, but the correct order has changed.</li>
+</ul>
+<p>Insertion sort reaches depth <span class="math inline">n - 1</span>
+on a sorted array, so <span class="math inline">n - 1</span> is
+achieved.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: bounds from a decision tree</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Worst case</strong> (height): the tree has at least as many
+leaves as there are possible answers, <span
+class="math inline">L</span>. A binary tree of height <span
+class="math inline">h</span> has at most <span
+class="math inline">2^h</span> leaves. So <span class="math inline">h
+\ge \lceil \lg L \rceil</span>. For sorting, <span class="math inline">L
+= n!</span>.</li>
+<li><strong>Best case</strong> (shallowest leaf): every element must be
+linked to every other by some chain of comparisons. A connected graph on
+<span class="math inline">n</span> vertices needs <span
+class="math inline">n - 1</span> edges.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 1.1.</strong> Any comparison sort runs on 3
+distinct elements. How many comparisons does it need in the worst case?
+In the best case?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 1.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Worst case:</strong> the tree needs <span
+class="math inline">3! = 6</span> leaves. Height 2 gives at most <span
+class="math inline">2^2 = 4</span> leaves, which is too few. So the
+height is at least <span class="math inline">\lceil \lg 6 \rceil =
+3</span>.</li>
+<li><strong>Best case:</strong> at least <span class="math inline">n - 1
+= 2</span>. Insertion sort reaches it on a sorted input: <span
+class="math inline">a_1 \le a_2</span>, then <span
+class="math inline">a_2 \le a_3</span>, and it stops.</li>
+</ul>
+</div>
+</details>
+<h3
+id="tutorial-3-q2.-running-the-last-loop-of-counting-sort-forwards">Tutorial
+3 Q2. Running the last loop of counting sort forwards</h3>
+<div class="q">
+<p>Recall the final <code>for</code> loop in counting sort, responsible
+for placing the elements into their sorted positions, which took the
+form:</p>
+<p><span class="math display">\textbf{for } j \leftarrow
+\text{length}[A] - 1 \textbf{ downto } 0</span></p>
+<p>(i.e., iterating from the end of the input list <span
+class="math inline">A</span> through to the beginning). Suppose the
+order of iteration was reversed by swapping the line above with:</p>
+<p><span class="math display">\textbf{for } j \leftarrow 0 \textbf{ upto
+} \text{length}[A] - 1</span></p>
+<p>Would this new version of counting sort still be correct? Justify
+your answer. What else do you observe about this modified algorithm?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The two versions differ only in the last loop:</p>
+<pre><code>for i &lt;- 0 to k                        for i &lt;- 0 to k
+    do C[i] &lt;- 0;                          do C[i] &lt;- 0;
+for j &lt;- 0 to length[A] - 1            for j &lt;- 0 to length[A] - 1
+    do C[A[j]] &lt;- C[A[j]] + 1;             do C[A[j]] &lt;- C[A[j]] + 1;
+for i &lt;- 1 to k                        for i &lt;- 1 to k
+    do C[i] &lt;- C[i] + C[i-1];              do C[i] &lt;- C[i] + C[i-1];
+for j &lt;- length[A] - 1 downto 0   =&gt;   for j &lt;- 0 upto length[A] - 1
+    do begin                               do begin
+        C[A[j]] &lt;- C[A[j]] - 1;                C[A[j]] &lt;- C[A[j]] - 1;
+        B[C[A[j]]] &lt;- A[j];                    B[C[A[j]]] &lt;- A[j];
+    end-for                                end-for
+return B                               return B</code></pre>
+<p><strong>Example of the “new” counting sort</strong> on <span
+class="math inline">[3, 4, 1, 4]</span>, with keys 0 to 4:</p>
+<ul>
+<li>Histogram: <span class="math inline">[0, 1, 0, 1, 2]</span>.</li>
+<li>Cumulative sum: <span class="math inline">[0, 1, 1, 2,
+4]</span>.</li>
+<li>Placement loop run, from <span class="math inline">j =
+0</span>:</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">j</span></th>
+<th><span class="math inline">A[j]</span></th>
+<th>Output <span class="math inline">B</span> after the step</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>start</td>
+<td></td>
+<td>[ , , , ]</td>
+</tr>
+<tr>
+<td>0</td>
+<td>3</td>
+<td>[ , 3, , ]</td>
+</tr>
+<tr>
+<td>1</td>
+<td>4</td>
+<td>[ , 3, , 4] ← which 4 is this?</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>[1, 3, , 4]</td>
+</tr>
+<tr>
+<td>3</td>
+<td>4</td>
+<td>[1, 3, 4, 4]</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>It would still be correct.</strong> Every element still
+lands in the block of slots for its key, so the output is sorted.</li>
+<li><strong>But it would no longer be stable.</strong> The first 4 in
+<span class="math inline">A</span> took the <strong>last</strong> slot
+for 4. The order of equal-valued elements is reversed, instead of being
+preserved.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: check whether a sort is stable</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Take two equal keys, <span class="math inline">x_a</span> before
+<span class="math inline">x_b</span> in the input. Follow the algorithm
+and ask: which one ends at the higher index?</p>
+<ul>
+<li>For counting sort, the last loop fills each key’s slots <strong>from
+the right</strong>, because it decrements before it writes. So the
+element it meets <strong>first</strong> gets the rightmost slot. To keep
+<span class="math inline">x_a</span> before <span
+class="math inline">x_b</span>, the loop must meet <span
+class="math inline">x_b</span> first: it must run
+<strong>backwards</strong>.</li>
+<li>Correctness and stability are separate questions. A sort can be
+correct and not stable.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 2.1.</strong> Radix sort sorts the two-digit
+numbers 12 and 11 (in that input order). Each pass uses the
+<strong>forward</strong> counting sort from this question. Show the
+result after each pass. Is it sorted?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 2.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Pass 1, last digit:</strong> the digits are 2 and 1. The
+keys differ, so the pass sorts them correctly: 11, 12.</li>
+<li><strong>Pass 2, first digit:</strong> both first digits are 1, so
+the keys are equal. The forward loop reverses equal keys: 12, 11.</li>
+</ul>
+<p>The result, 12 then 11, is <strong>not sorted</strong>. Radix sort
+needs a stable inner sort. The second pass must keep the order that the
+first pass set up.</p>
+</div>
+</details>
+<h3 id="tutorial-3-q3.-quicksort-with-the-median-of-three">Tutorial 3
+Q3. Quicksort with the median of three</h3>
+<div class="q">
+<p>Instead of using the middle element as pivot, quicksort also can use
+the median of first, middle, and last elements (sometimes called the
+“median of three” strategy). If this pivot selection scheme is used, how
+many key comparisons will quicksort do in the worst case to sort <span
+class="math inline">n</span> elements? (Remember to count the
+comparisons done in choosing the pivot.)</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer: comparisons in one partition</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Consider a subrange of <span class="math inline">k</span> elements to
+be partitioned.</p>
+<ul>
+<li>Choosing the pivot requires 3 key comparisons in the worst
+case.</li>
+<li>Now <span class="math inline">k - 3</span> elements remain to be
+compared to the pivot. It is easy to avoid comparing the other two
+candidates again: swap them to the two ends of the subrange. Their side
+is already known.</li>
+<li>So <span class="math inline">k</span> comparisons are done by the
+time the partition is finished.</li>
+<li>This is one more than if the middle element is simply chosen as the
+pivot (<span class="math inline">k - 1</span>).</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer: the worst case</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>An example of the worst case: E[first] = 100, E[(first + last)/2] =
+99, E[last] = 98, and all other elements are over 100.</li>
+<li>Then 99 becomes the pivot. 98 is the only element smaller than the
+pivot, and <span class="math inline">k - 2</span> elements are greater
+than the pivot.</li>
+<li>The remaining keys can be chosen so that the worst case repeats: the
+median of three always comes out as the <strong>second-smallest</strong>
+key in the range.</li>
+<li>The larger subrange shrinks by only 2 at each level of recursion. So
+quicksort needs <span class="math inline">n/2</span> calls to partition,
+on ranges of size <span class="math inline">n, n-2, n-4, \dots, 2</span>
+(suppose <span class="math inline">n</span> is even). The total number
+of comparisons is</li>
+</ul>
+<p><span class="math display">\begin{aligned}
+f &amp;= n + (n-2) + (n-4) + \dots + 2 \\
+f &amp;= 2 + 4 + \dots + (n-2) + n \\
+2f &amp;= (n+2) + (n+2) + \dots + (n+2) = \frac{n(n+2)}{2} \qquad (n/2
+\text{ terms}) \\
+f &amp;= \frac{n^2 + 2n}{4} = \Theta(n^2).
+\end{aligned}</span></p>
+<ul>
+<li>When <span class="math inline">n</span> is odd, the total number of
+comparisons is also about <span class="math inline">n^2/4</span>.</li>
+<li>So the worst-case time complexity with the median-of-3 strategy is
+<span class="math inline">\Theta(n^2)</span>.</li>
+</ul>
+<p><strong>Error in the official solution:</strong> it writes the middle
+position as “E[first + last/2]”. The middle index is <span
+class="math inline">\lfloor(\text{first} + \text{last})/2\rfloor</span>.
+Without the brackets, it would be first + (last/2).</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: the worst case of quicksort under any pivot
+rule</strong> <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Find the <strong>worst pivot the rule can pick</strong>: how many
+elements can the adversary force onto the small side? Say the small side
+gets <span class="math inline">r - 1</span> elements, so each partition
+removes only <span class="math inline">r</span> elements (the pivot plus
+<span class="math inline">r - 1</span>).</li>
+<li>The ranges then have sizes <span class="math inline">n, n - r, n -
+2r, \dots</span>. That is about <span class="math inline">n/r</span>
+partitions.</li>
+<li>Each partition of <span class="math inline">k</span> elements costs
+about <span class="math inline">k</span> comparisons. The sum is about
+<span class="math inline">\frac{n}{r} \cdot \frac{n}{2} =
+\frac{n^2}{2r}</span>.</li>
+</ol>
+<p>Any rule that looks at a <strong>constant</strong> number of elements
+leaves <span class="math inline">r</span> constant, so the worst case
+stays <span class="math inline">\Theta(n^2)</span>. Middle element:
+<span class="math inline">r = 1</span>, about <span
+class="math inline">n^2/2</span>. Median of three: <span
+class="math inline">r = 2</span>, about <span
+class="math inline">n^2/4</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 3.1.</strong> The pivot is now the median of
+<strong>five</strong> elements: first, last, and three others at fixed
+positions. What is the worst-case number of comparisons, roughly?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The adversary makes the five sampled elements the five smallest of
+the range. Their median is then the <strong>third-smallest</strong> of
+the range. Only 2 elements go to the small side, so each partition
+removes <span class="math inline">r = 3</span> elements.</p>
+<p>By the method: about <span class="math inline">\frac{n^2}{2 \cdot 3}
+= \frac{n^2}{6}</span> comparisons, plus a few more per partition to
+find the median. Still <span class="math inline">\Theta(n^2)</span>.</p>
+</div>
+</details>
+<h3 id="tutorial-3-q4.-red-white-and-blue">Tutorial 3 Q4. Red, white and
+blue</h3>
+<div class="q">
+<p>Each of <span class="math inline">n</span> elements in an array may
+have one of the key values red, white, or blue. Give an efficient
+algorithm for rearranging the elements so that all the reds come before
+all the whites, and all the whites come before all the blues. (It may
+happen that there are no elements of one or two of the colours.) The
+only operations permitted on the elements are examination of a key to
+find out what colour it is, and a swap, or interchange, of two elements
+(specified by their indices). What is the asymptotic order of the worst
+case running time of your algorithm? (There is a linear-time
+solution.)</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer: the four regions</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>At an intermediate step, the elements are divided into four
+regions:</p>
+<ul>
+<li>the first contains only reds;</li>
+<li>the second contains only whites;</li>
+<li>the third contains elements whose colours are not known yet;</li>
+<li>the fourth contains only blues.</li>
+</ul>
+<p>There are three indexes: r (end of the reds), u (first unknown) and b
+(the edge of the blues).</p>
+<figure>
+<img src="img/tutorial-3-artifacts/rwb-regions.png" style="width:70.0%"
+alt="The four regions: reds, whites, unknown, blues. Index r marks the reds, u the first unknown element, and b the blues (Tutorial 3 solutions)." />
+<figcaption aria-hidden="true">The four regions: reds, whites, unknown,
+blues. Index r marks the reds, u the first unknown element, and b the
+blues (Tutorial 3 solutions).</figcaption>
+</figure>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer: the algorithm and its cost</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The official algorithm:</p>
+<pre><code>int r; // index of last red
+int u; // index of first unknown
+int b; // index of first blue
+
+r = 0; u = 0; b = n-1;
+while (u &lt; b)
+    if (E[u] == red)
+        Interchange E[r] and E[u];
+        r++;
+        u++;
+    else if (E[u] == white)
+        u++;
+    else // (E[u] == blue)
+        Interchange E[b] and E[u]
+        b--;</code></pre>
+<ul>
+<li>With each iteration of the while loop, either u increases by one or
+b decreases by one. So there are <span class="math inline">n</span>
+iterations.</li>
+<li>Each iteration takes constant time, so the overall time is linear,
+<span class="math inline">\Theta(n)</span>.</li>
+</ul>
+<p><strong>Error in the official code.</strong> With
+<code>b = n-1</code> and the blue case “swap, then <code>b--</code>”,
+the index <code>b</code> points at the <strong>last unknown</strong>
+element, not the first blue. The loop <code>while (u &lt; b)</code> then
+stops one element early: the element at <code>u == b</code> is never
+examined. Example: <span class="math inline">[\text{white},
+\text{red}]</span>. It starts with r = 0, u = 0, b = 1. E[0] is white,
+so u = 1. Now <code>u &lt; b</code> is false and the loop ends, leaving
+white before red.</p>
+<p>The fix is one character: <code>while (u &lt;= b)</code>. (Chapter 4
+uses the other common form: <code>b = n</code>, and in the blue case
+<code>b--</code> first, then swap, with
+<code>while (u &lt; b)</code>.)</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: partition in one pass with regions</strong>
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Draw the array as regions, one per group, plus one
+<strong>unknown</strong> region. Name the index at each border.</li>
+<li>Write what each region holds. This is the loop invariant.</li>
+<li>For each possible value of the next unknown element, write the swap
+and the index moves that put it in its region and keep the
+invariant.</li>
+<li>Check that every iteration shrinks the unknown region by exactly
+one. Then the loop runs <span class="math inline">n</span> times: <span
+class="math inline">\Theta(n)</span>.</li>
+<li>Test the code by hand on two-element inputs. Off-by-one errors in
+the stop condition show up at once.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 4.1.</strong> In the corrected algorithm, what is
+the largest number of swaps for an array of <span
+class="math inline">n</span> elements? Give an input that reaches
+it.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 4.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Each iteration makes at most one swap, and there are <span
+class="math inline">n</span> iterations. So at most <span
+class="math inline">n</span> swaps.</p>
+<p>An array of <span class="math inline">n</span> blues reaches it.
+Every iteration finds a blue at <code>u</code> and swaps it with the
+element at <code>b</code> (also a blue), then moves <code>b</code> down.
+That is <span class="math inline">n</span> swaps, even though nothing
+needed to move. Each iteration still shrinks the unknown region by one,
+as the method requires.</p>
+</div>
+</details>
+<div class="q">
+<hr />
+</div>
+
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="drill.js"></script>
+</body></html>

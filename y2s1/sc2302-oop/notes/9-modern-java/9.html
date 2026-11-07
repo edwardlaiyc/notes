@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Modern Java: Generics, Collections, Lambdas, Streams and
+Switch · SC2302 Object-Oriented Programming</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=56AA795D">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Modern Java:
+Generics, Collections, Lambdas, Streams and Switch</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2302</p>
+  <p class="site-title">Object-Oriented Programming</p>
+  <h1 class="page-title">Modern Java: Generics, Collections, Lambdas,
+Streams and Switch</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-classes-objects/1.html"
+                   data-nav="notes/1-classes-objects/1.html">Classes,
+Objects and Encapsulation</a></li>
+            <li><a href="../../notes/2-inheritance/2.html"
+                   data-nav="notes/2-inheritance/2.html">Inheritance,
+Overriding and Visibility</a></li>
+            <li><a href="../../notes/3-interfaces/3.html"
+                   data-nav="notes/3-interfaces/3.html">Interfaces and
+Scanner Input</a></li>
+            <li><a href="../../notes/4-polymorphism/4.html"
+                   data-nav="notes/4-polymorphism/4.html">Polymorphism,
+Binding and Typecasting</a></li>
+            <li><a href="../../notes/5-exceptions-file-io/5.html"
+                   data-nav="notes/5-exceptions-file-io/5.html">Exception
+Handling and File I/O</a></li>
+            <li><a href="../../notes/6-uml-class-diagrams/6.html"
+                   data-nav="notes/6-uml-class-diagrams/6.html">UML
+Class Diagrams and Relationships</a></li>
+            <li><a href="../../notes/7-sequence-diagrams/7.html"
+                   data-nav="notes/7-sequence-diagrams/7.html">Sequence
+Diagrams and OO Modelling</a></li>
+            <li><a href="../../notes/8-design-principles/8.html"
+                   data-nav="notes/8-design-principles/8.html">Design
+Principles and SOLID</a></li>
+            <li><a href="../../notes/9-modern-java/9.html"
+                   data-nav="notes/9-modern-java/9.html">Modern
+Java</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Course
+Cheatsheet</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#generics-compile-time-type-safety"
+id="toc-generics-compile-time-type-safety">1. Generics: Compile-Time
+Type Safety</a>
+<ul>
+<li><a href="#type-erasure-mechanics"
+id="toc-type-erasure-mechanics">Type Erasure Mechanics</a></li>
+</ul></li>
+<li><a href="#generic-classes-and-generic-method-signatures"
+id="toc-generic-classes-and-generic-method-signatures">2. Generic
+Classes and Generic Method Signatures</a></li>
+<li><a href="#wildcards-and-the-pecs-principle"
+id="toc-wildcards-and-the-pecs-principle">3. Wildcards and the PECS
+Principle</a>
+<ul>
+<li><a href="#the-pecs-rule-producer-extends-consumer-super"
+id="toc-the-pecs-rule-producer-extends-consumer-super">The PECS Rule:
+Producer Extends, Consumer Super</a></li>
+</ul></li>
+<li><a href="#the-java-collections-framework"
+id="toc-the-java-collections-framework">4. The Java Collections
+Framework</a></li>
+<li><a href="#functional-interfaces-and-lambda-expressions"
+id="toc-functional-interfaces-and-lambda-expressions">5. Functional
+Interfaces and Lambda Expressions</a>
+<ul>
+<li><a href="#core-built-in-functional-interfaces-java.util.function"
+id="toc-core-built-in-functional-interfaces-java.util.function">Core
+Built-in Functional Interfaces
+(<code>java.util.function</code>)</a></li>
+<li><a href="#lambda-expression-syntax-and-method-references"
+id="toc-lambda-expression-syntax-and-method-references">Lambda
+Expression Syntax and Method References</a></li>
+</ul></li>
+<li><a href="#the-streams-api-declarative-data-processing"
+id="toc-the-streams-api-declarative-data-processing">6. The Streams API:
+Declarative Data Processing</a>
+<ul>
+<li><a href="#anatomy-of-a-stream-pipeline"
+id="toc-anatomy-of-a-stream-pipeline">Anatomy of a Stream
+Pipeline</a></li>
+</ul></li>
+<li><a href="#modern-language-features-enhanced-switch-and-records"
+id="toc-modern-language-features-enhanced-switch-and-records">7. Modern
+Language Features: Enhanced Switch and Records</a>
+<ul>
+<li><a href="#enhanced-switch-expressions-java-14"
+id="toc-enhanced-switch-expressions-java-14">Enhanced Switch Expressions
+(Java 14+)</a></li>
+<li><a href="#record-classes-java-16"
+id="toc-record-classes-java-16">Record Classes (Java 16+)</a></li>
+</ul></li>
+<li><a href="#tracing-toolkit-stream-evaluation-generics"
+id="toc-tracing-toolkit-stream-evaluation-generics">8. Tracing Toolkit:
+Stream Evaluation &amp; Generics</a></li>
+<li><a href="#tutorial-and-exam-practice"
+id="toc-tutorial-and-exam-practice">9. Tutorial and Exam
+Practice</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>Early Java architectures relied heavily on raw collections storing
+<code>java.lang.Object</code>, forcing developers to write manual
+downcasts that frequently crashed at runtime with
+<code>ClassCastException</code>. Modern Java (from Java 5 through Java
+17+) introduced powerful language features—<strong>Generics</strong>,
+the modernized <strong>Collections Framework</strong>,
+<strong>Functional Interfaces</strong>, <strong>Lambda
+Expressions</strong>, the <strong>Streams API</strong>, and
+<strong>Enhanced Switch Expressions</strong>—to shift error detection
+from runtime to compile time and enable expressive declarative
+programming.</p>
+<hr />
+<h2 id="generics-compile-time-type-safety">1. Generics: Compile-Time
+Type Safety</h2>
+<p>Generics allow types (classes and interfaces) to act as parameters
+when defining classes, interfaces, and methods.</p>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Pre-Generics (Unsafe): Relies on raw Object and explicit casting</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span> rawList <span class="op">=</span> <span class="kw">new</span> <span class="bu">ArrayList</span><span class="op">();</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>rawList<span class="op">.</span><span class="fu">add</span><span class="op">(</span><span class="st">&quot;Hello&quot;</span><span class="op">);</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>rawList<span class="op">.</span><span class="fu">add</span><span class="op">(</span><span class="dv">100</span><span class="op">);</span> <span class="co">// Compiles fine, but causes ClassCastException downstream!</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> s <span class="op">=</span> <span class="op">(</span><span class="bu">String</span><span class="op">)</span> rawList<span class="op">.</span><span class="fu">get</span><span class="op">(</span><span class="dv">1</span><span class="op">);</span> <span class="co">// RUNTIME ERROR: Integer cannot be cast to String</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">// With Generics (Compile-Time Safe):</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> safeList <span class="op">=</span> <span class="kw">new</span> <span class="bu">ArrayList</span><span class="op">&lt;&gt;();</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>safeList<span class="op">.</span><span class="fu">add</span><span class="op">(</span><span class="st">&quot;Hello&quot;</span><span class="op">);</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="co">// safeList.add(100); // COMPILE-TIME ERROR: Incompatible types detected immediately!</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> str <span class="op">=</span> safeList<span class="op">.</span><span class="fu">get</span><span class="op">(</span><span class="dv">0</span><span class="op">);</span> <span class="co">// Implicit, safe casting</span></span></code></pre></div>
+<h3 id="type-erasure-mechanics">Type Erasure Mechanics</h3>
+<p>To ensure backward compatibility with older JVM versions, Java
+implements generics through <strong>Type Erasure</strong>:</p>
+<ol type="1">
+<li>During compilation, the compiler inspects and enforces generic type
+constraints.</li>
+<li>The compiler then <strong>erases all generic type
+parameters</strong>, replacing unbounded type variables (<code>T</code>)
+with <code>Object</code> (or their leftmost bound, e.g.,
+<code>&lt;T extends Number&gt;</code> becomes <code>Number</code>).</li>
+<li>Explicit typecasts are inserted into bytecode automatically by
+<code>javac</code>.</li>
+<li>At runtime, the compiled <code>.class</code> bytecode holds
+<strong>zero generic type information</strong>.</li>
+</ol>
+<div class="callout callout-warning">
+<div class="callout-title">
+<p><strong>Warning</strong></p>
+</div>
+<p><strong>Consequences of Type Erasure:</strong></p>
+<ul>
+<li>You cannot instantiate a type parameter directly:
+<code>new T()</code> is illegal.</li>
+<li>You cannot create generic arrays: <code>new T[10]</code> is
+illegal.</li>
+<li>Type parameters <strong>cannot be primitive types</strong>:
+<code>List&lt;int&gt;</code> is invalid; you must use wrapper types like
+<code>List&lt;Integer&gt;</code>. Primitive arrays (e.g.,
+<code>int[]</code>) cannot bind to generic arrays (<code>T[]</code>)
+because primitives do not extend <code>Object</code>.</li>
+</ul>
+</div>
+<hr />
+<h2 id="generic-classes-and-generic-method-signatures">2. Generic
+Classes and Generic Method Signatures</h2>
+<p>Exam questions frequently test the syntax for declaring generic
+methods:</p>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> ArrayUtilities <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Generic method declaration syntax:</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">// &lt;TypeParams&gt; ReturnType methodName(ParameterList)</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="op">&lt;</span>T<span class="op">&gt;</span> T <span class="fu">getFirst</span><span class="op">(</span>T<span class="op">[]</span> array<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(</span>array <span class="op">==</span> <span class="kw">null</span> <span class="op">||</span> array<span class="op">.</span><span class="fu">length</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">return</span> <span class="kw">null</span><span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> array<span class="op">[</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<ul>
+<li>The formal type parameter <code>&lt;T&gt;</code> is declared
+<strong>immediately before the return type</strong> <code>T</code>.</li>
+<li>Inside <code>main()</code>, invoking
+<code>ArrayUtilities.getFirst(strArray)</code> automatically infers
+<code>T</code> as <code>String</code>.</li>
+</ul>
+<hr />
+<h2 id="wildcards-and-the-pecs-principle">3. Wildcards and the PECS
+Principle</h2>
+<p>Generics are <strong>invariant</strong>: even though
+<code>Integer</code> is a subclass of <code>Number</code>,
+<code>List&lt;Integer&gt;</code> is <strong>NOT a subtype of
+<code>List&lt;Number&gt;</code></strong>! You cannot pass a
+<code>List&lt;Integer&gt;</code> into a method expecting
+<code>List&lt;Number&gt;</code>.</p>
+<p>To achieve flexible subtyping across generic collections, Java
+provides <strong>wildcards (<code>?</code>)</strong>:</p>
+<figure>
+<img width="1400" height="778" src="media/9-artifacts/wildcards.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Wildcard Subtyping" />
+<figcaption aria-hidden="true">Wildcard Subtyping</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 25%" />
+<col style="width: 34%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr>
+<th>Wildcard Syntax</th>
+<th>Name</th>
+<th>Semantic Bound</th>
+<th style="text-align: center;">Permission</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>List&lt;?&gt;</code></td>
+<td>Unbounded Wildcard</td>
+<td>Any type (<code>List&lt;? extends Object&gt;</code>)</td>
+<td style="text-align: center;">Read only (<code>Object</code>)</td>
+</tr>
+<tr>
+<td><code>List&lt;? extends T&gt;</code></td>
+<td>Upper Bounded Wildcard</td>
+<td><code>T</code> or any subclass of <code>T</code></td>
+<td style="text-align: center;"><strong>Read from list</strong></td>
+</tr>
+<tr>
+<td><code>List&lt;? super T&gt;</code></td>
+<td>Lower Bounded Wildcard</td>
+<td><code>T</code> or any superclass of <code>T</code></td>
+<td style="text-align: center;"><strong>Write into list</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="the-pecs-rule-producer-extends-consumer-super">The PECS Rule:
+Producer Extends, Consumer Super</h3>
+<ul>
+<li><strong>Producer Extends (<code>? extends T</code>):</strong> If
+your method reads/pulls elements out of a collection (the collection is
+a <em>producer</em> of data), use <code>? extends T</code>. You can
+safely retrieve elements as type <code>T</code>, but you <strong>cannot
+add</strong> elements to the collection (compiler blocks writes because
+the concrete subtype is unknown).</li>
+<li><strong>Consumer Super (<code>? super T</code>):</strong> If your
+method writes/inserts elements into a collection (the collection is a
+<em>consumer</em> of data), use <code>? super T</code>. You can safely
+add elements of type <code>T</code> (or subtypes of <code>T</code>), but
+reads return raw <code>Object</code>.</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Copies elements from src (Producer) to dest (Consumer)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="op">&lt;</span>T<span class="op">&gt;</span> <span class="dt">void</span> <span class="fu">copy</span><span class="op">(</span><span class="bu">List</span><span class="op">&lt;?</span> <span class="kw">super</span> T<span class="op">&gt;</span> dest<span class="op">,</span> <span class="bu">List</span><span class="op">&lt;?</span> <span class="kw">extends</span> T<span class="op">&gt;</span> src<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>T item <span class="op">:</span> src<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        dest<span class="op">.</span><span class="fu">add</span><span class="op">(</span>item<span class="op">);</span> <span class="co">// Safe: dest accepts T or supertypes of T</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<hr />
+<h2 id="the-java-collections-framework">4. The Java Collections
+Framework</h2>
+<p>The Java Collections Framework (<code>java.util</code>) structures
+standard dynamic data structures under a unified hierarchy:</p>
+<figure>
+<img width="1240" height="933" src="media/9-artifacts/collections.webp" style="width:70.0%"
+loading="lazy" decoding="async" alt="Java Collections Hierarchy" />
+<figcaption aria-hidden="true">Java Collections Hierarchy</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 30%" />
+<col style="width: 23%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr>
+<th>Interface</th>
+<th>Ordering &amp; Duplication</th>
+<th>Key Implementations</th>
+<th>Performance Characteristics</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>List</code></strong></td>
+<td>Ordered sequence; permits duplicates; indexed access</td>
+<td><code>ArrayList</code><br><code>LinkedList</code></td>
+<td><code>ArrayList</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+random read, amortized
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+append.<br><code>LinkedList</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+insert/delete at head/tail,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(n)</annotation></semantics></math>
+search.</td>
+</tr>
+<tr>
+<td><strong><code>Set</code></strong></td>
+<td>Unordered collection; strictly <strong>no duplicates</strong></td>
+<td><code>HashSet</code><br><code>TreeSet</code></td>
+<td><code>HashSet</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+lookup via <code>hashCode()</code>.<br><code>TreeSet</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+sorted order via <code>Comparable</code> / <code>Comparator</code>.</td>
+</tr>
+<tr>
+<td><strong><code>Map</code></strong></td>
+<td>Key-Value pairs; unique keys; values can duplicate</td>
+<td><code>HashMap</code><br><code>TreeMap</code></td>
+<td><code>HashMap</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(1)</annotation></semantics></math>
+operations.<br><code>TreeMap</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false" form="prefix">(</mo><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mi>n</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">O(\log n)</annotation></semantics></math>
+sorted key navigation.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="functional-interfaces-and-lambda-expressions">5. Functional
+Interfaces and Lambda Expressions</h2>
+<p>A <strong>Functional Interface</strong> is an interface that declares
+<strong>exactly one abstract method (SAM - Single Abstract
+Method)</strong>. It may contain any number of <code>default</code> or
+<code>static</code> methods. The annotation
+<code>@FunctionalInterface</code> instructs the compiler to verify SAM
+compliance.</p>
+<figure>
+<img width="1200" height="843" src="media/9-artifacts/functional-interface.webp"
+style="width:65.0%" loading="lazy" decoding="async"
+alt="Functional Interface Anatomy" />
+<figcaption aria-hidden="true">Functional Interface Anatomy</figcaption>
+</figure>
+<h3 id="core-built-in-functional-interfaces-java.util.function">Core
+Built-in Functional Interfaces (<code>java.util.function</code>)</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 20%" />
+<col style="width: 23%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr>
+<th>Functional Interface</th>
+<th>Method Signature</th>
+<th>Conceptual Role</th>
+<th>Exam Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>Predicate&lt;T&gt;</code></strong></td>
+<td><code>boolean test(T t)</code></td>
+<td>Evaluates a boolean condition</td>
+<td>Filtering: <code>s -&gt; s.length() &gt; 5</code></td>
+</tr>
+<tr>
+<td><strong><code>Function&lt;T, R&gt;</code></strong></td>
+<td><code>R apply(T t)</code></td>
+<td>Transforms input <code>T</code> into output <code>R</code></td>
+<td>Mapping: <code>s -&gt; s.toUpperCase()</code></td>
+</tr>
+<tr>
+<td><strong><code>Consumer&lt;T&gt;</code></strong></td>
+<td><code>void accept(T t)</code></td>
+<td>Consumes input, returns nothing</td>
+<td>Printing: <code>s -&gt; System.out.println(s)</code></td>
+</tr>
+<tr>
+<td><strong><code>Supplier&lt;T&gt;</code></strong></td>
+<td><code>T get()</code></td>
+<td>Generates a value without input</td>
+<td>Factory: <code>() -&gt; new Random().nextInt()</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="lambda-expression-syntax-and-method-references">Lambda
+Expression Syntax and Method References</h3>
+<p>Lambdas provide lightweight inline implementations of functional
+interfaces:</p>
+<div class="sourceCode" id="cb4"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Traditional Anonymous Inner Class (Verbose)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="bu">Runnable</span> r1 <span class="op">=</span> <span class="kw">new</span> <span class="bu">Runnable</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">@Override</span> <span class="kw">public</span> <span class="dt">void</span> <span class="fu">run</span><span class="op">()</span> <span class="op">{</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Hello&quot;</span><span class="op">);</span> <span class="op">}</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Equivalent Lambda Expression</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="bu">Runnable</span> r2 <span class="op">=</span> <span class="op">()</span> <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Hello&quot;</span><span class="op">);</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="co">// Equivalent Method Reference (Class::method)</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>Consumer<span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> printer <span class="op">=</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">::</span>println<span class="op">;</span></span></code></pre></div>
+<figure>
+<img width="1400" height="721" src="media/9-artifacts/method-refs.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Method Reference Forms" />
+<figcaption aria-hidden="true">Method Reference Forms</figcaption>
+</figure>
+<hr />
+<h2 id="the-streams-api-declarative-data-processing">6. The Streams API:
+Declarative Data Processing</h2>
+<p>A <strong>Stream</strong> (<code>java.util.stream.Stream</code>) is a
+sequence of elements supporting sequential and parallel aggregate
+operations. Streams do <strong>not store data</strong>; they convey data
+from a source (collection, array) through a computational pipeline.</p>
+<figure>
+<img width="1400" height="436" src="media/9-artifacts/stream-pipeline.webp" style="width:70.0%"
+loading="lazy" decoding="async" alt="Stream Pipeline Lifecycle" />
+<figcaption aria-hidden="true">Stream Pipeline Lifecycle</figcaption>
+</figure>
+<h3 id="anatomy-of-a-stream-pipeline">Anatomy of a Stream Pipeline</h3>
+<p>A stream pipeline comprises three sequential phases:</p>
+<ol type="1">
+<li><strong>Source:</strong> <code>list.stream()</code> or
+<code>Arrays.stream(arr)</code>.</li>
+<li><strong>Intermediate Operations (Lazy):</strong> Transform a stream
+into another stream. Execution is deferred until a terminal operation is
+encountered.
+<ul>
+<li><code>filter(Predicate&lt;T&gt;)</code>: Discards elements failing
+the condition.</li>
+<li><code>map(Function&lt;T, R&gt;)</code>: Transforms elements from
+type <code>T</code> to <code>R</code>.</li>
+<li><code>distinct()</code>, <code>sorted()</code>,
+<code>limit(n)</code>, <code>skip(n)</code>.</li>
+</ul></li>
+<li><strong>Terminal Operation (Eager):</strong> Triggers pipeline
+execution and produces a non-stream result or side-effect. Once
+consumed, the stream <strong>cannot be reused</strong>.
+<ul>
+<li><code>forEach(Consumer&lt;T&gt;)</code>: Iterates over remaining
+elements.</li>
+<li><code>collect(Collectors.toList())</code>: Accumulates elements into
+a collection.</li>
+<li><code>count()</code>, <code>reduce()</code>,
+<code>anyMatch()</code>, <code>findFirst()</code>.</li>
+</ul></li>
+</ol>
+<div class="sourceCode" id="cb5"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> names <span class="op">=</span> <span class="bu">Arrays</span><span class="op">.</span><span class="fu">asList</span><span class="op">(</span><span class="st">&quot;a&quot;</span><span class="op">,</span> <span class="st">&quot;bb&quot;</span><span class="op">,</span> <span class="st">&quot;ccc&quot;</span><span class="op">,</span> <span class="st">&quot;dd&quot;</span><span class="op">);</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>names<span class="op">.</span><span class="fu">stream</span><span class="op">()</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>     <span class="op">.</span><span class="fu">filter</span><span class="op">(</span>s <span class="op">-&gt;</span> s<span class="op">.</span><span class="fu">length</span><span class="op">()</span> <span class="op">&gt;</span> <span class="dv">1</span><span class="op">)</span>      <span class="co">// Keeps [&quot;bb&quot;, &quot;ccc&quot;, &quot;dd&quot;]</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>     <span class="op">.</span><span class="fu">map</span><span class="op">(</span><span class="bu">String</span><span class="op">::</span>toUpperCase<span class="op">)</span>        <span class="co">// Transforms to [&quot;BB&quot;, &quot;CCC&quot;, &quot;DD&quot;]</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>     <span class="op">.</span><span class="fu">forEach</span><span class="op">(</span><span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">::</span>print<span class="op">);</span>      <span class="co">// Terminal: prints &quot;BBCCCDD&quot;</span></span></code></pre></div>
+<hr />
+<h2 id="modern-language-features-enhanced-switch-and-records">7. Modern
+Language Features: Enhanced Switch and Records</h2>
+<h3 id="enhanced-switch-expressions-java-14">Enhanced Switch Expressions
+(Java 14+)</h3>
+<p>Modern switch syntax replaces error-prone fall-through semantics
+(<code>break</code>) with arrow syntax (<code>-&gt;</code>):</p>
+<div class="sourceCode" id="cb6"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Enhanced Switch Expression</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="bu">String</span> dayType <span class="op">=</span> <span class="cf">switch</span> <span class="op">(</span>day<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">2</span><span class="op">,</span> <span class="dv">3</span><span class="op">,</span> <span class="dv">4</span><span class="op">,</span> <span class="dv">5</span> <span class="op">-&gt;</span> <span class="st">&quot;Weekday&quot;</span><span class="op">;</span> <span class="co">// Multiple comma-separated labels; no break needed!</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">case</span> <span class="dv">6</span><span class="op">,</span> <span class="dv">7</span>          <span class="op">-&gt;</span> <span class="st">&quot;Weekend&quot;</span><span class="op">;</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">default</span>            <span class="op">-&gt;</span> <span class="op">{</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>        <span class="co">// Multi-line block yields a value via &#39;yield&#39;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">System</span><span class="op">.</span><span class="fu">err</span><span class="op">.</span><span class="fu">println</span><span class="op">(</span><span class="st">&quot;Unrecognized day: &quot;</span> <span class="op">+</span> day<span class="op">);</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">yield</span> <span class="st">&quot;Invalid&quot;</span><span class="op">;</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code></pre></div>
+<h3 id="record-classes-java-16">Record Classes (Java 16+)</h3>
+<p>A <strong><code>record</code></strong> is an immutable data carrier
+that automatically synthesizes private final fields, constructor,
+getters, <code>equals()</code>, <code>hashCode()</code>, and
+<code>toString()</code>:</p>
+<div class="sourceCode" id="cb7"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">record</span> <span class="bu">Point</span><span class="op">(</span><span class="dt">int</span> x<span class="op">,</span> <span class="dt">int</span> y<span class="op">)</span> <span class="op">{}</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co">// Automatically generates: x(), y(), constructor, equals(), hashCode(), and toString()</span></span></code></pre></div>
+<hr />
+<h2 id="tracing-toolkit-stream-evaluation-generics">8. Tracing Toolkit:
+Stream Evaluation &amp; Generics</h2>
+<p>When tracing modern Java snippets in exam questions:</p>
+<ol type="1">
+<li><strong>Trace Stream Pipelines Step-by-Step:</strong>
+<ul>
+<li>Write out the initial input list items explicitly.</li>
+<li>Apply <code>filter(...)</code> conditions: eliminate failing items
+immediately.</li>
+<li>Apply <code>map(...)</code> transformations: update the values of
+the remaining items.</li>
+<li>Check the terminal operation (<code>forEach</code>,
+<code>reduce</code>, <code>collect</code>): record the final output
+string or collection state.</li>
+</ul></li>
+<li><strong>Evaluate Generic Method Syntax:</strong>
+<ul>
+<li>Look for <code>&lt;T&gt;</code> before the return type:
+<code>public static &lt;T&gt; T getFirst(T[] a)</code>. If
+<code>&lt;T&gt;</code> is missing before the return type, the compiler
+treats <code>T</code> as an unknown concrete class name and emits a
+compile error!</li>
+</ul></li>
+<li><strong>Check Upper vs. Lower Bound Mutations:</strong>
+<ul>
+<li>Given <code>List&lt;? extends Number&gt; list</code>: attempts to
+call <code>list.add(...)</code> fail compilation!</li>
+<li>Given <code>List&lt;? super Integer&gt; list</code>: calling
+<code>list.add(10)</code> is legal.</li>
+</ul></li>
+</ol>
+<hr />
+<h2 id="tutorial-and-exam-practice">9. Tutorial and Exam Practice</h2>
+<details class="qa box">
+<summary>
+<strong>Wooclap Check:</strong> Generic Method Signature Syntax <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Complete the method header so that it
+correctly defines a static generic method that returns the first element
+of an array:</p>
+<div class="sourceCode" id="cb8"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> ________ <span class="fu">getFirst</span><span class="op">(</span>________ arr<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> arr<span class="op">[</span><span class="dv">0</span><span class="op">];</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>A. <code>T, T[]</code><br />
+B. <code>&lt;T&gt;, T[]</code><br />
+C. <code>&lt;T&gt; T, T[]</code><br />
+D. <code>T, &lt;T&gt; T[]</code></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li>A generic method in Java must declare its type parameter list
+<code>&lt;T&gt;</code> immediately <strong>before</strong> the return
+type.</li>
+<li>The return type is <code>T</code> (the element type).</li>
+<li>The parameter type is <code>T[]</code> (an array of elements of type
+<code>T</code>).</li>
+<li>Therefore, the complete declaration is:
+<code>public static &lt;T&gt; T getFirst(T[] arr)</code>.</li>
+</ul>
+<p>Final Answer: <strong>C (<code>&lt;T&gt; T, T[]</code>)</strong></p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Wooclap Check:</strong> Stream Filtering and Mapping Pipeline
+Trace <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> What is the exact terminal output produced
+by executing this stream pipeline?</p>
+<div class="sourceCode" id="cb9"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="bu">List</span><span class="op">&lt;</span><span class="bu">String</span><span class="op">&gt;</span> list <span class="op">=</span> <span class="bu">Arrays</span><span class="op">.</span><span class="fu">asList</span><span class="op">(</span><span class="st">&quot;a&quot;</span><span class="op">,</span> <span class="st">&quot;bb&quot;</span><span class="op">,</span> <span class="st">&quot;ccc&quot;</span><span class="op">);</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>list<span class="op">.</span><span class="fu">stream</span><span class="op">()</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">filter</span><span class="op">(</span>s <span class="op">-&gt;</span> s<span class="op">.</span><span class="fu">length</span><span class="op">()</span> <span class="op">&gt;</span> <span class="dv">1</span><span class="op">)</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">map</span><span class="op">(</span>s <span class="op">-&gt;</span> s<span class="op">.</span><span class="fu">toUpperCase</span><span class="op">())</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">.</span><span class="fu">forEach</span><span class="op">(</span>s <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">print</span><span class="op">(</span>s<span class="op">));</span></span></code></pre></div>
+<p>A. <code>bbccc</code><br />
+B. <code>BBCCC</code><br />
+C. <code>aBBCCC</code><br />
+D. Runtime error</p>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li>Initial list elements: <code>["a", "bb", "ccc"]</code>.</li>
+<li><code>.filter(s -&gt; s.length() &gt; 1)</code> evaluates:
+<ul>
+<li><code>"a"</code>: length 1 &gt; 1 is <code>false</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+Discarded.</li>
+<li><code>"bb"</code>: length 2 &gt; 1 is <code>true</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+Retained.</li>
+<li><code>"ccc"</code>: length 3 &gt; 1 is <code>true</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+Retained.</li>
+<li>Resulting intermediate stream: <code>["bb", "ccc"]</code>.</li>
+</ul></li>
+<li><code>.map(s -&gt; s.toUpperCase())</code> transforms elements:
+<ul>
+<li><code>"bb"</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<code>"BB"</code>.</li>
+<li><code>"ccc"</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>⟹</mo><annotation encoding="application/x-tex">\implies</annotation></semantics></math>
+<code>"CCC"</code>.</li>
+</ul></li>
+<li><code>.forEach(s -&gt; System.out.print(s))</code> prints each
+element without spaces or newlines: <code>"BB"</code> followed
+immediately by <code>"CCC"</code>.</li>
+</ol>
+<p>Final Output:</p>
+<pre class="text"><code>BBCCC</code></pre>
+<p>Final Answer: <strong>B</strong></p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Wooclap Check:</strong> Anonymous Class vs. Lambda Expression
+Output <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Determine the output of the following Java
+program:</p>
+<div class="sourceCode" id="cb11"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">interface</span> Greeting <span class="op">{</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">void</span> <span class="fu">sayHello</span><span class="op">();</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="kw">class</span> Main <span class="op">{</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">public</span> <span class="dt">static</span> <span class="dt">void</span> <span class="fu">main</span><span class="op">(</span><span class="bu">String</span><span class="op">[]</span> args<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>        Greeting g <span class="op">=</span> <span class="kw">new</span> <span class="fu">Greeting</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>            <span class="kw">public</span> <span class="dt">void</span> <span class="fu">sayHello</span><span class="op">()</span> <span class="op">{</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>                <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">print</span><span class="op">(</span><span class="st">&quot;Hello from Anonymous &quot;</span><span class="op">);</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>            <span class="op">}</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        <span class="op">};</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>        Greeting l <span class="op">=</span> <span class="op">()</span> <span class="op">-&gt;</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">print</span><span class="op">(</span><span class="st">&quot;Hello from Lambda &quot;</span><span class="op">);</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>        g<span class="op">.</span><span class="fu">sayHello</span><span class="op">();</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>        l<span class="op">.</span><span class="fu">sayHello</span><span class="op">();</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li><code>g</code> is instantiated via an anonymous inner class
+implementing <code>Greeting</code>. When <code>g.sayHello()</code> runs,
+it prints <code>"Hello from Anonymous "</code>.</li>
+<li><code>l</code> is instantiated via a lambda expression implementing
+the SAM of <code>Greeting</code>. When <code>l.sayHello()</code> runs,
+it prints <code>"Hello from Lambda "</code>.</li>
+<li>The statements execute sequentially on the same line.</li>
+</ol>
+<p>Final Output:</p>
+<pre class="text"><code>Hello from Anonymous Hello from Lambda </code></pre>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 9 Q1:</strong> Primitive Arrays and Generics Type
+Erasure <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> Given the generic method:</p>
+<div class="sourceCode" id="cb13"><pre
+class="sourceCode java"><code class="sourceCode java"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span> <span class="dt">static</span> <span class="op">&lt;</span>T<span class="op">&gt;</span> <span class="dt">void</span> <span class="fu">printArray</span><span class="op">(</span>T<span class="op">[]</span> arr<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span>T elem <span class="op">:</span> arr<span class="op">)</span> <span class="bu">System</span><span class="op">.</span><span class="fu">out</span><span class="op">.</span><span class="fu">print</span><span class="op">(</span>elem <span class="op">+</span> <span class="st">&quot; &quot;</span><span class="op">);</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<ol type="1">
+<li>What occurs if you pass an <code>int[]</code> array to this method?
+Why?</li>
+<li>How does Java rectify this?</li>
+</ol>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li><strong>Compilation Error:</strong>
+<ul>
+<li>In Java, type arguments for type parameters (<code>T</code>) must be
+reference types extending <code>java.lang.Object</code>.</li>
+<li>While <code>int[]</code> is itself an object, the individual element
+<code>int</code> is a primitive, not an object.</li>
+<li>Therefore, <code>int[]</code> cannot be converted to
+<code>T[]</code> (where <code>T</code> would be <code>int</code>). The
+compiler flags a type mismatch error.</li>
+</ul></li>
+<li><strong>Rectification:</strong>
+<ul>
+<li>Use the boxed wrapper type array <code>Integer[]</code> instead:
+<code>Integer[] boxedArr = {1, 2, 3}; printArray(boxedArr);</code>.</li>
+<li>Alternatively, write an overloaded method specifically accepting
+<code>int[]</code> or use
+<code>Arrays.stream(intArr).forEach(...)</code>.</li>
+</ul></li>
+</ol>
+</div>
+</details>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/8-design-principles/8.html">← Design
+Principles and SOLID</a>
+  <a class="next-page" href="../../notes/cheatsheet.html">Course
+Cheatsheet →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Mermaid diagrams. Pandoc emits ```mermaid fences as <pre class="mermaid">,
+  // which nothing renders, so the source showed as a code block. Swap each for
+  // a plain <div class="mermaid"> (also keeps the copy-button script below off
+  // it) and load the library only on pages that actually have a diagram.
+  (function () {
+    var blocks = document.querySelectorAll('main#content pre.mermaid');
+    if (!blocks.length) return;
+    blocks.forEach(function (pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    import('https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs')
+      .then(function (m) {
+        m.default.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default' });
+        return m.default.run({ querySelector: 'main#content div.mermaid' });
+      })
+      .catch(function () { /* offline: the diagram source stays visible as text */ });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+</body>
+</html>

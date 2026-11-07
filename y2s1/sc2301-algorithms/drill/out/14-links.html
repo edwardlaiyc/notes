@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connections: properties you can discover</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="drill.css">
+</head><body data-page="14-links">
+<nav class="top"><a href="index.html">All topics</a><span id="count"></span>
+<label><input type="checkbox" id="onlyshaky"> only shaky</label>
+<button id="export">Copy progress</button></nav>
+<main>
+<h1 id="connections-properties-you-can-discover">Connections: properties
+you can discover</h1>
+<p>Each problem asks you to predict first, then check. Every claim was
+brute-forced in <code>verify/v_links.py</code> (random graphs, all
+permutations, random strings). Where a fact is not in the lectures, the
+answer says so.</p>
+<h2 id="problems">Problems</h2>
+<h3 id="problem-1-change-the-weights-what-survives">Problem 1: change
+the weights, what survives?</h3>
+<div class="q">
+<p>A graph has vertices <span class="math inline">s,a,t</span> and edges
+<span class="math inline">sa=2</span>, <span
+class="math inline">at=3</span>, <span class="math inline">st=4</span>.
+<strong>(a)</strong> Find its MST and the shortest path from <span
+class="math inline">s</span> to <span class="math inline">t</span>.
+<strong>(b)</strong> Replace every weight <span
+class="math inline">w</span> by <span class="math inline">w^2</span> and
+redo both. <strong>(c)</strong> A second graph is a chain <span
+class="math inline">s\!-\!x\!-\!y\!-\!t</span> with edge weights <span
+class="math inline">1,1,1</span> plus a direct edge <span
+class="math inline">st=5</span>. Find its shortest path from <span
+class="math inline">s</span> to <span class="math inline">t</span>, then
+add 10 to every weight and redo it. Does the MST change?
+<strong>(d)</strong> State which of the two answers (MST, shortest path)
+depends only on the <strong>order</strong> of the weights, and why.
+<strong>(e)</strong> What does this say about negative weights?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(a)</strong> Kruskal takes <span
+class="math inline">sa</span> (2) and <span
+class="math inline">at</span> (3), then rejects <span
+class="math inline">st</span> (4). MST <span
+class="math inline">=\{sa,at\}</span>, weight 5. Shortest path: the
+direct edge <span class="math inline">st</span>, length 4 (the route
+through <span class="math inline">a</span> has length 5).</p>
+<p><strong>(b)</strong> The weights become <span
+class="math inline">4,9,16</span>. The MST is the same, <span
+class="math inline">\{sa,at\}</span>. The shortest path
+<strong>changes</strong>: the direct edge now costs 16, but <span
+class="math inline">s\to a\to t</span> costs <span
+class="math inline">4+9=13</span>.</p>
+<p><strong>(c)</strong> Original: the chain costs 3, the direct edge 5,
+so the chain wins. After adding 10 to every weight: the chain costs
+<span class="math inline">3\cdot11=33</span>, the direct edge costs 15,
+so the <strong>direct edge wins</strong>. The MST is still the chain
+(the three light edges), because the order of the weights did not
+change.</p>
+<p><strong>(d)</strong> The MST depends only on the order. Kruskal only
+compares two weights and never adds them, so any strictly increasing
+change of the weights makes the same accept/reject decisions. A shortest
+path <strong>adds</strong> weights along the path, so a change that is
+not a scaling can make a different path win. (Squaring and adding a
+constant both break it: adding <span class="math inline">c</span>
+punishes paths with many edges.)</p>
+<p>Check by brute force: on 2000 random graphs with distinct weights,
+the MST did not change in any of them under <span
+class="math inline">w\to w^2</span> or <span class="math inline">w\to
+w+50</span> (2000 of 2000). The shortest-path tree from vertex 0 changed
+in 838 graphs (<span class="math inline">w^2</span>) and 820 graphs
+(<span class="math inline">w+50</span>).</p>
+<p><strong>(e)</strong> Prim and Kruskal still work when weights are
+negative, because only the order matters (the AY24/25 S1 paper, Q2(c)).
+Dijkstra fails, because it relies on a path never getting shorter when
+you add an edge.</p>
+</div>
+</details>
+<h3 id="problem-2-prim-and-dijkstra-differ-in-one-line">Problem 2: Prim
+and Dijkstra differ in one line</h3>
+<div class="q">
+<p>Vertices <span class="math inline">0,1,2,3</span> and edges <span
+class="math inline">01=2</span>, <span class="math inline">12=3</span>,
+<span class="math inline">02=4</span>, <span
+class="math inline">23=3</span>, <span class="math inline">13=5</span>.
+<strong>(a)</strong> Run Prim from vertex 0. List the tree edges and the
+total weight. <strong>(b)</strong> Run Dijkstra from vertex 0. List the
+tree edges (<span class="math inline">\pi</span> links) and the total
+weight. <strong>(c)</strong> Which single quantity in the update step is
+different between the two? <strong>(d)</strong> Which tree is the right
+answer to which question?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(a)</strong> Take <span class="math inline">01</span> (2).
+The fringe is <span class="math inline">2</span> (via 4) and <span
+class="math inline">1\to2</span> is 3, so take <span
+class="math inline">12</span> (3). Then take <span
+class="math inline">23</span> (3). Tree <span
+class="math inline">=\{01,12,23\}</span>, weight <strong>8</strong>.</p>
+<p><strong>(b)</strong> Distances: <span
+class="math inline">d_1=2</span>, <span
+class="math inline">d_2=4</span>. Extract 1: <span
+class="math inline">d_3=2+5=7</span>; <span
+class="math inline">d_2</span> stays 4 (<span
+class="math inline">2+3=5&gt;4</span>). Extract 2: <span
+class="math inline">4+3=7</span> is not smaller than 7, so <span
+class="math inline">\pi_3</span> stays 1. Tree <span
+class="math inline">=\{01,02,13\}</span>, weight <strong>11</strong>,
+and <span class="math inline">d=(0,2,4,7)</span>.</p>
+<p><strong>(c)</strong> Prim updates a fringe vertex <span
+class="math inline">v</span> if the edge is lighter than its key:
+<code>if w(u,v) &lt; key[v]</code>. Dijkstra updates if the whole path
+is shorter: <code>if d[u] + w(u,v) &lt; d[v]</code>. The priority queue,
+the extract-min loop and the <span class="math inline">\pi</span> array
+are the same, so both cost <span class="math inline">O((V+E)\lg
+V)</span> with a heap.</p>
+<p><strong>(d)</strong> Prim’s tree has the smallest <strong>total
+weight</strong> (8 against 11). Dijkstra’s tree gives every vertex its
+smallest <strong>distance from the source</strong> (vertex 2 is at
+distance 4, but in Prim’s tree it is at distance <span
+class="math inline">2+3=5</span>). Neither tree is best at the other’s
+goal. BFS is Dijkstra when all weights are 1.</p>
+</div>
+</details>
+<h3
+id="problem-3-how-close-is-mergesort-to-the-decision-tree-bound">Problem
+3: how close is Mergesort to the decision-tree bound?</h3>
+<div class="q">
+<p>For <span class="math inline">n=1,\dots,8</span> compute
+<strong>(a)</strong> the lower bound <span class="math inline">\lceil\lg
+n!\rceil</span>, <strong>(b)</strong> Mergesort’s worst case <span
+class="math inline">W(n)=W(\lceil n/2\rceil)+W(\lfloor
+n/2\rfloor)+n-1</span> with <span class="math inline">W(1)=0</span>,
+<strong>(c)</strong> Insertion sort’s worst case <span
+class="math inline">n(n-1)/2</span>. <strong>(d)</strong> For which
+<span class="math inline">n</span> does Mergesort meet the bound
+exactly? <strong>(e)</strong> What does the gap tell you, and what does
+it not tell you?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The values, computed by code:</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">n</span></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">\lceil\lg n!\rceil</span></td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>5</td>
+<td>7</td>
+<td>10</td>
+<td>13</td>
+<td>16</td>
+</tr>
+<tr>
+<td>Mergesort worst</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>5</td>
+<td>8</td>
+<td>11</td>
+<td>14</td>
+<td>17</td>
+</tr>
+<tr>
+<td>Insertion worst</td>
+<td>0</td>
+<td>1</td>
+<td>3</td>
+<td>6</td>
+<td>10</td>
+<td>15</td>
+<td>21</td>
+<td>28</td>
+</tr>
+</tbody>
+</table>
+<p><strong>(d)</strong> For <span class="math inline">n\le4</span>
+Mergesort meets the bound exactly (insertion sort only for <span
+class="math inline">n\le3</span>). <strong>(e)</strong> From <span
+class="math inline">n=5</span> the bound is 7 and Mergesort needs 8. The
+decision-tree bound says no comparison sort can do better than 7. It
+does <strong>not</strong> say 7 is reachable. (Not in the lecture: for
+<span class="math inline">n=5</span> a different algorithm, merge
+insertion, does reach 7.) The gap stays tiny: continuing the table,
+<span class="math inline">W(n)-\lceil\lg
+n!\rceil=0,0,0,0,1,1,1,1,2,3,3,4</span> for <span
+class="math inline">n=1,\dots,12</span>. Both are <span
+class="math inline">n\lg n-\Theta(n)</span>, which is why <span
+class="math inline">\Omega(n\lg n)</span> is <strong>tight</strong>:
+Mergesort and Heapsort are asymptotically optimal, while insertion sort
+(<span class="math inline">n^2/2</span>) falls away from the bound
+already at <span class="math inline">n=4</span>.</p>
+</div>
+</details>
+<h3 id="problem-4-heap-construction-and-the-bits-of-n">Problem 4: heap
+construction and the bits of <span class="math inline">n</span></h3>
+<div class="q">
+<p>In a heap of <span class="math inline">n</span> nodes let the height
+of a node be the length of the longest downward path (leaves have height
+0). <strong>(a)</strong> Compute the sum of all node heights for <span
+class="math inline">n=1,\dots,8</span> and compare it with <span
+class="math inline">n-s(n)</span>, where <span
+class="math inline">s(n)</span> is the number of 1-bits in the binary
+form of <span class="math inline">n</span>. <strong>(b)</strong> Use the
+sum to bound the number of levels that <code>constructHeap</code> can
+sink keys, and so its comparisons. <strong>(c)</strong> Brute force over
+all orderings gives the <strong>worst-case</strong> comparisons of
+<code>constructHeap</code> for <span
+class="math inline">n=1,\dots,8</span> as <span
+class="math inline">0,1,2,4,6,7,8,11</span>. Compare with <span
+class="math inline">2n-2s(n)-e(n)</span>, where <span
+class="math inline">e(n)</span> is the number of trailing zero bits of
+<span class="math inline">n</span>. <strong>(d)</strong> What does the
+formula give for a perfect tree, <span
+class="math inline">n=2^k-1</span>? <strong>(e)</strong> How many
+comparisons does a decreasing array of 10 keys need?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(a)</strong> The sums are <span
+class="math inline">0,1,1,3,3,4,4,7</span>, and <span
+class="math inline">n-s(n)=0,1,1,3,3,4,4,7</span>: equal. Example <span
+class="math inline">n=8</span>: the root has height 3, node 1 has height
+2, nodes 2 and 3 have height 1, the rest 0, so <span
+class="math inline">3+2+1+1=7=8-1</span>. The identity was checked for
+every <span class="math inline">n&lt;200</span>.</p>
+<p><strong>(b)</strong> <code>fixHeap</code> on a node of height <span
+class="math inline">h</span> sinks the key at most <span
+class="math inline">h</span> levels. So <code>constructHeap</code> sinks
+keys at most <span class="math inline">\sum h=n-s(n)&lt;n</span> levels
+in total, with at most 2 comparisons per level, so at most <span
+class="math inline">2(n-s(n))</span> comparisons:
+<strong>linear</strong>. That is the exact reason the build is <span
+class="math inline">O(n)</span>, and the same sum is the sum of the
+series behind <span class="math inline">\sum_h \frac
+n{2^{h+1}}\,h</span>.</p>
+<p><strong>(c)</strong> <span class="math inline">2n-2s(n)-e(n)</span>
+gives <span class="math inline">0,1,2,4,6,7,8,11</span> for <span
+class="math inline">n=1,\dots,8</span>: it matches the brute force in
+all 8 cases. (The formula is a known result, not in the lecture. It was
+checked by brute force only up to <span
+class="math inline">n=8</span>.)</p>
+<p><strong>(d)</strong> For <span class="math inline">n=2^k-1</span> we
+have <span class="math inline">s=k</span> and <span
+class="math inline">e=0</span>, so the worst case is <span
+class="math inline">2n-2\lg(n+1)</span>. Check <span
+class="math inline">n=7</span>: <span class="math inline">14-6=8</span>,
+equal to the brute-force value. The bit count <span
+class="math inline">s(n)</span> is the same quantity as the potential
+<span class="math inline">\Phi</span> (number of 1s) in the
+binary-counter analysis on the amortized page. That is an observation,
+not a proof of a deeper link.</p>
+<p><strong>(e)</strong> A decreasing array of <span
+class="math inline">n=10</span> is already a max-heap: the build costs
+only <span class="math inline">n-1=9</span> comparisons (Tutorial 4 Q2),
+the best case, far from the worst case.</p>
+</div>
+</details>
+<h3 id="problem-5-radix-sort-needs-a-stable-digit-sort">Problem 5: Radix
+sort needs a <strong>stable</strong> digit sort</h3>
+<div class="q">
+<p>Sort <span class="math inline">[21,12,22,11]</span> by LSD Radix
+sort: pass 1 on the units digit, pass 2 on the tens digit.
+<strong>(a)</strong> Do it with a stable digit sort.
+<strong>(b)</strong> Do it again with a digit sort that is correct but
+outputs equal digits in the <strong>reverse</strong> of their arrival
+order. <strong>(c)</strong> Say exactly what pass 2 needs from pass 1.
+<strong>(d)</strong> Which earlier tutorial question builds the bad
+digit sort?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(a)</strong> Pass 1 (units, stable): <span
+class="math inline">21,11,12,22</span>. Pass 2 (tens, stable): tens 1
+keeps <span class="math inline">11,12</span>, tens 2 keeps <span
+class="math inline">21,22</span>. Result <span
+class="math inline">[11,12,21,22]</span>: sorted.</p>
+<p><strong>(b)</strong> Pass 1 (units, ties reversed): units 1 arrive as
+<span class="math inline">21,11</span> and leave as <span
+class="math inline">11,21</span>; units 2 arrive as <span
+class="math inline">12,22</span> and leave as <span
+class="math inline">22,12</span>. Result <span
+class="math inline">[11,21,22,12]</span>. Pass 2 (tens, ties reversed):
+tens 1 arrive as <span class="math inline">11,12</span> and leave as
+<span class="math inline">12,11</span>; tens 2 arrive as <span
+class="math inline">21,22</span> and leave as <span
+class="math inline">22,21</span>. Result <span
+class="math inline">[12,11,22,21]</span>: the tens are right but the
+units are in the wrong order. <strong>Not sorted.</strong> Even an input
+that is already sorted fails: of the 24 orderings of three keys from
+<span class="math inline">\{11,12,21,22\}</span>, all 24 come out
+wrong.</p>
+<p><strong>(c)</strong> Pass 2 only looks at the tens digit. Keys with
+equal tens must stay in the order pass 1 gave them (sorted by units).
+That is what “stable” means, and it is how information from the earlier
+pass survives. The correctness proof of Radix sort is an induction on
+the passes that uses exactly this.</p>
+<p><strong>(d)</strong> Tutorial 3 Q2: running the last loop of Counting
+sort <strong>forwards</strong> still sorts, but it reverses equal keys,
+so it is not stable. It is a correct sort and a wrong digit sort for
+Radix sort.</p>
+</div>
+</details>
+<h3 id="problem-6-one-triangle-four-problems">Problem 6: one triangle,
+four problems</h3>
+<div class="q">
+<p><strong>(a)</strong> A robot on a <span
+class="math inline">4\times4</span> grid moves only down or right. Fill
+in <span class="math inline">C(i,j)</span>, the number of paths from the
+top-left cell to cell <span class="math inline">(i,j)</span>.
+<strong>(b)</strong> Compare <span class="math inline">C(3,3)</span>
+with the binomial coefficient <span class="math inline">\binom63</span>.
+<strong>(c)</strong> Run the “distance and count” version of Dijkstra
+(Tutorial 5 Q2) on the same grid as a unit-weight graph with down/right
+edges. How many shortest paths reach the far corner?
+<strong>(d)</strong> The plain recursion <span
+class="math inline">C(i,j)=C(i-1,j)+C(i,j-1)</span> with <span
+class="math inline">C=1</span> on the first row and column: how many
+calls does it make for <span class="math inline">C(3,3)</span>? Give the
+general formula.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(a)</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><span class="math inline">j=0</span></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">i=0</span></td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+</tr>
+<tr>
+<td><span class="math inline">i=1</span></td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr>
+<td><span class="math inline">i=2</span></td>
+<td>1</td>
+<td>3</td>
+<td>6</td>
+<td>10</td>
+</tr>
+<tr>
+<td><span class="math inline">i=3</span></td>
+<td>1</td>
+<td>4</td>
+<td>10</td>
+<td><strong>20</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>(b)</strong> <span
+class="math inline">C(i,j)=\binom{i+j}{i}</span>, so <span
+class="math inline">C(3,3)=\binom63=20</span>. A path is a word of 6
+moves with exactly 3 downs, and choosing the places of the downs gives
+the count. The table is Pascal’s triangle read along its diagonals.</p>
+<p><strong>(c)</strong> In the grid, every path to <span
+class="math inline">(i,j)</span> has exactly <span
+class="math inline">i+j</span> edges, so all paths are shortest and the
+count is the sum of the counts of the two predecessors: the same
+recurrence, so the answer is <strong>20</strong> (checked by running the
+algorithm).</p>
+<p><strong>(d)</strong> The call count <span
+class="math inline">F(i,j)</span> satisfies <span
+class="math inline">F=1</span> on the border and <span
+class="math inline">F(i,j)=1+F(i-1,j)+F(i,j-1)</span>. By induction
+<span class="math inline">F(i,j)=2\binom{i+j}{i}-1</span>: the border
+gives <span class="math inline">2\cdot1-1=1</span>, and the step gives
+<span class="math inline">1+(2a-1)+(2b-1)=2(a+b)-1</span>. So <span
+class="math inline">C(3,3)</span> costs <strong>39 calls</strong>
+against 16 table cells (the sub-problem graph has only 16 nodes). The
+calls grow like <span class="math inline">\binom{2n}{n}\approx
+4^n/\sqrt{\pi n}</span>, exponential: the overlap that makes DP worth
+it. The champagne tower (AY24/25 S2 Q4) has the same shape with a cap
+and a halving.</p>
+</div>
+</details>
+<h3 id="problem-7-alignment-is-lcs-in-disguise">Problem 7: alignment is
+LCS in disguise</h3>
+<div class="q">
+<p>In Tutorial 10 Q5, alignment inserts the gap symbol <code>_</code>
+into <span class="math inline">S_1</span> and <span
+class="math inline">S_2</span> until both have the same length. Each
+column must hold two equal letters or a gap, and the cost is the number
+of gaps. The example <span class="math inline">S_1=\text{ctatg}</span>,
+<span class="math inline">S_2=\text{ttaagc}</span> has cost 5.
+<strong>(a)</strong> Find the longest common subsequence (Tutorial 10
+Q1) of the two strings. <strong>(b)</strong> Express the alignment cost
+with <span class="math inline">|S_1|</span>, <span
+class="math inline">|S_2|</span> and the LCS length, and explain why.
+<strong>(c)</strong> Check the example. <strong>(d)</strong> Compare the
+two recurrences and their sub-problem graphs.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(a)</strong> LCS <span
+class="math inline">=\text{tag}</span>, length 3 (<span
+class="math inline">t</span>, <span class="math inline">a</span>, <span
+class="math inline">g</span> appear in this order in both strings).</p>
+<p><strong>(b)</strong> <strong>Cost <span
+class="math inline">=|S_1|+|S_2|-2\cdot\text{LCS}</span>.</strong> The
+columns with two equal letters form a common subsequence, so at most LCS
+columns can be matched. Every other letter of <span
+class="math inline">S_1</span> (<span
+class="math inline">|S_1|-\text{LCS}</span> of them) needs a gap in
+<span class="math inline">S_2</span> and every other letter of <span
+class="math inline">S_2</span> (<span
+class="math inline">|S_2|-\text{LCS}</span>) needs a gap in <span
+class="math inline">S_1</span>. Taking the longest common subsequence as
+the matched columns minimises the gaps.</p>
+<p><strong>(c)</strong> <span class="math inline">5+6-2\cdot3=5</span>:
+it matches the example. The identity was also checked by dynamic
+programming on 500 random pairs of short strings over <span
+class="math inline">\{a,c,g,t\}</span>.</p>
+<p><strong>(d)</strong> LCS: <span
+class="math inline">L(i,j)=L(i-1,j-1)+1</span> if the letters are equal,
+else <span class="math inline">\max(L(i-1,j),L(i,j-1))</span>.
+Alignment: <span class="math inline">A(i,j)=\min\big(A(i-1,j)+1,\
+A(i,j-1)+1,\ A(i-1,j-1)\text{ if equal}\big)</span> with <span
+class="math inline">A(i,0)=i</span>, <span
+class="math inline">A(0,j)=j</span>. Same <span
+class="math inline">(n+1)(m+1)</span> nodes and the same three arrows
+per node, so both take <span class="math inline">\Theta(nm)</span> time
+and space. Maximising matches and minimising gaps are the same problem
+seen from two sides.</p>
+</div>
+</details>
+
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="drill.js"></script>
+</body></html>

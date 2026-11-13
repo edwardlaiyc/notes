@@ -1,0 +1,1372 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>5. Graphs: representation, BFS, DFS, topological sort</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="drill.css">
+</head><body data-page="05-graph-traversal">
+<nav class="top"><a href="index.html">All topics</a><span id="count"></span>
+<label><input type="checkbox" id="onlyshaky"> only shaky</label>
+<button id="export">Copy progress</button></nav>
+<main>
+<h1 id="graphs-representation-bfs-dfs-topological-sort">5. Graphs:
+representation, BFS, DFS, topological sort</h1>
+<h2 id="facts">Facts</h2>
+<div class="q">
+<p>Compare adjacency matrix and adjacency list: space, edge test, and
+listing the neighbours of a vertex.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Matrix</th>
+<th>List</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Space</td>
+<td><span class="math inline">\Theta(\lvert V\rvert^2)</span></td>
+<td><span class="math inline">\Theta(\lvert V\rvert+\lvert
+E\rvert)</span></td>
+</tr>
+<tr>
+<td>Is <span class="math inline">(u,v)</span> an edge?</td>
+<td><span class="math inline">O(1)</span></td>
+<td><span class="math inline">O(\deg u)</span></td>
+</tr>
+<tr>
+<td>List neighbours of <span class="math inline">u</span></td>
+<td><span class="math inline">\Theta(\lvert V\rvert)</span></td>
+<td><span class="math inline">\Theta(\deg u)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Use a list for sparse graphs and a matrix for dense graphs or when
+you need constant-time edge tests.</p>
+</div>
+</details>
+<div class="q">
+<p>Running time of BFS and DFS with each representation.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Adjacency list: <span class="math inline">\Theta(|V|+|E|)</span>.
+Adjacency matrix: <span class="math inline">\Theta(|V|^2)</span>,
+because finding the neighbours of each vertex scans a whole row.</p>
+</div>
+</details>
+<div class="q">
+<p>Describe BFS: data structure, what it computes, and its tree
+property.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Uses a <strong>FIFO queue</strong>. Visits vertices in order of
+distance from the source <span class="math inline">s</span>. In an
+<strong>unweighted</strong> graph it gives the
+<strong>fewest-edge</strong> path to every reachable vertex (<span
+class="math inline">d[v]</span> = number of edges). Every edge joins
+vertices whose levels differ by at most 1 (undirected: same level or
+adjacent levels).</p>
+</div>
+</details>
+<div class="q">
+<p>Describe DFS: data structure, colours, and the timestamps.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Uses a <strong>stack</strong> (or recursion). White = undiscovered,
+gray = discovered and still being explored, black = finished. <span
+class="math inline">d[v]</span> is the discovery time and <span
+class="math inline">f[v]</span> the finishing time, with <span
+class="math inline">d[v]&lt;f[v]</span>. Time increases by 1 at each
+discovery and each finish, so the values run from 1 to <span
+class="math inline">2|V|</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>State the white-path style rule that classifies a directed edge <span
+class="math inline">(u,v)</span> in DFS.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>When DFS examines <span class="math inline">(u,v)</span> from <span
+class="math inline">u</span>:</p>
+<ul>
+<li><span class="math inline">v</span> white: <strong>tree</strong>
+edge.</li>
+<li><span class="math inline">v</span> gray: <strong>back</strong> edge
+(<span class="math inline">v</span> is an ancestor of <span
+class="math inline">u</span>): a cycle.</li>
+<li><span class="math inline">v</span> black and <span
+class="math inline">d[u]&lt;d[v]</span>: <strong>forward</strong> edge
+(<span class="math inline">v</span> is a descendant).</li>
+<li><span class="math inline">v</span> black and <span
+class="math inline">d[v]&lt;d[u]</span>: <strong>cross</strong>
+edge.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p>Which edge types exist in an undirected graph’s DFS?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Only <strong>tree</strong> and <strong>back</strong> edges. Forward
+and cross edges cannot occur, because an undirected edge would have been
+explored from the other end as a tree or back edge first.</p>
+</div>
+</details>
+<div class="q">
+<p>How do you detect a cycle with DFS? With BFS?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Directed: a cycle exists iff DFS finds a <strong>back edge</strong>
+(an edge to a gray vertex). Undirected: any non-tree edge (a back edge
+to a vertex other than the parent) closes a cycle. BFS: in an undirected
+graph an edge to an already-visited non-parent vertex means a cycle.</p>
+</div>
+</details>
+<div class="q">
+<p>What is a topological order? Which graphs have one?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A linear order of the vertices such that for every edge <span
+class="math inline">(u,v)</span>, <span class="math inline">u</span>
+comes before <span class="math inline">v</span>. It exists iff the
+directed graph is a <strong>DAG</strong> (no directed cycle). It is not
+unique in general.</p>
+</div>
+</details>
+<div class="q">
+<p>Give the two ways to compute a topological order and their cost.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Kahn:</strong> repeatedly remove a vertex of in-degree 0 and
+decrease its neighbours’ in-degrees. If vertices remain and none has
+in-degree 0, there is a cycle.</li>
+<li><strong>DFS:</strong> output vertices in <strong>decreasing
+finishing time</strong> <span class="math inline">f</span>.</li>
+</ul>
+<p>Both <span class="math inline">\Theta(|V|+|E|)</span> with adjacency
+lists.</p>
+</div>
+</details>
+<div class="q">
+<p>In BFS or DFS, can a black vertex have a white neighbour? Why is this
+the key invariant?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Never. A vertex turns black only after all its neighbours were
+discovered. So the set of black vertices is closed: it separates the
+visited part from the white part, and this gives correctness of both
+searches.</p>
+</div>
+</details>
+<div class="q">
+<p>How do you count connected components of an undirected graph?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Start a BFS or DFS from every still-white vertex. The number of
+starts is the number of components. Cost <span
+class="math inline">\Theta(|V|+|E|)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Why does BFS fail as a shortest-path algorithm on weighted
+graphs?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>BFS minimises the <strong>number of edges</strong>, not the total
+weight. A path with more edges can be lighter. Dijkstra generalises BFS
+by replacing the FIFO queue with a priority queue ordered by
+distance.</p>
+</div>
+</details>
+<h2 id="problems">Problems</h2>
+<h3 id="problem-1-one-directed-graph-four-tasks">Problem 1: one directed
+graph, four tasks</h3>
+<figure>
+<img src="fig/g5.svg" alt="Directed graph" />
+<figcaption aria-hidden="true">Directed graph</figcaption>
+</figure>
+<p>Neighbours are always taken in alphabetical order. Start from <span
+class="math inline">A</span>.</p>
+<div class="q">
+<p><strong>(a)</strong> Run BFS from <span class="math inline">A</span>.
+Give the visit order and the level of each vertex.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Visit order <span class="math inline">A,B,D,C,E,F,G</span>. Levels:
+<span class="math inline">A</span> 0; <span
+class="math inline">B,D</span> 1; <span class="math inline">C,E</span>
+2; <span class="math inline">F</span> 3; <span
+class="math inline">G</span> 4. <span class="math inline">C</span> is at
+level 2 via <span class="math inline">B</span> or <span
+class="math inline">D</span> (not 1 via <span
+class="math inline">A</span>, since <span class="math inline">C\to
+A</span> points the other way).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Run a DFS from <span
+class="math inline">A</span> (then restart at any white vertex). Give
+<span class="math inline">d/f</span> for every vertex and classify every
+edge.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<table>
+<thead>
+<tr>
+<th>Vertex</th>
+<th><span class="math inline">d</span></th>
+<th><span class="math inline">f</span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>1</td>
+<td>14</td>
+</tr>
+<tr>
+<td>B</td>
+<td>2</td>
+<td>13</td>
+</tr>
+<tr>
+<td>C</td>
+<td>3</td>
+<td>4</td>
+</tr>
+<tr>
+<td>E</td>
+<td>5</td>
+<td>12</td>
+</tr>
+<tr>
+<td>F</td>
+<td>6</td>
+<td>11</td>
+</tr>
+<tr>
+<td>D</td>
+<td>7</td>
+<td>8</td>
+</tr>
+<tr>
+<td>G</td>
+<td>9</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<p>Edge types: <span class="math inline">A\to B</span>, <span
+class="math inline">B\to C</span>, <span class="math inline">B\to
+E</span>, <span class="math inline">E\to F</span>, <span
+class="math inline">F\to D</span>, <span class="math inline">F\to
+G</span> are <strong>tree</strong>. <span class="math inline">A\to
+D</span> is <strong>forward</strong> (<span class="math inline">D</span>
+is a black descendant, <span class="math inline">d[A]&lt;d[D]</span>).
+<span class="math inline">D\to C</span> is <strong>cross</strong> (<span
+class="math inline">C</span> is black and finished earlier, <span
+class="math inline">d[C]&lt;d[D]</span>). <span class="math inline">C\to
+A</span> and <span class="math inline">D\to E</span> are
+<strong>back</strong> (they point to gray ancestors).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(c)</strong> Which cycles do the back edges expose?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">C\to A</span> closes <span
+class="math inline">A\to B\to C\to A</span>. <span
+class="math inline">D\to E</span> closes <span class="math inline">E\to
+F\to D\to E</span>. So the graph is not a DAG, and it has no topological
+order.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(d)</strong> Delete both back edges. Give a topological order
+using each method.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Kahn (queue starts with the in-degree-0 vertex <span
+class="math inline">A</span>): <span
+class="math inline">A,B,E,F,D,G,C</span>. DFS decreasing finish time
+(restarting DFS on the new graph): <span
+class="math inline">A,B,E,F,G,D,C</span>. Both orders are valid: check
+every remaining edge goes left to right. They differ because a
+topological order is not unique (<span class="math inline">G</span> and
+<span class="math inline">D</span> are unrelated).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(e)</strong> Link to Dijkstra: if every edge had weight 1,
+what would Dijkstra’s priority queue pop order look like compared with
+BFS?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The same distances, and a pop order that is a BFS order (ties may be
+broken differently). BFS is Dijkstra with unit weights, where a FIFO
+queue already keeps the distances in sorted order, so no heap is needed.
+Running time falls from <span class="math inline">O(|E|\log|V|)</span>
+to <span class="math inline">\Theta(|V|+|E|)</span>.</p>
+</div>
+</details>
+<h2 id="past-year-questions">Past-year questions</h2>
+<p>Questions from past papers (SC2001/CZ2101/CE2001). Every answer was
+worked out and checked by code; where a circulated official solution
+exists it was compared, and disagreements are flagged.</p>
+<div class="q">
+<p><strong>AY25/26 S2 1(e)</strong> Graphs (<span
+class="math inline">n</span> vertices, <span
+class="math inline">m</span> edges). A. When the graph is sparse (<span
+class="math inline">m=O(n)</span>), an adjacency matrix is preferred
+over an adjacency list. B. In DFS and BFS, a black node can have a white
+neighbour. C. In DFS and BFS, a black node can have a gray neighbour. D.
+If the graph is not connected, the BFS given in the lecture can visit
+all vertices. E. If the graph is not connected, the DFS algorithm given
+in the lecture can visit all vertices.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>C and E.</strong></p>
+<ul>
+<li>A false: a sparse graph wastes <span
+class="math inline">\Theta(n^2)</span> space in a matrix, and a list
+needs <span class="math inline">\Theta(n+m)</span>.</li>
+<li>B false: the black-white invariant, a black vertex never has a white
+neighbour.</li>
+<li>C true: when a vertex finishes (black) its neighbours are all
+discovered, but some may still be gray. In DFS the gray neighbour is an
+ancestor still on the stack; in BFS it is a vertex waiting in the
+queue.</li>
+<li>D false: the lecture’s BFS starts from one source <span
+class="math inline">s</span> and reaches only <span
+class="math inline">s</span>’s component.</li>
+<li>E true: the lecture’s DFS has an outer loop that restarts at every
+white vertex, so it visits everything.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY20/21 S2 3(a)</strong> Give the adjacency matrix and
+adjacency list representations of the graph in Figure Q3, respectively.
+For the matrix, please use <span class="math inline">\infty</span> to
+denote the edge value between two nodes without an edge.</p>
+<figure>
+<img src="img/pyp/2021s2_q3a.png"
+alt="Figure Q3 (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q3 (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The graph is undirected, with the edges <span
+class="math inline">AB\,4</span>, <span
+class="math inline">AC\,4</span>, <span
+class="math inline">BC\,2</span>, <span
+class="math inline">CD\,3</span>, <span
+class="math inline">CE\,2</span>, <span
+class="math inline">CF\,4</span>, <span
+class="math inline">DF\,2</span>, <span
+class="math inline">EF\,3</span>.</p>
+<p><strong>Adjacency matrix</strong> (symmetric; a vertex has 0 to
+itself):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+<th>E</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A</strong></td>
+<td>0</td>
+<td>4</td>
+<td>4</td>
+<td>∞</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>B</strong></td>
+<td>4</td>
+<td>0</td>
+<td>2</td>
+<td>∞</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>C</strong></td>
+<td>4</td>
+<td>2</td>
+<td>0</td>
+<td>3</td>
+<td>2</td>
+</tr>
+<tr>
+<td><strong>D</strong></td>
+<td>∞</td>
+<td>∞</td>
+<td>3</td>
+<td>0</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>E</strong></td>
+<td>∞</td>
+<td>∞</td>
+<td>2</td>
+<td>∞</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>F</strong></td>
+<td>∞</td>
+<td>∞</td>
+<td>4</td>
+<td>2</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Adjacency list</strong> (each edge appears twice; the pairs
+are (neighbour, weight)):</p>
+<ul>
+<li>A: (B,4) → (C,4)</li>
+<li>B: (A,4) → (C,2)</li>
+<li>C: (A,4) → (B,2) → (D,3) → (E,2) → (F,4)</li>
+<li>D: (C,3) → (F,2)</li>
+<li>E: (C,2) → (F,3)</li>
+<li>F: (C,4) → (D,2) → (E,3)</li>
+</ul>
+<p>(Any order within a list is acceptable.)</p>
+<p><strong>Link.</strong> The matrix has <span
+class="math inline">6\times6=36</span> cells for 8 edges, and 20 of them
+are 0 or <span class="math inline">\infty</span> (6 diagonal zeros and
+14 missing edges); the lists hold <span
+class="math inline">2\times8=16</span> entries. The graph is sparse
+(<span class="math inline">E\ll V^2</span>), so the list is the better
+representation, as on the graph traversal page. Notice also the high
+degree of <span class="math inline">C</span> (5): it is joined to every
+other vertex.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY19/20 S1 3(a)</strong> A weighted undirected graph <span
+class="math inline">G</span> is shown in Figure Q3. Run breadth-first
+search (BFS) on <span class="math inline">G</span>, starting from vertex
+C and visiting the neighbors of each vertex in reverse alphabetical
+order. Draw the BFS tree.</p>
+<figure>
+<img src="img/pyp/1920s1_q3.png"
+alt="Figure Q3 (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q3 (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Edges (BFS ignores the weights): <span
+class="math inline">AB,AG,AF,BG,BC,GI,GH,FI,FE,IH,IE,HC,HD,ED,CD</span>.
+The queue starts with <span class="math inline">C</span>; each vertex’s
+undiscovered neighbours are added in reverse alphabetical order.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>dequeue</th>
+<th>neighbours (reverse alphabetical)</th>
+<th>newly discovered, in order</th>
+<th>queue after</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C</td>
+<td>H, D, B</td>
+<td>H, D, B (parent C)</td>
+<td>H, D, B</td>
+</tr>
+<tr>
+<td>H</td>
+<td>I, G, D, C</td>
+<td>I, G (parent H)</td>
+<td>D, B, I, G</td>
+</tr>
+<tr>
+<td>D</td>
+<td>H, E, C</td>
+<td>E (parent D)</td>
+<td>B, I, G, E</td>
+</tr>
+<tr>
+<td>B</td>
+<td>G, C, A</td>
+<td>A (parent B)</td>
+<td>I, G, E, A</td>
+</tr>
+<tr>
+<td>I</td>
+<td>H, G, F, E</td>
+<td>F (parent I)</td>
+<td>G, E, A, F</td>
+</tr>
+<tr>
+<td>G</td>
+<td>all already discovered</td>
+<td>none</td>
+<td>E, A, F</td>
+</tr>
+<tr>
+<td>E, A, F</td>
+<td>all already discovered</td>
+<td>none</td>
+<td>empty</td>
+</tr>
+</tbody>
+</table>
+<p>BFS order <span class="math inline">C,H,D,B,I,G,E,A,F</span>.
+<strong>BFS tree edges:</strong> <span class="math inline">CH</span>,
+<span class="math inline">CD</span>, <span
+class="math inline">CB</span>, <span class="math inline">HI</span>,
+<span class="math inline">HG</span>, <span
+class="math inline">DE</span>, <span class="math inline">BA</span>,
+<span class="math inline">IF</span> (8 edges for 9 vertices).</p>
+<figure>
+<img src="fig/pyp1920s1_bfs.svg" alt="The BFS tree from C" />
+<figcaption aria-hidden="true">The BFS tree from C</figcaption>
+</figure>
+<p>Levels: C (0); H, D, B (1); I, G, E, A (2); F (3). (Checked by
+code.)</p>
+<p><strong>Link.</strong> The level of a vertex is its
+<strong>fewest-edge distance</strong> from C, so BFS solves the
+unweighted shortest path problem. Compare the weighted graph: the edge
+<span class="math inline">HD=8</span> is heavy but <span
+class="math inline">D</span> is still at level 1, because BFS does not
+look at weights. The tree is not unique; the neighbour order decides it,
+which is why the question fixes the order.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S2 3(a)</strong> Give the adjacency matrix and
+adjacency list representations of the graph in Figure Q3, respectively.
+For matrix, (row, column) denotes the edge direction, e.g., the entry in
+(A,B) is 5 and (B,A) is <span class="math inline">\infty</span>.</p>
+<figure>
+<img src="img/pyp/1819s2_q3.png"
+alt="Figure Q3 (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q3 (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The graph is directed, with edges <span class="math inline">A\to
+B\,5</span>, <span class="math inline">A\to C\,1</span>, <span
+class="math inline">C\to B\,4</span>, <span class="math inline">C\to
+E\,-3</span>, <span class="math inline">D\to B\,1</span>, <span
+class="math inline">D\to C\,2</span>, <span class="math inline">E\to
+D\,-2</span>.</p>
+<p><strong>Adjacency matrix</strong> (row = source, column =
+destination; <span class="math inline">\infty</span> = no edge; the
+diagonal is 0 by convention):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>A</th>
+<th>B</th>
+<th>C</th>
+<th>D</th>
+<th>E</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A</strong></td>
+<td>0</td>
+<td>5</td>
+<td>1</td>
+<td>∞</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>B</strong></td>
+<td>∞</td>
+<td>0</td>
+<td>∞</td>
+<td>∞</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>C</strong></td>
+<td>∞</td>
+<td>4</td>
+<td>0</td>
+<td>∞</td>
+<td>-3</td>
+</tr>
+<tr>
+<td><strong>D</strong></td>
+<td>∞</td>
+<td>1</td>
+<td>2</td>
+<td>0</td>
+<td>∞</td>
+</tr>
+<tr>
+<td><strong>E</strong></td>
+<td>∞</td>
+<td>∞</td>
+<td>∞</td>
+<td>-2</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Adjacency list</strong> (out-neighbours, as (vertex,
+weight)):</p>
+<ul>
+<li>A: (C,1) → (B,5)</li>
+<li>B: empty</li>
+<li>C: (E,-3) → (B,4)</li>
+<li>D: (B,1) → (C,2)</li>
+<li>E: (D,-2)</li>
+</ul>
+<p>(Any order in a list is acceptable.)</p>
+<p><strong>Link.</strong> B has no out-edges, so it is a
+<strong>sink</strong>: its matrix row is all <span
+class="math inline">\infty</span> and its list is empty. The cycle <span
+class="math inline">C\to E\to D\to C</span> has weight <span
+class="math inline">-3-2+2=-3</span> (negative), which is what makes
+part (c) interesting.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S2 3(b)</strong> (i) From node A, draw the DFS (depth
+first search) tree of the graph in Figure Q3. (ii) Justify which
+representation (matrix or list) is more efficient for DFS.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> Visit neighbours in alphabetical order. From A:
+neighbours B, C: go to <strong>B</strong>; B has no out-edges, so it
+finishes. Back at A: next neighbour <strong>C</strong>; from C:
+neighbours B (already visited), E: go to <strong>E</strong>; from E:
+neighbour <strong>D</strong>; from D: neighbours B and C are both
+already discovered, so D finishes; then E, C and A finish. <strong>DFS
+tree edges:</strong> <span class="math inline">A\to B</span>, <span
+class="math inline">A\to C</span>, <span class="math inline">C\to
+E</span>, <span class="math inline">E\to D</span>.</p>
+<figure>
+<img src="fig/pyp1819s2_dfs.svg" alt="DFS tree from A" />
+<figcaption aria-hidden="true">DFS tree from A</figcaption>
+</figure>
+<p>The edge <span class="math inline">D\to C</span> goes back to the
+ancestor C: a <strong>back edge</strong>, which shows the cycle <span
+class="math inline">C\to E\to D\to C</span>.</p>
+<p><strong>(ii) The adjacency list is more efficient.</strong> With a
+list DFS looks at each vertex once and each edge once: <span
+class="math inline">O(V+E)</span>. With a matrix, finding the neighbours
+of a vertex means scanning a whole row of length <span
+class="math inline">V</span>, so DFS costs <span
+class="math inline">O(V^2)</span> whatever the number of edges. The list
+also needs <span class="math inline">O(V+E)</span> space against <span
+class="math inline">O(V^2)</span>. (For a very dense graph, <span
+class="math inline">E\approx V^2</span>, the two are equal.)</p>
+<p>(Flag: the circulated solution argues that sorted lists make DFS
+return a minimum-cost path. That is false: DFS follows the first
+unvisited neighbour deep and does not minimise any cost. The valid
+reason is <span class="math inline">O(V+E)</span> against <span
+class="math inline">O(V^2)</span>.)</p>
+<p><strong>Link.</strong> Here <span class="math inline">V=5</span> and
+<span class="math inline">E=7</span>, so <span
+class="math inline">V+E=12</span> against <span
+class="math inline">V^2=25</span> matrix cells: the list wins even on
+this tiny graph. The DFS tree is a spanning tree of the vertices
+reachable from A, but it is not a <em>minimum</em> one and not a
+shortest-path tree (the path <span class="math inline">A\to C\to E\to
+D</span> has weight <span class="math inline">-4</span> while the tree
+path to B is the direct edge, weight 5).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S1 4(a)(i)</strong> A weighted directed graph <span
+class="math inline">G</span> is represented by the array of adjacency
+lists: a: (d,1) (b,2); b: (d,3) (e,10); c: (a,4) (f,5); d: (e,2) (c,2)
+(g,4) (f,8); e: (g,6); f: (empty); g: (f,1). Run depth-first search
+(DFS) on <span class="math inline">G</span>, starting from vertex b and
+visiting the neighbors of each vertex in alphabetical order. Draw the
+DFS tree.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Visit the neighbours alphabetically, and go deeper at once. From b:
+neighbours d, e: go to <strong>d</strong>. From d: neighbours c, e, f,
+g: go to <strong>c</strong>. From c: neighbours a, f: go to
+<strong>a</strong>. From a: neighbours b, d are both discovered, so a
+finishes. Back at c: next neighbour <strong>f</strong> (no out-edges):
+finishes. c finishes. Back at d: next neighbour <strong>e</strong>; from
+e: neighbour <strong>g</strong>; from g: neighbour f is discovered, so g
+finishes, then e finishes. At d the remaining neighbours g and f are
+already discovered, so d finishes, then b (its neighbour e is
+discovered) finishes.</p>
+<p>DFS order <span class="math inline">b,d,c,a,f,e,g</span>; finishing
+order <span class="math inline">a,f,c,g,e,d,b</span>. <strong>DFS tree
+edges:</strong> <span class="math inline">b\to d</span>, <span
+class="math inline">d\to c</span>, <span class="math inline">c\to
+a</span>, <span class="math inline">c\to f</span>, <span
+class="math inline">d\to e</span>, <span class="math inline">e\to
+g</span> (6 edges for 7 vertices, all reachable from b).</p>
+<figure>
+<img src="fig/pyp1819s1_dfs.svg" alt="DFS tree from b" />
+<figcaption aria-hidden="true">DFS tree from b</figcaption>
+</figure>
+<p><strong>Link.</strong> DFS classifies the edges that are not in the
+tree: <span class="math inline">a\to b</span> and <span
+class="math inline">a\to d</span> are <strong>back edges</strong> (to an
+ancestor), <span class="math inline">b\to e</span>, <span
+class="math inline">d\to f</span> and <span class="math inline">d\to
+g</span> are <strong>forward edges</strong> (to a descendant reached
+another way), and <span class="math inline">g\to f</span> is a
+<strong>cross edge</strong>. A back edge signals a cycle in a directed
+graph: <span class="math inline">a\to b</span> closes <span
+class="math inline">b\to d\to c\to a\to b</span>, and <span
+class="math inline">a\to d</span> closes <span class="math inline">d\to
+c\to a\to d</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY17/18 S1 4(a)</strong> Consider a weighted directed graph
+<span class="math inline">G</span> shown in Figure Q4 (vertices 1 to 5;
+edges <span class="math inline">1\to2\,(4)</span>, <span
+class="math inline">1\to3\,(2)</span>, <span
+class="math inline">2\to3\,(1)</span>, <span
+class="math inline">2\to5\,(4)</span>, <span
+class="math inline">4\to1\,(6)</span>, <span
+class="math inline">5\to2\,(3)</span>, <span
+class="math inline">5\to4\,(1)</span>). (i) Draw the representation of
+graph <span class="math inline">G</span> using an array of adjacency
+lists. (ii) In the array of adjacency lists, each list node contains a
+vertex label, an edge weight and a list reference. Assume that each
+vertex label requires one word, a list reference requires one word, and
+an edge weight requires one word. How many words of memory would be
+needed to represent graph <span class="math inline">G</span> using an
+array of adjacency lists? Briefly justify your answer.</p>
+<figure>
+<img src="img/pyp/1718s1_q4.png"
+alt="Figure Q4 (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q4 (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> Array indexed by the vertex, each entry the head
+of a list of (neighbour, weight):</p>
+<ul>
+<li>1: (2,4) → (3,2)</li>
+<li>2: (3,1) → (5,4)</li>
+<li>3: empty</li>
+<li>4: (1,6)</li>
+<li>5: (2,3) → (4,1)</li>
+</ul>
+<p><strong>(ii)</strong> There are 7 edges, so 7 list nodes, each with a
+vertex label, an edge weight and a list reference: <span
+class="math inline">3\times7=21</span> words. The array itself holds one
+list reference (head pointer) per vertex: <span
+class="math inline">5</span> words. <strong>Total <span
+class="math inline">21+5=26</span> words.</strong> In general <span
+class="math inline">3E+V</span> words. (The circulated answer lists only
+the per-node sizes; if the array slots are not counted, the answer is
+21. State the assumption.)</p>
+<p><strong>Link.</strong> The memory is <span
+class="math inline">\Theta(V+E)</span>, against <span
+class="math inline">V^2=25</span> words for an adjacency matrix (one
+weight per cell). For this small graph the two are close, but the list
+wins as soon as the graph is sparse.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY17/18 S1 4(b)</strong> Run depth-first search (DFS) on
+graph <span class="math inline">G</span> in Figure Q4, starting from
+vertex 1, visiting the neighbours of each vertex in increasing order of
+the keys. List the order of vertices being visited by the DFS traversal,
+and draw the DFS tree.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>From 1: neighbours 2, 3: go to <strong>2</strong>. From 2: neighbours
+3, 5: go to <strong>3</strong>; vertex 3 has no out-edges and finishes.
+Back at 2: next neighbour <strong>5</strong>. From 5: neighbours 2
+(already visited) and 4: go to <strong>4</strong>. From 4: neighbour 1
+is visited, so 4 finishes, then 5, then 2. Back at 1: neighbour 3 is
+already visited, so 1 finishes.</p>
+<p><strong>Visiting order: 1, 2, 3, 5, 4.</strong> <strong>DFS tree
+edges:</strong> <span class="math inline">1\to2</span>, <span
+class="math inline">2\to3</span>, <span
+class="math inline">2\to5</span>, <span class="math inline">5\to4</span>
+(checked by code). The edges <span class="math inline">1\to3</span>
+(forward), <span class="math inline">5\to2</span> and <span
+class="math inline">4\to1</span> (back edges) are not in the tree; <span
+class="math inline">4\to1</span> and <span
+class="math inline">5\to2</span> show that <span
+class="math inline">G</span> has cycles (<span
+class="math inline">1\to2\to5\to4\to1</span> and <span
+class="math inline">2\to5\to2</span>).</p>
+<p><strong>Link.</strong> DFS visits all 5 vertices from vertex 1
+because everything is reachable; the tree has 4 edges. The back edges
+are exactly what a topological sort would reject, so this graph is not a
+DAG.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY16/17 S2 4(a)</strong> For depth-first search on a sparse
+graph <span class="math inline">G=(V,E)</span>, where <span
+class="math inline">|E|=O(|V|)</span>, is the adjacency matrix more
+efficient than the array of adjacency lists? Justify your answer.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>No, the adjacency list is more efficient.</strong> DFS with
+lists visits each vertex once and walks each list once: <span
+class="math inline">O(|V|+|E|)=O(|V|)</span> for a sparse graph. With a
+matrix, finding the neighbours of a vertex means scanning its whole row
+of <span class="math inline">|V|</span> cells, so DFS costs <span
+class="math inline">O(|V|^2)</span> whatever the number of edges. Space:
+lists <span class="math inline">O(|V|+|E|)=O(|V|)</span>, matrix <span
+class="math inline">\Theta(|V|^2)</span>, of which only <span
+class="math inline">O(|V|)</span> cells are used (for example 4 of 16
+for a graph with 4 edges on 4 vertices).</p>
+<p><strong>Link.</strong> Matrix and list are only equal when the graph
+is dense (<span class="math inline">|E|=\Theta(|V|^2)</span>). The
+matrix has <span class="math inline">O(1)</span> edge lookup, which DFS
+does not need.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY16/17 S2 4(b)</strong> For the graph in Figure Q4a,
+construct the breadth-first search (BFS) tree, by a BFS traversal
+starting from vertex A. Assume the neighbours of a vertex are visited in
+alphabetical order.</p>
+<figure>
+<img src="img/pyp/1617s2_q4a.png"
+alt="Figure Q4a (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q4a (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Edges: <span class="math inline">AB</span>, <span
+class="math inline">AC</span>, <span class="math inline">AD</span>,
+<span class="math inline">AE</span>, <span
+class="math inline">BD</span>, <span class="math inline">BF</span>,
+<span class="math inline">DF</span>, <span
+class="math inline">CG</span>, <span class="math inline">EG</span>.
+Queue starts with A. Process A: neighbours B, C, D, E (all new, in
+alphabetical order). Process B: neighbours A, D (already discovered) and
+F: F is new (parent B). Process C: neighbours A and G: G is new (parent
+C). Process D: neighbours A, B, F all discovered. Process E: neighbours
+A and G, both discovered. Process F, G: nothing new.</p>
+<p>BFS order <span class="math inline">A,B,C,D,E,F,G</span>. <strong>BFS
+tree edges:</strong> <span class="math inline">AB</span>, <span
+class="math inline">AC</span>, <span class="math inline">AD</span>,
+<span class="math inline">AE</span>, <span
+class="math inline">BF</span>, <span class="math inline">CG</span> (6
+edges for 7 vertices). Levels: A (0); B, C, D, E (1); F, G (2). The
+non-tree edges <span class="math inline">BD</span>, <span
+class="math inline">DF</span> and <span class="math inline">EG</span>
+connect vertices of the same or neighbouring levels. (Checked by
+code.)</p>
+<p><strong>Link.</strong> The level of a vertex is its fewest-edge
+distance from A: F is two edges from A (via B or via D) but BFS records
+the first one found, B, because B comes first alphabetically.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S2 4(a)</strong> To represent a graph, would you use
+an adjacency matrix or an array of adjacency lists in each of the
+following situations? Briefly justify your choice. (i) The graph has
+1,000 vertices and 450,000 edges, and space efficiency is important.
+(ii) The graph has 1,000 vertices and 2,000 edges, and it is important
+to save memory usage. (iii) We need to determine whether two vertices in
+the graph are adjacent or not as fast as possible, whereas space
+efficiency is less important.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Memory: a matrix has <span class="math inline">V^2</span> cells;
+lists need one <strong>list node</strong> per edge entry (a vertex
+label, a weight and a pointer, i.e. 2 to 3 words, as in AY1718 S1 4(a))
+plus <span class="math inline">V</span> head pointers.</p>
+<p><strong>(i) Adjacency matrix.</strong> <span
+class="math inline">V^2=10^6</span> cells. With 450,000 edges the graph
+uses 45% of the cells if the edges are directed (about 90% if
+undirected, where the matrix is symmetric). Lists need one node per
+directed edge entry: for directed edges 450,000 nodes, i.e. 0.9 million
+words with 2-word nodes and 1.35 million with the lecture’s 3-word node
+(label, weight, pointer), against 1 million for the matrix: about the
+same, and the matrix wins with 3-word nodes. For undirected edges the
+lists hold 900,000 entries, i.e. 1.8 to 2.7 million words: the matrix
+wins clearly. (The circulated solution picks lists for the directed
+case, assuming only a 50% overhead per node.)</p>
+<p><strong>(ii) Adjacency list.</strong> 2,000 edges is only 0.2% of the
+<span class="math inline">10^6</span> cells. Lists need about <span
+class="math inline">3\cdot2000+1000=7000</span> words (twice that if
+undirected) against <span class="math inline">10^6</span>.</p>
+<p><strong>(iii) Adjacency matrix.</strong> <code>matrix[u][v]</code> is
+an <span class="math inline">O(1)</span> lookup. In a list the
+neighbours of <span class="math inline">u</span> must be scanned: <span
+class="math inline">O(\deg(u))</span>, up to <span
+class="math inline">O(V)</span>.</p>
+<p><strong>Link.</strong> The break-even density is about <span
+class="math inline">\frac1{(\text{words per list node})}</span>: with
+3-word nodes the matrix is smaller once more than a third of the
+possible edges are present. Space and speed pull in opposite directions
+only for sparse graphs; dense graphs favour the matrix on both
+counts.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S2 4(b)</strong> Let <span
+class="math inline">G</span> be a connected graph and let <span
+class="math inline">s</span> be a vertex in <span
+class="math inline">G</span>. Suppose <span class="math inline">T</span>
+is a spanning tree of <span class="math inline">G</span> produced by
+running the breadth-first search (BFS) on <span
+class="math inline">G</span> starting at vertex <span
+class="math inline">s</span>. Prove that, for each vertex <span
+class="math inline">u</span> in graph <span
+class="math inline">G</span>, if the path of <span
+class="math inline">T</span> from <span class="math inline">s</span> to
+<span class="math inline">u</span> has <span
+class="math inline">L</span> edges, then any other path in <span
+class="math inline">G</span> between <span class="math inline">s</span>
+and <span class="math inline">u</span> should contain at least <span
+class="math inline">L</span> edges.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Let <span class="math inline">\ell(v)</span> be the BFS level of
+<span class="math inline">v</span> (the number of edges on its path in
+<span class="math inline">T</span>). BFS discovers vertices level by
+level: a vertex discovered while processing <span
+class="math inline">x</span> gets level <span
+class="math inline">\ell(x)+1</span>, and every vertex already
+discovered has level <span class="math inline">\le\ell(x)+1</span> at
+that moment.</p>
+<p><strong>Claim.</strong> If <span
+class="math inline">P=(v_0=s,v_1,\dots,v_k=u)</span> is any path in
+<span class="math inline">G</span> with <span
+class="math inline">k</span> edges, then <span
+class="math inline">\ell(v_i)\le i</span> for all <span
+class="math inline">i</span>.</p>
+<ul>
+<li><span class="math inline">i=0</span>: <span
+class="math inline">\ell(s)=0</span>.</li>
+<li>Step: assume <span class="math inline">\ell(v_{i-1})\le i-1</span>.
+When BFS processes <span class="math inline">v_{i-1}</span> it examines
+the edge <span class="math inline">(v_{i-1},v_i)</span>. Either <span
+class="math inline">v_i</span> was already discovered, with a level at
+most <span class="math inline">\ell(v_{i-1})+1</span> (levels are
+assigned in nondecreasing order along the queue), or it is discovered
+now and gets exactly <span class="math inline">\ell(v_{i-1})+1</span>.
+In both cases <span class="math inline">\ell(v_i)\le\ell(v_{i-1})+1\le
+i</span>.</li>
+</ul>
+<p>So <span class="math inline">L=\ell(u)\le k</span>: any path from
+<span class="math inline">s</span> to <span class="math inline">u</span>
+has at least <span class="math inline">L</span> edges. <span
+class="math inline">\blacksquare</span> (Hence the BFS tree path is a
+shortest path in the number of edges.)</p>
+<p><strong>Link.</strong> This is the correctness proof of “BFS solves
+the unweighted shortest path problem” and the reason BFS levels equal
+distances (AY1920 S1 3(a)). For weighted edges the same idea needs
+Dijkstra’s priority queue.</p>
+</div>
+</details>
+<h2 id="tutorials">Tutorials</h2>
+<h3 id="tutorial-4-q4.-bfs-on-an-adjacency-matrix">Tutorial 4 Q4. BFS on
+an adjacency matrix</h3>
+<div class="q">
+<p>The running time analysis of BFS discussed in lectures assumed that
+the input graph was represented by an adjacency list. What is the
+running time if the input graph was instead represented by an adjacency
+matrix? How would you modify the algorithm to handle this form of
+input?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The BFS from the lecture:</p>
+<pre><code>function bfs(v1):
+    queue := {v1}
+    mark v1 as visited
+    v1.d = 0
+
+    while queue is not empty:
+        v := queue.removeFirst()
+        for each unvisited neighbour n of v:
+            n.d = v.d + 1
+            mark n as visited
+            queue.addLast(n)</code></pre>
+<p><strong>Adjacency list.</strong></p>
+<ul>
+<li>We iterate through Adj[<span class="math inline">v</span>] once for
+every vertex.</li>
+<li>This has worst-case runtime <span
+class="math inline">\Theta(|E|)</span> per vertex (when all edges are
+adjacent to <span class="math inline">v</span>), but is typically
+lower.</li>
+<li>The overall runtime is <span class="math inline">\Theta(|V| +
+|E|)</span>, by considering the total length of the adjacency
+lists.</li>
+</ul>
+<p><strong>Adjacency matrix.</strong></p>
+<ul>
+<li>We must iterate through the whole row of <span
+class="math inline">v</span> in the matrix <span
+class="math inline">A_G</span>.</li>
+<li>This <strong>always</strong> has runtime <span
+class="math inline">\Theta(|V|)</span>.</li>
+<li>Since we do this for every vertex, the overall runtime is <span
+class="math inline">\Theta(|V|^2)</span>.</li>
+</ul>
+<p><strong>The modification:</strong> replace “for each unvisited
+neighbour <span class="math inline">n</span> of <span
+class="math inline">v</span>” with a scan of row <span
+class="math inline">v</span>:</p>
+<pre><code>        for n = 1 to |V|:
+            if A[v][n] == 1 and n is unvisited:
+                n.d = v.d + 1
+                mark n as visited
+                queue.addLast(n)</code></pre>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: the cost of a graph traversal</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Total = (work per vertex) + (cost of finding the neighbours of every
+vertex once).</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Storage</th>
+<th>Neighbours of one vertex</th>
+<th>All vertices</th>
+<th>BFS or DFS total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Adjacency list</td>
+<td><span class="math inline">\Theta(\deg v)</span></td>
+<td><span class="math inline">\Theta(\lvert E \rvert)</span></td>
+<td><span class="math inline">\Theta(\lvert V \rvert + \lvert E
+\rvert)</span></td>
+</tr>
+<tr>
+<td>Adjacency matrix</td>
+<td><span class="math inline">\Theta(\lvert V \rvert)</span></td>
+<td><span class="math inline">\Theta(\lvert V \rvert^2)</span></td>
+<td><span class="math inline">\Theta(\lvert V \rvert^2)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The algorithm is the same. Only the neighbour loop changes. The same
+table holds for DFS.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 4.1.</strong> A graph has 1000 vertices and 3000
+edges. Roughly how many basic steps does BFS take with each storage?
+Which storage suits this graph?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 4.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>Adjacency list: about <span class="math inline">|V| + |E| = 1000 +
+3000 = 4000</span>. (An undirected graph stores each edge twice, so
+about 7000.)</li>
+<li>Adjacency matrix: about <span class="math inline">|V|^2 =
+1{,}000{,}000</span>.</li>
+</ul>
+<p>The graph is <strong>sparse</strong> (<span class="math inline">3000
+\ll 1000^2</span>), so the list is far better.</p>
+</div>
+</details>
+<h3 id="tutorial-4-q5.-dfs-without-recursion">Tutorial 4 Q5. DFS without
+recursion</h3>
+<div class="q">
+<p>Rewrite the depth-first search procedure taught in lectures in a way
+that doesn’t use recursion.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>We can use a last-in, first-out (LIFO) stack.</p>
+<pre><code>function dfs():
+    mark all vertices as unvisited
+    while there exists an unvisited vertex v:
+        dfsVisit(v)
+
+// Explore all vertices reachable from v in depth-first order
+function dfsVisit(v):
+    S = empty stack
+    S.push(v)
+
+    while S is non-empty:
+        w = S.pop()
+        mark w as visited
+        for each unvisited neighbour x of w:
+            S.push(x)</code></pre>
+<p><strong>A gap in the official code.</strong> A vertex can be pushed
+more than once before it is visited. Example: the triangle <span
+class="math inline">a</span>–<span class="math inline">b</span>, <span
+class="math inline">a</span>–<span class="math inline">c</span>, <span
+class="math inline">b</span>–<span class="math inline">c</span>.
+Visiting <span class="math inline">a</span> pushes <span
+class="math inline">b</span> and <span class="math inline">c</span>.
+Popping <span class="math inline">c</span> visits it and pushes <span
+class="math inline">b</span> again, because <span
+class="math inline">b</span> is still unvisited. Now <span
+class="math inline">b</span> is on the stack twice, and the code visits
+it twice. Add one line after the pop:</p>
+<pre><code>        w = S.pop()
+        if w is visited: continue     // w was pushed more than once
+        mark w as visited</code></pre>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: turn a recursion into a loop with a
+stack</strong> <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>The call stack holds “work still to do”. Replace it with your own
+stack: push what the recursion would call, pop to continue.</li>
+<li>The stack returns the <strong>last</strong> item pushed. So to visit
+the neighbours in the same order as the recursive version, push them in
+<strong>reverse</strong> order.</li>
+<li>Check “already visited” when you <strong>pop</strong>, because an
+item can be pushed several times.</li>
+<li>BFS is the same loop with a <strong>queue</strong> in place of the
+stack.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 5.1.</strong> An undirected graph has edges <span
+class="math inline">a</span>–<span class="math inline">b</span>, <span
+class="math inline">a</span>–<span class="math inline">c</span> and
+<span class="math inline">b</span>–<span class="math inline">d</span>.
+Neighbours are listed in alphabetical order. Give the visiting order of
+the recursive DFS from <span class="math inline">a</span>, and of the
+stack version (with the visited check). How do you make the stack
+version match?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 5.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Recursive:</strong> <span class="math inline">a</span>, then
+its first neighbour <span class="math inline">b</span>, then <span
+class="math inline">b</span>’s neighbour <span
+class="math inline">d</span>. Back up to <span
+class="math inline">a</span>, then <span class="math inline">c</span>.
+Order: <span class="math inline">a, b, d, c</span>.</li>
+<li><strong>Stack:</strong> pop <span class="math inline">a</span>, push
+<span class="math inline">b</span> then <span
+class="math inline">c</span>. Pop <span class="math inline">c</span>
+(last pushed): visit it. Pop <span class="math inline">b</span>: visit
+it, push <span class="math inline">d</span>. Pop <span
+class="math inline">d</span>. Order: <span class="math inline">a, c, b,
+d</span>.</li>
+</ul>
+<p>Push the neighbours in reverse alphabetical order (<span
+class="math inline">c</span> then <span class="math inline">b</span>).
+Then <span class="math inline">b</span> is popped first, and the order
+becomes <span class="math inline">a, b, d, c</span>.</p>
+</div>
+</details>
+<div class="q">
+<hr />
+</div>
+
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="drill.js"></script>
+</body></html>

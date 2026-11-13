@@ -1,0 +1,1560 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>Lecture 5: HTTP and DNS · SC2008 Computer Network</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=0FF8E2A0">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">Lecture 5: HTTP
+and DNS</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2008</p>
+  <p class="site-title">Computer Network</p>
+  <h1 class="page-title">Lecture 5: HTTP and DNS</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Finals</h2>
+          <ul>
+            <li><a href="../../notes/5-ip-addressing/5.html"
+                   data-nav="notes/5-ip-addressing/5.html">Lecture 2:
+The Internet Protocol</a></li>
+            <li><a href="../../notes/7-routing/7.html"
+                   data-nav="notes/7-routing/7.html">Lecture 3: Routing
+(RIP, OSPF, BGP)</a></li>
+            <li><a href="../../notes/9-transport/9.html"
+                   data-nav="notes/9-transport/9.html">Lecture 4: The
+Transport Layer</a></li>
+            <li><a href="../../notes/10-application-layer/10.html"
+                   data-nav="notes/10-application-layer/10.html">Lecture
+5: HTTP and DNS</a></li>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Exam
+Cheatsheet</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#lecture-5-the-application-layer-http-and-dns"
+id="toc-lecture-5-the-application-layer-http-and-dns">Lecture 5: The
+Application Layer (HTTP and DNS)</a>
+<ul>
+<li><a href="#what-an-application-protocol-adds"
+id="toc-what-an-application-protocol-adds">1. What an Application
+Protocol Adds</a>
+<ul>
+<li><a href="#right-bytes-no-meaning"
+id="toc-right-bytes-no-meaning">1.1 Right bytes, no meaning</a></li>
+<li><a href="#a-transport-ack-is-not-an-application-reply"
+id="toc-a-transport-ack-is-not-an-application-reply">1.2 A transport ACK
+is not an application reply</a></li>
+<li><a href="#encapsulation" id="toc-encapsulation">1.3
+Encapsulation</a></li>
+<li><a href="#sockets-ports-and-the-transport-choice"
+id="toc-sockets-ports-and-the-transport-choice">1.4 Sockets, ports and
+the transport choice</a></li>
+</ul></li>
+<li><a href="#area-1-dns-supplies-the-address"
+id="toc-area-1-dns-supplies-the-address">2. Area 1: DNS Supplies the
+Address</a></li>
+<li><a href="#area-2-http-over-tcp" id="toc-area-2-http-over-tcp">3.
+Area 2: HTTP over TCP</a>
+<ul>
+<li><a href="#resources-and-urls" id="toc-resources-and-urls">3.1
+Resources and URLs</a></li>
+<li><a href="#one-exchange-over-tcp" id="toc-one-exchange-over-tcp">3.2
+One exchange over TCP</a></li>
+</ul></li>
+<li><a href="#area-3-get-post-and-https"
+id="toc-area-3-get-post-and-https">4. Area 3: GET, POST and HTTPS</a>
+<ul>
+<li><a href="#get-and-post" id="toc-get-and-post">4.1 GET and
+POST</a></li>
+<li><a href="#https" id="toc-https">4.2 HTTPS</a></li>
+</ul></li>
+<li><a href="#area-4-loading-a-web-page"
+id="toc-area-4-loading-a-web-page">5. Area 4: Loading a Web Page</a>
+<ul>
+<li><a href="#ask-what-is-missing-then-which-mechanism-supplies-it"
+id="toc-ask-what-is-missing-then-which-mechanism-supplies-it">5.1 Ask
+what is missing, then which mechanism supplies it</a></li>
+<li><a href="#lecture-example-the-first-request-for-a-web-page"
+id="toc-lecture-example-the-first-request-for-a-web-page">5.2 Lecture
+example: the first request for a web page</a></li>
+<li><a href="#when-something-is-already-cached"
+id="toc-when-something-is-already-cached">5.3 When something is already
+cached</a></li>
+<li><a href="#tutorial-2.3-q3b" id="toc-tutorial-2.3-q3b">5.4 Tutorial
+2.3 Q3b</a></li>
+</ul></li>
+<li><a href="#area-5-is-it-dns" id="toc-area-5-is-it-dns">6. Area 5: Is
+It DNS?</a></li>
+<li><a href="#exam-patterns" id="toc-exam-patterns">Exam
+patterns</a></li>
+<li><a href="#common-traps" id="toc-common-traps">Common Traps</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<h1 id="lecture-5-the-application-layer-http-and-dns">Lecture 5: The
+Application Layer (HTTP and DNS)</h1>
+<p>Lecture 4 showed how TCP and UDP deliver bytes to the right program.
+This page asks what those bytes mean, and how a browser gets from a
+typed name to a page on the screen. It joins every Part II lecture into
+one story: DNS finds the server’s address, ARP and IP deliver the
+packets, TCP carries the bytes, and HTTP gives them meaning.</p>
+<p><strong>Exam scope.</strong> The revision guide makes only
+<strong>five areas</strong> of Lecture 5 examinable, and this page
+covers exactly those:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr>
+<th>Area</th>
+<th>You should be able to explain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. The role of DNS</td>
+<td>A browser asks a DNS resolver for the server’s IP address. DNS
+supplies the address, not the web page.</td>
+</tr>
+<tr>
+<td>2. HTTP over TCP</td>
+<td>The browser sends an HTTP request over TCP; the server returns an
+HTTP response on that connection.</td>
+</tr>
+<tr>
+<td>3. GET, POST and HTTPS</td>
+<td>Where GET and POST carry form data, and what HTTPS protects. POST
+alone does not encrypt.</td>
+</tr>
+<tr>
+<td>4. Loading a web page</td>
+<td>Trace ARP, DNS, TCP setup, the HTTP request and the response, and
+say what each step supplies.</td>
+</tr>
+<tr>
+<td>5. A name-resolution failure</td>
+<td>Recognise evidence of a DNS problem. A ping reply to an IP address
+does not prove the web service works.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Everything else in Lecture 5 is <strong>not examinable</strong> this
+year: detailed HTTP message formats, recall of status codes, how HTTPS
+works inside, persistent connections and their timing, cookies and
+sessions, caching, CDNs, HTTP/2 and HTTP/3, and the DNS hierarchy,
+delegation, record types, registration and TTLs. IP, routing and TCP/UDP
+from earlier lectures stay examinable when a web-request question uses
+them.</p>
+<p>Tutorial 2.3 Q3b is here, with the <strong>official</strong>
+solution.</p>
+<hr />
+<h2 id="what-an-application-protocol-adds">1. What an Application
+Protocol Adds</h2>
+<h3 id="right-bytes-no-meaning">1.1 Right bytes, no meaning</h3>
+<p>IP gets a packet to the right host. TCP or UDP gets the data to the
+right program. But correct delivery does not tell the program what the
+bytes <strong>mean</strong>. TCP can deliver the characters
+<code>MOVE 1</code>; it cannot say whether <code>1</code> is a step or a
+metre, or what reply to send.</p>
+<p>Two programs must agree on that first. The agreement is an
+<strong>application protocol</strong>: it defines the messages that
+application processes exchange and the rules for interpreting and
+answering them.</p>
+<div class="table-wrap">
+<table style="width: 86%;">
+<colgroup>
+<col style="width: 27%" />
+<col style="width: 72%" />
+</colgroup>
+<thead>
+<tr>
+<th>Part of the agreement</th>
+<th>Question it answers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Message types</td>
+<td>Is this a request, a reply or an error?</td>
+</tr>
+<tr>
+<td>Syntax</td>
+<td>Where are the operation, the resource and the data written?</td>
+</tr>
+<tr>
+<td>Semantics</td>
+<td>What does each field or operation mean?</td>
+</tr>
+<tr>
+<td>Behaviour</td>
+<td>When is a message sent, and what happens next?</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>For the web: the <strong>network application</strong> is the World
+Wide Web, the <strong>application processes</strong> are a browser and a
+web-server program, and the <strong>application protocol</strong> is
+HTTP. Two different programs (say Chrome and a Python server) can talk
+because both follow HTTP.</p>
+<h3 id="a-transport-ack-is-not-an-application-reply">1.2 A transport ACK
+is not an application reply</h3>
+<p>The lecture’s teaching protocol is a score service. The client sends
+<code>SCORE ROBOTS</code> plus a newline; the server replies
+<code>RESULT 3</code>. The newline marks the end of each message, and
+one request gets one result or one error.</p>
+<ul>
+<li>The <strong>TCP ACK</strong> says “your request bytes arrived”.</li>
+<li>The <strong>application reply</strong> <code>RESULT 3</code> says
+“the score is 3”.</li>
+</ul>
+<p>These are different answers from different layers. TCP acknowledges
+bytes. Only the application reports a result.</p>
+<h3 id="encapsulation">1.3 Encapsulation</h3>
+<p><strong>Encapsulation</strong> means a lower layer carries the higher
+layer’s data as its payload. The client writes <code>SCORE ROBOTS</code>
+to a TCP socket; TCP adds its header; IP adds its header; Ethernet adds
+its header and trailer. The receiver removes each layer in turn, and the
+application reads the bytes using its own rules.</p>
+<figure>
+<img width="1320" height="266" src="media/10-artifacts/encapsulation-score.webp"
+style="width:70.0%" loading="lazy" decoding="async"
+alt="The application data (green) sits inside a TCP segment (orange), inside an IP packet (blue), inside an Ethernet frame" />
+<figcaption aria-hidden="true">The application data (green) sits inside
+a TCP segment (orange), inside an IP packet (blue), inside an Ethernet
+frame</figcaption>
+</figure>
+<p>The Internet model groups OSI’s application, presentation and session
+layers into one <strong>application layer</strong>. The functions are
+still needed; only the grouping differs.</p>
+<h3 id="sockets-ports-and-the-transport-choice">1.4 Sockets, ports and
+the transport choice</h3>
+<p>A <strong>socket</strong> is the endpoint through which a program
+uses a transport service. An IP address plus a port names each end: the
+browser at <code>192.0.2.10:51000</code>, the web server at
+<code>198.51.100.80:80</code>. Ports and the four-value connection
+identifier are in Lecture 4, Section 2.</p>
+<div class="table-wrap">
+<table style="width: 86%;">
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 26%" />
+<col style="width: 46%" />
+</colgroup>
+<thead>
+<tr>
+<th>Application protocol</th>
+<th>Purpose</th>
+<th>Usual transport and port</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTTP / HTTPS</td>
+<td>Web pages and APIs</td>
+<td>TCP 80 / TCP 443</td>
+</tr>
+<tr>
+<td>DNS</td>
+<td>Name lookups</td>
+<td>UDP 53 (TCP 53 for a truncated reply)</td>
+</tr>
+<tr>
+<td>SMTP / IMAP</td>
+<td>Send / read email</td>
+<td>TCP 25 / TCP 143</td>
+</tr>
+<tr>
+<td>SSH</td>
+<td>Remote login</td>
+<td>TCP 22</td>
+</tr>
+<tr>
+<td>DHCP</td>
+<td>Get network settings</td>
+<td>UDP 67 (server), 68 (client)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 49%" />
+<col style="width: 51%" />
+</colgroup>
+<thead>
+<tr>
+<th>Application need</th>
+<th>Transport</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Correct, ordered contents (a file, a web page)</td>
+<td>TCP: it recovers losses and keeps order</td>
+</tr>
+<tr>
+<td>Timely data (voice, game updates)</td>
+<td>UDP: late data loses value, so the application chooses its own
+recovery</td>
+</tr>
+<tr>
+<td>Separate messages</td>
+<td>UDP keeps datagram boundaries. Over TCP, the application must mark
+its own boundaries</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="area-1-dns-supplies-the-address">2. Area 1: DNS Supplies the
+Address</h2>
+<p>People type names; packets need IP addresses. <strong>DNS</strong>
+(Domain Name System) looks up the IP address that belongs to a name,
+like a phone book.</p>
+<ul>
+<li>The device asks its <strong>DNS resolver</strong>: “what address
+belongs to <code>www.example.com</code>?” The resolver is the DNS helper
+the network provides (campus, ISP, home router, or a public one such as
+8.8.8.8). Its address usually arrives by DHCP, or is set by hand.</li>
+<li>The resolver does the work of finding the answer and returns the
+address. The device talks <strong>only</strong> to its resolver.</li>
+<li>DNS resolves <strong>only the hostname</strong> of a URL. The path
+and query go to the web server inside the HTTP request.</li>
+</ul>
+<div class="table-wrap">
+<table style="width: 85%;">
+<colgroup>
+<col style="width: 61%" />
+<col style="width: 38%" />
+</colgroup>
+<thead>
+<tr>
+<th>DNS lookup</th>
+<th>Web request</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>“What address belongs to <code>www.example.com</code>?”</td>
+<td>“Please send <code>/index.html</code>.”</td>
+</tr>
+<tr>
+<td>Sent to the DNS resolver</td>
+<td>Sent to the web server</td>
+</tr>
+<tr>
+<td>Supplies information needed to contact the server</td>
+<td>Requests the resource itself</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>DNS supplies the address, not the web page.</strong> The page
+comes later, over HTTP.</p>
+<p><strong>DNS messages need delivery too.</strong> A DNS query is
+application data inside UDP (or TCP), on server port 53. It needs IP
+routing like any packet, and the device may first need ARP for its
+gateway’s MAC address before it can send a query to a remote
+resolver.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 26%" />
+<col style="width: 73%" />
+</colgroup>
+<thead>
+<tr>
+<th>DNS transport</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UDP 53</td>
+<td>Common: one small query, one small reply</td>
+</tr>
+<tr>
+<td>TCP 53</td>
+<td>Used to get the complete answer after a UDP reply is marked
+truncated</td>
+</tr>
+<tr>
+<td>DNS over TLS / HTTPS</td>
+<td>Protects the exchange between the client and its chosen
+resolver</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+DNS resolves an IP address to a MAC address. <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> DNS turns a <strong>name</strong> into an
+<strong>IP address</strong>. <strong>ARP</strong> turns an IP address
+into a MAC address, and only on the local link.</p>
+</div>
+</details>
+<hr />
+<h2 id="area-2-http-over-tcp">3. Area 2: HTTP over TCP</h2>
+<h3 id="resources-and-urls">3.1 Resources and URLs</h3>
+<p><strong>HTTP</strong> (Hypertext Transfer Protocol) is a
+<strong>request-response</strong> protocol. The client sends a request;
+the server returns one response. A <strong>resource</strong> is the
+thing requested (a page, a score). A <strong>representation</strong> is
+the data that comes back about it (an HTML document, or JSON for a web
+API).</p>
+<div class="table-wrap">
+<table style="width: 73%;">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 84%" />
+</colgroup>
+<thead>
+<tr>
+<th>Term</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Internet</td>
+<td>The interconnected network infrastructure</td>
+</tr>
+<tr>
+<td>Web</td>
+<td>An application for reaching linked resources, named by URLs</td>
+</tr>
+<tr>
+<td>HTML</td>
+<td>Describes a document’s structure</td>
+</tr>
+<tr>
+<td>HTTP</td>
+<td>Requests and responses for resources</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A <strong>URL</strong> (Uniform Resource Locator) names a
+resource:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 48%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr>
+<th>Part</th>
+<th>In <code>https://www.example.com/scores?team=robots</code></th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Scheme</td>
+<td><code>https</code></td>
+<td>HTTP with encryption and server authentication</td>
+</tr>
+<tr>
+<td>Hostname</td>
+<td><code>www.example.com</code></td>
+<td>The name DNS resolves to an address</td>
+</tr>
+<tr>
+<td>Path</td>
+<td><code>/scores</code></td>
+<td>The resource on that server</td>
+</tr>
+<tr>
+<td>Query</td>
+<td><code>team=robots</code></td>
+<td>A parameter for that resource</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>One displayed page usually needs <strong>several objects</strong>.
+The browser first gets <code>index.html</code>, reads it, finds the
+style sheet and images it refers to, and requests each one. So one page
+can mean several request-response exchanges.</p>
+<h3 id="one-exchange-over-tcp">3.2 One exchange over TCP</h3>
+<figure>
+<img width="1400" height="477" src="media/10-artifacts/web-request-tcp-http.webp"
+style="width:80.0%" loading="lazy" decoding="async"
+alt="One HTTP exchange: TCP setup first, then the HTTP request, then the response with status, headers and content" />
+<figcaption aria-hidden="true">One HTTP exchange: TCP setup first, then
+the HTTP request, then the response with status, headers and
+content</figcaption>
+</figure>
+<ol type="1">
+<li><strong>TCP setup:</strong> the three-way handshake to the server’s
+port (80 for plain HTTP).</li>
+<li><strong>HTTP request:</strong> for example
+<code>GET /index.html</code>, carried as TCP data.</li>
+<li><strong>HTTP response:</strong> a status, headers, then the content,
+carried as TCP data on the same connection.</li>
+</ol>
+<p>A minimal request and response look like this (you need not recall
+the formats in detail):</p>
+<pre><code>GET /index.html HTTP/1.1
+Host: www.example.com
+
+HTTP/1.1 200 OK
+...headers...
+...page content...</code></pre>
+<p>Each layer has its own job:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 11%" />
+<col style="width: 88%" />
+</colgroup>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What it does here</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IP</td>
+<td>Carries packets between the two <strong>hosts</strong></td>
+</tr>
+<tr>
+<td>TCP</td>
+<td>Delivers an ordered byte stream to the application
+<strong>endpoint</strong> (port 80)</td>
+</tr>
+<tr>
+<td>HTTP</td>
+<td>Says <strong>which resource</strong> is wanted, and tells the
+browser how to read the response</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The <strong>TCP endpoints</strong> are the laptop and the web server.
+The gateway in between only forwards packets (and translates addresses
+and ports with NAT). It does not end the TCP connection.</p>
+<details class="qa box">
+<summary>
+The TCP ACK for an HTTP request tells the browser that the server found
+the page. <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A TCP ACK only says the request
+<strong>bytes</strong> arrived. Whether the resource exists is an
+application answer, given in the HTTP response.</p>
+</div>
+</details>
+<hr />
+<h2 id="area-3-get-post-and-https">4. Area 3: GET, POST and HTTPS</h2>
+<h3 id="get-and-post">4.1 GET and POST</h3>
+<ul>
+<li><strong>GET</strong> requests a representation of a resource (read).
+An HTML form that uses GET puts the submitted values <strong>in the URL
+query</strong>: <code>/scores?team=robots</code>.</li>
+<li><strong>POST</strong> asks the server to process submitted content.
+An HTML form that uses POST puts the values <strong>in the request
+body</strong>:</li>
+</ul>
+<pre><code>POST /join HTTP/1.1
+Host: www.example.com
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 8
+
+name=Mei</code></pre>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 40%" />
+<col style="width: 35%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>GET</th>
+<th>POST</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Purpose</td>
+<td>Read a representation</td>
+<td>Ask the server to process data</td>
+</tr>
+<tr>
+<td>Where form data goes</td>
+<td>URL query</td>
+<td>Request body</td>
+</tr>
+<tr>
+<td>Exposure</td>
+<td>The URL can stay in browser history and logs</td>
+<td>Out of the URL, but may still be logged</td>
+</tr>
+<tr>
+<td>Changes server state?</td>
+<td>Not intended</td>
+<td>May. Repeating it may submit twice</td>
+</tr>
+<tr>
+<td>Encryption</td>
+<td><strong>None</strong></td>
+<td><strong>None</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="https">4.2 HTTPS</h3>
+<p><strong>HTTPS</strong> is HTTP over a protected connection.
+<strong>TLS</strong> (Transport Layer Security) sits between HTTP and
+TCP, so the stack is HTTP, TLS, TCP, IP, usually on TCP port
+<strong>443</strong>. TLS:</p>
+<ul>
+<li><strong>encrypts</strong> the HTTP messages in transit;</li>
+<li><strong>protects their integrity</strong> (detects tampering);</li>
+<li>normally <strong>authenticates the server</strong>.</li>
+</ul>
+<p><strong>Putting a password in a POST body does not encrypt
+it.</strong> POST only moves the data out of the URL. A sensitive form
+needs HTTPS. And HTTPS protects the exchange <strong>in transit</strong>
+only: a GET URL can still stay in browser history and other records.</p>
+<p><strong>Model short answer.</strong> <em>“Why does a login form need
+HTTPS even though it uses POST?”</em> POST only places the password in
+the request body instead of the URL; the body is still sent as readable
+text. HTTPS runs HTTP over TLS, which encrypts the exchange in transit
+and authenticates the server, so an eavesdropper cannot read the
+password.</p>
+<details class="qa box">
+<summary>
+A POST request is encrypted, so a password form is safe without HTTPS.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> POST keeps the data out of the URL, but it is
+still plain text on the wire. Only HTTPS (TLS) encrypts it.</p>
+</div>
+</details>
+<hr />
+<h2 id="area-4-loading-a-web-page">5. Area 4: Loading a Web Page</h2>
+<h3 id="ask-what-is-missing-then-which-mechanism-supplies-it">5.1 Ask
+what is missing, then which mechanism supplies it</h3>
+<p>Before listing any packet, ask: <strong>what information does the
+laptop lack, and which mechanism supplies it?</strong></p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 55%" />
+<col style="width: 14%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th>Missing information</th>
+<th>Supplied by</th>
+<th>Messages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MAC address of the local next hop (gateway, or a local
+resolver)</td>
+<td>ARP</td>
+<td>Request (broadcast), reply</td>
+</tr>
+<tr>
+<td>The web server’s IP address</td>
+<td>DNS</td>
+<td>Query to the resolver, reply</td>
+</tr>
+<tr>
+<td>A connection to the server</td>
+<td>TCP</td>
+<td>SYN, SYN+ACK, ACK</td>
+</tr>
+<tr>
+<td>The page</td>
+<td>HTTP</td>
+<td>GET, response</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img width="1400" height="507" src="media/10-artifacts/web-request-arp-dns.webp"
+style="width:80.0%" loading="lazy" decoding="async"
+alt="Finding the server: ARP for the gateway’s MAC, then the DNS query and reply through the gateway" />
+<figcaption aria-hidden="true">Finding the server: ARP for the gateway’s
+MAC, then the DNS query and reply through the gateway</figcaption>
+</figure>
+<p>Three rules decide the addresses in each frame:</p>
+<ul>
+<li><strong>ARP resolves only the local next hop.</strong> If the DNS
+resolver or the web server is outside the subnet, the laptop ARPs for
+the <strong>gateway</strong>, never for the remote host.</li>
+<li><strong>Ethernet destination = next hop. IP destination = final
+host.</strong> Every frame to the remote server carries the gateway’s
+MAC but the server’s IP.</li>
+<li><strong>DNS does not give the server’s MAC.</strong> The laptop
+never needs it.</li>
+</ul>
+<h3 id="lecture-example-the-first-request-for-a-web-page">5.2 Lecture
+example: the first request for a web page</h3>
+<p><strong>Example Question (lecture).</strong> A laptop opens
+<code>http://www.example.com/</code>. The DNS answer will be
+198.51.100.80. The laptop is 192.168.40.10/24 (MAC L). The gateway,
+which is also the DNS resolver, is 192.168.40.1 (MAC G). Which frames
+does the laptop exchange before the first page content arrives? Assume
+/24, empty ARP and DNS caches, no TCP connection, working routing and
+NAT, UDP DNS, plain HTTP, no loss and no proxy. Observe the laptop’s LAN
+frames (before outbound NAT, after inbound NAT).</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<div class="table-wrap">
+<table style="width: 94%;">
+<colgroup>
+<col style="width: 4%" />
+<col style="width: 39%" />
+<col style="width: 20%" />
+<col style="width: 36%" />
+</colgroup>
+<thead>
+<tr>
+<th>#</th>
+<th>Frame and purpose</th>
+<th>MAC: from → to</th>
+<th>IP: from → to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>ARP request: who has 192.168.40.1?</td>
+<td>L → broadcast</td>
+<td>no IP header</td>
+</tr>
+<tr>
+<td>2</td>
+<td>ARP reply: .1 is at G</td>
+<td>G → L</td>
+<td>no IP header</td>
+</tr>
+<tr>
+<td>3</td>
+<td>DNS query: <code>www.example.com</code></td>
+<td>L → G</td>
+<td>192.168.40.10 → 192.168.40.1</td>
+</tr>
+<tr>
+<td>4</td>
+<td>DNS answer: 198.51.100.80</td>
+<td>G → L</td>
+<td>192.168.40.1 → 192.168.40.10</td>
+</tr>
+<tr>
+<td>5</td>
+<td>TCP SYN to port 80</td>
+<td>L → G</td>
+<td>192.168.40.10 → 198.51.100.80</td>
+</tr>
+<tr>
+<td>6</td>
+<td>TCP SYN+ACK</td>
+<td>G → L</td>
+<td>198.51.100.80 → 192.168.40.10</td>
+</tr>
+<tr>
+<td>7</td>
+<td>TCP ACK</td>
+<td>L → G</td>
+<td>192.168.40.10 → 198.51.100.80</td>
+</tr>
+<tr>
+<td>8</td>
+<td>HTTP GET, carried by TCP</td>
+<td>L → G</td>
+<td>192.168.40.10 → 198.51.100.80</td>
+</tr>
+<tr>
+<td>9</td>
+<td>First response content</td>
+<td>G → L</td>
+<td>198.51.100.80 → 192.168.40.10</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li>Frames 1–4: the resolver is local, so ARP supplies its MAC; DNS then
+supplies the server’s IP.</li>
+<li>Frames 5–9: IP destination is the remote server, Ethernet
+destination is the gateway. MAC G is already cached from frame 2.</li>
+<li>One teaching trace: an ACK and data may combine, and a message may
+span several segments.</li>
+</ul>
+</div>
+</details>
+<p><strong>Variation (lecture).</strong> Change only the resolver: it is
+now 203.0.113.53, outside the /24. Which address does the laptop ARP
+for?</p>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>192.168.40.1, the gateway.</strong> The DNS query’s IP
+destination stays 203.0.113.53, and its Ethernet destination is MAC G.
+ARP resolves the local next hop only; the laptop never ARPs for a
+resolver beyond its subnet.</p>
+</div>
+</details>
+<h3 id="when-something-is-already-cached">5.3 When something is already
+cached</h3>
+<p>Same network, a new TCP connection, and the cached entries are still
+valid:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 32%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr>
+<th>Starting information</th>
+<th>What the laptop still does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gateway MAC in the ARP cache</td>
+<td>Skip ARP. Query DNS if the server’s IP is not cached.</td>
+</tr>
+<tr>
+<td>Server IP in the DNS cache</td>
+<td>Skip DNS. Still ARP for the gateway if its MAC is missing (frame 5
+needs it).</td>
+</tr>
+<tr>
+<td>Both cached</td>
+<td>Start the TCP handshake straight away. Five frames remain (SYN to
+response).</td>
+</tr>
+<tr>
+<td>An open TCP connection too</td>
+<td>Only the HTTP request and response</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="tutorial-2.3-q3b">5.4 Tutorial 2.3 Q3b</h3>
+<p><strong>Tutorial 2.3 Q3.</strong> A user subscribes to an ISP home
+broadband service and connects his computer directly to it via an ADSL
+modem. The <code>ipconfig</code> output (Lecture 2 Part A, Section A9)
+shows the computer at 192.168.1.68/24 with MAC 00-23-26-AA-AA-AA; the
+modem 192.168.1.254 (MAC 00-24-17-BB-BB-BB) is its default gateway, DHCP
+server and DNS server.</p>
+<ol start="2" type="a">
+<li>The user launches his web browser and requests for the default web
+page at http://www.ntu.edu.sg without the use of web proxy. Assume that
+all the caches of the computer are initially empty. Using a table
+similar to Table Q3, list the sequence of frames being sent and received
+by the computer until the first frame containing the requested web page
+is received.</li>
+</ol>
+<details class="qa box">
+<summary>
+<strong>Answer (official solution)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 16%" />
+<col style="width: 17%" />
+<col style="width: 19%" />
+</colgroup>
+<thead>
+<tr>
+<th>Frame</th>
+<th>Source MAC</th>
+<th>Destination MAC</th>
+<th>Source IP</th>
+<th>Destination IP</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>FF-FF-FF-FF-FF-FF</td>
+<td>–</td>
+<td>–</td>
+<td>ARP request for 192.168.1.254</td>
+</tr>
+<tr>
+<td>2</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>–</td>
+<td>–</td>
+<td>ARP reply</td>
+</tr>
+<tr>
+<td>3</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>192.168.1.68</td>
+<td>192.168.1.254</td>
+<td>DNS query for www.ntu.edu.sg</td>
+</tr>
+<tr>
+<td>4</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>192.168.1.254</td>
+<td>192.168.1.68</td>
+<td>DNS reply: 155.69.6.163</td>
+</tr>
+<tr>
+<td>5</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>192.168.1.68</td>
+<td>155.69.6.163</td>
+<td>TCP SYN (port 80)</td>
+</tr>
+<tr>
+<td>6</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>155.69.6.163</td>
+<td>192.168.1.68</td>
+<td>TCP SYN+ACK</td>
+</tr>
+<tr>
+<td>7</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>192.168.1.68</td>
+<td>155.69.6.163</td>
+<td>TCP ACK</td>
+</tr>
+<tr>
+<td>8</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>192.168.1.68</td>
+<td>155.69.6.163</td>
+<td>HTTP GET</td>
+</tr>
+<tr>
+<td>9</td>
+<td>00-24-17-BB-BB-BB</td>
+<td>00-23-26-AA-AA-AA</td>
+<td>155.69.6.163</td>
+<td>192.168.1.68</td>
+<td>HTTP reply</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>One ARP exchange is enough: the modem is both the DNS server and the
+gateway. After learning its MAC, the computer uses it as the destination
+for the DNS query and for every packet to the web server.</p>
+<p>The table shows the computer’s LAN side. The modem’s NAT changes
+192.168.1.68 to its public address on the way out and back on the way
+in, so the computer only ever sees its private address.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method:</strong> listing the frames of a web request
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Is the DNS resolver on my subnet? Yes: ARP for it. No: ARP for the
+gateway. Skip ARP if the MAC is cached.</li>
+<li>DNS query and reply (UDP 53). Skip if the name is cached.</li>
+<li>The web server is almost always off the subnet: every frame to it
+has Ethernet destination = gateway MAC, IP destination = server.</li>
+<li>TCP handshake: SYN, SYN+ACK, ACK.</li>
+<li>HTTP GET, then the first response frame.</li>
+<li>List only frames on the laptop’s own LAN. With nothing cached and
+the resolver local (or the gateway), that is 2 + 2 + 3 + 2 = <strong>9
+frames</strong>.</li>
+</ol>
+</div>
+</details>
+<hr />
+<h2 id="area-5-is-it-dns">6. Area 5: Is It DNS?</h2>
+<p>A website will not load. Test the <strong>name</strong> and the
+<strong>address</strong> separately, and say what each result does and
+does not establish.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 43%" />
+<col style="width: 24%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th>What you try or see</th>
+<th>Result</th>
+<th>What it suggests</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open <code>http://www.example.com/</code></td>
+<td>Name-resolution error</td>
+<td>Check DNS. The browser’s wording alone is not a full diagnosis.</td>
+</tr>
+<tr>
+<td><code>ping 203.0.113.10</code> (the server’s address)</td>
+<td>Replies arrive</td>
+<td>The address is reachable for <strong>ICMP</strong>. The HTTP service
+is still untested.</td>
+</tr>
+<tr>
+<td><code>nslookup www.example.com</code></td>
+<td>DNS request timed out</td>
+<td>No DNS reply before the timer. Check the resolver and the path to
+it.</td>
+</tr>
+<tr>
+<td><code>nslookup www.example.com</code></td>
+<td>Non-existent domain</td>
+<td>The resolver says there is no such name. Check the spelling and the
+DNS setup.</td>
+</tr>
+<tr>
+<td>Name fails, but a test to the IP address succeeds</td>
+<td></td>
+<td><strong>Suspect DNS first.</strong> This alone does not prove HTTP
+works.</td>
+</tr>
+<tr>
+<td>The host has the wrong subnet mask</td>
+<td></td>
+<td>It may ARP for a destination that should go through its gateway
+(Lecture 2 Part B).</td>
+</tr>
+<tr>
+<td>Ping replies, but the web connection fails</td>
+<td></td>
+<td>ICMP reachability does not show that the TCP port or the web
+application is available.</td>
+</tr>
+<tr>
+<td>The page loads but the download is slow</td>
+<td></td>
+<td>Consider the effective window, RTT, loss and bottleneck capacity
+(Lecture 4, Section 10). Access-link speed alone does not decide
+it.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Model short answer.</strong>
+<em>“<code>ping 203.0.113.10</code> succeeds but
+<code>http://www.example.com</code> gives a name-resolution error. What
+is the likely problem?”</em> Name resolution: the server’s address is
+reachable over IP, but the browser cannot turn the name into that
+address. Check the DNS resolver setting and the path to it, for example
+with <code>nslookup</code>. The ping reply does not prove that the web
+service itself works.</p>
+<details class="qa box">
+<summary>
+The ping to the server’s IP address succeeds, so the website is working.
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>False.</strong> A ping tests IP reachability with ICMP only.
+The web-server program, its TCP port 80 or 443, and HTTP could all still
+fail.</p>
+</div>
+</details>
+<hr />
+<h2 id="exam-patterns">Exam patterns</h2>
+<p>The finals have MCQs and short structured answers written into
+tables. The revision guide’s advice: state the result or mechanism, then
+the reasoning; plan the key points before writing, because some answer
+spaces are deliberately small.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 38%" />
+<col style="width: 32%" />
+</colgroup>
+<thead>
+<tr>
+<th>Question type</th>
+<th>How to attack it</th>
+<th>Trap</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frame table: ARP, DNS, TCP, HTTP</td>
+<td>What is missing? ARP (next hop), DNS, SYN/SYN+ACK/ACK, GET,
+response. Skip what is cached.</td>
+<td>Putting the server’s MAC in a frame. ARPing for a remote
+resolver.</td>
+</tr>
+<tr>
+<td>Which address does ARP resolve?</td>
+<td>AND with the host’s own mask; remote means the gateway</td>
+<td>Matching the first three octets instead of using the mask</td>
+</tr>
+<tr>
+<td>What does DNS supply?</td>
+<td>The server’s IP address for the hostname</td>
+<td>Saying DNS fetches the page, or finds MAC addresses</td>
+</tr>
+<tr>
+<td>GET, POST, HTTPS</td>
+<td>GET: URL query. POST: body. HTTPS: encrypts, protects integrity,
+authenticates the server</td>
+<td>Saying POST encrypts</td>
+</tr>
+<tr>
+<td>Diagnose a failure</td>
+<td>Test the name and the address separately; say what each test does
+not prove</td>
+<td>Treating a ping reply as proof the website works</td>
+</tr>
+<tr>
+<td>Layers in a web request</td>
+<td>IP: hosts. TCP: ordered bytes to the endpoint. HTTP: which resource
+and how to read it</td>
+<td>Saying the gateway ends the TCP connection</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="common-traps">Common Traps</h2>
+<ul>
+<li><strong>DNS supplies the address, not the page.</strong> And it
+resolves only the hostname of a URL.</li>
+<li><strong>DNS does not find MAC addresses.</strong> ARP does, on the
+local link only.</li>
+<li><strong>ARP the next hop.</strong> A remote resolver or server means
+ARP for the gateway.</li>
+<li><strong>Ethernet destination = next hop; IP destination = final
+host.</strong></li>
+<li><strong>A TCP ACK is not an application reply.</strong> TCP confirms
+bytes; HTTP reports the result.</li>
+<li><strong>The gateway forwards (and NATs); it is not a TCP
+endpoint.</strong></li>
+<li><strong>Neither GET nor POST encrypts.</strong> Only HTTPS does. A
+GET URL can stay in history even with HTTPS.</li>
+<li><strong>A ping reply proves only ICMP reachability,</strong> not
+that the TCP port or the web application works.</li>
+<li><strong>Name fails but the IP works: suspect DNS
+first.</strong></li>
+</ul>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/9-transport/9.html">← Lecture
+4: The Transport Layer</a>
+  <a class="next-page" href="../../notes/cheatsheet.html">Exam
+Cheatsheet →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Mermaid diagrams. Pandoc emits ```mermaid fences as <pre class="mermaid">,
+  // which nothing renders, so the source showed as a code block. Swap each for
+  // a plain <div class="mermaid"> (also keeps the copy-button script below off
+  // it) and load the library only on pages that actually have a diagram.
+  (function () {
+    var blocks = document.querySelectorAll('main#content pre.mermaid');
+    if (!blocks.length) return;
+    blocks.forEach(function (pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    import('https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs')
+      .then(function (m) {
+        m.default.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default' });
+        return m.default.run({ querySelector: 'main#content div.mermaid' });
+      })
+      .catch(function () { /* offline: the diagram source stays visible as text */ });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+
+<script>
+  // Tap-to-answer quiz (mcq.lua). A tap locks in the pick, marks it right or
+  // wrong, and shows the reason. A bar pinned to the bottom keeps the score and
+  // lists the misses once every question is answered. A no-op on pages with no
+  // .mcq block. Nothing is stored: a reload starts the quiz fresh.
+  (function () {
+    var qs = Array.prototype.slice.call(document.querySelectorAll('main#content .mcq'));
+    if (!qs.length) return;
+    var picks = qs.map(function () { return null; });
+
+    var bar = document.createElement('div');
+    bar.className = 'mcq-bar';
+    bar.innerHTML = '<span class="mcq-score"></span>' +
+      '<span class="mcq-actions"><button type="button" class="mcq-reveal">Show all answers</button>' +
+      '<button type="button" class="mcq-reset">Reset</button></span>' +
+      '<span class="mcq-end" hidden></span>';
+    document.getElementById('content').appendChild(bar);
+    document.body.classList.add('has-mcq-bar');
+
+    function opts(q) { return Array.prototype.slice.call(q.querySelectorAll('.mcq-opt')); }
+
+    function show(i) {
+      var q = qs[i];
+      opts(q).forEach(function (b, j) {
+        b.disabled = true;
+        b.classList.remove('is-right', 'is-wrong', 'is-dim');
+        var tag = b.querySelector('.mcq-tag');
+        tag.textContent = '';
+        if (b.hasAttribute('data-ok')) { b.classList.add('is-right'); tag.textContent = 'correct'; }
+        else if (j === picks[i]) { b.classList.add('is-wrong'); tag.textContent = 'your pick'; }
+        else b.classList.add('is-dim');
+      });
+      q.querySelector('.mcq-why').hidden = false;
+    }
+
+    function correct(i) {
+      return picks[i] !== null && opts(qs[i])[picks[i]].hasAttribute('data-ok');
+    }
+
+    function tally() {
+      var done = 0, right = 0, miss = [];
+      qs.forEach(function (q, i) {
+        if (picks[i] !== null) done++;
+        if (correct(i)) right++; else miss.push(i + 1);
+      });
+      bar.querySelector('.mcq-score').innerHTML =
+        '<b>' + done + '</b> / ' + qs.length + ' answered · ' + right + ' correct';
+      var end = bar.querySelector('.mcq-end');
+      if (done === qs.length) {
+        end.hidden = false;
+        end.textContent = miss.length ? 'Revisit: ' + miss.map(function (n) {
+          return 'Q' + n; }).join(', ') : 'Clean sweep.';
+      } else end.hidden = true;
+    }
+
+    qs.forEach(function (q, i) {
+      opts(q).forEach(function (b, j) {
+        b.addEventListener('click', function () {
+          if (b.disabled) return;
+          picks[i] = j; show(i); tally();
+        });
+      });
+    });
+    bar.querySelector('.mcq-reveal').addEventListener('click', function () {
+      qs.forEach(function (q, i) { show(i); });
+    });
+    bar.querySelector('.mcq-reset').addEventListener('click', function () {
+      qs.forEach(function (q, i) {
+        picks[i] = null;
+        opts(q).forEach(function (b) {
+          b.disabled = false;
+          b.classList.remove('is-right', 'is-wrong', 'is-dim');
+          b.querySelector('.mcq-tag').textContent = '';
+        });
+        q.querySelector('.mcq-why').hidden = true;
+      });
+      tally();
+      window.scrollTo(0, 0);
+    });
+    tally();
+  })();
+</script>
+</body>
+</html>

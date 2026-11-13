@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>8. Virtual Memory · SC2005 Operating Systems</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=0FF8E2A0">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">8. Virtual
+Memory</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">8. Virtual Memory</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-overview/1.html"
+                   data-nav="notes/1-overview/1.html">1. Overview of
+Operating Systems</a></li>
+            <li><a href="../../notes/2-processes-threads/2.html"
+                   data-nav="notes/2-processes-threads/2.html">2.
+Processes and Threads</a></li>
+            <li><a href="../../notes/3-cpu-scheduling/3.html"
+                   data-nav="notes/3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../../notes/4-synchronization/4.html"
+                   data-nav="notes/4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../../notes/5-deadlocks/5.html"
+                   data-nav="notes/5-deadlocks/5.html">5.
+Deadlocks</a></li>
+            <li><a href="../../notes/6a-rtos/6a.html"
+                   data-nav="notes/6a-rtos/6a.html">6a. Real-Time
+Operating Systems</a></li>
+            <li><a href="../../notes/6b-virtualization/6b.html"
+                   data-nav="notes/6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../../notes/7-memory-organization/7.html"
+                   data-nav="notes/7-memory-organization/7.html">7.
+Memory Organization</a></li>
+            <li><a href="../../notes/8-virtual-memory/8.html"
+                   data-nav="notes/8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../../notes/9-file-systems/9.html"
+                   data-nav="notes/9-file-systems/9.html">9. File
+Systems</a></li>
+            <li><a href="../../notes/10-io-disk/10.html"
+                   data-nav="notes/10-io-disk/10.html">10. I/O Systems
+and Disk</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Course
+Cheatsheet</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../../notes/labs/lab-1.html"
+                   data-nav="notes/labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../../notes/labs/lab-2.html"
+                   data-nav="notes/labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3.html"
+                   data-nav="notes/labs/lab-3/lab-3.html">Lab 3
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3-quiz.html"
+                   data-nav="notes/labs/lab-3/lab-3-quiz.html">Lab 3
+Quiz</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4.html"
+                   data-nav="notes/labs/lab-4/lab-4.html">Lab 4
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4-quiz.html"
+                   data-nav="notes/labs/lab-4/lab-4-quiz.html">Lab 4
+Quiz</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#swapping-and-virtual-memory"
+id="toc-swapping-and-virtual-memory">1. Swapping and Virtual
+Memory</a></li>
+<li><a href="#demand-paging-and-page-faults"
+id="toc-demand-paging-and-page-faults">2. Demand Paging and Page
+Faults</a>
+<ul>
+<li><a href="#performance" id="toc-performance">Performance</a></li>
+</ul></li>
+<li><a href="#page-replacement" id="toc-page-replacement">3. Page
+Replacement</a></li>
+<li><a href="#page-replacement-algorithms"
+id="toc-page-replacement-algorithms">4. Page-Replacement Algorithms</a>
+<ul>
+<li><a href="#fifo" id="toc-fifo">FIFO</a></li>
+<li><a href="#optimal-opt" id="toc-optimal-opt">Optimal (OPT)</a></li>
+<li><a href="#lru" id="toc-lru">LRU</a></li>
+<li><a href="#lru-approximation-second-chance-clock"
+id="toc-lru-approximation-second-chance-clock">LRU approximation: second
+chance (clock)</a></li>
+<li><a href="#beladys-anomaly-summary"
+id="toc-beladys-anomaly-summary">Belady’s anomaly summary</a></li>
+</ul></li>
+<li><a href="#allocation-of-frames" id="toc-allocation-of-frames">5.
+Allocation of Frames</a></li>
+<li><a href="#thrashing" id="toc-thrashing">6. Thrashing</a></li>
+<li><a href="#locality-and-the-working-set-model"
+id="toc-locality-and-the-working-set-model">7. Locality and the
+Working-Set Model</a>
+<ul>
+<li><a href="#page-fault-frequency-pff"
+id="toc-page-fault-frequency-pff">Page-fault frequency (PFF)</a></li>
+</ul></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>Chapter 7 assumed the whole program is in memory at some point, so a
+program can be no larger than physical memory. <strong>Virtual
+memory</strong> removes that limit: only the pages in use need to be in
+memory. This chapter covers demand paging, page faults, page
+replacement, frame allocation, and thrashing.</p>
+<hr />
+<h2 id="swapping-and-virtual-memory">1. Swapping and Virtual Memory</h2>
+<p><strong>Swapping:</strong> a process can be moved temporarily out of
+memory to a <strong>backing store</strong>, then brought back to
+continue. The backing store is a fast disk large enough for copies of
+all users’ memory images, with direct access to them. Most of the swap
+time is <strong>transfer time</strong>, proportional to the amount of
+memory swapped. Swapping makes space for processes that need more memory
+and raises the degree of multiprogramming.</p>
+<figure>
+<img width="1360" height="1189" src="media/8-artifacts/swapping.webp" style="width:55.0%"
+loading="lazy" decoding="async"
+alt="Swapping processes to the backing store" />
+<figcaption aria-hidden="true">Swapping processes to the backing
+store</figcaption>
+</figure>
+<p><strong>Virtual memory</strong> separates the user’s logical memory
+from physical memory:</p>
+<ul>
+<li>the logical address space can be much larger than physical memory;
+its size is limited by the computer’s <strong>address scheme</strong>,
+not by the physical memory size;</li>
+<li>only part of the program needs to be in memory → <strong>more
+processes in memory</strong> → <strong>higher CPU
+utilization</strong>;</li>
+<li>pages must be able to move in and out.</li>
+</ul>
+<figure>
+<img width="1400" height="873" src="media/8-artifacts/virtual-memory-concept.webp"
+style="width:65.0%" loading="lazy" decoding="async"
+alt="n logical pages mapped onto m &lt; n frames" />
+<figcaption aria-hidden="true">n logical pages mapped onto m &lt; n
+frames</figcaption>
+</figure>
+<p>Virtual memory is implemented mostly with <strong>demand
+paging</strong> (demand segmentation also exists).</p>
+<hr />
+<h2 id="demand-paging-and-page-faults">2. Demand Paging and Page
+Faults</h2>
+<p>A page is brought into memory only when a reference to it is
+generated. Each page-table entry has a <strong>valid–invalid
+bit</strong>:</p>
+<ul>
+<li><strong>v:</strong> the page is in memory; the entry holds its
+<strong>frame number</strong>.</li>
+<li><strong>i:</strong> the page is not in memory; the entry holds the
+page’s <strong>address on disk</strong>.</li>
+<li>Initially every entry is <strong>i</strong>. A translation that
+finds <strong>i</strong> causes a <strong>page fault</strong>.</li>
+</ul>
+<p>The backing store always holds the <strong>entire process
+image</strong>.</p>
+<figure>
+<img width="1400" height="856" src="media/8-artifacts/demand-paging.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Demand paging" />
+<figcaption aria-hidden="true">Demand paging</figcaption>
+</figure>
+<p><strong>Handling a page fault</strong> (lecture steps):</p>
+<ol type="1">
+<li>On a reference, the page table is checked to see whether the page is
+in memory.</li>
+<li>If not, the CPU <strong>traps to the OS</strong>, and the state of
+the interrupted process is saved.</li>
+<li>The OS uses the page-table entry to <strong>locate the page in the
+backing store</strong>.</li>
+<li>The OS finds a <strong>free frame</strong> (free-frame list, or a
+page-replacement algorithm) and schedules a <strong>disk read</strong>
+of the page into it.</li>
+<li>When the read completes, the page-table entry is updated (frame
+number, bit set to <strong>v</strong>).</li>
+<li>The process state is restored and the faulting <strong>instruction
+restarts</strong>.</li>
+</ol>
+<figure>
+<img width="1400" height="866" src="media/8-artifacts/page-fault-steps.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Page-fault steps" />
+<figcaption aria-hidden="true">Page-fault steps</figcaption>
+</figure>
+<h3 id="performance">Performance</h3>
+<p>With page-fault probability
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>≤</mo><mi>p</mi><mo>≤</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">0 \le p \le 1</annotation></semantics></math>;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">p = 0</annotation></semantics></math>
+means no faults,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">p = 1</annotation></semantics></math>
+means every reference faults):</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">EAT</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>p</mi><mo stretchy="false" form="postfix">)</mo><mo>×</mo><mtext mathvariant="normal">memory access time</mtext><mo>+</mo><mi>p</mi><mo>×</mo><mtext mathvariant="normal">page fault time</mtext></mrow><annotation encoding="application/x-tex">\text{EAT} = (1 - p) \times \text{memory access time} + p \times \text{page fault time}</annotation></semantics></math></p>
+<p>In practice memory access time ≪ page-fault time, which includes
+context switching and disk I/O. <strong>Example (not in the
+lecture):</strong> memory access 100 ns, fault time 8 ms. To keep EAT
+within 10% (110 ns):
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>110</mn><mo>≥</mo><mn>100</mn><mo>+</mo><mi>p</mi><mo stretchy="false" form="prefix">(</mo><mn>8</mn><mo>,</mo><mn>000</mn><mo>,</mo><mn>000</mn><mo>−</mo><mn>100</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">110 \ge 100 + p(8{,}000{,}000 - 100)</annotation></semantics></math>
+→
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>p</mi><mo>≤</mo><mn>1.25</mn><mo>×</mo><msup><mn>10</mn><mrow><mi>−</mi><mn>6</mn></mrow></msup></mrow><annotation encoding="application/x-tex">p \le 1.25 \times 10^{-6}</annotation></semantics></math>,
+under one fault in 800,000 references.</p>
+<details class="qa box">
+<summary>
+<strong>AY17/18 S1 Q3c:</strong> TLB hit/miss and page fault
+combinations <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Which combinations can occur?</p>
+<ul>
+<li><strong>TLB hit, page in memory:</strong> yes.</li>
+<li><strong>TLB hit, page fault:</strong> <strong>no.</strong> The TLB
+caches page-table entries of resident pages; a TLB hit means the page is
+in memory.</li>
+<li><strong>TLB miss, no page fault:</strong> yes. The page-table entry
+is valid; the TLB is refilled.</li>
+<li><strong>TLB miss, page fault:</strong> yes. The page is in neither
+(e.g. not yet loaded, or evicted).</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="page-replacement">3. Page Replacement</h2>
+<p>If a page fault finds <strong>no free frame</strong>, the OS finds a
+page in memory that is not really in use and <strong>pages it
+out</strong>.</p>
+<p><img width="1400" height="859" src="media/8-artifacts/need-for-replacement.webp"
+style="width:60.0%" loading="lazy" decoding="async"
+alt="Page replacement needed" /> <img width="1172" height="1062"
+src="media/8-artifacts/page-replacement-steps.webp" style="width:65.0%"
+loading="lazy" decoding="async"
+alt="Four steps of page replacement" /></p>
+<ol type="1">
+<li>Find a <strong>victim</strong> with the replacement algorithm and
+write it to the backing store (<strong>page-out</strong>).</li>
+<li>Mark the victim’s page-table entry <strong>invalid</strong>.</li>
+<li>Read the desired page into the freed frame
+(<strong>page-in</strong>).</li>
+<li>Update the new page’s page-table entry.</li>
+</ol>
+<p>Two transfers (one out, one in) raise the fault time further. The
+<strong>modify (dirty) bit</strong> reduces this: a page not modified
+since it was loaded is not written back. <strong>Only dirty pages are
+written to the backing store.</strong></p>
+<p>Page replacement completes the separation of logical from physical
+memory: a large virtual memory can run on a small physical memory.</p>
+<details class="qa box">
+<summary>
+<strong>Past-paper T/F:</strong> Dirty and reference bits <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY18/19 S1 Q3a(ii):</strong> <em>If a page fault occurs and
+there is no free frame available, two page transfers, one in and one
+out, must be performed.</em> <strong>False.</strong> The page-out is
+needed only if the victim is dirty.</li>
+<li><strong>AY17/18 S2 Q3a(v):</strong> <em>If its reference bit is set,
+a page need not be written back when replaced.</em>
+<strong>False.</strong> Write-back depends on the <strong>dirty</strong>
+bit; the reference bit only says the page was used.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="page-replacement-algorithms">4. Page-Replacement Algorithms</h2>
+<p><strong>Goal:</strong> the lowest page-fault rate. Evaluate an
+algorithm by running it on a <strong>reference string</strong> of page
+numbers and counting faults. Lecture string:
+<code>1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5</code>.
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>
+= fault.)</p>
+<p>Normally more frames give fewer faults:</p>
+<figure>
+<img width="1266" height="734" src="media/8-artifacts/faults-vs-frames.webp" style="width:50.0%"
+loading="lazy" decoding="async" alt="Faults vs. frames" />
+<figcaption aria-hidden="true">Faults vs. frames</figcaption>
+</figure>
+<h3 id="fifo">FIFO</h3>
+<p>Replace the page that has been <strong>in memory the longest</strong>
+(by load time). Hits do not change the order. The easiest algorithm.</p>
+<div class="table-wrap">
+<table style="width: 59%;">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr>
+<th>Ref</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>1</th>
+<th>2</th>
+<th>5</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3 frames</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td>F</td>
+<td>F</td>
+<td></td>
+</tr>
+<tr>
+<td>4 frames</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>3 frames: 9 faults. 4 frames: 10 faults.</strong> More frames
+gave more faults: this is <strong>Belady’s anomaly</strong>.</p>
+<h3 id="optimal-opt">Optimal (OPT)</h3>
+<p>Replace the page that will <strong>not be used for the longest
+time</strong>. The OS cannot know future references, so OPT is
+theoretically best but practically infeasible; it is the
+<strong>benchmark</strong> for other algorithms. 4 frames: <strong>6
+faults</strong>.</p>
+<div class="table-wrap">
+<table style="width: 56%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+</colgroup>
+<thead>
+<tr>
+<th>Ref</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>1</th>
+<th>2</th>
+<th>5</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td><strong>4</strong></td>
+<td>4</td>
+</tr>
+<tr>
+<td>F2</td>
+<td></td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>F3</td>
+<td></td>
+<td></td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>F4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td><strong>5</strong></td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Fault</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td>F</td>
+<td></td>
+<td></td>
+<td></td>
+<td>F</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>OPT has no Belady’s anomaly. Adding a frame only adds look-ahead, so
+it has the <strong>inclusion property</strong>: the pages in memory with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+frames are always a subset of those with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">n + 1</annotation></semantics></math>
+frames.</p>
+<h3 id="lru">LRU</h3>
+<p>Replace the page <strong>not used for the longest time</strong>: OPT
+looking backward instead of forward. It also has the inclusion property,
+so <strong>no Belady’s anomaly</strong>. 4 frames: <strong>8
+faults</strong>.</p>
+<div class="table-wrap">
+<table style="width: 56%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+</colgroup>
+<thead>
+<tr>
+<th>Ref</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>1</th>
+<th>2</th>
+<th>5</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td>1</td>
+<td><strong>5</strong></td>
+</tr>
+<tr>
+<td>F2</td>
+<td></td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>F3</td>
+<td></td>
+<td></td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+<td><strong>5</strong></td>
+<td>5</td>
+<td>5</td>
+<td>5</td>
+<td><strong>4</strong></td>
+<td>4</td>
+</tr>
+<tr>
+<td>F4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td>4</td>
+<td><strong>3</strong></td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Fault</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td>F</td>
+<td></td>
+<td></td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Implementations:</strong></p>
+<ul>
+<li><strong>Counter:</strong> each page-table entry has a time-of-use
+field; the CPU increments a logical clock on every memory reference and
+copies it into the referenced page’s field. On a fault, evict the page
+with the <strong>smallest</strong> time-of-use (needs a search).</li>
+<li><strong>Stack:</strong> a stack of page numbers in a doubly linked
+list. On a reference, move the page to the top; the <strong>bottom is
+the LRU page</strong>. Updates are expensive, but no search is
+needed.</li>
+</ul>
+<h3 id="lru-approximation-second-chance-clock">LRU approximation: second
+chance (clock)</h3>
+<p>The hardware for exact LRU is expensive and generally not available,
+but many systems have a <strong>reference bit
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math></strong>:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+starts at <strong>0</strong> when a page is loaded; the hardware sets
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R = 1</annotation></semantics></math>
+when the page is referenced.</li>
+<li>Replace a page with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R = 0</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+does not give the exact order of use, and many pages may have
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R = 0</annotation></semantics></math>.</li>
+</ul>
+<p><strong>Second chance</strong> is a variation of FIFO. Take the
+<strong>oldest</strong> page as the candidate. If its
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R = 1</annotation></semantics></math>,
+clear
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+and treat the page as if it had <strong>just been loaded</strong>;
+otherwise evict it.</p>
+<p><strong>Clock</strong> implements second chance with a circular
+queue:</p>
+<figure>
+<img width="1400" height="968" src="media/8-artifacts/clock-algorithm.webp" style="width:50.0%"
+loading="lazy" decoding="async" alt="Clock algorithm" />
+<figcaption aria-hidden="true">Clock algorithm</figcaption>
+</figure>
+<ol type="1">
+<li>The hand points to the <strong>oldest</strong> page.</li>
+<li>On a page fault, inspect the page under the hand. If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R = 1</annotation></semantics></math>:
+clear it and advance. If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R = 0</annotation></semantics></math>:
+evict it, put the new page there, and <strong>advance one
+position</strong>.</li>
+<li>A hit sets
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R = 1</annotation></semantics></math>;
+the hand does not move.</li>
+<li><strong>Worst case:</strong> all bits set. The hand cycles the whole
+queue, clearing every bit (a second chance for every page), and evicts
+the page it started at. <strong>Clock then degenerates to
+FIFO.</strong></li>
+</ol>
+<p><strong>Lecture clock trace</strong>, 4 frames, each cell is (page,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>);
+the hand starts at F1 and wraps from F4 back to F1:</p>
+<div class="table-wrap">
+<table style="width: 80%;">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+</colgroup>
+<thead>
+<tr>
+<th>Ref</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>1</th>
+<th>2</th>
+<th>5</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F1</td>
+<td>1,0</td>
+<td>1,0</td>
+<td>1,0</td>
+<td>1,0</td>
+<td>1,1</td>
+<td>1,1</td>
+<td>1,0</td>
+<td>1,1</td>
+<td>1,1</td>
+<td>1,1</td>
+<td>1,0</td>
+<td>1,0</td>
+</tr>
+<tr>
+<td>F2</td>
+<td></td>
+<td>2,0</td>
+<td>2,0</td>
+<td>2,0</td>
+<td>2,0</td>
+<td>2,1</td>
+<td>2,0</td>
+<td>2,0</td>
+<td>2,1</td>
+<td>2,1</td>
+<td>2,0</td>
+<td>2,0</td>
+</tr>
+<tr>
+<td>F3</td>
+<td></td>
+<td></td>
+<td>3,0</td>
+<td>3,0</td>
+<td>3,0</td>
+<td>3,0</td>
+<td><strong>5,0</strong></td>
+<td>5,0</td>
+<td>5,0</td>
+<td>5,0</td>
+<td><strong>4,0</strong></td>
+<td>4,0</td>
+</tr>
+<tr>
+<td>F4</td>
+<td></td>
+<td></td>
+<td></td>
+<td>4,0</td>
+<td>4,0</td>
+<td>4,0</td>
+<td>4,0</td>
+<td>4,0</td>
+<td>4,0</td>
+<td><strong>3,0</strong></td>
+<td>3,0</td>
+<td><strong>5,0</strong></td>
+</tr>
+<tr>
+<td>Fault</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td>F</td>
+<td></td>
+<td></td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>8 faults.</strong> At ref 5 the hand clears 1 and 2 and
+evicts 3. At ref 3 it evicts 4
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R = 0</annotation></semantics></math>).
+At ref 4 it clears 1 and 2 again and evicts 5. At the last ref 5 it
+evicts 3.</p>
+<h3 id="beladys-anomaly-summary">Belady’s anomaly summary</h3>
+<div class="table-wrap">
+<table style="width: 76%;">
+<colgroup>
+<col style="width: 18%" />
+<col style="width: 40%" />
+<col style="width: 40%" />
+</colgroup>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th style="text-align: center;">Inclusion property</th>
+<th style="text-align: center;">Belady’s anomaly possible?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OPT, LRU</td>
+<td style="text-align: center;">Yes (“stack algorithms”)</td>
+<td style="text-align: center;"><strong>No</strong></td>
+</tr>
+<tr>
+<td>FIFO, Clock</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;"><strong>Yes</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+<strong>Tutorial 9 Q3:</strong> FIFO, Clock, LRU on one string <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>For each policy, count the page faults
+for the reference string 0 1 6 0 3 4 0 1 0 3 4 6 3 4, with 4 empty
+frames: (a) FIFO, (b) CLOCK, (c) LRU.</em></p>
+<p><strong>Solution</strong> <em>(my working; Tutorial 9 solutions are
+not out yet)</em>:</p>
+<p><strong>(a) FIFO: 10 faults</strong></p>
+<div class="table-wrap">
+<table style="width: 64%;">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr>
+<th>Ref</th>
+<th>0</th>
+<th>1</th>
+<th>6</th>
+<th>0</th>
+<th>3</th>
+<th>4</th>
+<th>0</th>
+<th>1</th>
+<th>0</th>
+<th>3</th>
+<th>4</th>
+<th>6</th>
+<th>3</th>
+<th>4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evict</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>0</td>
+<td>1</td>
+<td>6</td>
+<td></td>
+<td></td>
+<td></td>
+<td>3</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Fault</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td></td>
+<td></td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>(b) Clock (new page R = 0, hit sets R = 1): 7
+faults</strong></p>
+<ul>
+<li>0, 1, 6 load into F1–F3; 0 hits
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mn>0</mn></msub><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R_0 = 1</annotation></semantics></math>);
+3 loads into F4; hand back at F1.</li>
+<li>4: F1 holds 0 with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R = 1</annotation></semantics></math>
+→ clear, advance; F2 holds 1 with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R = 0</annotation></semantics></math>
+→ <strong>evict 1</strong>. Hand at F3.</li>
+<li>0 hits. 1: F3 holds 6 with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R = 0</annotation></semantics></math>
+→ <strong>evict 6</strong>. Hand at F4.</li>
+<li>0, 3, 4 hit
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R = 1</annotation></semantics></math>
+on 0, 3, 4).</li>
+<li>6: hand clears 3 (F4), 0 (F1), 4 (F2), finds 1 with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R = 0</annotation></semantics></math>
+in F3 → <strong>evict 1</strong>.</li>
+<li>3, 4 hit. Faults: 0, 1, 6, 3, 4, 1, 6 = <strong>7</strong>.</li>
+</ul>
+<p><strong>(c) LRU: 7 faults</strong></p>
+<div class="table-wrap">
+<table style="width: 64%;">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+<col style="width: 6%" />
+</colgroup>
+<thead>
+<tr>
+<th>Ref</th>
+<th>0</th>
+<th>1</th>
+<th>6</th>
+<th>0</th>
+<th>3</th>
+<th>4</th>
+<th>0</th>
+<th>1</th>
+<th>0</th>
+<th>3</th>
+<th>4</th>
+<th>6</th>
+<th>3</th>
+<th>4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Evict</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td>1</td>
+<td></td>
+<td>6</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Fault</td>
+<td>F</td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td>F</td>
+<td>F</td>
+<td></td>
+<td>F</td>
+<td></td>
+<td></td>
+<td></td>
+<td>F</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 10 Q1:</strong> Rebuild a reference string from LRU
+evictions <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>A process has four frames and uses
+pages 1–5, with LRU replacement. Initially a page is loaded in each
+frame. The pages paged out, in order, are 3, 1, 2, 4, 5, N, 1 (N = no
+page paged out). (a) Which pages are initially loaded? (b) What is the
+reference string?</em></p>
+<p><strong>Solution</strong> <em>(my working)</em>:</p>
+<ol type="1">
+<li>With 5 pages and 4 frames, exactly one page is outside memory at any
+time, and a fault always loads that page. So each fault after the first
+loads the page evicted by the previous fault.</li>
+<li>The evictions 3, 1, 2, 4 are all of pages that were in memory, and a
+just-loaded page is the most recent, so it cannot be the next LRU
+victim. The first fault therefore loads <strong>5</strong>. <strong>(a)
+Initially loaded: 1, 2, 3, 4</strong>, in LRU order 3, 1, 2, 4.</li>
+<li>Faults 1–5 load 5, 3, 1, 2, 4. After them the LRU order is again 3,
+1, 2, 4.</li>
+<li>“N” is a <strong>hit</strong>. The next fault evicts 1, so 1 must be
+LRU: the hit is on <strong>3</strong> (any other hit leaves 3 as LRU).
+The last fault loads the page evicted by fault 5:
+<strong>5</strong>.</li>
+<li><strong>(b) Reference string: 5, 3, 1, 2, 4, 3, 5.</strong></li>
+</ol>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Additional Practice Q5:</strong> FIFO, second chance, LRU from a
+table <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Four frames: page 0 loaded at 126,
+last access 279, R = 0; page 1: 230, 260, R = 0; page 2: 120, 272, R =
+1; page 3: 160, 280, R = 1. Which page will (a) FIFO, (b) second chance,
+(c) LRU replace?</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(a) FIFO:</strong> earliest loaded → <strong>page 2</strong>
+(120).</li>
+<li><strong>(b) Second chance:</strong> oldest is page 2, but
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">R = 1</annotation></semantics></math>
+→ clear, treat as just loaded. Next oldest is page 0 (126),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">R = 0</annotation></semantics></math>
+→ <strong>page 0</strong>.</li>
+<li><strong>(c) LRU:</strong> earliest last access → <strong>page
+1</strong> (260).</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Additional Practice Q6:</strong> Bounds on page faults <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>M frames, initially empty. A reference
+string has length L and N distinct pages (N &lt; L). (a) What are the
+lower and upper bounds on page faults under FIFO? (b) Different under
+LRU?</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(a)</strong> <strong>Lower bound N:</strong> each distinct
+page faults at least once when first referenced. <strong>Upper bound
+L:</strong> at most every reference faults. (If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mo>≥</mo><mi>N</mi></mrow><annotation encoding="application/x-tex">M \ge N</annotation></semantics></math>,
+every algorithm faults exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>N</mi><annotation encoding="application/x-tex">N</annotation></semantics></math>
+times.)</li>
+<li><strong>(b)</strong> <strong>No</strong>, the bounds are the same
+for LRU: they depend only on the string, not on the algorithm.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY15/16 S2 Q3d:</strong> A cyclic string that defeats FIFO and
+LRU <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Four initially empty frames. (i) How
+many faults does FIFO give for 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5? (ii)
+Will LRU differ? (iii) Design a realistic page-replacement algorithm
+that does better than FIFO and LRU for this sequence.</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(i) 12.</strong> Six pages cycle through four frames, and
+every reference needs exactly the page evicted most recently.</li>
+<li><strong>(ii) No, also 12.</strong> In a strict cycle longer than the
+frames, the LRU page is always the next one referenced.</li>
+<li><strong>(iii)</strong> <strong>Most-recently-used (MRU)</strong>
+replacement: keep 0, 1, 2 and cycle the fourth frame. Faults: 0, 1, 2,
+3, 4, 5, then 0, 1, 2 hit, 3 and 4 fault, 5 hits → <strong>8
+faults</strong> (the same as OPT). It uses only past references, so it
+is realistic. (The posted solution gives a modified clock with 10
+faults; OPT itself is not realistic.)</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Past papers:</strong> Belady’s anomaly and Clock <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY18/19 S1 Q3d:</strong> <em>(i) Define Belady’s anomaly.
+(ii) Does LRU suffer from it?</em> (i) More frames give
+<strong>more</strong> page faults for a reference string. (ii)
+<strong>No.</strong> LRU is a stack algorithm: the pages in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+frames are always a subset of those in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k + 1</annotation></semantics></math>
+frames, so any fault with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k + 1</annotation></semantics></math>
+frames also happens with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+frames.</li>
+<li><strong>AY16/17 S1 Q3a(iv):</strong> <em>As the number of available
+page frames increases, the number of page faults will always decrease no
+matter which algorithm is used.</em> <strong>False.</strong> FIFO can
+show Belady’s anomaly.</li>
+<li><strong>AY18/19 S2 Q3d(ii):</strong> <em>When does Clock behave like
+FIFO?</em> When <strong>all reference bits are set</strong>: the hand
+clears every bit and evicts the oldest page.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="allocation-of-frames">5. Allocation of Frames</h2>
+<p>The OS decides how many frames each process gets:</p>
+<ul>
+<li>fewer frames per process → more processes fit in memory;</li>
+<li>too few frames → more page faults;</li>
+<li>beyond a certain number, more frames do not change the fault
+rate.</li>
+</ul>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 13%" />
+<col style="width: 44%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Fixed allocation</th>
+<th>Variable allocation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Meaning</td>
+<td>A process gets a fixed number of frames (e.g. <strong>equal</strong>
+or <strong>proportional</strong> allocation)</td>
+<td>The number of frames can change over the process’s lifetime</td>
+</tr>
+<tr>
+<td>On a fault</td>
+<td>Replace one of <strong>that process’s</strong> pages</td>
+<td>Local or global</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>Global replacement:</strong> a process picks a victim from
+<strong>all frames</strong>, so it can take a frame from another
+process. Its performance then depends on the other processes.</li>
+<li><strong>Local replacement:</strong> a process picks only from
+<strong>its own</strong> frames. It may hinder other processes by
+holding on to its less-used pages.</li>
+</ul>
+<p><img width="1400" height="862" src="media/8-artifacts/local-vs-global.webp" style="width:70.0%"
+loading="lazy" decoding="async"
+alt="Local vs. global replacement (process A references A6)" /> <img width="1400" height="793"
+src="media/8-artifacts/frame-allocation-summary.webp" style="width:70.0%"
+loading="lazy" decoding="async" alt="Allocation summary" /></p>
+<p><strong>Fixed allocation requires local replacement. Variable
+allocation can use either local or global.</strong></p>
+<details class="qa box">
+<summary>
+<strong>Past-paper T/F:</strong> Allocation and replacement scope <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY16/17 S1 Q3a(vi):</strong> <em>Both local and global page
+replacement policies can be used under the variable frame allocation
+scheme.</em> <strong>True.</strong></li>
+<li><strong>AY18/19 S1 Q3a(iii), AY19/20 S1 Q3a(vi):</strong>
+<em>Variable frame allocation implies a global replacement policy must
+be used.</em> <strong>False.</strong> Either can be used.</li>
+<li><strong>AY17/18 S1 Q3a(v):</strong> <em>Fixed frame allocation can
+only use local replacement.</em> <strong>True.</strong> Global
+replacement would change the frame counts.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY17/18 S2 Q3b:</strong> Translation, fixed allocation, LRU
+vs. FIFO <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Given:</strong> 12-bit logical address, 1 KB pages, 8 frames
+of physical memory, fixed allocation of 3 frames to this process.</p>
+<div class="table-wrap">
+<table style="width: 46%;">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 19%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Page</th>
+<th style="text-align: center;">Frame</th>
+<th style="text-align: center;">Valid</th>
+<th style="text-align: center;">Loaded</th>
+<th style="text-align: center;">Last access</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">120</td>
+<td style="text-align: center;">200</td>
+</tr>
+<tr>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">150</td>
+<td style="text-align: center;">160</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">–</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">–</td>
+<td style="text-align: center;">–</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">140</td>
+<td style="text-align: center;">180</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>(i) Physical address bits:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>8</mn><mo>×</mo><mn>1024</mn><mo>=</mo><mn>8192</mn><mo>=</mo><msup><mn>2</mn><mn>13</mn></msup></mrow><annotation encoding="application/x-tex">8 \times 1024 = 8192 = 2^{13}</annotation></semantics></math>
+→ <strong>13 bits</strong>.</li>
+<li><strong>(ii) Translate:</strong> offset 10 bits.
+<ul>
+<li>1052 → page 1, offset 28 → frame 7 →
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>7</mn><mo>×</mo><mn>1024</mn><mo>+</mo><mn>28</mn><mo>=</mo><mn mathvariant="bold">𝟕𝟏𝟗𝟔</mn></mrow><annotation encoding="application/x-tex">7 \times 1024 + 28 = \mathbf{7196}</annotation></semantics></math>.</li>
+<li>2080 → page 2, offset 32 → invalid → <strong>page fault</strong>, no
+physical address.</li>
+</ul></li>
+<li><strong>(iii) Three consecutive faults under LRU (local,
+fixed):</strong> reference <strong>2, 1, 3</strong>. Page 2 evicts page
+1 (LRU, 160); page 1 then evicts page 3 (180); page 3 then evicts page 0
+(200).</li>
+<li><strong>(iv) Same references under FIFO:</strong> page 2 evicts page
+0 (loaded first, 120); pages 1 and 3 then <strong>hit</strong>. Only one
+fault, so the answer differs.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY19/20 S1 Q3d:</strong> LRU trace on hex addresses <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Given:</strong> 16-bit logical and physical addresses, 4 KB
+pages, LRU with <strong>local</strong> replacement. Resident: page 1 →
+frame 1 (last ref 268), page 7 → frame 8 (230), page 10 → frame 4 (245),
+page 12 → frame 15 (275). References: 0x76F4, 0xB89F, 0x1A86, 0x6987,
+0x7E56, 0xD908.</p>
+<ul>
+<li><strong>(i)</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> KB</mtext></mrow><mo>=</mo><msup><mn>2</mn><mn>12</mn></msup></mrow><annotation encoding="application/x-tex">4\text{ KB} = 2^{12}</annotation></semantics></math>
+→ <strong>12 offset bits</strong>; the top hex digit is the page
+number.</li>
+<li><strong>(ii), (iv)</strong> Number the references from tick
+276:</li>
+</ul>
+<div class="table-wrap">
+<table style="width: 78%;">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 12%" />
+<col style="width: 8%" />
+<col style="width: 55%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Tick</th>
+<th style="text-align: center;">Address</th>
+<th style="text-align: center;">Page</th>
+<th>Result</th>
+<th style="text-align: center;">Physical</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">276</td>
+<td style="text-align: center;">0x76F4</td>
+<td style="text-align: center;">7</td>
+<td>Hit (frame 8)</td>
+<td style="text-align: center;">0x86F4</td>
+</tr>
+<tr>
+<td style="text-align: center;">277</td>
+<td style="text-align: center;">0xB89F</td>
+<td style="text-align: center;">11</td>
+<td><strong>Fault</strong>: evict page 10 (245) from frame 4</td>
+<td style="text-align: center;">0x489F</td>
+</tr>
+<tr>
+<td style="text-align: center;">278</td>
+<td style="text-align: center;">0x1A86</td>
+<td style="text-align: center;">1</td>
+<td>Hit (frame 1)</td>
+<td style="text-align: center;">0x1A86</td>
+</tr>
+<tr>
+<td style="text-align: center;">279</td>
+<td style="text-align: center;">0x6987</td>
+<td style="text-align: center;">6</td>
+<td><strong>Fault</strong>: evict page 12 (275) from frame 15</td>
+<td style="text-align: center;">0xF987</td>
+</tr>
+<tr>
+<td style="text-align: center;">280</td>
+<td style="text-align: center;">0x7E56</td>
+<td style="text-align: center;">7</td>
+<td>Hit (frame 8)</td>
+<td style="text-align: center;">0x8E56</td>
+</tr>
+<tr>
+<td style="text-align: center;">281</td>
+<td style="text-align: center;">0xD908</td>
+<td style="text-align: center;">13</td>
+<td><strong>Fault</strong>: evict page 11 (277) from frame 4</td>
+<td style="text-align: center;">0x4908</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>3 page faults.</strong></p>
+<ul>
+<li><strong>(iii)</strong> Final frame column: page 1 → 1, page 6 → 15,
+page 7 → 8, page 13 → 4; every other page shows “–”.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="thrashing">6. Thrashing</h2>
+<p>If a process does not have “enough” pages, its <strong>page-fault
+rate is very high</strong>, which gives <strong>low CPU
+utilization</strong>. The common wisdom for low utilization is to raise
+the degree of multiprogramming, so another process is added, which takes
+frames and makes CPU utilization <strong>drop further</strong>.</p>
+<p><strong>Thrashing:</strong> a process is busy bringing pages in and
+out, and no useful work is done.</p>
+<figure>
+<img width="1344" height="862" src="media/8-artifacts/thrashing.webp" style="width:55.0%"
+loading="lazy" decoding="async" alt="Thrashing" />
+<figcaption aria-hidden="true">Thrashing</figcaption>
+</figure>
+<p>Two strategies combat it: the <strong>working-set model</strong> and
+the <strong>page-fault frequency</strong> scheme.</p>
+<details class="qa box">
+<summary>
+<strong>Tutorial 10 Q3:</strong> CPU 20%, paging disk 97.7% <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>A demand-paging system measures CPU
+utilization 20%, paging disk 97.7%, other I/O devices 5%. Which (if any)
+will probably improve CPU utilization? (a) faster CPU, (b) bigger paging
+disk, (c) increase multiprogramming, (d) decrease multiprogramming, (e)
+more main memory, (f) faster hard disk or multiple hard disks, (g)
+increase the page size.</em></p>
+<p><strong>Answer</strong> <em>(my working)</em>: the system is
+<strong>thrashing</strong> (CPU idle, paging disk saturated).</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 10%" />
+<col style="width: 62%" />
+</colgroup>
+<thead>
+<tr>
+<th>Option</th>
+<th style="text-align: center;">Helps?</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(a) Faster CPU</td>
+<td style="text-align: center;">No</td>
+<td>The CPU is already idle, waiting for pages</td>
+</tr>
+<tr>
+<td>(b) Bigger paging disk</td>
+<td style="text-align: center;">No</td>
+<td>Size is not the bottleneck; speed is</td>
+</tr>
+<tr>
+<td>(c) More multiprogramming</td>
+<td style="text-align: center;">No</td>
+<td>Fewer frames per process → more faults</td>
+</tr>
+<tr>
+<td>(d) Less multiprogramming</td>
+<td style="text-align: center;"><strong>Yes</strong></td>
+<td>Each remaining process gets enough frames</td>
+</tr>
+<tr>
+<td>(e) More main memory</td>
+<td style="text-align: center;"><strong>Yes</strong></td>
+<td>More frames → fewer faults</td>
+</tr>
+<tr>
+<td>(f) Faster / more disks</td>
+<td style="text-align: center;"><strong>Yes</strong></td>
+<td>Faults are serviced faster</td>
+</tr>
+<tr>
+<td>(g) Larger pages</td>
+<td style="text-align: center;">Unclear</td>
+<td>Fewer faults if access is sequential; more wasted memory (and
+possibly more faults) if access is scattered</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Past papers:</strong> Thrashing <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY15/16 S2 Q3c:</strong> <em>Explain thrashing, its cause,
+and a strategy to prevent it.</em> A process busy paging in and out,
+doing no work. <strong>Cause:</strong> too few frames for its pages →
+high fault rate → low CPU utilization → the OS adds processes →
+utilization drops further. <strong>Prevention:</strong> working-set
+model (if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>&gt;</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">D &gt; m</annotation></semantics></math>,
+suspend a process) or page-fault frequency (give or take frames to keep
+the fault rate between bounds).</li>
+<li><strong>AY16/17 S1 Q3a(v):</strong> <em>Thrashing can be temporarily
+alleviated by swapping out some processes.</em>
+<strong>True.</strong></li>
+<li><strong>AY17/18 S2 Q3a(vi):</strong> <em>Thrashing can be detected
+by comparing CPU utilization with the degree of multiprogramming.</em>
+<strong>True.</strong> Low utilization at high multiprogramming signals
+thrashing.</li>
+<li><strong>AY19/20 S1 Q3a(v):</strong> <em>Using demand-paging
+increases the degree of multiprogramming and hence always improves CPU
+utilization.</em> <strong>False.</strong> Too much multiprogramming
+causes thrashing.</li>
+<li><strong>AY18/19 S2 Q3e:</strong> <em>How do physical memory size,
+degree of multiprogramming, and secondary-storage access time affect
+performance?</em> More memory → more pages resident → fewer faults. More
+multiprogramming raises utilization up to a point, then causes
+thrashing. Disk access time dominates the page-fault time, so a slow
+disk raises EAT sharply.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="locality-and-the-working-set-model">7. Locality and the
+Working-Set Model</h2>
+<p><strong>Locality of reference:</strong> processes refer to pages in a
+localized manner.</p>
+<ul>
+<li><strong>Temporal locality:</strong> locations referred to just
+before are likely to be referred to again (references cluster in
+time).</li>
+<li><strong>Spatial locality:</strong> code and data are usually
+clustered physically.</li>
+</ul>
+<p><strong>Lecture example:</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>sum <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span>i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> n<span class="op">;</span> i<span class="op">++)</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    sum <span class="op">+=</span> a<span class="op">[</span>i<span class="op">];</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> sum<span class="op">;</span></span></code></pre></div>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 39%" />
+<col style="width: 45%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Temporal</th>
+<th>Spatial</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Data</td>
+<td><code>sum</code> is referenced in every iteration</td>
+<td>elements of <code>a[]</code> are accessed consecutively</td>
+</tr>
+<tr>
+<td>Instructions</td>
+<td>the loop body runs repeatedly</td>
+<td>instructions run in sequence</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>During its lifetime, a process’s references are confined to a subset
+of pages, which leads to the working-set model.</p>
+<figure>
+<img width="1400" height="437" src="media/8-artifacts/working-set-window.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Working-set window" />
+<figcaption aria-hidden="true">Working-set window</figcaption>
+</figure>
+<ul>
+<li><strong>Working-set window
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>:</strong>
+a fixed number of page references. With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mo>=</mo><mn>10</mn></mrow><annotation encoding="application/x-tex">\Delta = 10</annotation></semantics></math>,
+the working set at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mn>1</mn></msub><annotation encoding="application/x-tex">t_1</annotation></semantics></math>
+is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mn>1</mn><mo>,</mo><mn>2</mn><mo>,</mo><mn>5</mn><mo>,</mo><mn>6</mn><mo>,</mo><mn>7</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{1, 2, 5, 6, 7\}</annotation></semantics></math>
+and at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>t</mi><mn>2</mn></msub><annotation encoding="application/x-tex">t_2</annotation></semantics></math>
+is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><mn>3</mn><mo>,</mo><mn>4</mn><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{3, 4\}</annotation></semantics></math>.</li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>W</mi><mi>S</mi><msub><mi>S</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">WSS_i</annotation></semantics></math></strong>
+(working-set size of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>):
+number of distinct pages referenced in the most recent
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>
+references (varies in time).</li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>=</mo><mo>∑</mo><mi>W</mi><mi>S</mi><msub><mi>S</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">D = \sum WSS_i</annotation></semantics></math></strong>:
+total demand for frames;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+= total frames.</li>
+<li>If
+<strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>&gt;</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">D &gt; m</annotation></semantics></math>
+→ thrashing</strong>. Policy: if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>D</mi><mo>&gt;</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">D &gt; m</annotation></semantics></math>,
+<strong>suspend (swap out) one of the processes</strong>.</li>
+</ul>
+<h3 id="page-fault-frequency-pff">Page-fault frequency (PFF)</h3>
+<figure>
+<img width="1400" height="857" src="media/8-artifacts/page-fault-frequency.webp"
+style="width:55.0%" loading="lazy" decoding="async"
+alt="Page-fault frequency" />
+<figcaption aria-hidden="true">Page-fault frequency</figcaption>
+</figure>
+<p>Set an “acceptable” page-fault rate per process:</p>
+<ul>
+<li>rate <strong>too low</strong> → take a frame from the process;</li>
+<li>rate <strong>too high</strong> → give the process a frame;</li>
+<li>if the rate rises and <strong>no frame is free</strong>, suspend
+(swap out) a process.</li>
+</ul>
+<details class="qa box">
+<summary>
+<strong>Tutorial 10 Q2:</strong> LRU vs. working-set faults <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>A process has four frames. Frame 0
+holds page 1 (loaded 60, last access 161); frame 1 holds page 0 (130,
+160); frame 2 holds page 3 (26, 162); frame 3 holds page 2 (20, 163).
+The remaining reference string is 4, 0, 0, 0, 2, 4, 2, 1, 0, 3, 2. (a)
+How many faults with LRU? (b) With a working-set window of four, how
+many faults if only the pages in the working set are kept in memory
+(instead of a fixed allocation of four frames)?</em></p>
+<p><strong>Solution</strong> <em>(my working)</em>:</p>
+<ul>
+<li><strong>(a) LRU: 4 faults.</strong> LRU order by last access: 0
+(160), 1 (161), 3 (162), 2 (163).
+<ul>
+<li>4 → evict <strong>0</strong>. 0 → evict <strong>1</strong>. 0, 0, 2,
+4, 2 hit. 1 → evict <strong>3</strong>. 0 hits. 3 → evict
+<strong>4</strong>. 2 hits.</li>
+<li>Faults on 4, 0, 1, 3.</li>
+</ul></li>
+<li><strong>(b) Working set,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi mathvariant="normal">Δ</mi><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">\Delta = 4</annotation></semantics></math>:
+7 faults.</strong> The previous four references (times 160–163) are 0,
+1, 3, 2. A reference faults if its page is not among the last four
+references before it.</li>
+</ul>
+<div class="table-wrap">
+<table style="width:100%;">
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 7%" />
+<col style="width: 5%" />
+<col style="width: 5%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 7%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+</colgroup>
+<thead>
+<tr>
+<th>Ref</th>
+<th style="text-align: center;">4</th>
+<th style="text-align: center;">0</th>
+<th style="text-align: center;">0</th>
+<th style="text-align: center;">0</th>
+<th style="text-align: center;">2</th>
+<th style="text-align: center;">4</th>
+<th style="text-align: center;">2</th>
+<th style="text-align: center;">1</th>
+<th style="text-align: center;">0</th>
+<th style="text-align: center;">3</th>
+<th style="text-align: center;">2</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WS before</td>
+<td style="text-align: center;">0,1,2,3</td>
+<td style="text-align: center;">1,2,3,4</td>
+<td style="text-align: center;">0,2,3,4</td>
+<td style="text-align: center;">0,2,4</td>
+<td style="text-align: center;">0,4</td>
+<td style="text-align: center;">0,2</td>
+<td style="text-align: center;">0,2,4</td>
+<td style="text-align: center;">0,2,4</td>
+<td style="text-align: center;">1,2,4</td>
+<td style="text-align: center;">0,1,2,4</td>
+<td style="text-align: center;">0,1,2,3</td>
+</tr>
+<tr>
+<td>Fault?</td>
+<td style="text-align: center;"><strong>F</strong></td>
+<td style="text-align: center;"><strong>F</strong></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"><strong>F</strong></td>
+<td style="text-align: center;"><strong>F</strong></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"><strong>F</strong></td>
+<td style="text-align: center;"><strong>F</strong></td>
+<td style="text-align: center;"><strong>F</strong></td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The working set shrinks to two pages during the run of 0s, so pages 2
+and 4 drop out and must be fetched again.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY18/19 S1 Q3e:</strong> Window too small or too large <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>
+too small:</strong> each process keeps few pages in memory →
+<strong>high fault rate</strong>; many processes fit →
+<strong>high</strong> degree of multiprogramming.</li>
+<li><strong><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi mathvariant="normal">Δ</mi><annotation encoding="application/x-tex">\Delta</annotation></semantics></math>
+too large:</strong> each process keeps many pages → <strong>low fault
+rate</strong>; few processes fit → <strong>low</strong> degree of
+multiprogramming.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY17/18 S2 Q3c and AY16/17 S1 Q3c:</strong> Locality in code
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY17/18 S2 Q3c:</strong> <em>(i) Explain locality. (ii)
+Which loop has better locality?</em> C stores 2-D arrays <strong>row by
+row</strong>. With <code>i</code> (row) as the outer loop and
+<code>j</code> inside, consecutive accesses stay in one row, which lies
+in one page: strong spatial locality. With <code>j</code> outside, every
+inner step jumps to a different row, which is a different page: many
+more pages touched and many more faults. <strong>The
+<code>i</code>-outer loop is better.</strong></li>
+<li><strong>AY16/17 S1 Q3c:</strong> <em>Array or linked list under
+demand paging?</em> An <strong>array</strong> is allocated as one
+contiguous block, so its elements share pages. A <strong>linked
+list</strong> allocates nodes on demand, scattered over many pages, so
+traversing it causes more page faults.</li>
+</ul>
+</div>
+</details>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/7-memory-organization/7.html">← 7.
+Memory Organization</a>
+  <a class="next-page" href="../../notes/9-file-systems/9.html">9. File
+Systems →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Mermaid diagrams. Pandoc emits ```mermaid fences as <pre class="mermaid">,
+  // which nothing renders, so the source showed as a code block. Swap each for
+  // a plain <div class="mermaid"> (also keeps the copy-button script below off
+  // it) and load the library only on pages that actually have a diagram.
+  (function () {
+    var blocks = document.querySelectorAll('main#content pre.mermaid');
+    if (!blocks.length) return;
+    blocks.forEach(function (pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    import('https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs')
+      .then(function (m) {
+        m.default.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default' });
+        return m.default.run({ querySelector: 'main#content div.mermaid' });
+      })
+      .catch(function () { /* offline: the diagram source stays visible as text */ });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+
+<script>
+  // Tap-to-answer quiz (mcq.lua). A tap locks in the pick, marks it right or
+  // wrong, and shows the reason. A bar pinned to the bottom keeps the score and
+  // lists the misses once every question is answered. A no-op on pages with no
+  // .mcq block. Nothing is stored: a reload starts the quiz fresh.
+  (function () {
+    var qs = Array.prototype.slice.call(document.querySelectorAll('main#content .mcq'));
+    if (!qs.length) return;
+    var picks = qs.map(function () { return null; });
+
+    var bar = document.createElement('div');
+    bar.className = 'mcq-bar';
+    bar.innerHTML = '<span class="mcq-score"></span>' +
+      '<span class="mcq-actions"><button type="button" class="mcq-reveal">Show all answers</button>' +
+      '<button type="button" class="mcq-reset">Reset</button></span>' +
+      '<span class="mcq-end" hidden></span>';
+    document.getElementById('content').appendChild(bar);
+    document.body.classList.add('has-mcq-bar');
+
+    function opts(q) { return Array.prototype.slice.call(q.querySelectorAll('.mcq-opt')); }
+
+    function show(i) {
+      var q = qs[i];
+      opts(q).forEach(function (b, j) {
+        b.disabled = true;
+        b.classList.remove('is-right', 'is-wrong', 'is-dim');
+        var tag = b.querySelector('.mcq-tag');
+        tag.textContent = '';
+        if (b.hasAttribute('data-ok')) { b.classList.add('is-right'); tag.textContent = 'correct'; }
+        else if (j === picks[i]) { b.classList.add('is-wrong'); tag.textContent = 'your pick'; }
+        else b.classList.add('is-dim');
+      });
+      q.querySelector('.mcq-why').hidden = false;
+    }
+
+    function correct(i) {
+      return picks[i] !== null && opts(qs[i])[picks[i]].hasAttribute('data-ok');
+    }
+
+    function tally() {
+      var done = 0, right = 0, miss = [];
+      qs.forEach(function (q, i) {
+        if (picks[i] !== null) done++;
+        if (correct(i)) right++; else miss.push(i + 1);
+      });
+      bar.querySelector('.mcq-score').innerHTML =
+        '<b>' + done + '</b> / ' + qs.length + ' answered · ' + right + ' correct';
+      var end = bar.querySelector('.mcq-end');
+      if (done === qs.length) {
+        end.hidden = false;
+        end.textContent = miss.length ? 'Revisit: ' + miss.map(function (n) {
+          return 'Q' + n; }).join(', ') : 'Clean sweep.';
+      } else end.hidden = true;
+    }
+
+    qs.forEach(function (q, i) {
+      opts(q).forEach(function (b, j) {
+        b.addEventListener('click', function () {
+          if (b.disabled) return;
+          picks[i] = j; show(i); tally();
+        });
+      });
+    });
+    bar.querySelector('.mcq-reveal').addEventListener('click', function () {
+      qs.forEach(function (q, i) { show(i); });
+    });
+    bar.querySelector('.mcq-reset').addEventListener('click', function () {
+      qs.forEach(function (q, i) {
+        picks[i] = null;
+        opts(q).forEach(function (b) {
+          b.disabled = false;
+          b.classList.remove('is-right', 'is-wrong', 'is-dim');
+          b.querySelector('.mcq-tag').textContent = '';
+        });
+        q.querySelector('.mcq-why').hidden = true;
+      });
+      tally();
+      window.scrollTo(0, 0);
+    });
+    tally();
+  })();
+</script>
+</body>
+</html>

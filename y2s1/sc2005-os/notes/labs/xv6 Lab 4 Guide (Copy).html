@@ -1,0 +1,601 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>xv6 Lab 4 Guide (Copy)</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap">
+<style>
+/* Layout: one reading column on paper, hairline rules instead of cards; greys carry structure, rust accent only for traps and the one thing to notice */
+:root{
+  --paper:#fbfbf9; --tint:#f1f1ed; --code:#f3f3f0;
+  --ink:#15181c; --body:#40454c; --muted:#747981; --faint:#a4a8ae;
+  --rule:#e1e1dc; --rule-strong:#c9cacc;
+  --bar:#5a6069; --mid:#a9aeb4; --lite:#dcdee1;
+  --accent:#a8461f;
+  --onbar:#dcdee1;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --display:'Plus Jakarta Sans','Inter',system-ui,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#000000; --tint:#0e0e0e; --code:#121212;
+  --ink:#f3f3f1; --body:#c8cacd; --muted:#8a8f96; --faint:#5d6168;
+  --rule:#1d1d1d; --rule-strong:#343434;
+  --bar:#e4e5e7; --mid:#6b7076; --lite:#232427; --onbar:#55595f;
+  --accent:#e0703f; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --paper:#000000; --tint:#0e0e0e; --code:#121212;
+  --ink:#f3f3f1; --body:#c8cacd; --muted:#8a8f96; --faint:#5d6168;
+  --rule:#1d1d1d; --rule-strong:#343434;
+  --bar:#e4e5e7; --mid:#6b7076; --lite:#232427; --onbar:#55595f;
+  --accent:#e0703f; color-scheme:dark;}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--body);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.wrap{max-width:660px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-block:0 72px}
+
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--rule)}
+nav .row{max-width:660px;margin:0 auto;display:flex;gap:22px;overflow-x:auto;padding-block:13px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));scrollbar-width:none}
+nav .row::-webkit-scrollbar{display:none}
+nav a{flex:none;font-size:14px;font-weight:500;color:var(--muted)}
+nav a:hover{color:var(--ink)}
+
+header{padding-block:40px 6px}
+.meta{font-size:14px;font-weight:500;color:var(--muted);margin:0 0 12px}
+h1{font-family:var(--display);font-weight:700;font-size:31px;line-height:1.15;letter-spacing:-.01em;color:var(--ink);margin:0 0 14px;text-wrap:balance}
+.lede{font-size:17px;line-height:1.55;margin:0}
+
+section{padding-top:52px;scroll-margin-top:56px}
+h2{font-family:var(--display);font-weight:700;font-size:25px;line-height:1.2;letter-spacing:-.01em;color:var(--ink);margin:0 0 18px;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:18px;color:var(--ink);margin:34px 0 10px;text-wrap:balance}
+p{margin:0 0 14px}
+b,strong{font-weight:600;color:var(--ink)}
+code{font-family:var(--mono);font-size:.86em;color:var(--ink);background:var(--code);padding:.08em .32em}
+pre{font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--ink);background:var(--code);border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule);padding:14px 16px;overflow-x:auto;margin:0 0 18px}
+pre code{background:none;padding:0;font-size:inherit}
+.c{color:var(--muted)}
+
+ul.plain{list-style:none;margin:0 0 16px;padding:0}
+ul.plain li{position:relative;padding-left:22px;margin:0 0 8px}
+ul.plain li::before{content:"–";position:absolute;left:0;color:var(--muted)}
+ol.steps{list-style:none;counter-reset:s;margin:0 0 16px;padding:0;border-top:1px solid var(--rule-strong)}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:8px;padding:11px 0;border-bottom:1px solid var(--rule)}
+ol.steps li::before{content:counter(s);font-family:var(--display);font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+ol.steps li>span{min-width:0}
+
+figure{margin:22px 0 26px}
+figure svg{display:block;width:100%;height:auto;max-width:460px}
+figcaption{font-size:14px;line-height:1.5;color:var(--muted);margin-top:10px}
+
+.quiz{border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule);padding:14px 0;margin:0 0 16px}
+.quiz .qlabel{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.quiz .qtext{font-family:var(--display);font-weight:600;color:var(--ink);font-size:16px;line-height:1.4;margin-bottom:10px}
+.quiz ol{margin:0;padding-left:1.4em;font-size:15px}
+.quiz li{margin-bottom:4px}
+.quiz li.ok{color:var(--ink);font-weight:600}
+.quiz li.ok::after{content:"  correct";font-size:12px;font-weight:600;color:var(--accent)}
+.trap{display:grid;grid-template-columns:52px 1fr;gap:10px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:12px 0;margin:-1px 0 0}
+.trap+:not(.trap){margin-top:18px}
+.trap>span:first-child{font-size:13px;font-weight:600;color:var(--accent);padding-top:2px}
+.trap>span:last-child{min-width:0;font-size:15px;line-height:1.55}
+
+.facts{display:grid;grid-template-columns:minmax(0,9.5em) 1fr;column-gap:20px;border-top:1px solid var(--rule-strong);margin:0 0 18px}
+.facts>div{padding:12px 0;border-bottom:1px solid var(--rule);min-width:0}
+.facts>div:nth-child(odd){font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ink);overflow-wrap:anywhere;padding-top:14px}
+.facts .sub{display:block;font-size:14px;color:var(--muted)}
+
+.tbl{overflow-x:auto;margin:0 0 18px}
+table{border-collapse:collapse;width:100%}
+th{font-size:13px;font-weight:500;color:var(--muted);text-align:left;padding:0 14px 9px 0;border-bottom:1px solid var(--rule-strong);vertical-align:bottom}
+td{font-size:15px;line-height:1.45;padding:11px 14px 11px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+td:first-child{color:var(--ink);font-variant-numeric:tabular-nums}
+td code{white-space:nowrap}
+tr.bad td{color:var(--accent)}
+
+.qs{border-top:1px solid var(--rule-strong)}
+details{border-bottom:1px solid var(--rule)}
+summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:34px 1fr 16px;gap:8px;align-items:baseline;padding:15px 0}
+summary::-webkit-details-marker{display:none}
+summary .qn{font-family:var(--display);font-weight:600;font-size:15px;color:var(--accent);font-variant-numeric:tabular-nums}
+summary .qt{font-family:var(--display);font-weight:600;font-size:16px;line-height:1.35;color:var(--ink);min-width:0}
+summary .tg{font-size:18px;color:var(--faint);line-height:1}
+details[open] summary .tg{transform:rotate(45deg)}
+details .ans{padding:0 0 16px 42px;font-size:15px}
+details .ans p:last-child{margin:0}
+
+.dg text{font-family:var(--sans)}
+.dg .t{font-size:13px;font-weight:500;fill:var(--ink)}
+.dg .s{font-size:11px;fill:var(--muted)}
+.dg .h{font-size:11px;font-weight:500;fill:var(--muted)}
+.dg .m{font-family:var(--mono);font-size:11.5px;fill:var(--ink)}
+.dg .inv{fill:var(--paper)}
+.dg .acc{fill:var(--accent)}
+.dg .box{fill:var(--paper);stroke:var(--ink);stroke-width:1.3}
+.dg .ol{fill:var(--paper);stroke:var(--faint);stroke-width:1.3}
+.dg .own{fill:var(--bar)}
+.dg .lite{fill:var(--lite)}
+.dg .abox{fill:var(--paper);stroke:var(--accent);stroke-width:1.3}
+.dg .ln{stroke:var(--muted);stroke-width:1.3;fill:none}
+.dg .lacc{stroke:var(--accent);stroke-width:1.3;fill:none}
+.dg .dash{stroke:var(--faint);stroke-width:1.3;stroke-dasharray:5 4;fill:none}
+.dg .ah{fill:var(--muted)}
+.dg .aha{fill:var(--accent)}
+.dg .rule{stroke:var(--rule-strong);stroke-width:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<nav aria-label="Parts"><div class="row">
+  <a href="#p1">Page tables</a><a href="#p1b">sbrk &amp; eager</a><a href="#p2">Counting</a><a href="#p3">Page faults</a><a href="#p3b">Trampoline</a><a href="#p4">Lazy allocation</a><a href="#p4c">Cleanup</a><a href="#check">Self-check</a>
+</div></nav>
+
+<div class="wrap">
+<header>
+  <div class="meta">SC2005 · Lab 4</div>
+  <h1>Virtual memory and lazy allocation</h1>
+  <p class="lede">How xv6 turns a process's addresses into real memory, how you count what a process has reserved versus what it actually holds, what happens when a process touches memory it shouldn't, and how to hand out heap memory only when it's first used. Checked against the course's <code>lab4</code> branch.</p>
+</header>
+
+<!-- ================= PART 1.1 ================= -->
+<section id="p1">
+  <div class="meta">Part 1.1</div>
+  <h2>Page tables: from a process's address to real memory</h2>
+  <p>Every process believes its memory starts at address 0 and runs up to some size. But there is only one RAM, shared by every process and the kernel. So the addresses a program uses can't be the real RAM addresses. Something has to translate.</p>
+  <ul class="plain">
+    <li>A <strong>virtual address</strong> is what the program uses. Each process has its own set.</li>
+    <li>A <strong>physical address</strong> is a real location in RAM.</li>
+    <li>Memory is handled in 4,096-byte blocks. A block of virtual addresses is a <strong>page</strong>. A block of RAM is a <strong>frame</strong>. (xv6's comments call frames "physical pages", same thing.)</li>
+    <li>A <strong>page table</strong> is the per-process lookup that says "virtual page X lives in frame Y, and these accesses are allowed". The CPU hardware reads it on every memory access.</li>
+  </ul>
+
+  <h3>Why three levels instead of one big table</h3>
+  <p>The obvious design is one flat array with an entry per virtual page. xv6's address space has 2<sup>27</sup> possible pages, and each entry is 8 bytes, so a flat table would be 1 GiB <em>per process</em>, even for a program using a few pages. That's hopeless.</p>
+  <p>The fix is a tree. The top table splits the address space into big chunks. A chunk nobody uses has no table below it at all. Only the parts a process actually uses get filled in. RISC-V's scheme for this is called <strong>Sv39</strong>: 39-bit virtual addresses, three levels of tables.</p>
+
+  <h3>Working out the bit fields</h3>
+  <p>Two sizes give you everything:</p>
+  <ol class="steps">
+    <li><span>A page is 4,096 = 2<sup>12</sup> bytes, so the <strong>offset</strong> (which byte inside the page) needs 12 bits: bits 11–0.</span></li>
+    <li><span>Each page table is itself one page. 4,096 bytes ÷ 8 bytes per entry = 512 = 2<sup>9</sup> entries, so each <strong>index</strong> needs 9 bits.</span></li>
+    <li><span>Stack three indexes above the offset, starting from level 0 just above bit 11.</span></li>
+  </ol>
+  <div class="tbl"><table>
+    <thead><tr><th>Field</th><th>Bits</th><th>Role</th></tr></thead>
+    <tbody>
+      <tr><td>Level-2 index</td><td>38–30</td><td>Pick an entry in the root table</td></tr>
+      <tr><td>Level-1 index</td><td>29–21</td><td>Pick an entry in a level-1 table</td></tr>
+      <tr><td>Level-0 index</td><td>20–12</td><td>Pick the entry that maps this page to a frame</td></tr>
+      <tr><td>Page offset</td><td>11–0</td><td>Pick the byte inside that frame</td></tr>
+    </tbody>
+  </table></div>
+  <p>9 + 9 + 9 + 12 = 39 bits, hence Sv39. xv6 only uses the lower half of that range: <code>MAXVA</code> in <code>kernel/riscv.h</code> is 2<sup>38</sup>, so every address it uses has bits 63–38 equal to zero. The macro <code>PX(level, va)</code> pulls out one index: shift right by 12 + 9 × level, then keep the low 9 bits.</p>
+
+  <figure>
+    <svg class="dg" viewBox="0 0 360 96" role="img" aria-label="A 39-bit virtual address split into level-2, level-1 and level-0 indexes of 9 bits each and a 12-bit offset">
+      <text class="h" x="0" y="12">one virtual address (bit numbers above each field)</text>
+      <text class="s" x="22" y="32" text-anchor="middle">63–39</text>
+      <text class="s" x="77" y="32" text-anchor="middle">38–30</text>
+      <text class="s" x="147" y="32" text-anchor="middle">29–21</text>
+      <text class="s" x="217" y="32" text-anchor="middle">20–12</text>
+      <text class="s" x="306" y="32" text-anchor="middle">11–0</text>
+      <rect class="lite" x="0" y="40" width="44" height="30"/>
+      <rect class="box" x="44" y="40" width="68" height="30"/>
+      <rect class="box" x="112" y="40" width="70" height="30"/>
+      <rect class="box" x="182" y="40" width="70" height="30"/>
+      <rect class="abox" x="252" y="40" width="108" height="30"/>
+      <text class="s" x="22" y="59" text-anchor="middle">zero</text>
+      <text class="t" x="78" y="60" text-anchor="middle">L2 index</text>
+      <text class="t" x="147" y="60" text-anchor="middle">L1 index</text>
+      <text class="t" x="217" y="60" text-anchor="middle">L0 index</text>
+      <text class="t acc" x="306" y="60" text-anchor="middle">offset</text>
+      <text class="s" x="147" y="88" text-anchor="middle">9 bits each: 512 entries per table</text>
+      <text class="s" x="306" y="88" text-anchor="middle">12 bits: 4,096 bytes</text>
+    </svg>
+  </figure>
+
+  <h3>What's in a page-table entry (PTE)</h3>
+  <p>Each 8-byte entry holds a 44-bit <strong>physical page number</strong> (PPN: the frame's address with its low 12 bits dropped, since frames always start on a 4,096 boundary) plus flag bits:</p>
+  <div class="facts">
+    <div>PTE_V</div><div>Valid<span class="sub">If this is 0, the entry means nothing and any access through it faults.</span></div>
+    <div>PTE_R / W / X</div><div>Read, write, execute allowed</div>
+    <div>PTE_U</div><div>User mode may use it<span class="sub">Without U, only the kernel can touch the page. This is how the stack guard page is blocked.</span></div>
+  </div>
+  <p>The same entry format means different things at different levels:</p>
+  <ul class="plain">
+    <li>A valid <strong>level-2 or level-1</strong> entry points to the next table down. It has V set but none of R, W, X.</li>
+    <li>A valid <strong>level-0</strong> entry (a "leaf") points to the frame that holds the actual data, with R/W/X/U saying what's allowed.</li>
+  </ul>
+
+  <figure>
+    <svg class="dg" viewBox="0 0 360 150" role="img" aria-label="walk follows the level-2 entry to a level-1 table, then to a level-0 table, whose leaf entry points to the data frame">
+      <text class="h" x="35" y="12" text-anchor="middle">root (L2)</text>
+      <text class="h" x="130" y="12" text-anchor="middle">L1 table</text>
+      <text class="h" x="225" y="12" text-anchor="middle">L0 table</text>
+      <text class="h" x="322" y="12" text-anchor="middle">data frame</text>
+      <rect class="box" x="0" y="20" width="70" height="96"/>
+      <rect class="box" x="95" y="20" width="70" height="96"/>
+      <rect class="box" x="190" y="20" width="70" height="96"/>
+      <rect class="abox" x="288" y="20" width="70" height="96"/>
+      <rect class="own" x="0" y="36" width="70" height="14"/>
+      <rect class="own" x="95" y="66" width="70" height="14"/>
+      <rect class="own" x="190" y="50" width="70" height="14"/>
+      <line class="ln" x1="70" y1="43" x2="88" y2="43"/><path class="ah" d="M95 43 l-9 -4.5 v9 z"/>
+      <line class="ln" x1="165" y1="73" x2="183" y2="73"/><path class="ah" d="M190 73 l-9 -4.5 v9 z"/>
+      <line class="lacc" x1="260" y1="57" x2="281" y2="57"/><path class="aha" d="M288 57 l-9 -4.5 v9 z"/>
+      <text class="m acc" x="323" y="72" text-anchor="middle">byte at</text>
+      <text class="m acc" x="323" y="86" text-anchor="middle">offset</text>
+      <text class="s" x="0" y="132">L2/L1 entries: V only,</text>
+      <text class="s" x="0" y="145">point to a table</text>
+      <text class="s" x="190" y="132">L0 entry: V + R W X U,</text>
+      <text class="s" x="190" y="145">points to the frame</text>
+    </svg>
+    <figcaption>Each index picks one row; each row's PPN says where the next table (or finally the data frame) is. A frame can hold a page table or process data. They look alike in RAM; only how they're reached differs.</figcaption>
+  </figure>
+
+  <h3>Three fields of struct proc you'll use</h3>
+  <div class="facts">
+    <div>p-&gt;sz</div><div>Process size in bytes<span class="sub">The user address range is 0 up to (not including) p-&gt;sz. Also called the program break.</span></div>
+    <div>p-&gt;pagetable</div><div>This process's root page table</div>
+    <div>p-&gt;trapframe</div><div>Where the user's registers are saved during a trap (Part 3)</div>
+  </div>
+
+  <h3>walk() and walkaddr()</h3>
+  <p><code>walk(pagetable, va, alloc)</code> in <code>kernel/vm.c</code> does the lookup in software, the same way the hardware does:</p>
+<pre><code>for level = 2, then 1:
+  pte = &amp;pagetable[PX(level, va)]
+  if pte is valid:  pagetable = the table it points to
+  else if alloc:    kalloc() a fresh page, zero it,
+                    install it here with PTE_V only
+  else:             return 0              <span class="c">// no table: nothing mapped</span>
+return &amp;pagetable[PX(0, va)]              <span class="c">// pointer to the L0 entry</span></code></pre>
+  <ul class="plain">
+    <li>It returns a <strong>pointer to the level-0 entry</strong>, not a frame address. That entry may still be invalid. You check <code>PTE_V</code> yourself.</li>
+    <li>With <code>alloc = 1</code>, the only thing it creates is <strong>missing page-table pages</strong>. It never allocates a frame for data.</li>
+    <li>It panics if <code>va &gt;= MAXVA</code>.</li>
+  </ul>
+  <p><code>walkaddr(pagetable, va)</code> calls <code>walk</code> with <code>alloc = 0</code> and returns the frame's physical address, but only if the entry is valid <strong>and has PTE_U</strong>. The kernel uses it when handling an address a user passed in, so a user can't trick the kernel into reading a page the user isn't allowed to touch.</p>
+  <div class="trap"><span>Trap</span><span>"walk() allocates memory" is half true. It can allocate frames for page tables. Allocating and mapping a data frame is a separate job (kalloc + mappages).</span></div>
+</section>
+
+<!-- ================= PART 1.2 ================= -->
+<section id="p1b">
+  <div class="meta">Part 1.2</div>
+  <h2>Growing the heap: sbrk() and eager allocation</h2>
+  <p>A process's heap grows with the system call <code>sbrk(n)</code>: "move the end of my memory (the <strong>program break</strong>, <code>p-&gt;sz</code>) by n bytes". Here's the path a request takes:</p>
+  <ol class="steps">
+    <li><span><code>malloc</code> runs out of free space and calls <code>morecore()</code> in <code>user/umalloc.c</code>, which asks for at least 4,096 header units with <code>sbrk()</code>.</span></li>
+    <li><span>The user stub (generated from <code>user/usys.pl</code>) puts the syscall number in a register and executes <code>ecall</code>, trapping into the kernel.</span></li>
+    <li><span><code>sys_sbrk()</code> in <code>kernel/sysproc.c</code> saves the old size, <code>addr = p-&gt;sz</code>, calls <code>growproc(n)</code>, and returns <code>addr</code>.</span></li>
+    <li><span><code>growproc()</code> in <code>kernel/proc.c</code>: if n &gt; 0 it calls <code>uvmalloc()</code>; if n &lt; 0 it calls <code>uvmdealloc()</code>; if n = 0 it changes nothing. Then it sets <code>p-&gt;sz</code>.</span></li>
+    <li><span><code>uvmalloc()</code> in <code>kernel/vm.c</code> does the real work, one page at a time.</span></li>
+  </ol>
+<pre><code>for each page from PGROUNDUP(oldsz) up to newsz:
+  mem = kalloc()                  <span class="c">// take a free frame</span>
+  memset(mem, 0, PGSIZE)          <span class="c">// clear it</span>
+  mappages(pagetable, a, PGSIZE, mem, PTE_R|PTE_U|PTE_W)
+  <span class="c">// on any failure: kfree what was just taken, undo earlier pages, return 0</span></code></pre>
+  <div class="facts">
+    <div>kalloc()</div><div>Take one free 4,096-byte frame off the kernel's free list<span class="sub">In <code>kernel/kalloc.c</code>. Returns 0 if RAM is exhausted. It fills the frame with junk bytes, which is why the caller must clear it.</span></div>
+    <div>kfree(pa)</div><div>Put a frame back on the free list</div>
+    <div>mappages(pt, va, size, pa, perm)</div><div>Install leaf entries so <code>va</code> maps to <code>pa</code><span class="sub">Uses <code>walk(…, 1)</code> to create any missing tables. Panics if an entry is already valid ("remap"). Returns -1 if a table can't be allocated.</span></div>
+  </div>
+  <p>Why clear the frame? A recycled frame may still hold another process's data. Handing it over uncleared would leak that data.</p>
+  <p>This is <strong>eager allocation</strong>: the frames are handed out the moment the memory is asked for, whether or not the program ever touches them.</p>
+
+  <h3>What sbrk returns, and why the old break</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Call</th><th>Effect</th><th>Returns</th></tr></thead>
+    <tbody>
+      <tr><td>sbrk(n), n &gt; 0</td><td>grows the heap by n bytes</td><td>old break</td></tr>
+      <tr><td>sbrk(0)</td><td>nothing</td><td>current break</td></tr>
+      <tr><td>sbrk(n), n &lt; 0</td><td>shrinks, freeing whole pages that fall off the end</td><td>old break</td></tr>
+      <tr class="bad"><td>failure</td><td>nothing changes</td><td>-1</td></tr>
+    </tbody>
+  </table></div>
+  <p>Returning the <strong>old</strong> break hands the caller the start of the memory it just got: the new region runs from old break to old break + n. That's exactly the pointer <code>morecore()</code> turns into a free block.</p>
+
+  <figure>
+    <svg class="dg" viewBox="0 0 400 268" role="img" aria-label="User address space: code and data at 0, then the guard page, one stack page, the heap up to p->sz, then a large unused gap, with TRAPFRAME and TRAMPOLINE at the very top">
+      <text class="h" x="0" y="12">user address space (high addresses at the top)</text>
+      <rect class="box" x="0" y="22" width="180" height="22"/><text class="m" x="10" y="37">TRAMPOLINE</text>
+      <rect class="box" x="0" y="44" width="180" height="22"/><text class="m" x="10" y="59">TRAPFRAME</text>
+      <text class="s" x="190" y="38">top page, just below MAXVA</text>
+      <text class="s" x="190" y="60">saved user registers</text>
+      <text class="s" x="10" y="94">unused (huge gap)</text>
+      <line class="dash" x1="0" y1="80" x2="180" y2="80"/><line class="dash" x1="0" y1="108" x2="180" y2="108"/>
+      <line class="lacc" x1="0" y1="124" x2="236" y2="124"/><text class="m acc" x="242" y="128">p-&gt;sz</text>
+      <rect class="ol" x="0" y="124" width="180" height="40"/><text class="t" x="10" y="148">heap</text>
+      <text class="s" x="190" y="146">grows up with sbrk</text>
+      <rect class="box" x="0" y="164" width="180" height="22"/><text class="t" x="10" y="179">stack (1 page)</text>
+      <rect class="own" x="0" y="186" width="180" height="22"/><text class="t inv" x="10" y="201">guard page</text>
+      <text class="s" x="190" y="196">frame, PTE_U off</text>
+      <rect class="box" x="0" y="208" width="180" height="40"/><text class="t" x="10" y="232">code + data</text>
+      <text class="s" x="190" y="252">address 0</text>
+      <line class="ln" x1="330" y1="126" x2="330" y2="246"/>
+      <text class="s" x="336" y="182">counted</text>
+      <text class="s" x="336" y="196">in Part 2</text>
+    </svg>
+    <figcaption>From <code>exec()</code> and <code>kernel/memlayout.h</code>. The heap sits directly above the one-page stack, and the guard page below the stack catches a stack overflow. TRAPFRAME and TRAMPOLINE live far above <code>p-&gt;sz</code>.</figcaption>
+  </figure>
+
+  <div class="quiz"><div class="qlabel">Practice</div>
+    <div class="qtext">p-&gt;sz is 0x5000. A process calls sbrk(8192). What does the call return, and what is p-&gt;sz afterwards?</div>
+    <ol><li>Returns 0x7000; p-&gt;sz = 0x7000</li><li class="ok">Returns 0x5000; p-&gt;sz = 0x7000</li><li>Returns 0; p-&gt;sz = 0x7000</li><li>Returns 0x5000; p-&gt;sz = 0x5000 until the pages are touched</li></ol></div>
+  <p>8,192 = 0x2000. sbrk returns the old break, the start of the new region. On the supplied eager kernel, both pages are allocated immediately.</p>
+</section>
+
+<!-- ================= PART 2 ================= -->
+<section id="p2">
+  <div class="meta">Part 2</div>
+  <h2>Counting virtual pages and physical frames</h2>
+  <p>To tell eager and lazy allocation apart, you need two numbers: how much address space a process has <strong>reserved</strong>, and how much RAM is actually <strong>backing</strong> it. You'll add two system calls for these.</p>
+  <div class="facts">
+    <div>countvp()</div><div>Virtual pages in the range 0 to p-&gt;sz<span class="sub">A partly used last page counts as one. Includes the guard page.</span></div>
+    <div>countpp()</div><div>Frames backing that same range through valid level-0 entries<span class="sub">Includes the guard page's frame, even though user access to it is off.</span></div>
+  </div>
+  <p>Both work on the calling process, which you get with <code>myproc()</code>.</p>
+
+  <h3>countvp: just arithmetic</h3>
+  <p>The range is 0 up to <code>p-&gt;sz</code>, and any partly used page still counts. That's <code>PGROUNDUP(p-&gt;sz) / PGSIZE</code>. <code>PGROUNDUP</code> (in <code>kernel/riscv.h</code>) rounds an address up to the next multiple of 4,096, or leaves it alone if it's already on one.</p>
+
+  <h3>countpp: walk every page and look</h3>
+<pre><code>count = 0
+for va = 0; va &lt; p-&gt;sz; va += PGSIZE:
+  pte = walk(p-&gt;pagetable, va, 0)       <span class="c">// alloc = 0: look, never create</span>
+  if pte != 0 and (*pte &amp; PTE_V):
+    count++</code></pre>
+  <ul class="plain">
+    <li><strong>alloc must be 0.</strong> A counting call must not change the page table it's measuring.</li>
+    <li><strong>Use walk, not walkaddr.</strong> walkaddr returns 0 for any entry without PTE_U, so it would skip the guard page. The manual says the guard page's frame counts.</li>
+  </ul>
+
+  <h3>Why the guard page has a frame but no PTE_U</h3>
+  <p>In <code>exec()</code>, xv6 allocates <strong>two</strong> pages above the program with <code>uvmalloc</code>, then calls <code>uvmclear()</code> on the lower one. <code>uvmclear</code> clears that entry's PTE_U bit. So the page is still valid and still has a frame, but any user access to it faults. If the stack overflows downward, it hits this page and the process is killed instead of silently overwriting its own data.</p>
+
+  <h3>What is not counted</h3>
+  <ul class="plain">
+    <li>Frames holding the <strong>page tables themselves</strong>. They're reached through non-leaf entries, not through a user address.</li>
+    <li>The process's <strong>kernel stack</strong>, which lives in the kernel's page table.</li>
+    <li><strong>TRAMPOLINE and TRAPFRAME</strong>, which are far above <code>p-&gt;sz</code>, so the loop never reaches them.</li>
+  </ul>
+
+  <h3>Wiring the two system calls</h3>
+  <p>Same steps as Lab 1. This branch's syscall numbers end at 21 (<code>SYS_close</code>), so the new ones are 22 and 23.</p>
+  <ol class="steps">
+    <li><span><code>kernel/syscall.h</code>: <code>#define SYS_countvp 22</code> and <code>SYS_countpp 23</code>.</span></li>
+    <li><span><code>kernel/syscall.c</code>: an <code>extern uint64 sys_countvp(void);</code> declaration for each, and an entry in the <code>syscalls[]</code> table.</span></li>
+    <li><span><code>kernel/sysproc.c</code>: the two handlers. <code>walk</code> is already declared in <code>kernel/defs.h</code>, so you can call it there. If you put the counting code in <code>vm.c</code> instead, declare your function in <code>defs.h</code>.</span></li>
+    <li><span><code>user/usys.pl</code>: <code>entry("countvp");</code> and <code>entry("countpp");</code>. <code>usys.S</code> is generated from this; don't edit it.</span></li>
+    <li><span><code>user/user.h</code> already declares both. Delete the two placeholder functions at the top of <code>user/lazytest.c</code> so its calls reach your system calls.</span></li>
+  </ol>
+
+  <h3>Reading lazytest on the eager kernel</h3>
+  <p><code>lazytest</code> calls <code>sbrk(4096 * 30)</code>, then writes one byte at offsets 0, 4096, …, 4096 × 29 from the returned address: 30 different pages. It prints the counts before, after sbrk, and after touching.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Point in the test</th><th>VP change</th><th>PP change (eager)</th></tr></thead>
+    <tbody>
+      <tr><td>After sbrk</td><td>+30</td><td>+30</td></tr>
+      <tr><td>After touching</td><td>+30</td><td>+30 (no further rise)</td></tr>
+    </tbody>
+  </table></div>
+  <p>PP jumps straight away because uvmalloc maps all 30 frames inside the sbrk call. Touching them later finds them already mapped, so nothing new is allocated. The test's "Error: PP count changed immediately" line is <strong>expected</strong> here; it's written for the lazy kernel of Part 4.</p>
+  <div class="trap"><span>Trap</span><span>lazytest always exits with status 0, even after printing an error. Judge by the printed numbers, not by the exit status or a "Success" line. If every count prints 0, your calls are still hitting the placeholders.</span></div>
+</section>
+
+<!-- ================= PART 3 ================= -->
+<section id="p3">
+  <div class="meta">Part 3.1–3.2</div>
+  <h2>Page faults: what happens on a bad access</h2>
+  <p>A <strong>trap</strong> is anything that forces the CPU out of the user program and into the kernel. There are three kinds: a system call (the program asked), a device interrupt (hardware needs attention), and an <strong>exception</strong> (the instruction itself went wrong). A <strong>page fault</strong> is an exception: the hardware couldn't translate the address, or the entry doesn't allow that kind of access.</p>
+  <p>On a trap, the CPU fills three registers that <code>usertrap()</code> in <code>kernel/trap.c</code> can read with functions from <code>kernel/riscv.h</code>:</p>
+  <div class="facts">
+    <div>scause</div><div>Why the trap happened<span class="sub">8 = system call. 12 = instruction-fetch page fault, 13 = load page fault, 15 = store/AMO page fault (AMO: atomic memory operation, counted as a write).</span></div>
+    <div>sepc</div><div>Address of the instruction that trapped<span class="sub">Where the program counter was.</span></div>
+    <div>stval</div><div>For a page fault, the virtual address it tried to access<span class="sub">This is the one you care about for memory.</span></div>
+  </div>
+  <div class="trap"><span>Trap</span><span>sepc is <em>where the code is</em>; stval is <em>what memory it touched</em>. For a fault on a heap byte, sepc is a small address in the program's code and stval is the heap address. Don't mix them up.</span></div>
+
+  <h3>What the supplied kernel does</h3>
+  <p><code>usertrap()</code> handles scause 8 as a system call and checks for a device interrupt. Anything else falls into the last branch, which prints scause, sepc and stval and calls <code>setkilled(p)</code>. A few lines later, <code>if(killed(p)) exit(-1);</code> ends the process. Only that one process dies. The kernel carries on, the shell's <code>wait()</code> returns, and you get a prompt back.</p>
+  <p>The manual asks you to add a short diagnostic in that path that names load (13) and store (15) page faults and prints <code>r_stval()</code>. Keep the kill for now.</p>
+
+  <h3>The fault program</h3>
+  <p><code>user/fault.c</code> calls <code>sbrk(0)</code> to learn the current break without growing anything, then picks <code>PGROUNDUP(break)</code> as its target.</p>
+  <ul class="plain">
+    <li><strong>Why round up?</strong> Memory is mapped in whole pages. If the break is in the middle of a page, the bytes just past it are still inside that mapped page and wouldn't fault. The next page boundary is the first byte that's definitely unmapped. If the break is already on a boundary, it is itself that first unmapped byte.</li>
+    <li><strong>Why volatile?</strong> A read whose result is thrown away looks useless to the compiler, which could delete it. <code>volatile</code> forces the load or store to stay in the machine code.</li>
+  </ul>
+  <div class="tbl"><table>
+    <thead><tr><th>Run</th><th>scause</th><th>stval</th></tr></thead>
+    <tbody>
+      <tr><td>fault read</td><td>13 (load)</td><td>the printed target</td></tr>
+      <tr><td>fault write</td><td>15 (store)</td><td>the printed target</td></tr>
+    </tbody>
+  </table></div>
+  <p>The program prints its target before the access, so you can match it with stval in the kernel's message. The final "ERROR: access returned" line should never print, because the process is killed at the access itself.</p>
+</section>
+
+<!-- ================= PART 3.3 ================= -->
+<section id="p3b">
+  <div class="meta">Part 3.3</div>
+  <h2>The trampoline: switching page tables mid-flight</h2>
+  <p>The user program runs with its own page table. The kernel runs with the kernel's page table. The register <code>satp</code> says which table the hardware is using. So entering the kernel means changing satp. That raises a problem: the very next instruction is fetched through the <em>new</em> table. If the code doing the switch isn't at the same virtual address in both tables, the CPU fetches garbage.</p>
+  <p>The fix is the <strong>trampoline</strong>: one page of assembly (<code>kernel/trampoline.S</code>) mapped at the same address, <code>TRAMPOLINE</code> (the top page, <code>MAXVA − PGSIZE</code>), in <strong>every</strong> user page table and in the kernel's. Code running there survives the switch because its address means the same thing either side.</p>
+
+  <figure>
+    <svg class="dg" viewBox="0 0 360 150" role="img" aria-label="Both the user page table and the kernel page table map TRAMPOLINE to the same physical frame holding the trampoline code">
+      <text class="h" x="55" y="12" text-anchor="middle">user page table</text>
+      <text class="h" x="305" y="12" text-anchor="middle">kernel page table</text>
+      <rect class="box" x="0" y="20" width="110" height="100"/>
+      <rect class="box" x="250" y="20" width="110" height="100"/>
+      <rect class="own" x="0" y="20" width="110" height="20"/><text class="m inv" x="8" y="34">TRAMPOLINE</text>
+      <rect class="lite" x="0" y="40" width="110" height="20"/><text class="m" x="8" y="54">TRAPFRAME</text>
+      <text class="s" x="8" y="96">user pages…</text>
+      <rect class="own" x="250" y="20" width="110" height="20"/><text class="m inv" x="258" y="34">TRAMPOLINE</text>
+      <text class="s" x="258" y="96">kernel memory…</text>
+      <rect class="abox" x="135" y="80" width="90" height="40"/>
+      <text class="t acc" x="180" y="98" text-anchor="middle">trampoline</text>
+      <text class="s" x="180" y="112" text-anchor="middle">one frame</text>
+      <path class="lacc" d="M110 30 H150 V72"/><path class="aha" d="M150 80 l-4.5 -9 h9 z"/>
+      <path class="lacc" d="M250 30 H210 V72"/><path class="aha" d="M210 80 l-4.5 -9 h9 z"/>
+      <text class="s" x="0" y="140">same virtual address, same frame, in both tables</text>
+    </svg>
+  </figure>
+
+  <h3>Into the kernel: uservec</h3>
+  <ol class="steps">
+    <li><span>The trap jumps to <code>uservec</code> (on the trampoline page), still using the user page table.</span></li>
+    <li><span>It saves all the user's registers into the <strong>TRAPFRAME</strong> page. That page is mapped in the user table, just below the trampoline, so it can be reached before the switch. (<code>sscratch</code> briefly holds a0 to free a register.)</span></li>
+    <li><span>It loads the kernel stack pointer, CPU id, address of <code>usertrap</code> and the kernel's page table from the trapframe.</span></li>
+    <li><span>It writes the kernel table into <code>satp</code> (with <code>sfence.vma</code> to flush stale translations), then jumps to <code>usertrap()</code>.</span></li>
+  </ol>
+
+  <h3>Back out: usertrapret and userret</h3>
+  <ol class="steps">
+    <li><span><code>usertrapret()</code> points future traps at uservec, stores the kernel values uservec will need next time into the trapframe, and sets <code>sepc</code> to <code>p-&gt;trapframe-&gt;epc</code>, the user instruction to resume at.</span></li>
+    <li><span>It calls <code>userret</code> on the trampoline, passing the user page table.</span></li>
+    <li><span><code>userret</code> switches satp back to the user table, restores registers from TRAPFRAME, and runs <code>sret</code> to drop to user mode at sepc.</span></li>
+  </ol>
+  <p>For a system call, <code>usertrap()</code> adds 4 to <code>epc</code> so the program resumes <em>after</em> the <code>ecall</code>. Remember that for Part 4.</p>
+
+  <div class="quiz"><div class="qlabel">Practice</div>
+    <div class="qtext">Why does uservec save the user's registers into TRAPFRAME rather than onto the kernel stack?</div>
+    <ol><li>The kernel stack is too small</li><li class="ok">Until satp is switched, only pages in the user table are reachable, and TRAPFRAME is one of them</li><li>The kernel stack belongs to another process</li><li>TRAPFRAME is faster memory</li></ol></div>
+</section>
+
+<!-- ================= PART 4 ================= -->
+<section id="p4">
+  <div class="meta">Part 4.1–4.2</div>
+  <h2>Lazy allocation: frames only on first touch</h2>
+  <p>Programs often reserve far more heap than they use. With eager allocation, every reserved page costs a frame immediately. The fix is <strong>lazy allocation</strong>: <code>sbrk()</code> only reserves the address range, and a frame is allocated the first time each page is actually touched. Pages never touched cost no data frame at all.</p>
+  <p>The trick is that the first touch of a reserved-but-unmapped page causes a page fault. Instead of killing the process, the kernel recognises "this is a page I promised but haven't delivered", delivers it, and lets the instruction try again.</p>
+
+  <h3>4.1 Reserve without allocating</h3>
+  <p>Change positive <code>sbrk(n)</code> so it only raises <code>p-&gt;sz</code>:</p>
+<pre><code>sys_sbrk(n):
+  addr = p-&gt;sz
+  if n &gt; 0:
+    newsz = addr + n
+    if newsz &lt; addr or newsz &gt;= TRAPFRAME:  <span class="c">// wrapped round, or into trap pages</span>
+      return -1
+    p-&gt;sz = newsz                          <span class="c">// no uvmalloc: nothing mapped yet</span>
+  else if n &lt; 0:
+    shrink as before (growproc / uvmdealloc)
+  return addr                              <span class="c">// still the old break</span></code></pre>
+  <ul class="plain">
+    <li>Keep <code>sbrk(0)</code>, the old-break return value and shrinking exactly as they were.</li>
+    <li>The size check matters because nothing else will stop a huge request now. <code>TRAPFRAME</code> and <code>TRAMPOLINE</code> are defined in <code>kernel/memlayout.h</code>.</li>
+    <li>You don't create empty PTEs for the new range. A missing table or an invalid entry both fault on access, and <code>mappages</code> builds any missing tables when you finally map the page.</li>
+  </ul>
+
+  <h3>4.2 Tell a valid first touch from a real error</h3>
+  <p>Now a load or store page fault can mean two very different things. The handler must decide which:</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Fault on…</th><th>Below p-&gt;sz?</th><th>Leaf entry</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>Untouched heap page</td><td>yes</td><td>missing or not valid</td><td>allocate and map</td></tr>
+      <tr class="bad"><td>Guard page</td><td>yes</td><td>valid, no PTE_U</td><td>kill</td></tr>
+      <tr class="bad"><td>Write to code</td><td>yes</td><td>valid, no PTE_W</td><td>kill</td></tr>
+      <tr class="bad"><td>Above the break (the fault program)</td><td>no</td><td>n/a</td><td>kill</td></tr>
+    </tbody>
+  </table></div>
+  <p>The key insight: <strong>checking <code>va &lt; p-&gt;sz</code> alone isn't enough</strong>, because the guard page and code are also below <code>p-&gt;sz</code>. What sets an untouched heap page apart is that it has <em>no valid leaf entry at all</em>. Any page that's valid but faulted anyway is a protection violation.</p>
+<pre><code>in usertrap(), for scause 13 or 15:
+  va = r_stval()                            <span class="c">// the address, not sepc</span>
+  if va &gt;= p-&gt;sz:              kill
+  pte = walk(p-&gt;pagetable, va, 0)
+  if pte != 0 and (*pte &amp; PTE_V):  kill     <span class="c">// exists, so it's a protection fault</span>
+  mem = kalloc()
+  if mem == 0:                 kill
+  memset(mem, 0, PGSIZE)
+  if mappages(p-&gt;pagetable, PGROUNDDOWN(va), PGSIZE, mem,
+              PTE_R | PTE_W | PTE_U) != 0:
+    kfree(mem); kill
+  <span class="c">// do NOT touch p-&gt;trapframe-&gt;epc</span></code></pre>
+  <ul class="plain">
+    <li><strong>Check the range before rounding.</strong> If <code>p-&gt;sz</code> isn't page-aligned, an address just above it rounds down into the last valid page and would wrongly pass. Compare the raw stval first.</li>
+    <li><strong>Check the range before calling walk.</strong> walk panics for addresses at or above MAXVA. Since <code>p-&gt;sz</code> is below the trap pages, testing <code>va &lt; p-&gt;sz</code> first keeps walk safe.</li>
+    <li><strong>Clean up on failure.</strong> If mappages fails after kalloc succeeded, free the frame before killing, or it's lost for good. This is the same pattern as <code>uvmalloc()</code>.</li>
+    <li><strong>"Kill" means</strong> <code>setkilled(p)</code>; the existing <code>if(killed(p)) exit(-1);</code> below finishes the job.</li>
+  </ul>
+
+  <h3>Why the instruction is retried, not skipped</h3>
+  <p>For a system call, <code>epc</code> is bumped by 4 because the <code>ecall</code> has done its job. A page fault is different: the load or store <strong>never happened</strong>. After mapping the page, you return with <code>epc</code> still pointing at that same instruction. It runs again, the translation now succeeds, and the program never knows anything happened.</p>
+
+  <div class="quiz"><div class="qlabel">Practice</div>
+    <div class="qtext">A student's handler allocates a frame for any load/store fault with stval &lt; p-&gt;sz. What breaks?</div>
+    <ol><li>Nothing; every address below p-&gt;sz is legitimate</li><li>Heap pages never get mapped</li><li class="ok">A fault on the guard page reaches mappages on a valid entry, which panics with "remap" instead of killing the process</li><li>The program break moves</li></ol></div>
+  <p>The guard page already has a valid leaf (it just lacks PTE_U). Only a page with no valid entry may be allocated. The same check also stops a write to read-only code from being "fixed".</p>
+</section>
+
+<!-- ================= PART 4.3–4.4 ================= -->
+<section id="p4c">
+  <div class="meta">Part 4.3–4.4</div>
+  <h2>Cleaning up a heap with holes</h2>
+  <p>With lazy allocation, a process can exit or shrink its heap while some reserved pages were never touched. Those pages have no frame. But the freeing code assumes every page in range is mapped:</p>
+  <div class="facts">
+    <div>uvmunmap(pt, va, n, do_free)</div><div>Remove n pages of mappings starting at va, freeing frames if do_free<span class="sub">Panics "uvmunmap: walk" if there's no table, and "uvmunmap: not mapped" if the entry isn't valid.</span></div>
+    <div>uvmdealloc(pt, old, new)</div><div>Used by negative sbrk; calls uvmunmap on the pages that fall off</div>
+    <div>uvmfree(pt, sz)</div><div>Used when a process exits; calls uvmunmap on 0 to sz, then frees the tables</div>
+  </div>
+  <p>So the first exit after a partly touched heap would panic the whole kernel. The fix is in <code>uvmunmap()</code>: when <code>walk</code> returns 0 or the entry isn't valid, that's an untouched page. Skip it (<code>continue</code>) instead of panicking. Free frames that are present as before.</p>
+  <p>Keep the <code>"not a leaf"</code> check. A valid entry with only PTE_V set points to another page table, not a data frame. Freeing it as data would be a real bug.</p>
+  <div class="trap"><span>Trap</span><span>Out of scope, but know why: <code>fork()</code> copies memory with <code>uvmcopy()</code>, which still panics on a missing page, and <code>copyin</code>/<code>copyout</code> (used when a system call reads or writes a user buffer) fail on untouched pages instead of faulting them in. lazytest doesn't exercise any of these, so a pass says nothing about them.</span></div>
+
+  <h3>Expected lazytest numbers</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Point in the test</th><th>VP change</th><th>PP change (lazy)</th></tr></thead>
+    <tbody>
+      <tr><td>After sbrk</td><td>+30</td><td>0</td></tr>
+      <tr><td>After touching all 30</td><td>+30</td><td>+30</td></tr>
+    </tbody>
+  </table></div>
+  <p>The test's final check only asks for an increase of <strong>at least</strong> 30. Expect exactly 30. If you see more, find out why rather than trusting the "Success" label.</p>
+
+  <h3>Extra checks the manual asks for</h3>
+  <ul class="plain">
+    <li><strong>One touch only.</strong> Temporarily change the touch loop to one iteration, keeping the 30-page sbrk. PP should rise by exactly 1, and the process should exit <em>without</em> a uvmunmap panic. That exit is your hole-skipping fix working. Restore the loop afterwards.</li>
+    <li><strong>Negative sbrk</strong> over a partly touched region must release it without panicking (same fix, through uvmdealloc).</li>
+    <li><strong>fault read / fault write still die.</strong> Their target is at or above the break and was never reserved, so <code>va &gt;= p-&gt;sz</code> sends them to kill. lazytest's pages are below <code>p-&gt;sz</code> with no entry, so they're allocated. That's the whole difference.</li>
+  </ul>
+
+  <div class="quiz"><div class="qlabel">Practice</div>
+    <div class="qtext">After implementing lazy sbrk and the fault handler but not changing uvmunmap, lazytest with a one-iteration touch loop ends how?</div>
+    <ol><li>Normally, PP +1</li><li>Normally, PP +30</li><li class="ok">The kernel panics with "uvmunmap: not mapped" when the process exits</li><li>The process is killed on its first touch</li></ol></div>
+
+  <h3>Optional: growing the stack</h3>
+  <p>The stack is fixed at one page with a guard below it. To grow it on demand you'd treat a fault just below the stack as legitimate, map a new page there, and move the guard page down so overflow is still caught. The hard part is telling "the stack wants to grow" from "a wild pointer hit the guard", which usually means setting a maximum stack size.</p>
+</section>
+
+<!-- ================= SELF CHECK ================= -->
+<section id="check">
+  <div class="meta">Before the checkpoints</div>
+  <h2>Self-check</h2>
+  <p>Tap a question to reveal the answer.</p>
+  <div class="qs">
+    <details><summary><span class="qn">01</span><span class="qt">Page vs frame vs PTE?</span><span class="tg">+</span></summary><div class="ans"><p>A page is 4,096 bytes of virtual address space. A frame is 4,096 bytes of RAM. A PTE is the 8-byte entry that maps a page to a frame (or to the next table) and holds the V/R/W/X/U flags.</p></div></details>
+    <details><summary><span class="qn">02</span><span class="qt">Bit ranges of the three indexes and the offset?</span><span class="tg">+</span></summary><div class="ans"><p>L2 38–30, L1 29–21, L0 20–12, offset 11–0. The offset is 12 bits because 4,096 = 2<sup>12</sup>; each index is 9 bits because each table has 512 = 2<sup>9</sup> entries.</p></div></details>
+    <details><summary><span class="qn">03</span><span class="qt">Why three levels instead of one table?</span><span class="tg">+</span></summary><div class="ans"><p>A flat table would need an entry for every possible page (about 1 GiB per process). A tree only has tables for regions that are in use.</p></div></details>
+    <details><summary><span class="qn">04</span><span class="qt">What does walk() return, and what can it allocate?</span><span class="tg">+</span></summary><div class="ans"><p>A pointer to the level-0 entry (which may be invalid), or 0. With alloc = 1 it can allocate missing page-table pages, never data frames.</p></div></details>
+    <details><summary><span class="qn">05</span><span class="qt">Why does walkaddr() check PTE_U?</span><span class="tg">+</span></summary><div class="ans"><p>It's used for addresses a user handed to the kernel. Refusing non-user pages stops a process from getting the kernel to read memory the process itself may not touch, like the guard page.</p></div></details>
+    <details><summary><span class="qn">06</span><span class="qt">Where does eager allocation happen for sbrk?</span><span class="tg">+</span></summary><div class="ans"><p>In uvmalloc(), called from growproc(): kalloc a frame, memset it to 0, mappages it with PTE_R|PTE_U|PTE_W, for every new page.</p></div></details>
+    <details><summary><span class="qn">07</span><span class="qt">Why does sbrk return the old break?</span><span class="tg">+</span></summary><div class="ans"><p>The old break is the start of the newly added region, which is the pointer the caller needs.</p></div></details>
+    <details><summary><span class="qn">08</span><span class="qt">countvp formula?</span><span class="tg">+</span></summary><div class="ans"><p>PGROUNDUP(p-&gt;sz) / PGSIZE, so a partly used last page counts.</p></div></details>
+    <details><summary><span class="qn">09</span><span class="qt">Why use walk(…, 0) rather than walkaddr for countpp?</span><span class="tg">+</span></summary><div class="ans"><p>walkaddr skips entries without PTE_U, so it would miss the guard page, whose frame must be counted. alloc = 0 so counting never creates tables.</p></div></details>
+    <details><summary><span class="qn">10</span><span class="qt">On the eager kernel, why doesn't PP rise when lazytest touches the pages?</span><span class="tg">+</span></summary><div class="ans"><p>All 30 frames were already mapped inside the sbrk call, so the touches fault nothing and allocate nothing.</p></div></details>
+    <details><summary><span class="qn">11</span><span class="qt">scause codes for page faults?</span><span class="tg">+</span></summary><div class="ans"><p>12 instruction fetch, 13 load, 15 store/AMO. (8 is a system call.)</p></div></details>
+    <details><summary><span class="qn">12</span><span class="qt">sepc vs stval on a page fault?</span><span class="tg">+</span></summary><div class="ans"><p>sepc is the address of the faulting instruction. stval is the virtual address it tried to access.</p></div></details>
+    <details><summary><span class="qn">13</span><span class="qt">Why does fault target PGROUNDUP(break)?</span><span class="tg">+</span></summary><div class="ans"><p>Bytes just past a mid-page break are still inside a mapped page. The next page boundary is the first byte guaranteed to be unmapped.</p></div></details>
+    <details><summary><span class="qn">14</span><span class="qt">Why must the trampoline be mapped at the same address in both page tables?</span><span class="tg">+</span></summary><div class="ans"><p>The code that changes satp keeps running after the change. The next instruction is fetched through the new table, so the code must be at the same virtual address in both.</p></div></details>
+    <details><summary><span class="qn">15</span><span class="qt">How does the lazy handler tell a heap page from a protection fault?</span><span class="tg">+</span></summary><div class="ans"><p>The address must be below p-&gt;sz and have no valid leaf entry. A valid entry that still faulted (guard page, read-only code) is a protection violation and is killed.</p></div></details>
+    <details><summary><span class="qn">16</span><span class="qt">Why not advance epc after fixing a page fault?</span><span class="tg">+</span></summary><div class="ans"><p>The load or store never completed. Returning to the same instruction makes it run again, now with the page mapped.</p></div></details>
+    <details><summary><span class="qn">17</span><span class="qt">What must change in uvmunmap, and what must stay?</span><span class="tg">+</span></summary><div class="ans"><p>Skip pages with no table or an invalid entry instead of panicking; they were never touched. Keep the "not a leaf" panic, since a PTE_V-only entry points to a page table, not data.</p></div></details>
+    <details><summary><span class="qn">18</span><span class="qt">Why does lazytest survive its faults while fault is killed?</span><span class="tg">+</span></summary><div class="ans"><p>lazytest's pages are inside the reserved range (below p-&gt;sz) with no entry yet. fault's target is at or above the break and was never reserved.</p></div></details>
+    <details><summary><span class="qn">19</span><span class="qt">What does a lazytest pass not show?</span><span class="tg">+</span></summary><div class="ans"><p>It doesn't test fork with untouched pages (uvmcopy), system calls reading or writing untouched buffers (copyin/copyout), or exact counts, since it accepts any PP increase of at least 30.</p></div></details>
+  </div>
+</section>
+</div>
+
+</body></html>

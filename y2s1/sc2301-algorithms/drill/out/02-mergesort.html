@@ -1,0 +1,1804 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>2. Divide and conquer: mergesort</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="drill.css">
+</head><body data-page="02-mergesort">
+<nav class="top"><a href="index.html">All topics</a><span id="count"></span>
+<label><input type="checkbox" id="onlyshaky"> only shaky</label>
+<button id="export">Copy progress</button></nav>
+<main>
+<h1 id="divide-and-conquer-mergesort">2. Divide and conquer:
+mergesort</h1>
+<h2 id="facts">Facts</h2>
+<div class="q">
+<p>Name the three steps of divide and conquer, and say which step does
+the work in mergesort and in quicksort.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Divide</strong> the problem, <strong>conquer</strong> the
+sub-problems recursively, <strong>combine</strong> the answers.
+Mergesort divides trivially (split at the middle) and does the work in
+<strong>combine</strong> (merge). Quicksort does the work in
+<strong>divide</strong> (partition) and its combine is empty.</p>
+</div>
+</details>
+<div class="q">
+<p>How many comparisons does merging two sorted lists with <span
+class="math inline">m</span> elements in total need in the best and
+worst case?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Best:</strong> <span class="math inline">m/2</span>, when
+every element of one list is smaller than every element of the other
+(the shorter side ends first; with equal lengths <span
+class="math inline">m/2</span>).</li>
+<li><strong>Worst:</strong> <span class="math inline">m-1</span>, when
+the two lists interleave, so one list is exhausted only at the very
+end.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p>Write the recurrence for the worst-case comparisons of mergesort and
+solve it for <span class="math inline">n=2^k</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">W(n)=2W(n/2)+n-1</span> with <span
+class="math inline">W(1)=0</span>. Solution: <span
+class="math inline">W(n)=n\lg n-n+1</span>. Check <span
+class="math inline">n=2</span>: <span class="math inline">2-2+1=1</span>
+comparison.</p>
+</div>
+</details>
+<div class="q">
+<p>Write the recurrence for the best-case comparisons of mergesort and
+solve it for <span class="math inline">n=2^k</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">B(n)=2B(n/2)+n/2</span> with <span
+class="math inline">B(1)=0</span>. Solution: <span
+class="math inline">B(n)=\frac{n}{2}\lg n</span>. Check <span
+class="math inline">n=2</span>: 1 comparison.</p>
+</div>
+</details>
+<div class="q">
+<p>Time, space and stability of mergesort.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">\Theta(n\log n)</span> in best, average and
+worst case. <span class="math inline">O(n)</span> extra space for the
+merge buffer, so it is <strong>not</strong> in-place.
+<strong>Stable</strong>, provided the merge takes from the left list
+when keys are equal (the usual merge). Careful: the lecture’s merge
+pseudocode takes <em>one equal key from each half</em> when the two
+heads are equal, which reorders equal keys when a half holds duplicates,
+e.g. <span class="math inline">[2_a,2_b,2_c]\to[2_a,2_c,2_b]</span> (see
+AY21/22 S2 1(b) below).</p>
+</div>
+</details>
+<div class="q">
+<p>How many levels does the mergesort recursion tree have, and what is
+the cost per level?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>About <span class="math inline">\lceil\lg n\rceil+1</span> levels.
+Every level merges a total of <span class="math inline">n</span>
+elements, so each level costs <span
+class="math inline">\Theta(n)</span>. Total <span
+class="math inline">\Theta(n\log n)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Find the maximum <strong>and</strong> minimum of <span
+class="math inline">n</span> numbers with divide and conquer. How many
+comparisons?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Split into halves, find (max, min) of each, then compare the two
+maxima and the two minima. With base case of 2 elements (1 comparison),
+for <span class="math inline">n=2^k</span>: <span
+class="math inline">T(n)=2T(n/2)+2</span>, <span
+class="math inline">T(2)=1</span>, so <span
+class="math inline">T(n)=\frac32 n-2</span>. The naive method uses <span
+class="math inline">2n-2</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Detect duplicates in an array of <span class="math inline">n</span>
+keys. Give the method and its cost.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Sort, then compare each pair of neighbours: <span
+class="math inline">\Theta(n\log n)</span> with a comparison sort. If
+keys are integers in a range of size <span
+class="math inline">O(n)</span>, use a counter array instead: <span
+class="math inline">\Theta(n)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Why does the merge step need a buffer? Can it be done in place?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Writing a merged element into the array may overwrite an element not
+yet read. A buffer holds one input list while merging back. In-place
+merging exists but is complicated and slower in practice, so the
+standard mergesort uses <span class="math inline">O(n)</span> extra
+space.</p>
+</div>
+</details>
+<h2 id="problems">Problems</h2>
+<h3 id="problem-1-counting-comparisons-exactly">Problem 1: counting
+comparisons exactly</h3>
+<div class="q">
+<p><strong>(a)</strong> Mergesort on the array <span
+class="math inline">[5,2,4,7,1,3,2,6]</span>. Write the merges in the
+order they happen, with the number of comparisons each makes.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The recursion splits to singletons, then merges bottom-up left to
+right.</p>
+<table>
+<thead>
+<tr>
+<th>Merge</th>
+<th>Result</th>
+<th>Comparisons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">[5],[2]</span></td>
+<td><span class="math inline">[2,5]</span></td>
+<td>1</td>
+</tr>
+<tr>
+<td><span class="math inline">[4],[7]</span></td>
+<td><span class="math inline">[4,7]</span></td>
+<td>1</td>
+</tr>
+<tr>
+<td><span class="math inline">[2,5],[4,7]</span></td>
+<td><span class="math inline">[2,4,5,7]</span></td>
+<td>3</td>
+</tr>
+<tr>
+<td><span class="math inline">[1],[3]</span></td>
+<td><span class="math inline">[1,3]</span></td>
+<td>1</td>
+</tr>
+<tr>
+<td><span class="math inline">[2],[6]</span></td>
+<td><span class="math inline">[2,6]</span></td>
+<td>1</td>
+</tr>
+<tr>
+<td><span class="math inline">[1,3],[2,6]</span></td>
+<td><span class="math inline">[1,2,3,6]</span></td>
+<td>3</td>
+</tr>
+<tr>
+<td><span class="math inline">[2,4,5,7],[1,2,3,6]</span></td>
+<td><span class="math inline">[1,2,2,3,4,5,6,7]</span></td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p>Total 17. For <span class="math inline">n=8</span> the worst case is
+<span class="math inline">8\lg8-8+1=17</span>, so this input is a worst
+case. Every merge uses its maximum <span class="math inline">m-1</span>
+comparisons: in each one, the two lists run out at almost the same time.
+In the last merge, 7 is the overall maximum, so the right list <span
+class="math inline">[1,2,3,6]</span> is exhausted first only after 7
+comparisons.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Give a different array of 8 distinct numbers
+that needs only the <strong>best-case</strong> number of comparisons,
+and state that number.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Any sorted array, for example <span
+class="math inline">[1,2,3,4,5,6,7,8]</span>. Every merge finishes the
+left list first, so each merge of size <span
+class="math inline">m</span> uses <span class="math inline">m/2</span>
+comparisons. Total <span
+class="math inline">B(8)=\frac82\cdot3=12</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(c)</strong> Link to heapsort and quicksort: for which of the
+three sorts does the input order change the number of comparisons by
+more than a constant factor?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Only <strong>quicksort</strong>: its worst case is <span
+class="math inline">\Theta(n^2)</span> and its best case is <span
+class="math inline">\Theta(n\log n)</span>. Mergesort differs by at most
+a factor of 2 between best <span class="math inline">\frac n2\lg
+n</span> and worst <span class="math inline">n\lg n</span>. Heapsort is
+<span class="math inline">\Theta(n\log n)</span> for every input.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(d)</strong> Mergesort on a linked list: does the <span
+class="math inline">O(n)</span> extra space requirement change? Does the
+time change?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Merging two linked lists needs no buffer, only pointer changes, so
+the extra space drops to <span class="math inline">O(1)</span> for the
+merge (plus <span class="math inline">O(\log n)</span> recursion stack).
+The time stays <span class="math inline">\Theta(n\log n)</span>. Finding
+the middle costs <span class="math inline">O(n)</span> per level, which
+does not change the recurrence <span
+class="math inline">T(n)=2T(n/2)+\Theta(n)</span>.</p>
+</div>
+</details>
+<h2 id="past-year-questions">Past-year questions</h2>
+<p>Questions from past papers (SC2001/CZ2101/CE2001). Every answer was
+worked out and checked by code; where a circulated official solution
+exists it was compared, and disagreements are flagged.</p>
+<div class="q">
+<p><strong>AY25/26 S2 1(a)</strong> Insertion Sort and Merge Sort (on
+<span class="math inline">n</span> elements). A. Besides the input
+array, Insertion Sort needs an extra <span
+class="math inline">O(n)</span> memory to store the sorted result. B.
+Insertion Sort has running time <span class="math inline">O(n^2)</span>
+in the average case. C. If the input is almost sorted (only a few
+inversions), Insertion Sort is faster than Merge Sort. D. Insertion Sort
+has running time <span class="math inline">O(n\log n)</span> in the best
+case. E. None of the above.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>B and C.</strong></p>
+<ul>
+<li>A false: insertion sort is in place (<span
+class="math inline">O(1)</span> extra).</li>
+<li>B true: average <span class="math inline">\Theta(n^2)</span>. C
+true: <span class="math inline">\Theta(n+k)</span> for <span
+class="math inline">k</span> inversions beats <span
+class="math inline">\Theta(n\log n)</span> when <span
+class="math inline">k</span> is small.</li>
+<li>D: the best case is <span class="math inline">\Theta(n)</span>. Read
+as an upper bound, <span class="math inline">O(n\log n)</span> is
+technically still true, but the examiner means the tight bound, so treat
+D as <strong>false</strong> and expect it to be marked that way.</li>
+<li>E false because B and C are true.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S2 1(b)</strong> Insertion Sort and Merge Sort. A.
+Both use a divide-and-conquer algorithm. B. One element can participate
+in <span class="math inline">n-1</span> merges in Merge Sort. C. Merge
+Sort has running time <span class="math inline">O(n\log n)</span> in the
+worst case. D. Merge Sort has running time <span
+class="math inline">O(n\log n)</span> in the average case. E. A stable
+sort preserves the relative order of equal elements; Merge Sort
+guarantees this.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>C, D and E.</strong></p>
+<ul>
+<li>A false: insertion sort is incremental, not divide and conquer.</li>
+<li>B false: an element takes part in exactly one merge per level of the
+recursion, so in <span class="math inline">\lceil\lg n\rceil</span>
+merges, not <span class="math inline">n-1</span>.</li>
+<li>C and D true: <span class="math inline">\Theta(n\log n)</span> in
+every case.</li>
+<li>E true: the merge takes from the left list when keys are equal, so
+the sort is stable.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S1 1(b)</strong> Which statements about sorting
+algorithms are TRUE? A. Insertion Sort has best case <span
+class="math inline">O(n)</span>, average case <span
+class="math inline">O(n\log n)</span>, worst case <span
+class="math inline">O(n^2)</span>. B. If the array is mostly sorted
+except for a few elements, Insertion Sort provides the best performance.
+C. MergeSort’s worst-case time complexity is the same as its best-case
+time complexity. D. Heapsort has time complexity <span
+class="math inline">O(n)</span> if the array is already sorted.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>B and C.</strong></p>
+<ul>
+<li>A false: the average case of insertion sort is <span
+class="math inline">\Theta(n^2)</span>, not <span
+class="math inline">n\log n</span>.</li>
+<li>B true: time is <span class="math inline">\Theta(n+k)</span> for
+<span class="math inline">k</span> inversions, so a few misplaced
+elements give near-linear time.</li>
+<li>C true: both are <span class="math inline">\Theta(n\log n)</span>
+(best-case comparisons are half the worst case, still <span
+class="math inline">\Theta(n\log n)</span>).</li>
+<li>D false: building the heap is <span class="math inline">O(n)</span>
+but the extraction phase is <span class="math inline">\Theta(n\log
+n)</span> whatever the input.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S2 1(b)</strong> MergeSort (in-place version from the
+lecture). (i) For the input array <span
+class="math inline">A=[4,2,1,5,7,8]</span>, how many times is
+<code>merge()</code> called during sorting? (ii) Are the numbers of key
+comparisons the same for <span
+class="math inline">X=[3,2,1,6,5,4]</span> and <span
+class="math inline">Y=[6,5,4,3,2,1]</span>? Explain.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) 5.</strong> Every call of <code>merge()</code> reduces
+the number of sorted pieces by one. The sort starts with 6 single
+elements and ends with 1 sorted array, so <code>merge()</code> runs
+<span class="math inline">n-1=5</span> times, for any input order. Count
+by structure: each half of 3 needs 2 merges (a 2+1 split), plus 1 final
+merge: <span class="math inline">2+2+1=5</span>.</p>
+<p><strong>(ii) Yes, both need 7 comparisons.</strong> Split each array
+into two halves of 3.</p>
+<ul>
+<li><span class="math inline">X</span>: sort <span
+class="math inline">[3,2,1]</span>: split <span
+class="math inline">[3,2]</span> and <span
+class="math inline">[1]</span>. Merge <span
+class="math inline">[3]</span> and <span class="math inline">[2]</span>:
+1 comparison, giving <span class="math inline">[2,3]</span>. Merge <span
+class="math inline">[2,3]</span> with <span
+class="math inline">[1]</span>: 1 comparison (<span
+class="math inline">2&gt;1</span>, then the right list is empty). So 2.
+Sort <span class="math inline">[6,5,4]</span> the same way: 2. Final
+merge <span class="math inline">[1,2,3]</span> with <span
+class="math inline">[4,5,6]</span>: the left list empties first, 3
+comparisons. Total <span class="math inline">2+2+3=7</span>.</li>
+<li><span class="math inline">Y</span>: the halves are <span
+class="math inline">[6,5,4]</span> and <span
+class="math inline">[3,2,1]</span>. Each costs 2 as above. The final
+merge of <span class="math inline">[4,5,6]</span> with <span
+class="math inline">[1,2,3]</span> empties the right list after 3
+comparisons. Total <span class="math inline">2+2+3=7</span>.</li>
+</ul>
+<p>In both arrays each half is a reversed triple and the two halves do
+not interleave, so the cost is the same.</p>
+<p><strong>Link (a surprise).</strong> Mergesort cost does not follow
+“sortedness”. Over all 720 permutations of 6 keys the cost ranges from 7
+to 11, and 7 is the minimum, reached by both <span
+class="math inline">X</span> and <span class="math inline">Y</span>.
+With 6 keys the already <strong>sorted</strong> array costs 9, more than
+the reversed one (7), because the 3-key half splits as 2 + 1 and the
+left-heavy split favours a reversed input. For <span
+class="math inline">n</span> a power of 2 sorted and reversed both give
+the best case <span class="math inline">\frac n2\lg n</span> (12
+comparisons for <span class="math inline">n=8</span>). Code:
+<code>verify/v_pyp_2425s2.py</code>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S1 1(b)</strong> Which statements about the time
+complexity of the InsertionSort algorithm (on <span
+class="math inline">n</span> elements) are TRUE? A. Best case is <span
+class="math inline">O(n)</span>, average case is <span
+class="math inline">O(n\log n)</span>, and worst case is <span
+class="math inline">O(n^2)</span>. B. The worst-case time complexity
+ONLY occurs when the input array is sorted in reverse order. C. The
+best-case time complexity ONLY occurs when the input array is already
+sorted. D. As the average case is between the worst and the best, we can
+use the Squeeze Theorem to obtain the average-case time complexity. E.
+None of the above.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>E (none).</strong></p>
+<ul>
+<li>A false: the average case is <span
+class="math inline">\Theta(n^2)</span> (about <span
+class="math inline">n^2/4</span> inversions).</li>
+<li>B false: the running time is <span
+class="math inline">\Theta(n+I)</span> for <span
+class="math inline">I</span> inversions, so any input with <span
+class="math inline">\Theta(n^2)</span> inversions (not only the exact
+reverse) is <span class="math inline">\Theta(n^2)</span>.</li>
+<li>C false for the same reason: any input with <span
+class="math inline">O(n)</span> inversions (sorted except for a few
+elements) runs in <span class="math inline">\Theta(n)</span>.</li>
+<li>D false: between the best case <span class="math inline">n</span>
+and the worst case <span class="math inline">n^2</span> the average
+could be anything. The average case must be computed from the input
+distribution.</li>
+</ul>
+<p>Caution: read literally with exact comparison counts and distinct
+keys, B and C hold (only strictly decreasing input hits the maximum).
+The word ONLY is the trap, and the examiner means the asymptotic
+classes, so E is the intended answer.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S2 1(b)</strong> Consider the in-place Merge Sort
+algorithm taught in the lecture. It consists of two steps: Step-1 split
+the input array into two subarrays; Step-2 merge two sorted subarrays
+into one sorted array. (i) If the two subarrays have <span
+class="math inline">n</span> elements in total, how many key comparisons
+are required for Step-2 in the <strong>worst</strong> case? (ii) Let
+<span class="math inline">W(n)</span> be the number of key comparisons
+for the worst case of Merge Sort. Define the recurrence of <span
+class="math inline">W(n)</span>, without solving it. (iii) How many key
+comparisons does Step-2 need in the <strong>best</strong> case? (iv)
+Define the recurrence of the best-case count <span
+class="math inline">B(n)</span>, without solving it.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) <span class="math inline">n-1</span>.</strong> Each
+comparison puts one key into the output, and the last key needs no
+comparison. The worst case is when the two lists interleave, so neither
+empties until one key is left.</p>
+<p><strong>(ii)</strong> <span class="math inline">W(1)=0</span> and
+<span class="math inline">W(n)=W(\lfloor n/2\rfloor)+W(\lceil
+n/2\rceil)+n-1</span> for <span class="math inline">n\ge2</span>. (For
+<span class="math inline">n=2^k</span>: <span
+class="math inline">W(n)=2W(n/2)+n-1</span>, which solves to <span
+class="math inline">n\lg n-n+1</span>.)</p>
+<p><strong>(iii) <span class="math inline">\lfloor
+n/2\rfloor</span>.</strong> The merge ends when one list runs out. In
+the best case all keys of the smaller list come first, so it costs
+exactly the size of the smaller list, <span class="math inline">\lfloor
+n/2\rfloor</span>.</p>
+<p><strong>(iv)</strong> <span class="math inline">B(1)=0</span> and
+<span class="math inline">B(n)=B(\lfloor n/2\rfloor)+B(\lceil
+n/2\rceil)+\lfloor n/2\rfloor</span>. (For <span
+class="math inline">n=2^k</span>: <span
+class="math inline">B(n)=2B(n/2)+n/2</span>, which solves to <span
+class="math inline">\frac n2\lg n</span>.)</p>
+<p>Check by brute force over all permutations of <span
+class="math inline">n=1..7</span>: the maximum and minimum number of
+comparisons equal <span class="math inline">W(n)=0,1,3,5,8,11,14</span>
+and <span class="math inline">B(n)=0,1,2,4,5,7,9</span> (code, with the
+split <span class="math inline">\lfloor n/2\rfloor</span> and <span
+class="math inline">\lceil n/2\rceil</span>). Merging <span
+class="math inline">4+4</span> keys costs between 4 and 7 comparisons,
+and <span class="math inline">3+4</span> between 3 and 6.</p>
+<p><strong>Link.</strong> Both recurrences are master case 2: <span
+class="math inline">\Theta(n\lg n)</span>. The best case is a factor of
+2 cheaper: <span class="math inline">\frac n2\lg n</span> against <span
+class="math inline">n\lg n</span>. So mergesort cannot be much faster on
+a “good” input, unlike insertion sort (<span
+class="math inline">n-1</span> against <span
+class="math inline">n^2/2</span>).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S1 2(a)</strong> Show that the average-case time
+complexity of MergeSort running on <span class="math inline">N</span>
+elements is <span class="math inline">O(N\lg N)</span>. (Hint: consider
+the worst and best cases first.)</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Any input’s cost lies between the best-case and the worst-case cost,
+so the <strong>average</strong> cost, being a mean over inputs, also
+lies between them. If both ends are <span
+class="math inline">\Theta(N\lg N)</span>, the average is squeezed.</p>
+<ul>
+<li><strong>Worst case.</strong> Merging two sorted halves of total size
+<span class="math inline">n</span> needs at most <span
+class="math inline">n-1</span> comparisons, so <span
+class="math inline">W(n)=2W(n/2)+n-1</span>. This is master case 2
+(<span class="math inline">a=b=2</span>, <span
+class="math inline">f(n)=\Theta(n)</span>), so <span
+class="math inline">W(n)=\Theta(n\lg n)</span>. For <span
+class="math inline">n=2^k</span> it is exactly <span
+class="math inline">n\lg n-n+1</span>.</li>
+<li><strong>Best case.</strong> The merge needs at least <span
+class="math inline">\lfloor n/2\rfloor</span> comparisons (one list runs
+out first and the smaller list has <span class="math inline">\lfloor
+n/2\rfloor</span> keys), so <span
+class="math inline">B(n)=2B(n/2)+n/2</span>, again case 2, <span
+class="math inline">B(n)=\Theta(n\lg n)</span>. For <span
+class="math inline">n=2^k</span> it is exactly <span
+class="math inline">\frac n2\lg n</span>.</li>
+<li><strong>Squeeze.</strong> <span class="math inline">B(n)\le A(n)\le
+W(n)</span>, so <span class="math inline">\frac n2\lg n\le A(n)\le n\lg
+n-n+1</span>, which means <span class="math inline">A(n)=\Theta(n\lg
+n)</span> and in particular <span class="math inline">O(n\lg n)</span>.
+<span class="math inline">\blacksquare</span></li>
+</ul>
+<p>(The upper bound is the only half the question needs: <span
+class="math inline">A(n)\le W(n)=O(n\lg n)</span>.)</p>
+<p><strong>Link.</strong> The average is closer to the worst case than
+to the best. Merging two random sorted lists of sizes <span
+class="math inline">a</span> and <span class="math inline">b</span>
+costs on average <span class="math inline">a+b-\frac a{b+1}-\frac
+b{a+1}</span> comparisons (checked by brute force), so <span
+class="math inline">A(n)=2A(n/2)+n-2+\frac4{n+2}</span>. That gives
+exactly 4.667 for <span class="math inline">n=4</span> and 15.733 for
+<span class="math inline">n=8</span> (also confirmed by trying all <span
+class="math inline">8!</span> inputs), between the bounds 12 and 17.
+Mergesort is <strong>oblivious</strong>: its cost varies only by a
+constant factor (about 2), unlike quicksort or insertion sort.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 1(b)</strong> Consider the in-place Merge Sort
+algorithm taught in the lecture. (i) Let <span
+class="math inline">W(n)</span> denote the number of key comparisons
+required for the <strong>worst</strong> case of Merge Sort, where <span
+class="math inline">n</span> is the input size. Define the recurrence
+equation of <span class="math inline">W(n)</span>, without solving it.
+(ii) Let <span class="math inline">B(n)</span> denote the number of key
+comparisons for the <strong>best</strong> case. Define the recurrence
+equation of <span class="math inline">B(n)</span>, without solving
+it.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Merging two sorted halves of total size <span
+class="math inline">n</span> costs at most <span
+class="math inline">n-1</span> comparisons (the two lists interleave)
+and at least <span class="math inline">\lfloor n/2\rfloor</span> (all
+keys of the smaller list come first).</p>
+<p><strong>(i)</strong> <span class="math inline">W(1)=0</span> and
+<span class="math inline">W(n)=W(\lfloor n/2\rfloor)+W(\lceil
+n/2\rceil)+n-1</span> for <span class="math inline">n\ge2</span>. For
+<span class="math inline">n=2^k</span> it is <span
+class="math inline">W(n)=2W(n/2)+n-1</span>, which solves to <span
+class="math inline">n\lg n-n+1</span>.</p>
+<p><strong>(ii)</strong> <span class="math inline">B(1)=0</span> and
+<span class="math inline">B(n)=B(\lfloor n/2\rfloor)+B(\lceil
+n/2\rceil)+\lfloor n/2\rfloor</span> for <span
+class="math inline">n\ge2</span>. For <span
+class="math inline">n=2^k</span> it is <span
+class="math inline">B(n)=2B(n/2)+n/2</span>, which solves to <span
+class="math inline">\frac n2\lg n</span>.</p>
+<p>Brute force over all permutations for <span
+class="math inline">n=1..7</span> gives <span
+class="math inline">W=0,1,3,5,8,11,14</span> and <span
+class="math inline">B=0,1,2,4,5,7,9</span>, equal to the recurrences
+(code).</p>
+<p><strong>Link.</strong> Both are master case 2, <span
+class="math inline">\Theta(n\lg n)</span>. See the AY2324 S2 answer (the
+same two parts) and the AY2324 S1 2(a) average-case squeeze: <span
+class="math inline">\frac n2\lg n\le A(n)\le n\lg n-n+1</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S1 1(b)</strong> Consider the input array <span
+class="math inline">A=[8,5,7,12,9,2]</span> sorted by the in-place Merge
+Sort of the lecture. (i) The execution is visualised in Figure Q1b. Fill
+in all the missing parts (marked “__“) of the figure. (ii) Merge Sort
+has two steps: Step-1 split the array into two subarrays, Step-2 merge
+two sorted subarrays into one. If the two subarrays have <span
+class="math inline">n</span> elements in total, how many key comparisons
+does Step-2 need in the <strong>worst</strong> case?</p>
+<figure>
+<img src="img/pyp/2223s1_q1b.png"
+alt="Figure Q1b (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1b (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> The lecture code is</p>
+<pre><code>mergesort(n, m):  mid = (n+m)/2
+    if m-n &lt;= 0: return          // one element or empty
+    else if m-n &gt; 1: mergesort(n, mid); mergesort(mid+1, m)
+    merge(n, m)                  // a 2-element array is merged directly</code></pre>
+<p>The label <code>mergesort():k</code> numbers the calls in the order
+they are made (call 1 is the whole array and the left half is always
+explored before the right half). The label <code>merge()@k</code> is the
+merge at the end of call <span class="math inline">k</span>. A 2-element
+array makes no recursive calls (it is merged at once), but a 1-element
+array that is the right half of a 3-element array is still a call, so it
+gets a number.</p>
+<table>
+<thead>
+<tr>
+<th>call</th>
+<th>array</th>
+<th><code>merge()@</code></th>
+<th>result of that merge</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mergesort():1</code></td>
+<td>8 5 7 12 9 2</td>
+<td><span class="citation" data-cites="1">@1</span></td>
+<td>2 5 7 8 9 12</td>
+</tr>
+<tr>
+<td><code>mergesort():2</code></td>
+<td>8 5 7</td>
+<td><span class="citation" data-cites="2">@2</span></td>
+<td>5 7 8</td>
+</tr>
+<tr>
+<td><code>mergesort():3</code></td>
+<td>8 5</td>
+<td><span class="citation" data-cites="3">@3</span></td>
+<td>5 8</td>
+</tr>
+<tr>
+<td><code>mergesort():4</code></td>
+<td>7</td>
+<td>(none)</td>
+<td>7</td>
+</tr>
+<tr>
+<td><code>mergesort():5</code></td>
+<td>12 9 2</td>
+<td><span class="citation" data-cites="5">@5</span></td>
+<td>2 9 12</td>
+</tr>
+<tr>
+<td><code>mergesort():6</code></td>
+<td>12 9</td>
+<td><span class="citation" data-cites="6">@6</span></td>
+<td>9 12</td>
+</tr>
+<tr>
+<td><code>mergesort():7</code></td>
+<td>2</td>
+<td>(none)</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p>So the blanks are: left half <code>mergesort():2</code> has children
+<code>:3</code> (8, 5) and <code>:4</code> (7); right half is
+<code>mergesort():5</code> (12, 9, 2) with children <code>:6</code> (12,
+9) and <code>:7</code> (2). The merges are <code>@3</code> (gives 5 8),
+<code>@2</code> (gives 5 7 8), <code>@6</code> (gives 9 12),
+<code>@5</code> (gives 2 9 12), <code>@1</code> (gives 2 5 7 8 9 12).
+They <strong>execute</strong> in the order 3, 2, 6, 5, 1 (a merge runs
+after both its children finish). Both numberings agree with the
+circulated solution, and the table was reproduced by running the lecture
+code.</p>
+<p><strong>(ii) <span class="math inline">n-1</span>.</strong> Each
+comparison moves one key into the output; the last key needs no
+comparison. The worst case is when the two sorted halves interleave so
+that neither empties early.</p>
+<p><strong>Link.</strong> Five merges for six keys again equals <span
+class="math inline">n-1</span>: every merge reduces the number of sorted
+pieces by one. The numbering of <code>merge()@k</code> by the
+<em>call</em> that triggers it (not by time) is what lets you read a
+recursion tree: the merges happen bottom-up, but they are labelled
+top-down.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S2 1(b)</strong> A sorting algorithm is called
+<em>stable</em> if elements of equal keys remain their original order
+after being sorted by the algorithm. Decide if the Mergesort algorithm
+learnt in our lectures is stable. If your answer is yes, provide a brief
+justification. Otherwise, give a counter-example.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>It depends on how the merge breaks a tie, and the lecture’s
+pseudocode, read literally, is not stable.</strong></p>
+<ul>
+<li><strong>The usual merge</strong> (“if the left head is <span
+class="math inline">\le</span> the right head, take the left one”) is
+<strong>stable</strong>: when keys are equal the left key, which came
+first in the input, goes out first, and the two halves keep their own
+order. A merge of two stable sorted halves is then stable, and so is the
+whole sort (induction on the recursion).</li>
+<li><strong>The lecture’s merge</strong> (slides 48 to 57) handles equal
+heads differently: “the 1st elements of the 2 halves are equal: the 1st
+element of the 1st half joins the end of the merged list, <strong>then
+the 1st element of the 2nd half also joins</strong>”. This puts one
+equal key from each half out together, so an equal key from the right
+half can overtake a second equal key still waiting in the left
+half.</li>
+</ul>
+<p><strong>Counter-example for the lecture’s merge.</strong> Label equal
+keys by their input order: <span
+class="math inline">A=[2_a,\,2_b,\,2_c]</span>. The lecture’s recursion
+splits it into <span class="math inline">[2_a,2_b]</span> and <span
+class="math inline">[2_c]</span>, and merging them gives: equal heads,
+so <span class="math inline">2_a</span> joins, then <span
+class="math inline">2_c</span> joins; the left half still holds <span
+class="math inline">2_b</span>, which is appended last. Result
+<strong><span class="math inline">[2_a,2_c,2_b]</span></strong>, not
+<span class="math inline">[2_a,2_b,2_c]</span>. So the algorithm as
+written on the slides is <strong>not</strong> stable. (Checked by code:
+with three key values and arrays of length up to 6, the lecture’s merge
+reorders equal keys in 612 of 1089 input patterns, while the usual “take
+left on ties” merge never does.)</p>
+<p>If every key value occurs at most once in each half, the lecture’s
+merge is stable (a pair of equal heads is taken left first), which is
+probably what the slides intend.</p>
+<p><strong>What to write.</strong> State which merge you mean. I would
+write: “No, as written on the lecture slides: counter-example <span
+class="math inline">[2_a,2_b,2_c]\to[2_a,2_c,2_b]</span>. The standard
+merge that always takes from the left on ties is stable.” If your
+tutor’s mark scheme says “stable”, the second sentence covers it.</p>
+<p><strong>Link.</strong> Stability is a property of the <strong>tie
+rule</strong>, not of the divide-and-conquer shape. Radix sort needs a
+stable inner sort (Tutorial 3 Q2 and the links page, Problem 5), so it
+would be wrong to use the slide merge as the digit sort of a radix
+sort.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S1 1(b)</strong> (MCQ) Given <span
+class="math inline">n</span> entries, the time complexity of the
+MergeSort algorithm is: A. Always <span class="math inline">O(n\log
+n)</span>. B. Always <span class="math inline">O(n^2)</span>. C. <span
+class="math inline">O(n\log n)</span> only for the Best Case. D. <span
+class="math inline">O(n^2)</span> only for the Best Case. E. <span
+class="math inline">O(n\log n)</span> only for the Worst Case. F. <span
+class="math inline">O(n^2)</span> only for the Worst Case.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>A.</strong> Mergesort always splits into halves and merges,
+whatever the input order. The merge costs between <span
+class="math inline">\lfloor n/2\rfloor</span> and <span
+class="math inline">n-1</span> comparisons, so best, average and worst
+case are all <span class="math inline">\Theta(n\log n)</span> (master
+case 2).</p>
+<p><strong>Link.</strong> Compare the AY2324 S2 1(b) recurrences <span
+class="math inline">W(n)</span> and <span
+class="math inline">B(n)</span>: the best case is a factor 2 smaller but
+the same order. Insertion sort and quicksort are the algorithms whose
+cost depends strongly on the input order.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY20/21 S2 2(a)</strong> An input array <span
+class="math inline">[7,20,15,14,1,8,9,25]</span> is given for MergeSort.
+After the array is recursively divided into the smallest subarrays, show
+the intermediate and output arrays by running the merge function step by
+step in the MergeSort algorithm. Show also the number of key comparisons
+in each step.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The lecture’s recursion <code>mergesort(n,m)</code> splits at
+<code>mid=(n+m)/2</code>, and a 2-element array is merged directly. The
+split tree is <span
+class="math inline">[7,20,15,14\,|\,1,8,9,25]</span>, then <span
+class="math inline">[7,20\,|\,15,14]</span> and <span
+class="math inline">[1,8\,|\,9,25]</span>. The merges run bottom-up,
+left subtree first:</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>step</th>
+<th>merge</th>
+<th>output</th>
+<th>comparisons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><span class="math inline">[7]</span> with <span
+class="math inline">[20]</span></td>
+<td><span class="math inline">[7,20]</span></td>
+<td>1 (<span class="math inline">7\le20</span>)</td>
+</tr>
+<tr>
+<td>2</td>
+<td><span class="math inline">[15]</span> with <span
+class="math inline">[14]</span></td>
+<td><span class="math inline">[14,15]</span></td>
+<td>1 (<span class="math inline">15&gt;14</span>)</td>
+</tr>
+<tr>
+<td>3</td>
+<td><span class="math inline">[7,20]</span> with <span
+class="math inline">[14,15]</span></td>
+<td><span class="math inline">[7,14,15,20]</span></td>
+<td>3 (<span class="math inline">7&lt;14</span>, <span
+class="math inline">20&gt;14</span>, <span
+class="math inline">20&gt;15</span>; then the right list is empty)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><span class="math inline">[1]</span> with <span
+class="math inline">[8]</span></td>
+<td><span class="math inline">[1,8]</span></td>
+<td>1</td>
+</tr>
+<tr>
+<td>5</td>
+<td><span class="math inline">[9]</span> with <span
+class="math inline">[25]</span></td>
+<td><span class="math inline">[9,25]</span></td>
+<td>1</td>
+</tr>
+<tr>
+<td>6</td>
+<td><span class="math inline">[1,8]</span> with <span
+class="math inline">[9,25]</span></td>
+<td><span class="math inline">[1,8,9,25]</span></td>
+<td>2 (<span class="math inline">1&lt;9</span>, <span
+class="math inline">8&lt;9</span>; then the left list is empty)</td>
+</tr>
+<tr>
+<td>7</td>
+<td><span class="math inline">[7,14,15,20]</span> with <span
+class="math inline">[1,8,9,25]</span></td>
+<td><span class="math inline">[1,7,8,9,14,15,20,25]</span></td>
+<td>7 (<span class="math inline">7&gt;1</span>, <span
+class="math inline">7&lt;8</span>, <span
+class="math inline">14&gt;8</span>, <span
+class="math inline">14&gt;9</span>, <span
+class="math inline">14&lt;25</span>, <span
+class="math inline">15&lt;25</span>, <span
+class="math inline">20&lt;25</span>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total: 16 comparisons</strong>, and the final output is <span
+class="math inline">[1,7,8,9,14,15,20,25]</span> (checked by running the
+code). Seven merges, which is <span
+class="math inline">n-1=7</span>.</p>
+<p><strong>Link.</strong> The range for <span
+class="math inline">n=8</span> is <span class="math inline">\frac n2\lg
+n=12</span> to <span class="math inline">n\lg n-n+1=17</span>; this
+input costs 16, close to the worst case, because the two halves
+interleave badly in the last merge (7 of the 7 possible comparisons).
+Step 3 shows a cheap merge: when one list is exhausted the rest is
+copied without comparisons.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY19/20 S1 2(b)</strong> Consider an input array with
+integers in descending order. Mergesort is applied to sort it in
+ascending order. Is this input array a best case, intermediate case, or
+worst case of Mergesort when measured by the number of key comparisons?
+Briefly justify your answer.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Best case.</strong> In the lecture’s mergesort a merge of a
+left list <span class="math inline">L</span> and a right list <span
+class="math inline">R</span> needs at least <span
+class="math inline">\min(|L|,|R|)</span> comparisons, and exactly that
+many when one whole list is output before the other starts. In a
+<strong>descending</strong> input every key of the left half is larger
+than every key of the right half, at every level of the recursion. So in
+each merge the right list is output completely first (each right key is
+compared once with the front of the left list and wins), then the rest
+of the left list is appended without comparisons. The cost is <span
+class="math inline">|R|=\lfloor\text{size}/2\rfloor</span>, the minimum
+possible.</p>
+<p>Example <span class="math inline">n=8</span>, <span
+class="math inline">[8,7,6,5,4,3,2,1]</span>:</p>
+<table>
+<thead>
+<tr>
+<th>step</th>
+<th>arrays after merging</th>
+<th>comparisons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><span class="math inline">[7,8]\ [5,6]\ [3,4]\ [1,2]</span></td>
+<td>1+1+1+1 = 4</td>
+</tr>
+<tr>
+<td>2</td>
+<td><span class="math inline">[5,6,7,8]\ [1,2,3,4]</span></td>
+<td>2+2 = 4</td>
+</tr>
+<tr>
+<td>3</td>
+<td><span class="math inline">[1,2,3,4,5,6,7,8]</span></td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p>Total <span class="math inline">4+4+4=12=\frac n2\lg n</span>, the
+best-case value (the worst case for <span class="math inline">n=8</span>
+is <span class="math inline">n\lg n-n+1=17</span>).</p>
+<p>For the lecture’s split (the left half gets the extra key when the
+size is odd) a descending input is the best case for
+<strong>every</strong> <span class="math inline">n</span>: the cost
+equals <span class="math inline">B(n)=B(\lfloor n/2\rfloor)+B(\lceil
+n/2\rceil)+\lfloor n/2\rfloor</span> for <span
+class="math inline">n=1..24</span> (code).</p>
+<p><strong>Link.</strong> An <strong>ascending</strong> input is also
+best for <span class="math inline">n=8</span> (12 comparisons) but not
+for odd sizes with this split: for <span class="math inline">n=6</span>
+it costs 9 against 7 for the descending input, and for <span
+class="math inline">n=7</span> it costs 11 against 9. In an ascending
+input the whole left half is output first, so each merge costs the size
+of the <strong>left</strong> half, which is the larger half when the
+size is odd. So “sorted input is the best case” is a habit from
+insertion sort, not a property of mergesort.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S1 3(b)</strong> Consider the following modification
+to MergeSort, called <strong>3-way MergeSort</strong>. It divides the
+array into three subarrays (as equally-sized as possible), sorts them
+recursively, and then calls a <strong>3-way merge</strong> function. The
+3-way merge function combines three sorted subarrays into one sorted
+array in the following way. It merges the first two subarrays by calling
+the merge function in the original MergeSort. It then merges the
+resultant array with the third subarray, again by calling the original
+merge function. Given three equally-sized sorted subarrays with <span
+class="math inline">n</span> elements in total as input, what is the
+worst-case number of key comparisons in the 3-way merge function?
+Briefly justify your answer.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong><span class="math inline">\dfrac{5n}3-2</span>
+comparisons.</strong> The original merge of two sorted lists with <span
+class="math inline">a+b</span> keys needs at most <span
+class="math inline">a+b-1</span> comparisons.</p>
+<ul>
+<li>First merge: two subarrays of <span class="math inline">\frac
+n3</span> keys each, <span class="math inline">\frac{2n}3</span> keys in
+total: at most <span class="math inline">\frac{2n}3-1</span>.</li>
+<li>Second merge: the result (<span
+class="math inline">\frac{2n}3</span> keys) with the third subarray
+(<span class="math inline">\frac n3</span> keys), <span
+class="math inline">n</span> keys in total: at most <span
+class="math inline">n-1</span>.</li>
+</ul>
+<p>Total worst case <span
+class="math inline">\Big(\dfrac{2n}3-1\Big)+(n-1)=\dfrac{5n}3-2</span>.
+Both bounds can be reached together (the three arrays interleave
+perfectly), so it is exact: a brute force over all interleavings gives
+8, 13, 18 for <span class="math inline">n=6,9,12</span>, equal to <span
+class="math inline">\frac{5n}3-2</span>.</p>
+<p><strong>Link.</strong> Merging three lists as two 2-way merges costs
+<span class="math inline">\frac53n</span> per level, more than the <span
+class="math inline">n</span> of an ideal 3-way merge; over <span
+class="math inline">\log_3n</span> levels the total is <span
+class="math inline">\frac53n\log_3n=\frac{5}{3\lg3}\,n\lg
+n\approx1.05\,n\lg n</span> against <span class="math inline">n\lg
+n</span> for the ordinary 2-way sort. Dividing into more pieces does not
+help unless the merge looks at all heads at once (which needs a heap of
+heads).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY17/18 S1 3(c)</strong> The <em>union</em> of two sets <span
+class="math inline">A</span> and <span class="math inline">B</span> is a
+set <span class="math inline">C</span> such that an element <span
+class="math inline">x</span> is in <span class="math inline">C</span> if
+and only if <span class="math inline">x</span> is in <span
+class="math inline">A</span> or <span class="math inline">B</span>. Note
+that, if <span class="math inline">x</span> is in both <span
+class="math inline">A</span> and <span class="math inline">B</span>,
+then <span class="math inline">x</span> will appear in the union <span
+class="math inline">C</span> exactly once. Suppose that sets <span
+class="math inline">A</span> and <span class="math inline">B</span> are
+represented by two arrays, and both arrays have been sorted in ascending
+order. The sum of their sizes <span class="math inline">|A|+|B|</span>
+is equal to <span class="math inline">n</span>. Design an algorithm to
+compute the union of sets <span class="math inline">A</span> and <span
+class="math inline">B</span> in time <span
+class="math inline">O(n)</span>. Briefly describe your algorithm and
+analyse its worst-case time complexity.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Use the <strong>merge</strong> step of mergesort, but output an
+element that occurs in both arrays only once:</p>
+<pre><code>i = 0; j = 0
+while i &lt; |A| and j &lt; |B|:
+    if A[i] &lt; B[j]:  output A[i]; i++
+    else if A[i] &gt; B[j]:  output B[j]; j++
+    else:  output A[i]; i++; j++          // equal: output once, advance both
+append the rest of A (if any), then the rest of B (if any)</code></pre>
+<p><strong>Time.</strong> Every comparison outputs at least one element
+and advances at least one index, and each of the <span
+class="math inline">n</span> keys is advanced past once, so there are at
+most <span class="math inline">n-1</span> comparisons plus <span
+class="math inline">O(n)</span> copying for the remaining tail:
+<strong><span class="math inline">O(n)</span> in the worst
+case</strong>, for example <span class="math inline">A=[1,3,5]</span>,
+<span class="math inline">B=[2,4,6]</span> (5 comparisons). The output
+is sorted and has no duplicates because the inputs are sorted sets.
+(Tested against a set union on 500 random pairs.)</p>
+<p>(The circulated solution merges and then removes duplicates, also
+<span class="math inline">O(n)</span> in total: <span
+class="math inline">n-1</span> comparisons plus <span
+class="math inline">n-1</span> for the duplicate scan.)</p>
+<p><strong>Link.</strong> The same two-pointer sweep gives the
+<strong>intersection</strong> (output only on equality) and the
+<strong>difference</strong> (output only from <span
+class="math inline">A</span>). It is the merge of mergesort with the
+equal case redefined. Notice the equal case: advancing both pointers is
+safe here because the inputs are sets (no duplicates inside one
+array).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY16/17 S2 3(b)</strong> Manually execute Mergesort to sort
+the list of characters (A, L, G, O, R, I, T, H) in alphabetical order.
+How many comparisons between the characters will be performed? Explain
+your answer by illustrating the changes of the list content during the
+execution of Mergesort.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Split into halves (4 and 4), then 2 and 2, then single keys. The
+merges, bottom-up, left half first:</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>merge</th>
+<th>output</th>
+<th>comparisons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">[A]</span> with <span
+class="math inline">[L]</span></td>
+<td><span class="math inline">[A,L]</span></td>
+<td>1</td>
+</tr>
+<tr>
+<td><span class="math inline">[G]</span> with <span
+class="math inline">[O]</span></td>
+<td><span class="math inline">[G,O]</span></td>
+<td>1</td>
+</tr>
+<tr>
+<td><span class="math inline">[A,L]</span> with <span
+class="math inline">[G,O]</span></td>
+<td><span class="math inline">[A,G,L,O]</span></td>
+<td>3 (<span class="math inline">A&lt;G</span>, <span
+class="math inline">L&gt;G</span>, <span
+class="math inline">L&lt;O</span>; then the left list is empty and <span
+class="math inline">O</span> is copied)</td>
+</tr>
+<tr>
+<td><span class="math inline">[R]</span> with <span
+class="math inline">[I]</span></td>
+<td><span class="math inline">[I,R]</span></td>
+<td>1</td>
+</tr>
+<tr>
+<td><span class="math inline">[T]</span> with <span
+class="math inline">[H]</span></td>
+<td><span class="math inline">[H,T]</span></td>
+<td>1</td>
+</tr>
+<tr>
+<td><span class="math inline">[I,R]</span> with <span
+class="math inline">[H,T]</span></td>
+<td><span class="math inline">[H,I,R,T]</span></td>
+<td>3 (<span class="math inline">I&gt;H</span>, <span
+class="math inline">I&lt;T</span>, <span
+class="math inline">R&lt;T</span>; then <span
+class="math inline">T</span> is copied)</td>
+</tr>
+<tr>
+<td><span class="math inline">[A,G,L,O]</span> with <span
+class="math inline">[H,I,R,T]</span></td>
+<td><span class="math inline">[A,G,H,I,L,O,R,T]</span></td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total: 1+1+3+1+1+3+6 = 16 comparisons</strong>, and the
+sorted list is A, G, H, I, L, O, R, T. By level: pairs 4 comparisons,
+then 3+3 = 6, then 6 (this agrees with the circulated trace). The input
+is neither best nor worst for <span class="math inline">n=8</span>: best
+is 12, worst is 17.</p>
+<p><strong>Link.</strong> The bounds for <span
+class="math inline">n=8</span> are <span class="math inline">\frac n2\lg
+n=12</span> and <span class="math inline">n\lg n-n+1=17</span>; the last
+merge uses 6 of its 7 possible comparisons. Counting per level is the
+quick method: each level costs at most <span
+class="math inline">n-</span>(number of merges at that level).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S1 3(a)</strong> In Mergesort algorithm, the merge
+function takes as input two sorted arrays of approximately equal sizes.
+However, the merge algorithm can also be used to merge two sorted arrays
+of very different sizes. Suppose two arrays, <span
+class="math inline">A</span> and <span class="math inline">B</span>,
+have sizes 3 and 1000 respectively, and both have been sorted in
+ascending order. Running the merge algorithm to merge <span
+class="math inline">A</span> and <span class="math inline">B</span> into
+one array in ascending order, what is the best-case number of
+comparisons and what is the worst-case number of comparisons between
+array elements? Justify your answer.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Merging <span class="math inline">|A|=3</span> and <span
+class="math inline">|B|=1000</span> keys: every comparison outputs one
+key, and the merge stops comparing when one array is exhausted.</p>
+<ul>
+<li><strong>Best case: 3 comparisons</strong> (<span
+class="math inline">=\min(|A|,|B|)</span>): all three keys of <span
+class="math inline">A</span> are smaller than <span
+class="math inline">B[0]</span>, for example <span
+class="math inline">A=[1,1,1]</span> and <span
+class="math inline">B=[2,2,\dots,2]</span>. Each comparison outputs one
+key of <span class="math inline">A</span> and then <span
+class="math inline">A</span> is empty; the 1000 keys of <span
+class="math inline">B</span> are copied without comparisons.</li>
+<li><strong>Worst case: 1002 comparisons</strong> (<span
+class="math inline">=|A|+|B|-1</span>): neither array runs out until the
+last key, which happens when the largest key belongs to <span
+class="math inline">A</span> and the keys interleave, for example <span
+class="math inline">A=[0,500,2000]</span> and <span
+class="math inline">B=[1,2,\dots,1000]</span>: only the last key (2000)
+is output without a comparison. (Confirmed by running the merge:
+1002.)</li>
+</ul>
+<p><strong>Link.</strong> The general range is <span
+class="math inline">\min(|A|,|B|)</span> to <span
+class="math inline">|A|+|B|-1</span>. For two equal halves (<span
+class="math inline">n/2</span> each) that is <span
+class="math inline">n/2</span> to <span class="math inline">n-1</span>,
+the best and worst merges of mergesort; the very unequal case shows why
+you should merge the shorter array <strong>into</strong> the longer one
+by binary search when one side is tiny (<span
+class="math inline">3\lg1000\approx30</span> comparisons instead of
+1002).</p>
+</div>
+</details>
+<h2 id="tutorials">Tutorials</h2>
+<h3
+id="tutorial-2-q1.-maximum-and-minimum-together-in-about-1.5n-comparisons">Tutorial
+2 Q1. Maximum and minimum together in about 1.5n comparisons</h3>
+<div class="q">
+<p>Use the divide and conquer approach to design an algorithm that finds
+both the largest and the smallest elements in an array of <span
+class="math inline">n</span> integers, assuming that <span
+class="math inline">n</span> is a power of two, i.e., <span
+class="math inline">n = 2^k</span> for some <span class="math inline">k
+\ge 0</span>. Show that your algorithm does at most about <span
+class="math inline">1.5n</span> comparisons of the elements.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer: the algorithm</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<pre><code>void findMinMax(int[] ar, int start, int end, int[] minMax)
+// minMax is an array of two integers to return the minimum
+// and maximum found
+{
+    int tempMinMax1[] = new int[2];
+    int tempMinMax2[] = new int[2];
+    int mid;
+
+    if (start == end) {              // one element array
+        minMax[0] = ar[start];
+        minMax[1] = ar[start];
+    }
+    else if (end - start == 1) {     // two element array
+        if (ar[start] &gt; ar[end]) {
+            minMax[1] = ar[start];
+            minMax[0] = ar[end];
+        } else {
+            minMax[0] = ar[start];
+            minMax[1] = ar[end];
+        }
+    }
+    else {                           // array longer than two elements
+        mid = (start + end) / 2;
+
+        findMinMax(ar, start, mid, tempMinMax1);
+        findMinMax(ar, mid+1, end, tempMinMax2);
+
+        if (tempMinMax1[0] &lt; tempMinMax2[0])
+            minMax[0] = tempMinMax1[0];
+        else minMax[0] = tempMinMax2[0];
+
+        if (tempMinMax1[1] &gt; tempMinMax2[1])
+            minMax[1] = tempMinMax1[1];
+        else minMax[1] = tempMinMax2[1];
+    }
+}</code></pre>
+<ul>
+<li>One element: it is both the min and the max. No comparison.</li>
+<li>Two elements: one comparison decides both the min and the max.</li>
+<li>More: solve each half, then compare the two minimums and the two
+maximums: 2 comparisons.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer: the count</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Let <span class="math inline">W_i</span> be the number of comparisons
+for <span class="math inline">i</span> elements. Then the recurrence
+is</p>
+<p><span class="math display">W_1 = 0, \qquad W_2 = 1, \qquad W_n =
+W_{n/2} + W_{n - n/2} + 2.</span></p>
+<p>If <span class="math inline">n = 2^k</span>, where <span
+class="math inline">k</span> is a positive integer, the two halves are
+equal:</p>
+<p><span class="math display">W_n = 2W_{n/2} + 2.</span></p>
+<p>Expand it:</p>
+<p><span class="math display">\begin{aligned}
+W_n &amp;= 2W_{n/2} + 2 \\
+&amp;= 2(2W_{n/2^2} + 2) + 2 = 2^2 W_{n/2^2} + 2^2 + 2 \\
+&amp;= 2^2(2W_{n/2^3} + 2) + 2^2 + 2 = 2^3 W_{n/2^3} + 2^3 + 2^2 + 2 \\
+&amp;\;\;\vdots \\
+&amp;= 2^{k-1} W_{n/2^{k-1}} + 2^{k-1} + 2^{k-2} + \dots + 2^2 + 2.
+\end{aligned}</span></p>
+<p>Since <span class="math inline">n = 2^k</span>, we get <span
+class="math inline">n/2^{k-1} = 2</span>, and <span
+class="math inline">W_2 = 1</span>. So</p>
+<p><span class="math display">\begin{aligned}
+W_n &amp;= 2^{k-1} + 2^{k-1} + 2^{k-2} + \dots + 2^2 + 2 \\
+&amp;= 2^{k-1} + 2\,(2^{k-2} + 2^{k-3} + \dots + 2 + 1) \\
+&amp;= 2^{k-1} + 2\,(2^{k-1} - 1) \qquad \text{(geometric series)} \\
+&amp;= 2^{k-1} + 2^k - 2 \\
+&amp;= \frac{n}{2} + n - 2 = \frac{3}{2}n - 2.
+\end{aligned}</span></p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: count the comparisons of a divide-and-conquer
+algorithm</strong> <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Read the base cases off the code, with their cost. Here: 1 element
+costs 0, 2 elements cost 1.</li>
+<li>Write the recurrence: (number of recursive calls) <span
+class="math inline">\times</span> <span
+class="math inline">W</span>(size of each) + (comparisons in the combine
+step).</li>
+<li>Expand it until the size reaches a base case. Count the expansions:
+from <span class="math inline">n = 2^k</span> down to size 2 takes <span
+class="math inline">k - 1</span> halvings.</li>
+<li>Add up the combine costs, usually as a geometric series <span
+class="math inline">1 + 2 + \dots + 2^j = 2^{j+1} - 1</span>.</li>
+</ol>
+<p>The saving here comes from the <strong>base case of 2</strong>: one
+comparison does the work of two. Compare it with the plain scan, which
+compares each element with both the current min and the current max:
+<span class="math inline">2(n - 1)</span> comparisons.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 1.1.</strong> Remove the two-element base case from
+<code>findMinMax</code>, so the recursion stops only at one element. How
+many comparisons does it make for <span class="math inline">n =
+2^k</span>? What does this show?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 1.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Now <span class="math inline">W_1 = 0</span> and <span
+class="math inline">W_n = 2W_{n/2} + 2</span>. Expand all the way, <span
+class="math inline">k</span> times:</p>
+<p><span class="math display">W_n = 2^k W_1 + (2 + 4 + \dots + 2^k) = 0
++ (2^{k+1} - 2) = 2n - 2.</span></p>
+<p>That is no better than the plain scan. The <span
+class="math inline">\frac{3}{2}n</span> result depends on the
+two-element base case. At the bottom level there are <span
+class="math inline">n/2</span> pairs. Without the base case, each pair
+costs 2 comparisons (min against min, max against max) instead of 1.</p>
+</div>
+</details>
+<h3 id="tutorial-2-q2.-tracing-mergesort">Tutorial 2 Q2. Tracing
+mergesort</h3>
+<div class="q">
+<p>Show how merge sort sorts each of the arrays below, and give the
+number of comparisons among array elements in each case.</p>
+<ul>
+<li>14 40 31 28 3 15 17 51</li>
+<li>23 23 23 23 23 23 23 23</li>
+</ul>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (first array)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The array is first divided into two equal parts. Each part is sorted
+by mergesort, which divides it again, until each part holds one
+item:</p>
+<table>
+<thead>
+<tr>
+<th>Level</th>
+<th>Parts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Split 1</td>
+<td>[14 40 31 28] [3 15 17 51]</td>
+</tr>
+<tr>
+<td>Split 2</td>
+<td>[14 40] [31 28] [3 15] [17 51]</td>
+</tr>
+<tr>
+<td>Split 3</td>
+<td>[14] [40] [31] [28] [3] [15] [17] [51]</td>
+</tr>
+</tbody>
+</table>
+<p>Then the parts are merged back:</p>
+<table>
+<thead>
+<tr>
+<th>Merge</th>
+<th>Result</th>
+<th>Comparisons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Each pair</td>
+<td>[14 40] [28 31] [3 15] [17 51]</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Each pair of pairs</td>
+<td>[14 28 31 40] [3 15 17 51]</td>
+<td>5</td>
+</tr>
+<tr>
+<td>Final</td>
+<td>[3 14 15 17 28 31 40 51]</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p>In total, <span class="math inline">4 + 5 + 7 = 16</span> comparisons
+are made.</p>
+<p>Where the 5 comes from: merging [14 40] with [28 31] compares 14:28,
+40:28, 40:31, then the right list is empty (3). Merging [3 15] with [17
+51] compares 3:17, 15:17, then the left list is empty (2).</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer (second array)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The splits are the same as for the first array, down to eight single
+23s. Then:</p>
+<table>
+<thead>
+<tr>
+<th>Merge</th>
+<th>Result</th>
+<th>Comparisons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Each pair</td>
+<td>[23 23] [23 23] [23 23] [23 23]</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Each pair of pairs</td>
+<td>[23 23 23 23] [23 23 23 23]</td>
+<td>4</td>
+</tr>
+<tr>
+<td>Final</td>
+<td>[23 23 23 23 23 23 23 23]</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p>In total, <span class="math inline">4 + 4 + 4 = 12</span>
+comparisons.</p>
+<p>Why only 4 at each level: with equal keys, a merge of <span
+class="math inline">m</span> elements costs only <span
+class="math inline">m/2</span> comparisons. In the lecture’s in-place
+merge, one comparison of two equal keys places both of them (Case 3). In
+a buffer merge that takes from the left on a tie, the left list empties
+after <span class="math inline">m/2</span> comparisons. Either way, the
+count is the best case.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: count the comparisons of one merge</strong>
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Each comparison sends one element to the output. The comparisons stop
+when one list is empty. So for two lists with <span
+class="math inline">m</span> elements in total:</p>
+<p><span class="math display">\text{comparisons} = m - (\text{elements
+still left in the other list}).</span></p>
+<ul>
+<li><strong>Most:</strong> <span class="math inline">m - 1</span>, when
+the last two elements are in different lists (the lists
+interleave).</li>
+<li><strong>Fewest:</strong> the size of the smaller list, when all of
+it is smaller than all of the other list.</li>
+</ul>
+<p>Trace mergesort bottom-up, level by level, and add one count per
+merge. Check the total against the bounds for <span
+class="math inline">n = 2^k</span>: best <span
+class="math inline">\frac{n}{2}\lg n</span>, worst <span
+class="math inline">n \lg n - n + 1</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 2.1.</strong> Mergesort runs on the sorted array 1
+2 3 4 5 6 7 8. How many comparisons does it make? Check the answer, and
+the two answers above, against the best and worst cases for <span
+class="math inline">n = 8</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 2.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>In every merge, the left list is entirely smaller, so it empties
+first. A merge of <span class="math inline">m</span> elements costs
+<span class="math inline">m/2</span>:</p>
+<ul>
+<li>pairs: <span class="math inline">4 \times 1 = 4</span>;</li>
+<li>pairs of pairs: <span class="math inline">2 \times 2 =
+4</span>;</li>
+<li>final: <span class="math inline">4</span>.</li>
+</ul>
+<p>Total 12, the best case <span class="math inline">\frac{n}{2}\lg n =
+4 \times 3 = 12</span>.</p>
+<p>The worst case is <span class="math inline">n \lg n - n + 1 = 24 - 8
++ 1 = 17</span>. So the three arrays give 12 (sorted), 12 (all equal)
+and 16 (first array). All lie between 12 and 17, as they must.</p>
+</div>
+</details>
+<h3 id="tutorial-2-q3.-finding-duplicates">Tutorial 2 Q3. Finding
+duplicates</h3>
+<div class="q">
+<p>Suppose we have an unsorted array <span class="math inline">A</span>
+of <span class="math inline">n</span> elements, and we want to know if
+the array contains any duplicate elements.</p>
+<ol type="a">
+<li>Outline (clearly) an efficient method for solving this problem.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (a)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>First, sort the array in increasing (or decreasing) order. Then scan
+the sorted array once and check for equal <strong>adjacent</strong>
+elements. After sorting, equal elements always sit next to each
+other.</p>
+<figure>
+<img src="img/tutorial-2-artifacts/duplicates-adjacent.png"
+style="width:75.0%"
+alt="Input array 6 9 5 3 5 8. The two 5s are far apart. After sorting, 3 5 5 6 8 9, the duplicates are adjacent (Tutorial 2 solutions)." />
+<figcaption aria-hidden="true">Input array 6 9 5 3 5 8. The two 5s are
+far apart. After sorting, 3 5 5 6 8 9, the duplicates are adjacent
+(Tutorial 2 solutions).</figcaption>
+</figure>
+<pre><code>Bool ExistDuplicate(int A[], int n) {
+    MergeSort(A, n);   // or Heapsort
+    for (int i = 1; i &lt; n; i++) {
+        if (A[i] == A[i-1])
+            return true;
+    }
+    return false;
+}</code></pre>
+</div>
+</details>
+<div class="q">
+<ol start="2" type="a">
+<li>What is the asymptotic order of the running time of your method in
+the worst case? Justify your answer.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (b)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The worst-case time for sorting is <span class="math inline">\Theta(n
+\lg n)</span>, using mergesort (or heapsort). The time for the scan is
+<span class="math inline">\Theta(n)</span>. Therefore, the overall
+worst-case running time is <span class="math inline">\Theta(n \lg
+n)</span>.</p>
+<p>Do not use quicksort here: its worst case is <span
+class="math inline">\Theta(n^2)</span>.</p>
+</div>
+</details>
+<div class="q">
+<ol start="3" type="a">
+<li>Suppose we know the <span class="math inline">n</span> elements are
+integers from the range <span class="math inline">1, \dots, 2n</span>,
+so other operations besides comparing keys may be done. Give an
+algorithm for the same problem that is specialized to use this
+information. Give the asymptotic order of the worst case running time
+for this solution. It should be of lower order than your solution for
+part (a).</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (c)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Count how many elements have each key value. Use an array of <span
+class="math inline">2n</span> counters, one for each possible value, and
+<strong>use the key value as the index</strong>.</p>
+<figure>
+<img src="img/tutorial-2-artifacts/counting-array.png"
+style="width:45.0%"
+alt="For n = 6, the array 6 9 5 3 5 8 fills a counter array with 2n = 12 entries. Counter 5 reaches 2, so 5 is a duplicate (Tutorial 2 solutions)." />
+<figcaption aria-hidden="true">For n = 6, the array 6 9 5 3 5 8 fills a
+counter array with 2n = 12 entries. Counter 5 reaches 2, so 5 is a
+duplicate (Tutorial 2 solutions).</figcaption>
+</figure>
+<ul>
+<li>We can quit as soon as any count becomes 2.</li>
+<li>We scan the <span class="math inline">n</span>-element array once,
+and each element takes constant time to count. So the overall worst-case
+running time is <span class="math inline">\Theta(n)</span>.</li>
+<li>It uses <span class="math inline">\Theta(n)</span> extra memory for
+the counters. Setting them all to 0 also costs <span
+class="math inline">\Theta(n)</span>.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: two ways to bring equal items together</strong>
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Many problems ask whether two items are equal, or close, or related.
+Comparing every pair costs <span class="math inline">\Theta(n^2)</span>.
+Two faster ways:</p>
+<ol type="1">
+<li><strong>Sort, then scan neighbours.</strong> Related items end up
+next to each other. Cost: <span class="math inline">\Theta(n \log
+n)</span> with mergesort or heapsort, plus <span
+class="math inline">\Theta(n)</span> for the scan. This needs only
+comparisons.</li>
+<li><strong>Use the key as an index.</strong> If the keys are integers
+in a range of size <span class="math inline">R</span>, an array of <span
+class="math inline">R</span> counters answers in <span
+class="math inline">\Theta(n + R)</span> time and <span
+class="math inline">\Theta(R)</span> memory. This beats sorting only
+when <span class="math inline">R</span> is <span
+class="math inline">O(n)</span>, or at least <span
+class="math inline">o(n \log n)</span>.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 3.1.</strong> An unsorted array holds <span
+class="math inline">n</span> integers. Decide whether two of them add up
+to a given number <span class="math inline">x</span>. Use only
+comparisons and additions. Aim for <span class="math inline">O(n \log
+n)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Sort the array with mergesort: <span class="math inline">\Theta(n
+\log n)</span>. Then scan from both ends:</p>
+<pre><code>i = 0; j = n - 1;
+while (i &lt; j) {
+    if (A[i] + A[j] == x) return true;
+    else if (A[i] + A[j] &lt; x) i++;   // need a bigger sum
+    else j--;                        // need a smaller sum
+}
+return false;</code></pre>
+<p>Each step moves <span class="math inline">i</span> or <span
+class="math inline">j</span> by one, so the scan is <span
+class="math inline">\Theta(n)</span>. Total: <span
+class="math inline">\Theta(n \log n)</span>. It is the “sort, then scan”
+method: after sorting, the scan never needs to look back.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 3.2.</strong> The <span
+class="math inline">n</span> integers now come from the range <span
+class="math inline">1, \dots, n^2</span>. Is the counter method from (c)
+still better than sorting?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>No. The counter array now needs <span class="math inline">R =
+n^2</span> entries. Setting them to 0 alone costs <span
+class="math inline">\Theta(n^2)</span> time, and they take <span
+class="math inline">\Theta(n^2)</span> memory. Sorting and scanning
+costs <span class="math inline">\Theta(n \log n)</span>, which is
+better. The counter method pays off only when the range <span
+class="math inline">R</span> is small compared with <span
+class="math inline">n \log n</span>.</p>
+</div>
+</details>
+<div class="q">
+<hr />
+</div>
+
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="drill.js"></script>
+</body></html>

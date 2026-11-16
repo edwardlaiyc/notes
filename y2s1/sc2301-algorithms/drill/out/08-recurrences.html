@@ -1,0 +1,3216 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>8. Solving recurrences</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="drill.css">
+</head><body data-page="08-recurrences">
+<nav class="top"><a href="index.html">All topics</a><span id="count"></span>
+<label><input type="checkbox" id="onlyshaky"> only shaky</label>
+<button id="export">Copy progress</button></nav>
+<main>
+<h1 id="solving-recurrences">8. Solving recurrences</h1>
+<h2 id="facts">Facts</h2>
+<div class="q">
+<p>State the Master theorem for <span
+class="math inline">T(n)=aT(n/b)+f(n)</span>, <span
+class="math inline">a\ge1</span>, <span
+class="math inline">b&gt;1</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Compare <span class="math inline">f(n)</span> with <span
+class="math inline">n^{\log_b a}</span>:</p>
+<ul>
+<li><strong>Case 1:</strong> <span class="math inline">f(n)=O(n^{\log_b
+a-\epsilon})</span> for some <span
+class="math inline">\epsilon&gt;0</span> <span
+class="math inline">\Rightarrow</span> <span
+class="math inline">T(n)=\Theta(n^{\log_b a})</span>.</li>
+<li><strong>Case 2:</strong> <span
+class="math inline">f(n)=\Theta(n^{\log_b a}\lg^k n)</span> with <span
+class="math inline">k\ge0</span> <span
+class="math inline">\Rightarrow</span> <span
+class="math inline">T(n)=\Theta(n^{\log_b a}\lg^{k+1}n)</span>.</li>
+<li><strong>Case 3:</strong> <span
+class="math inline">f(n)=\Omega(n^{\log_b a+\epsilon})</span>
+<strong>and</strong> <span class="math inline">af(n/b)\le cf(n)</span>
+for some <span class="math inline">c&lt;1</span> (regularity) <span
+class="math inline">\Rightarrow</span> <span
+class="math inline">T(n)=\Theta(f(n))</span>.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p>What does each Master theorem case say about the recursion tree?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Case 1: the cost is dominated by the <strong>leaves</strong> (work
+grows geometrically downwards). Case 2: every level costs about the
+same, so multiply by the number of levels (<span class="math inline">\lg
+n</span>). Case 3: the cost is dominated by the <strong>root</strong>
+(work shrinks geometrically downwards).</p>
+</div>
+</details>
+<div class="q">
+<p>When does the Master theorem not apply? Give an example.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>When <span class="math inline">f</span> is smaller or larger than
+<span class="math inline">n^{\log_b a}</span> but <strong>not
+polynomially</strong> so (not by a factor <span
+class="math inline">n^\epsilon</span>), or when case 3 fails the
+regularity test, or when the recurrence is not of the form <span
+class="math inline">aT(n/b)+f(n)</span>. Example: <span
+class="math inline">T(n)=2T(n/2)+n/\lg n</span>. Here <span
+class="math inline">f</span> is smaller than <span
+class="math inline">n</span> but only by a <span class="math inline">\lg
+n</span> factor. Use the recursion tree instead: <span
+class="math inline">T(n)=\Theta(n\lg\lg n)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Outline the substitution method.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li><strong>Guess</strong> the form of the solution (from a recursion
+tree or iteration). 2. <strong>Assume</strong> it holds for smaller
+<span class="math inline">n</span> (induction hypothesis) with a
+constant <span class="math inline">c</span>. 3.
+<strong>Substitute</strong> into the recurrence and show it holds for
+<span class="math inline">n</span>. 4. <strong>Choose</strong> <span
+class="math inline">c</span> and <span class="math inline">n_0</span> to
+cover the base case.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p>The guess <span class="math inline">T(n)\le cn</span> fails for <span
+class="math inline">T(n)=2T(n/2)+1</span> even though the answer is
+<span class="math inline">\Theta(n)</span>. What is the fix?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The inductive step gives <span class="math inline">T(n)\le
+cn+1</span>, which is not <span class="math inline">\le cn</span>.
+Strengthen the hypothesis by <strong>subtracting a lower-order
+term</strong>: assume <span class="math inline">T(n)\le cn-b</span>.
+Then <span class="math inline">T(n)\le2(c\frac n2-b)+1=cn-2b+1\le
+cn-b</span> when <span class="math inline">b\ge1</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Outline the iteration (unrolling) method.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Expand the recurrence a few times, find the pattern after <span
+class="math inline">i</span> steps, find the <span
+class="math inline">i</span> at which the argument reaches the base case
+(for example <span class="math inline">i=\lg n</span> when <span
+class="math inline">n/2^i=1</span>), then sum the series.</p>
+</div>
+</details>
+<div class="q">
+<p>Solve a linear homogeneous recurrence <span
+class="math inline">a_n=c_1a_{n-1}+c_2a_{n-2}</span> by the
+characteristic equation.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Solve <span class="math inline">r^2-c_1r-c_2=0</span>.</p>
+<ul>
+<li>Distinct roots <span class="math inline">r_1\ne r_2</span>: <span
+class="math inline">a_n=\alpha_1r_1^n+\alpha_2r_2^n</span>.</li>
+<li>Repeated root <span class="math inline">r</span>: <span
+class="math inline">a_n=(\alpha_1+\alpha_2n)r^n</span>.</li>
+<li>Find <span class="math inline">\alpha_1,\alpha_2</span> from the two
+initial values <span class="math inline">a_0,a_1</span>.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p>Solutions of these standard recurrences: <span
+class="math inline">T(n)=T(n/2)+1</span>, <span
+class="math inline">T(n)=T(n-1)+n</span>, <span
+class="math inline">T(n)=2T(n-1)+1</span>, <span
+class="math inline">T(n)=2T(n/2)+n</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">\Theta(\log n)</span> (binary search).
+<span class="math inline">\Theta(n^2)</span> (sum <span
+class="math inline">1+\dots+n</span>). <span
+class="math inline">\Theta(2^n)</span>, exactly <span
+class="math inline">2^n-1</span> with <span
+class="math inline">T(0)=0</span> (towers of Hanoi). <span
+class="math inline">\Theta(n\log n)</span> (mergesort).</p>
+</div>
+</details>
+<div class="q">
+<p>Useful sums: <span class="math inline">\sum_{i=1}^n i</span>, <span
+class="math inline">\sum_{i=0}^{k}r^i</span> for <span
+class="math inline">r\ne1</span>, and <span
+class="math inline">\sum_{h\ge1}h/2^h</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">\frac{n(n+1)}2</span>; <span
+class="math inline">\frac{r^{k+1}-1}{r-1}</span>; and <span
+class="math inline">2</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Why is <span class="math inline">\log_b a</span> not the same as
+<span class="math inline">\lg a</span> in the watershed <span
+class="math inline">n^{\log_b a}</span>? Evaluate it for <span
+class="math inline">T(n)=9T(n/3)+n</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The base of the logarithm is the <strong>split factor</strong> <span
+class="math inline">b</span>, not 2. For <span
+class="math inline">a=9</span>, <span class="math inline">b=3</span>:
+<span class="math inline">\log_39=2</span>, so the watershed is <span
+class="math inline">n^2</span>. Since <span
+class="math inline">f(n)=n=O(n^{2-\epsilon})</span>, case 1 gives <span
+class="math inline">T(n)=\Theta(n^2)</span>.</p>
+</div>
+</details>
+<h2 id="problems">Problems</h2>
+<h3 id="problem-1-classify-and-solve">Problem 1: classify and solve</h3>
+<div class="q">
+<p><strong>(a)</strong> Solve each with the Master theorem, or say why
+it does not apply: (1) <span class="math inline">T(n)=4T(n/2)+n</span>;
+(2) <span class="math inline">T(n)=2T(n/2)+n\lg n</span>; (3) <span
+class="math inline">T(n)=3T(n/4)+n\lg n</span>; (4) <span
+class="math inline">T(n)=2T(n/2)+n/\lg n</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li><span class="math inline">n^{\log_24}=n^2</span>. <span
+class="math inline">f=n=O(n^{2-1})</span>: case 1, <span
+class="math inline">\Theta(n^2)</span>.</li>
+<li><span class="math inline">n^{\log_22}=n</span>. <span
+class="math inline">f=n\lg n=\Theta(n\lg^1n)</span>: case 2 with <span
+class="math inline">k=1</span>, <span
+class="math inline">\Theta(n\lg^2n)</span>.</li>
+<li><span class="math inline">n^{\log_43}\approx n^{0.79}</span>. <span
+class="math inline">f=n\lg n=\Omega(n^{0.79+\epsilon})</span>.
+Regularity: <span class="math inline">3\cdot\frac n4\lg\frac
+n4\le\frac34\,n\lg n</span>, so <span
+class="math inline">c=\frac34&lt;1</span> works. Case 3: <span
+class="math inline">\Theta(n\lg n)</span>.</li>
+<li><span class="math inline">n^{\log_22}=n</span>. <span
+class="math inline">f=n/\lg n</span> is smaller than <span
+class="math inline">n</span>, but not by any <span
+class="math inline">n^\epsilon</span> factor. Master theorem
+<strong>does not apply</strong>. Recursion tree: level <span
+class="math inline">i</span> costs <span class="math inline">n/(\lg
+n-i)</span>, so the total is <span class="math inline">n\sum_{j=1}^{\lg
+n}1/j=\Theta(n\lg\lg n)</span>.</li>
+</ol>
+<p>(Each result was also checked numerically against the exact
+recurrence.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Solve <span
+class="math inline">T(n)=T(n-1)+n</span> with <span
+class="math inline">T(1)=1</span> by iteration, and explain why the
+Master theorem cannot be used.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Unroll: <span
+class="math inline">T(n)=n+(n-1)+\dots+2+T(1)=\frac{n(n+1)}2=\Theta(n^2)</span>.
+The Master theorem needs the argument to shrink by a
+<strong>factor</strong> (<span class="math inline">n/b</span>); here it
+shrinks by a <strong>constant</strong> (<span
+class="math inline">n-1</span>). This recurrence is quicksort’s worst
+case.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(c)</strong> Prove by substitution that <span
+class="math inline">T(n)=2T(\lfloor n/2\rfloor)+n</span> gives <span
+class="math inline">T(n)=O(n\lg n)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Claim <span class="math inline">T(n)\le cn\lg n</span> for <span
+class="math inline">n\ge2</span>, with <span
+class="math inline">T(1)=1</span>. Assume it for all smaller <span
+class="math inline">m\ge2</span>. Then <span
+class="math inline">T(n)\le2c\lfloor n/2\rfloor\lg\lfloor
+n/2\rfloor+n\le cn\lg(n/2)+n=cn\lg n-cn+n\le cn\lg n</span> when <span
+class="math inline">c\ge1</span>. Base cases: <span
+class="math inline">T(1)=1</span> cannot satisfy <span
+class="math inline">c\cdot1\cdot\lg1=0</span>, so start the induction at
+<span class="math inline">n_0=2</span> and check <span
+class="math inline">T(2)=2T(1)+2=4</span> and <span
+class="math inline">T(3)=2T(1)+3=5</span> against <span
+class="math inline">c\,n\lg n</span> (these hold for <span
+class="math inline">c\ge2</span>). Take <span
+class="math inline">c=2</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(d)</strong> The recurrence <span
+class="math inline">T(n)=2T(n/2)+1</span> with <span
+class="math inline">T(1)=1</span> has solution <span
+class="math inline">2n-1</span>. Show why the naive guess <span
+class="math inline">T(n)\le cn</span> fails in the induction and how the
+fix works.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Naive: <span class="math inline">T(n)\le2c\frac n2+1=cn+1</span>,
+which does not give <span class="math inline">\le cn</span> (the
+constant 1 survives). Fixed guess <span class="math inline">T(n)\le
+cn-1</span>: <span class="math inline">T(n)\le2(c\frac
+n2-1)+1=cn-1</span>. Base: <span class="math inline">T(1)=1\le
+c-1</span> for <span class="math inline">c\ge2</span>. So <span
+class="math inline">T(n)\le2n-1</span>; the exact value is <span
+class="math inline">2n-1</span>.</p>
+</div>
+</details>
+<h3 id="problem-2-characteristic-equations">Problem 2: characteristic
+equations</h3>
+<div class="q">
+<p><strong>(a)</strong> Solve <span
+class="math inline">a_n=5a_{n-1}-6a_{n-2}</span> with <span
+class="math inline">a_0=1</span>, <span
+class="math inline">a_1=0</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">r^2-5r+6=0</span> gives <span
+class="math inline">r=2,3</span>. So <span
+class="math inline">a_n=\alpha2^n+\beta3^n</span>. From <span
+class="math inline">a_0=1</span>: <span
+class="math inline">\alpha+\beta=1</span>. From <span
+class="math inline">a_1=0</span>: <span
+class="math inline">2\alpha+3\beta=0</span>. So <span
+class="math inline">\beta=-2</span>, <span
+class="math inline">\alpha=3</span>. <span
+class="math display">a_n=3\cdot2^n-2\cdot3^n.</span> Check: <span
+class="math inline">a_2=5\cdot0-6\cdot1=-6</span> and <span
+class="math inline">3\cdot4-2\cdot9=-6</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Solve <span
+class="math inline">a_n=4a_{n-1}-4a_{n-2}</span> with <span
+class="math inline">a_0=1</span>, <span
+class="math inline">a_1=3</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">r^2-4r+4=(r-2)^2=0</span>, a repeated root
+<span class="math inline">r=2</span>. So <span
+class="math inline">a_n=(\alpha+\beta n)2^n</span>. <span
+class="math inline">a_0=\alpha=1</span>. <span
+class="math inline">a_1=2(1+\beta)=3</span> so <span
+class="math inline">\beta=\frac12</span>. Hence <span
+class="math display">a_n=\left(1+\frac n2\right)2^n=(n+2)2^{n-1}.</span>
+Check: <span class="math inline">a_2=4\cdot3-4\cdot1=8</span> and <span
+class="math inline">(2+2)\cdot2=8</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(c)</strong> For Fibonacci <span
+class="math inline">F_n=F_{n-1}+F_{n-2}</span>, what are the
+characteristic roots, and what does the larger one tell you about <span
+class="math inline">\Theta(F_n)</span>?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">r^2-r-1=0</span> gives <span
+class="math inline">r=\frac{1\pm\sqrt5}2</span>. The larger root <span
+class="math inline">\varphi=\frac{1+\sqrt5}2\approx1.618</span>
+dominates, so <span class="math inline">F_n=\Theta(\varphi^n)</span>,
+exponential. This is why naive recursive Fibonacci has <span
+class="math inline">\Theta(\varphi^n)</span> calls, and why dynamic
+programming (chapter 10) reduces it to <span
+class="math inline">\Theta(n)</span>.</p>
+</div>
+</details>
+<h2 id="past-year-questions">Past-year questions</h2>
+<p>Questions from past papers (SC2001/CZ2101/CE2001). Every answer was
+worked out and checked by code; where a circulated official solution
+exists it was compared, and disagreements are flagged.</p>
+<div class="q">
+<p><strong>AY25/26 S2 3(a)(i)</strong> Solve by the iteration method:
+<span class="math inline">T(1)=1</span>, <span
+class="math inline">T(2)=2</span>, <span
+class="math inline">T(n)=T(n-2)+n</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Unroll: <span class="math inline">T(n)=n+(n-2)+(n-4)+\dots</span>,
+ending at <span class="math inline">T(1)</span> or <span
+class="math inline">T(2)</span> depending on parity.</p>
+<ul>
+<li><span class="math inline">n</span> odd: <span
+class="math inline">T(n)=n+(n-2)+\dots+3+T(1)=1+3+\dots+n=\left(\frac{n+1}{2}\right)^2</span>.</li>
+<li><span class="math inline">n</span> even: <span
+class="math inline">T(n)=n+(n-2)+\dots+4+T(2)=2+4+\dots+n=\frac
+n2\left(\frac n2+1\right)=\frac{n(n+2)}{4}</span>.</li>
+</ul>
+<p>So <span class="math inline">T(n)=\Theta(n^2)</span>. (Checked
+exactly for all <span class="math inline">n\le40</span>.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S2 3(a)(ii)</strong> Use the substitution method to
+prove that <span class="math inline">T(1)=3</span>, <span
+class="math inline">T(n)=2T(n/2)+d</span> (<span
+class="math inline">n\ge2</span>, <span class="math inline">d</span>
+constant) has the solution <span class="math inline">T(n)=O(n)</span>.
+Assume <span class="math inline">n</span> is a power of 2.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The naive guess <span class="math inline">T(n)\le cn</span> fails:
+the step gives <span class="math inline">2c\frac n2+d=cn+d</span>, and
+the extra <span class="math inline">d</span> cannot be absorbed.
+Strengthen to <span class="math inline">T(n)\le cn-d</span>.</p>
+<ul>
+<li><strong>Basis</strong> <span class="math inline">n=1</span>: <span
+class="math inline">T(1)=3\le c-d</span> holds if <span
+class="math inline">c\ge d+3</span>.</li>
+<li><strong>Step:</strong> assume <span class="math inline">T(n/2)\le
+c\frac n2-d</span>. Then <span
+class="math inline">T(n)=2T(n/2)+d\le2\left(c\frac
+n2-d\right)+d=cn-d</span>.</li>
+</ul>
+<p>So <span class="math inline">T(n)\le(d+3)n-d=O(n)</span> with <span
+class="math inline">c=d+3</span>. (The exact solution is <span
+class="math inline">(d+3)n-d</span>.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S1 3(a)(i)</strong> For <span
+class="math inline">T(2)=1</span>, <span
+class="math inline">T(n)=T(n-2)+n-1</span> for <span
+class="math inline">n&gt;2</span> (assume <span
+class="math inline">n</span> even): by the substitution method, what is
+your guess? What must be done in the basis step and the inductive step?
+(No need to work out the proof.)</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Guess:</strong> <span
+class="math inline">T(n)=\frac{n^2}{4}</span> (so <span
+class="math inline">T(n)=\Theta(n^2)</span>; for the <span
+class="math inline">O</span> version, guess <span
+class="math inline">T(n)\le cn^2</span>). Exact values: <span
+class="math inline">T(2)=1,T(4)=4,T(6)=9</span>.</p>
+<ul>
+<li><strong>Basis:</strong> check <span class="math inline">n=2</span>:
+<span class="math inline">T(2)=1=\frac{2^2}{4}</span>.</li>
+<li><strong>Inductive step:</strong> assume <span
+class="math inline">T(n-2)=\frac{(n-2)^2}{4}</span>. Then <span
+class="math inline">T(n)=\frac{(n-2)^2}{4}+n-1=\frac{n^2-4n+4+4n-4}{4}=\frac{n^2}{4}</span>.
+The induction runs over even <span class="math inline">n</span> only
+(step size 2).</li>
+</ul>
+<p>(Checked: the recurrence gives exactly <span
+class="math inline">n^2/4</span> for all even <span
+class="math inline">n\le40</span>.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S1 3(a)(ii)</strong> Solve <span
+class="math inline">T(n)=T(n/3)+n/3</span> by the master method.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">a=1</span>, <span
+class="math inline">b=3</span>, <span
+class="math inline">f(n)=n/3</span>. The watershed is <span
+class="math inline">n^{\log_31}=n^0=1</span>. <span
+class="math inline">f(n)=\Omega(n^{0+\epsilon})</span> with <span
+class="math inline">\epsilon=1</span>, so it is case 3. Regularity:
+<span class="math inline">af(n/b)=\frac{n}{9}\le\frac13\cdot\frac
+n3</span>, so <span class="math inline">c=\frac13&lt;1</span> works.
+Therefore <span class="math inline">T(n)=\Theta(n)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S2 3(a)(i)</strong> Use the substitution method to
+prove that the recurrence <span class="math inline">T(1)=2</span>, <span
+class="math inline">T(n)=4T(n/2)+n</span> (for <span
+class="math inline">n\ge2</span>) has the solution <span
+class="math inline">T(n)=O(n^2)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Trying <span class="math inline">T(n)\le cn^2</span>
+fails.</strong> Assume it for <span class="math inline">n/2</span>:
+<span class="math inline">T(n)\le4c(n/2)^2+n=cn^2+n</span>, which is
+larger than <span class="math inline">cn^2</span>, so the induction
+cannot close.</p>
+<p><strong>Strengthen the hypothesis</strong> by subtracting a
+lower-order term. Claim: <span class="math inline">T(n)\le
+c_1n^2-c_2n</span> for all <span class="math inline">n\ge1</span> (a
+power of 2).</p>
+<ul>
+<li>Inductive step. Assume it for <span class="math inline">n/2</span>.
+Then <span class="math display">T(n)\le4\Big(c_1\tfrac{n^2}{4}-c_2\tfrac
+n2\Big)+n=c_1n^2-2c_2n+n=c_1n^2-c_2n-(c_2-1)n\le c_1n^2-c_2n</span> when
+<span class="math inline">c_2\ge1</span>.</li>
+<li>Base case <span class="math inline">n=1</span>: need <span
+class="math inline">T(1)=2\le c_1-c_2</span>. Take <span
+class="math inline">c_2=1</span>, <span
+class="math inline">c_1=3</span>.</li>
+</ul>
+<p>So <span class="math inline">T(n)\le3n^2-n=O(n^2)</span>. In fact the
+solution is exactly <span class="math inline">T(n)=3n^2-n</span>
+(checked by code for <span
+class="math inline">n=2^0,\dots,2^{11}</span>).</p>
+<p><strong>Link.</strong> The master theorem gives the same answer at
+once (<span class="math inline">a=4,b=2</span>, <span
+class="math inline">n^{\log_24}=n^2</span>, <span
+class="math inline">f=n</span> is polynomially smaller: case 1, <span
+class="math inline">\Theta(n^2)</span>). The substitution proof shows
+why the naive guess fails: when the leaves dominate, the guess needs the
+<span class="math inline">-c_2n</span> correction. Rule of thumb: if the
+induction misses by exactly <span class="math inline">f(n)</span>,
+subtract a multiple of <span class="math inline">n</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S2 3(a)(ii)</strong> Solve the following recurrence
+by the iteration method: <span class="math inline">T(1)=1</span>, <span
+class="math inline">T(n)=2T(n/2)+n^2</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Expand: <span
+class="math inline">T(n)=n^2+2T(n/2)=n^2+2\big(\frac{n^2}{4}+2T(n/4)\big)=n^2+\frac{n^2}{2}+4T(n/4)</span>.
+After <span class="math inline">i</span> steps (level <span
+class="math inline">i</span> has <span class="math inline">2^i</span>
+nodes of size <span class="math inline">n/2^i</span>): <span
+class="math display">T(n)=n^2\Big(1+\tfrac12+\dots+\tfrac1{2^{i-1}}\Big)+2^iT(n/2^i).</span>
+The argument reaches 1 when <span class="math inline">i=\lg n</span>, so
+<span class="math inline">2^i=n</span> and the last term is <span
+class="math inline">n\,T(1)=n</span>. The geometric sum is <span
+class="math inline">n^2\cdot\big(2-\tfrac2n\big)=2n^2-2n</span>. Total:
+<strong><span
+class="math inline">T(n)=2n^2-n=\Theta(n^2)</span></strong> (checked by
+code).</p>
+<p><strong>Link.</strong> The root alone costs <span
+class="math inline">n^2</span>, and the whole tree costs less than twice
+that. Shrinking level costs (ratio <span
+class="math inline">\tfrac12</span>) mean the root dominates: master
+case 3 (<span class="math inline">f=n^2</span> is polynomially larger
+than <span class="math inline">n^{\log_22}=n</span>, regularity <span
+class="math inline">2(n/2)^2=\tfrac12n^2</span>). Compare 3(a)(i), where
+the leaves dominate.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S2 3(a)(iii)</strong> Solve the following recurrence
+by the master method: <span class="math inline">T(n)=3T(n/3)+n\log
+n</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">a=3</span>, <span
+class="math inline">b=3</span>, so <span
+class="math inline">n^{\log_ba}=n</span>. And <span
+class="math inline">f(n)=n\lg n=\Theta(n\lg^kn)</span> with <span
+class="math inline">k=1</span>. This is <strong>case 2 of the course’s
+(extended) master theorem</strong>: <span
+class="math inline">T(n)=\Theta(n^{\log_ba}\lg^{k+1}n)=</span>
+<strong><span class="math inline">\Theta(n\lg^2n)</span></strong>.</p>
+<p>Check: with <span class="math inline">n=3^j</span> the recurrence
+gives <span class="math inline">T(n)=n\lg3\cdot j(j+1)/2+n\cdot
+T(1)</span>, and <span class="math inline">T(n)/(n\lg^2n)</span> tends
+to <span class="math inline">1/(2\lg3)\approx0.315</span> (code: 0.379,
+0.361, 0.351, 0.345 for <span
+class="math inline">j=6,8,10,12</span>).</p>
+<p>If your master theorem has only the plain case 2 (<span
+class="math inline">f=\Theta(n^{\log_ba})</span>), this recurrence is
+“not covered”, since <span class="math inline">n\lg n</span> is larger
+than <span class="math inline">n</span> but not by a polynomial factor
+<span class="math inline">n^\epsilon</span>. The extended case 2 is what
+the course teaches.</p>
+<p><strong>Link.</strong> Same shape as 2425 S1 3(a)G (<span
+class="math inline">W(n)=2W(n/2)+n\lg n</span> gives <span
+class="math inline">\Theta(n\lg^2n)</span>): whenever <span
+class="math inline">a=b</span> the work per level is the same <span
+class="math inline">n</span> times a log factor, so you gain one more
+<span class="math inline">\lg</span> from the number of levels.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S1 3(a)</strong> Which of the following recurrence(s)
+may be solved by the Master Method? (There may be more than one.) A.
+<span class="math inline">W(n)=W(n/2)+n-1</span>. B. <span
+class="math inline">W(n)=W(n/2)+1</span>. C. <span
+class="math inline">W(n)=W(n-2)+n-1</span>. D. <span
+class="math inline">W(n)=W(n-1)+W(n-2)</span>. E. <span
+class="math inline">W(2n)=W(n)+(n/2)^2</span>. F. <span
+class="math inline">W(n)=3W(n/2)+3n-2</span>. G. <span
+class="math inline">W(n)=2W(n/2)+n\lg n</span>. H. <span
+class="math inline">W(n)=2W(n/2)+n/\lg n</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>A, B, E, F and G.</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th><span class="math inline">a</span>, <span
+class="math inline">b</span></th>
+<th><span class="math inline">n^{\log_b a}</span></th>
+<th><span class="math inline">f(n)</span></th>
+<th>Case</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>1, 2</td>
+<td><span class="math inline">1</span></td>
+<td><span class="math inline">n-1=\Theta(n)</span></td>
+<td>3 (regularity: <span
+class="math inline">\frac{n}{2}-1\le\frac12(n-1)</span>)</td>
+<td><span class="math inline">\Theta(n)</span></td>
+</tr>
+<tr>
+<td>B</td>
+<td>1, 2</td>
+<td><span class="math inline">1</span></td>
+<td><span class="math inline">1</span></td>
+<td>2 (<span class="math inline">k=0</span>)</td>
+<td><span class="math inline">\Theta(\lg n)</span></td>
+</tr>
+<tr>
+<td>E</td>
+<td>1, 2</td>
+<td><span class="math inline">m^0</span></td>
+<td><span class="math inline">m^2/16</span></td>
+<td>3</td>
+<td><span class="math inline">\Theta(m^2)</span></td>
+</tr>
+<tr>
+<td>F</td>
+<td>3, 2</td>
+<td><span class="math inline">n^{\lg3}\approx n^{1.585}</span></td>
+<td><span class="math inline">3n-2=\Theta(n)</span></td>
+<td>1</td>
+<td><span class="math inline">\Theta(n^{\lg 3})</span></td>
+</tr>
+<tr>
+<td>G</td>
+<td>2, 2</td>
+<td><span class="math inline">n</span></td>
+<td><span class="math inline">n\lg n</span></td>
+<td>2 (<span class="math inline">k=1</span>)</td>
+<td><span class="math inline">\Theta(n\lg^2n)</span></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>C</strong> and <strong>D</strong> fail: the argument is
+<span class="math inline">n-2</span> or <span
+class="math inline">n-1</span>, not <span
+class="math inline">n/b</span>. (D is Fibonacci-like and grows
+exponentially.)</li>
+<li><strong>H</strong> fails: <span class="math inline">n/\lg n</span>
+is smaller than <span class="math inline">n</span> but <strong>not
+polynomially</strong> smaller, and case 2 needs <span
+class="math inline">k\ge0</span>. (Its solution is <span
+class="math inline">\Theta(n\lg\lg n)</span>, found by the recursion
+tree; checked numerically.)</li>
+<li><strong>E</strong> is a rename: put <span
+class="math inline">m=2n</span>, so <span
+class="math inline">W(m)=W(m/2)+(m/4)^2=W(m/2)+m^2/16</span>.
+Numerically <span class="math inline">W(m)/m^2\to1/12</span>.</li>
+<li><strong>G</strong> works with the course’s version of case 2 (<span
+class="math inline">f=\Theta(n^{\log_ba}\lg^kn)</span>, <span
+class="math inline">k\ge0</span>). Numerically <span
+class="math inline">W(n)/(n\lg^2n)\to0.5</span>.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S2 3(a)(i)</strong> Solve the following recurrence by
+the iteration method: <span class="math inline">T(1)=1</span>, <span
+class="math inline">T(2)=3</span>, <span
+class="math inline">T(n)=4\,T(n-2)+3</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Unroll <span class="math inline">k</span> times: <span
+class="math inline">T(n)=4T(n-2)+3=4\,(4T(n-4)+3)+3=16T(n-4)+3(4+1)=\dots</span>
+In general <span
+class="math display">T(n)=4^kT(n-2k)+3\,(1+4+\dots+4^{k-1})=4^kT(n-2k)+(4^k-1)=4^k\big(T(n-2k)+1\big)-1.</span>
+The recursion steps by 2, so the base case depends on whether <span
+class="math inline">n</span> is even or odd.</p>
+<ul>
+<li><strong><span class="math inline">n</span> even:</strong> stop at
+<span class="math inline">n-2k=2</span>, i.e. <span
+class="math inline">k=\frac{n-2}2</span>. Then <span
+class="math inline">T(n)=4^{(n-2)/2}(3+1)-1=4^{n/2}-1=2^n-1</span>.</li>
+<li><strong><span class="math inline">n</span> odd:</strong> stop at
+<span class="math inline">n-2k=1</span>, i.e. <span
+class="math inline">k=\frac{n-1}2</span>. Then <span
+class="math inline">T(n)=4^{(n-1)/2}(1+1)-1=2\cdot2^{n-1}-1=2^n-1</span>.</li>
+</ul>
+<p>Both cases agree: <strong><span
+class="math inline">T(n)=2^n-1</span></strong>, which is <span
+class="math inline">\Theta(2^n)</span>. Check: <span
+class="math inline">T(3)=4\cdot1+3=7</span>, <span
+class="math inline">T(4)=4\cdot3+3=15</span>, and the formula holds for
+<span class="math inline">n=1..29</span> (code).</p>
+<p><strong>Link.</strong> The two base cases <span
+class="math inline">T(1)=1</span> and <span
+class="math inline">T(2)=3</span> both fit <span
+class="math inline">2^n-1</span>, which is why the even and odd answers
+coincide. This is the Towers of Hanoi count: <span
+class="math inline">H(n)=2H(n-1)+1</span> gives <span
+class="math inline">2^n-1</span> too. Here you recurse four times on
+<span class="math inline">n-2</span> instead of twice on <span
+class="math inline">n-1</span>, and <span
+class="math inline">4^{n/2}=2^n</span>. Recurrences that shrink the size
+by a <em>constant</em> (not a factor) are exponential as soon as they
+branch.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S2 3(a)(ii)</strong> Use the substitution method to
+prove that the recurrence <span class="math inline">T(1)=2</span>, <span
+class="math inline">T(n)=4\,T(n-1)+d</span> (for <span
+class="math inline">n\ge2</span>, where <span
+class="math inline">d</span> is a constant) has the solution <span
+class="math inline">T(n)=O(4^n)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>The naive guess <span class="math inline">T(n)\le c4^n</span>
+does not close.</strong> Assume it for <span
+class="math inline">n-1</span>: <span
+class="math inline">T(n)\le4c4^{n-1}+d=c4^n+d</span>, which is larger
+than <span class="math inline">c4^n</span>.</p>
+<p><strong>Strengthen</strong> by subtracting a constant: claim <span
+class="math inline">T(n)\le c4^n-\frac d3</span> for all <span
+class="math inline">n\ge1</span>.</p>
+<ul>
+<li><em>Base case</em> <span class="math inline">n=1</span>: <span
+class="math inline">T(1)=2\le4c-\frac d3</span> holds when <span
+class="math inline">c\ge\frac12+\frac d{12}</span>.</li>
+<li><em>Inductive step.</em> Assume it for <span
+class="math inline">n-1</span>. Then <span
+class="math display">T(n)=4T(n-1)+d\le4\Big(c4^{n-1}-\frac
+d3\Big)+d=c4^n-\frac{4d}3+d=c4^n-\frac d3.</span> This is exactly the
+claim for <span class="math inline">n</span>, so it holds for all <span
+class="math inline">n\ge1</span>.</li>
+</ul>
+<p>Therefore <span class="math inline">T(n)\le c4^n-\frac d3\le
+c4^n</span>, i.e. <span class="math inline">T(n)=O(4^n)</span>. <span
+class="math inline">\blacksquare</span> (The exact solution is <span
+class="math inline">T(n)=\big(2+\frac d3\big)4^{n-1}-\frac d3</span>,
+checked by code with exact fractions.)</p>
+<p><strong>Link.</strong> Same device as AY2425 S2 3(a)(i): when the
+induction misses by exactly the lower-order term, strengthen the
+hypothesis by subtracting a lower-order term (there <span
+class="math inline">-c_2n</span>, here the constant <span
+class="math inline">-\frac d3</span>). The choice <span
+class="math inline">\frac d3</span> comes from solving <span
+class="math inline">x=4x-d</span>, the fixed point of the
+recurrence.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S1 3(a)(i)</strong> Solve the following recurrence by
+the iteration method: <span class="math inline">W(1)=0</span>, and for
+<span class="math inline">n\ge2</span>, <span
+class="math inline">W(n)=W(n-1)+n+1</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Unroll the recurrence: <span
+class="math display">W(n)=W(n-1)+(n+1)=W(n-2)+n+(n+1)=W(n-3)+(n-1)+n+(n+1)=\dots</span>
+After <span class="math inline">k</span> steps: <span
+class="math inline">W(n)=W(n-k)+\sum_{i=0}^{k-1}(n+1-i)</span>. The base
+case <span class="math inline">W(1)=0</span> is reached at <span
+class="math inline">k=n-1</span>, when the added terms are <span
+class="math inline">n+1,n,\dots,3</span>: <span
+class="math display">W(n)=0+\sum_{j=3}^{n+1}j=\frac{(n+1)(n+2)}2-3=\frac{n^2+3n-4}2=\frac{(n+4)(n-1)}2.</span>
+So <strong><span class="math inline">W(n)=\Theta(n^2)</span></strong>.
+Check: <span class="math inline">W(2)=3</span>, <span
+class="math inline">W(3)=7</span>, <span
+class="math inline">W(4)=12</span>, which equal the formula (verified by
+code up to <span class="math inline">n=11</span>).</p>
+<p><strong>Link.</strong> This is the recurrence of any algorithm that
+does a linear amount of work and then recurses on <strong>one
+fewer</strong> element, like insertion sort or the bad quicksort split.
+The recursion tree has depth <span class="math inline">n</span> and a
+linear cost per level, so it is quadratic. Compare mergesort, where
+halving the problem gives depth <span class="math inline">\lg
+n</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S1 3(a)(ii)</strong> Solve <span
+class="math inline">W(n)=3W(n/2)+cn</span>, where <span
+class="math inline">c</span> is a constant, by the master method.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">a=3</span>, <span
+class="math inline">b=2</span>, <span
+class="math inline">f(n)=cn</span>. The watershed function is <span
+class="math inline">n^{\log_23}=n^{1.585}</span>. Since <span
+class="math inline">f(n)=cn=O(n^{1.585-\varepsilon})</span> with <span
+class="math inline">\varepsilon=0.5</span>, this is <strong>case
+1</strong> (the leaves dominate): <span
+class="math inline">W(n)=\Theta(n^{\log_23})=\Theta(n^{1.585})</span>.</p>
+<p><strong>Link.</strong> Three half-size subproblems plus linear work
+is the shape of Karatsuba’s multiplication, which beats the <span
+class="math inline">\Theta(n^2)</span> school method with <span
+class="math inline">\Theta(n^{1.585})</span>. (Karatsuba is <strong>not
+in your lectures</strong>.) Compare <span
+class="math inline">4T(n/2)+n</span>, where <span
+class="math inline">a=4</span> gives <span
+class="math inline">\Theta(n^2)</span>: dropping one subproblem is what
+moves the exponent from 2 to 1.585. The exponent of the leaves, <span
+class="math inline">\log_ba</span>, depends only on how many pieces you
+recurse on.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 3(a)(i)</strong> Use the substitution method to
+prove that the recurrence <span class="math inline">T(1)=1</span>, <span
+class="math inline">T(n)=2T(n-1)+c</span> (for <span
+class="math inline">n\ge2</span>, where <span
+class="math inline">c</span> is a constant) has the solution <span
+class="math inline">T(n)=O(2^n)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>The naive guess <span class="math inline">T(n)\le k2^n</span>
+fails.</strong> Assume it for <span class="math inline">n-1</span>:
+<span class="math inline">T(n)\le2k2^{n-1}+c=k2^n+c&gt;k2^n</span>.</p>
+<p><strong>Strengthen by subtracting the constant.</strong> Claim <span
+class="math inline">T(n)\le k2^n-c</span> for all <span
+class="math inline">n\ge1</span>.</p>
+<ul>
+<li>Base <span class="math inline">n=1</span>: need <span
+class="math inline">1\le2k-c</span>, true for <span
+class="math inline">k\ge\frac{1+c}2</span>.</li>
+<li>Step: assume <span class="math inline">T(n-1)\le k2^{n-1}-c</span>.
+Then <span
+class="math inline">T(n)=2T(n-1)+c\le2(k2^{n-1}-c)+c=k2^n-2c+c=k2^n-c</span>.
+<span class="math inline">\blacksquare</span></li>
+</ul>
+<p>So <span class="math inline">T(n)\le k2^n-c\le k2^n</span>,
+i.e. <span class="math inline">T(n)=O(2^n)</span>. (The exact solution
+is <span class="math inline">T(n)=(1+c)2^{n-1}-c</span>, checked by code
+for <span class="math inline">c=5</span>.)</p>
+<p><strong>Link.</strong> The same strengthening device as AY2425 S2
+3(a)(i) (<span class="math inline">-c_2n</span>) and AY2324 S2 3(a)(ii)
+(<span class="math inline">-d/3</span>). The subtracted constant is
+<span class="math inline">c</span> because <span
+class="math inline">-c</span> is the fixed point of <span
+class="math inline">x=2x+c</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 3(a)(ii)</strong> Solve the following recurrence
+by the iteration method: <span class="math inline">T(1)=1</span>, <span
+class="math inline">T(n)=3T(n-1)+1</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Unroll <span class="math inline">k</span> times: <span
+class="math display">T(n)=3T(n-1)+1=3\big(3T(n-2)+1\big)+1=9T(n-2)+3+1=\dots=3^kT(n-k)+(3^{k-1}+\dots+3+1)=3^kT(n-k)+\frac{3^k-1}2.</span>
+The base case is reached at <span class="math inline">k=n-1</span>:
+<span
+class="math inline">T(n)=3^{n-1}\cdot1+\dfrac{3^{n-1}-1}2=\dfrac{2\cdot3^{n-1}+3^{n-1}-1}2=\dfrac{3^n-1}2</span>.</p>
+<p>So <strong><span
+class="math inline">T(n)=\dfrac{3^n-1}2=\Theta(3^n)</span></strong>.
+Check: <span class="math inline">T(2)=4</span>, <span
+class="math inline">T(3)=13</span>, and the formula holds for <span
+class="math inline">n=1..29</span> (code).</p>
+<p><strong>Link.</strong> Three-way branching on size <span
+class="math inline">n-1</span> gives <span
+class="math inline">3^n</span>. Compare the Towers of Hanoi <span
+class="math inline">H(n)=2H(n-1)+1=2^n-1</span> and AY2324 S2 3(a)(i)
+(<span class="math inline">T(n)=4T(n-2)+3=2^n-1</span>): the number of
+copies and how fast the size shrinks together set the base of the
+exponential.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 3(a)(iii)</strong> Solve the following recurrence
+by the master method: <span class="math inline">T(n)=T(n/2)+dn</span>
+(where <span class="math inline">d</span> is some positive
+constant).</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">a=1</span>, <span
+class="math inline">b=2</span>, so <span
+class="math inline">n^{\log_ba}=n^0=1</span>. <span
+class="math inline">f(n)=dn</span> is polynomially larger than 1 (it is
+<span class="math inline">\Omega(n^{0+\varepsilon})</span> with <span
+class="math inline">\varepsilon=1</span>), so this is <strong>case
+3</strong>. The regularity condition holds: <span class="math inline">a
+f(n/b)=d\,n/2\le\frac12\,dn</span>. Therefore <strong><span
+class="math inline">T(n)=\Theta(n)</span></strong>.</p>
+<p>Check by unrolling: <span
+class="math inline">T(n)=dn(1+\frac12+\frac14+\dots)\approx2dn</span>
+(code: <span class="math inline">T(2^k)/(dn)\to2</span>).</p>
+<p><strong>Link.</strong> One subproblem of half the size plus linear
+work is the recurrence of quickselect (finding the <span
+class="math inline">k</span>-th smallest key) on good splits;
+quickselect is <strong>not in your lectures</strong>. The geometric
+series <span class="math inline">1+\frac12+\frac14+\dots=2</span> is why
+a root that dominates (case 3) costs only twice its own work.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S1 3(a)(i)</strong> Solve the following recurrence by
+the substitution method: <span class="math inline">W(1)=1</span>, and
+for <span class="math inline">n\ge2</span>, <span
+class="math inline">W(n)=2W(n-1)+3</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Guess from small cases.</strong> <span
+class="math inline">W(1)=1</span>, <span
+class="math inline">W(2)=2\cdot1+3=5</span>, <span
+class="math inline">W(3)=13</span>, <span
+class="math inline">W(4)=29</span>. Adding 3 gives <span
+class="math inline">4,8,16,32</span>, which are <span
+class="math inline">2^{n+1}</span>. Guess <span
+class="math inline">W(n)=2^{n+1}-3</span>.</p>
+<p><strong>Proof by induction.</strong></p>
+<ul>
+<li>Base <span class="math inline">n=1</span>: <span
+class="math inline">2^{2}-3=1=W(1)</span>.</li>
+<li>Step: assume <span class="math inline">W(n-1)=2^{n}-3</span>. Then
+<span
+class="math inline">W(n)=2(2^{n}-3)+3=2^{n+1}-6+3=2^{n+1}-3</span>.
+<span class="math inline">\blacksquare</span></li>
+</ul>
+<p>So <span class="math inline">W(n)=2^{n+1}-3=\Theta(2^n)</span>.</p>
+<p>(For a pure upper bound the naive guess <span
+class="math inline">W(n)\le c2^n</span> would <strong>fail</strong>:
+<span class="math inline">2c2^{n-1}+3=c2^n+3</span>. Subtracting a
+constant, <span class="math inline">W(n)\le2\cdot2^n-3</span>, closes
+the induction. The circulated solution does exactly this after solving
+the recurrence with characteristic roots, which is not needed.)</p>
+<p><strong>Link.</strong> The trick is that <span
+class="math inline">W(n)+3=2\,(W(n-1)+3)</span>: shifting by the fixed
+point of <span class="math inline">x=2x+3</span> (namely <span
+class="math inline">-3</span>) turns it into the pure doubling <span
+class="math inline">V(n)=2V(n-1)</span>. The same shift gave <span
+class="math inline">4^n-d/3</span> in AY2324 S2 3(a)(ii). Recurrences
+that branch while shrinking only by 1 are exponential.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S1 3(a)(ii)</strong> Solve the following recurrence
+by the master method: <span class="math inline">W(n)=W(n/3)+\lg
+n</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">a=1</span>, <span
+class="math inline">b=3</span>, so <span
+class="math inline">n^{\log_ba}=n^{\log_31}=n^0=1</span>. The driving
+function is <span class="math inline">f(n)=\lg
+n=\Theta(n^{0}\lg^{1}n)</span>. This is <strong>case 2 of the course’s
+(extended) master theorem</strong> with <span
+class="math inline">k=1</span>: <span
+class="math display">W(n)=\Theta\big(n^{\log_ba}\lg^{k+1}n\big)=\Theta(\lg^2n).</span>
+Numerical check: with <span class="math inline">n=3^j</span>, <span
+class="math inline">W(n)/\lg^2n</span> is 0.368, 0.347, 0.338, 0.333 for
+<span class="math inline">j=6,10,14,18</span>, heading to <span
+class="math inline">\frac1{2\lg3}\approx0.316</span>.</p>
+<p>(Flag: <strong>case 3 does not apply</strong>: <span
+class="math inline">\lg n</span> is not <em>polynomially</em> larger
+than <span class="math inline">1</span>, since <span
+class="math inline">\lg n=o(n^\varepsilon)</span> for every <span
+class="math inline">\varepsilon&gt;0</span>. The plain case 2 (<span
+class="math inline">f=\Theta(1)</span>) also does not match. Only the
+extended case 2 with <span class="math inline">k=1</span> fits.)</p>
+<p><strong>Link.</strong> Binary search is <span
+class="math inline">W(n)=W(n/2)+1</span>, which gives <span
+class="math inline">\Theta(\lg n)</span>. Here each level costs <span
+class="math inline">\lg n</span> (an operation of size <span
+class="math inline">n</span>) instead of 1, and there are <span
+class="math inline">\log_3n</span> levels, so the total is a sum of
+<span class="math inline">\lg n-\lg3\cdot i</span> over <span
+class="math inline">\log_3n</span> levels, about half of <span
+class="math inline">\lg n\cdot\log_3n=\frac{\lg^2n}{\lg3}</span>. The
+<span class="math inline">\lg^{k+1}</span> in the master theorem comes
+from summing <span class="math inline">k</span>-th powers of logs over
+<span class="math inline">\lg n</span> levels.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S2 3(a)</strong> Solve the following recurrence by
+the master method. (i) <span
+class="math inline">T(n)=7T(n/3)+n^2</span>. (ii) <span
+class="math inline">T(n)=T(\sqrt n)+1</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> <span class="math inline">a=7</span>, <span
+class="math inline">b=3</span>, so <span
+class="math inline">n^{\log_ba}=n^{\log_37}=n^{1.771}</span>. <span
+class="math inline">f(n)=n^2</span> is polynomially larger: <span
+class="math inline">n^2=\Omega(n^{1.771+\varepsilon})</span> with <span
+class="math inline">\varepsilon=0.2</span>. <strong>Case 3.</strong>
+Regularity: <span
+class="math inline">a\,f(n/b)=7\,(n/3)^2=\tfrac79n^2\le c\,n^2</span>
+with <span class="math inline">c=\tfrac79&lt;1</span>. So <strong><span
+class="math inline">T(n)=\Theta(n^2)</span></strong>.</p>
+<p><strong>(ii)</strong> The recurrence is not in the form <span
+class="math inline">aT(n/b)+f(n)</span>, because the argument is <span
+class="math inline">\sqrt n</span>, not <span
+class="math inline">n/b</span>. Change variable: let <span
+class="math inline">m=\lg n</span> and <span
+class="math inline">S(m)=T(2^m)</span>. Then <span
+class="math inline">\sqrt n=2^{m/2}</span> and the recurrence becomes
+<span class="math display">S(m)=S(m/2)+1.</span> This has <span
+class="math inline">a=1</span>, <span class="math inline">b=2</span>,
+<span class="math inline">f(m)=1=\Theta(m^{\log_21})=\Theta(1)</span>:
+<strong>case 2</strong>, so <span class="math inline">S(m)=\Theta(\lg
+m)</span>. Substituting back, <strong><span
+class="math inline">T(n)=\Theta(\lg\lg n)</span>.</strong></p>
+<p>Check: with <span class="math inline">T(n)=1</span> for <span
+class="math inline">n\le2</span>, <span
+class="math inline">T\big(2^{2^k}\big)=k+1</span> for <span
+class="math inline">k=1..6</span> (code), which is <span
+class="math inline">\lg\lg n+1</span>.</p>
+<p><strong>Link.</strong> <span class="math inline">\Theta(\lg\lg
+n)</span> is the number of times you can take a square root before
+reaching 2, which is the number of times you can halve the
+<strong>exponent</strong>. It also shows that the master theorem is only
+a recipe for <span class="math inline">a</span> subproblems of size
+<span class="math inline">n/b</span>; other shapes need a change of
+variable or the substitution method. (It appears in van Emde Boas trees
+and in interpolation search on uniform keys, both <strong>not in your
+lectures</strong>.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S2 3(b)</strong> Use the substitution method to prove
+that the recurrence <span
+class="math inline">T(n)=T(n/2)+T(2n/5)+n</span> has the solution <span
+class="math inline">T(n)=O(n)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Note <span
+class="math inline">\tfrac12+\tfrac25=\tfrac9{10}&lt;1</span>: the two
+subproblems together are smaller than the problem. Claim: <span
+class="math inline">T(n)\le c\,n</span> for all <span
+class="math inline">n\ge1</span>, for a suitable constant <span
+class="math inline">c</span>.</p>
+<ul>
+<li><strong>Inductive step.</strong> Assume <span
+class="math inline">T(m)\le c\,m</span> for all <span
+class="math inline">m&lt;n</span>. Then <span
+class="math display">T(n)=T(n/2)+T(2n/5)+n\le c\frac
+n2+c\frac{2n}5+n=\frac{9}{10}cn+n.</span> We need <span
+class="math inline">\frac9{10}cn+n\le cn</span>, i.e. <span
+class="math inline">n\le\frac{cn}{10}</span>, i.e. <span
+class="math inline">c\ge10</span>.</li>
+<li><strong>Base case.</strong> For the smallest <span
+class="math inline">n</span> (where <span class="math inline">n/2</span>
+or <span class="math inline">2n/5</span> rounds down to 0 or 1) the
+values are constants, so <span class="math inline">T(n)\le c\,n</span>
+holds for <span class="math inline">c</span> at least the largest base
+value; take <span class="math inline">c=\max(10,\
+T_{\text{base}})</span>.</li>
+</ul>
+<p>So <span class="math inline">T(n)\le c\,n</span> with <span
+class="math inline">c\ge10</span>, i.e. <span
+class="math inline">T(n)=O(n)</span>. <span
+class="math inline">\blacksquare</span> (The floors do not matter: <span
+class="math inline">\lfloor n/2\rfloor\le n/2</span> and <span
+class="math inline">\lfloor2n/5\rfloor\le2n/5</span>, and the bound
+<span class="math inline">c\,m</span> increases with <span
+class="math inline">m</span>.)</p>
+<p>Because the cost is at least the <span class="math inline">n</span>
+of the top level, <span class="math inline">T(n)=\Theta(n)</span>. In
+fact <span class="math inline">T(n)/n</span> tends to exactly 10: the
+code gives 4.84, 7.14, 8.44, 9.15 for <span
+class="math inline">n=10^2,10^4,10^6,10^8</span>, approaching <span
+class="math inline">1/(1-\tfrac9{10})=10</span>.</p>
+<p><strong>Link.</strong> The recursion tree makes it plain: level 0
+costs <span class="math inline">n</span>, level 1 costs <span
+class="math inline">\frac9{10}n</span>, level 2 costs <span
+class="math inline">(\frac9{10})^2n</span>, and so on, a geometric
+series that sums to <span class="math inline">10n</span>. When the
+subproblem sizes add up to <strong>less than</strong> <span
+class="math inline">n</span> and the combine cost is linear, the root
+dominates (like master case 3). When they add up to exactly <span
+class="math inline">n</span> (mergesort) every level costs the same and
+you get the extra <span class="math inline">\lg n</span>. (The general
+tool for unequal pieces, the Akra-Bazzi theorem, is <strong>not in your
+lectures</strong>.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S1 3(a)</strong> Solve the following recurrence by
+the master method: <span
+class="math inline">W(n)=3W(n/3)+n-1</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">a=3</span>, <span
+class="math inline">b=3</span>, so <span
+class="math inline">n^{\log_ba}=n^{\log_33}=n</span>. The driving
+function is <span
+class="math inline">f(n)=n-1=\Theta(n)=\Theta\big(n^{\log_ba}\big)</span>.
+This is <strong>case 2</strong> (the plain version, <span
+class="math inline">k=0</span>): <span
+class="math inline">W(n)=\Theta(n^{\log_ba}\lg n)=\Theta(n\lg
+n)</span>.</p>
+<p>Numerical check: for <span class="math inline">n=3^k</span>, <span
+class="math inline">W(n)/(n\lg n)</span> is 0.568, 0.599, 0.610 for
+<span class="math inline">k=5,10,15</span>, approaching <span
+class="math inline">1/\lg3\approx0.631</span>.</p>
+<p><strong>Link.</strong> Three-way splitting with linear merge cost
+behaves exactly like mergesort’s two-way splitting: whenever the
+subproblem count equals the shrink factor (<span
+class="math inline">a=b</span>) and the combine step is linear, every
+level costs <span class="math inline">n</span> and there are <span
+class="math inline">\log_bn</span> levels.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S1 3(b)</strong> Solve the following recurrence
+together with the initial conditions given by finding its characteristic
+root(s): <span class="math inline">a_n=9a_{n-2}</span> for all <span
+class="math inline">n\ge2</span>, <span
+class="math inline">a_0=1</span>, <span
+class="math inline">a_1=3</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Write it as <span class="math inline">a_n=0\cdot
+a_{n-1}+9a_{n-2}</span>. The characteristic equation is <span
+class="math inline">x^2=9</span>, so the roots are <span
+class="math inline">x=3</span> and <span class="math inline">x=-3</span>
+(two distinct roots), and <span
+class="math display">a_n=\alpha\,3^n+\beta\,(-3)^n.</span> The initial
+conditions fix <span class="math inline">\alpha</span> and <span
+class="math inline">\beta</span>:</p>
+<ul>
+<li><span class="math inline">a_0=1</span>: <span
+class="math inline">\alpha+\beta=1</span>.</li>
+<li><span class="math inline">a_1=3</span>: <span
+class="math inline">3\alpha-3\beta=3</span>, i.e. <span
+class="math inline">\alpha-\beta=1</span>.</li>
+</ul>
+<p>Adding the two equations gives <span
+class="math inline">2\alpha=2</span>, so <span
+class="math inline">\alpha=1</span> and <span
+class="math inline">\beta=0</span>. Therefore <strong><span
+class="math inline">a_n=3^n</span></strong>.</p>
+<p>Check: <span class="math inline">a_2=9a_0=9=3^2</span>, <span
+class="math inline">a_3=9a_1=27=3^3</span>, and by induction <span
+class="math inline">9\cdot3^{n-2}=3^n</span> (verified for <span
+class="math inline">n\le11</span>).</p>
+<p><strong>Link.</strong> The recurrence links <span
+class="math inline">a_n</span> to <span
+class="math inline">a_{n-2}</span> only, so the even-indexed and
+odd-indexed terms are two independent geometric sequences with ratio 9.
+The initial values <span class="math inline">a_0=1</span> and <span
+class="math inline">a_1=3</span> happen to lie on the same sequence
+<span class="math inline">3^n</span>, which is why the <span
+class="math inline">(-3)^n</span> coefficient is 0. With <span
+class="math inline">a_1=-3</span> instead, <span
+class="math inline">\alpha</span> would be 0 and the answer <span
+class="math inline">(-3)^n</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY20/21 S2 1(a)</strong> <span
+class="math inline">W(n)</span> represents the number of operations
+performed by an algorithm with problem size <span
+class="math inline">n</span>. Solve the recurrence equation and state
+the complexity of the algorithm in <span class="math inline">O</span>
+notation: <span class="math inline">W(1)=0</span>, <span
+class="math inline">W(n)=2W(n-1)+2</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Unroll (iteration method): <span
+class="math display">W(n)=2W(n-1)+2=2\big(2W(n-2)+2\big)+2=4W(n-2)+4+2=8W(n-3)+8+4+2=\dots</span>
+After <span class="math inline">k</span> steps <span
+class="math inline">W(n)=2^kW(n-k)+2\,(2^{k-1}+\dots+2+1)=2^kW(n-k)+2(2^k-1)</span>.
+The base case <span class="math inline">W(1)=0</span> is reached at
+<span class="math inline">k=n-1</span>: <span
+class="math display">W(n)=2^{n-1}\cdot0+2\,(2^{n-1}-1)=2^n-2.</span> So
+<strong><span class="math inline">W(n)=2^n-2=O(2^n)</span></strong> (in
+fact <span class="math inline">\Theta(2^n)</span>). Check: <span
+class="math inline">W(2)=2</span>, <span
+class="math inline">W(3)=6</span>, <span
+class="math inline">W(4)=14</span>, and the formula holds for <span
+class="math inline">n=1..39</span> (code).</p>
+<p>(By the shift trick, <span
+class="math inline">W(n)+2=2\,(W(n-1)+2)</span>, so <span
+class="math inline">W(n)+2=2^{n-1}\,(W(1)+2)=2^n</span>.)</p>
+<p><strong>Link.</strong> The same shape as AY2223 S1 3(a)(i) (<span
+class="math inline">W(n)=2W(n-1)+3=2^{n+1}-3</span>): shifting by the
+fixed point of <span class="math inline">x=2x+c</span> turns it into
+pure doubling. Note the common structure of “branch twice, shrink by 1”
+recurrences: <span class="math inline">2^n</span>, like the champagne
+and rod-cutting recursions without memoization.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY19/20 S1 1(a)</strong> Write down the time complexity
+measured by the number of print statements for the following functions
+in big-<span class="math inline">\Theta</span> notation in terms of
+<span class="math inline">N</span>. State the assumption you have made,
+if any. (i)
+<code>void qaI(int N){ for (int j=1; j&lt;=N; j*=3) for (int k=1; k&lt;=N; k*=2) cout &lt;&lt; "2001"; }</code>
+(ii)
+<code>void qaII(int N){ if (N&gt;0){ for (int i=0; i&lt;N; i++) cout &lt;&lt; "2001"; return qaII(N-1) + qaII(N-1); } }</code></p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) <span class="math inline">\Theta(\lg^2N)</span>.</strong>
+The outer loop multiplies <span class="math inline">j</span> by 3 each
+time, so it runs <span
+class="math inline">\lfloor\log_3N\rfloor+1</span> times. For every
+outer iteration the inner loop multiplies <span
+class="math inline">k</span> by 2, so it runs <span
+class="math inline">\lfloor\log_2N\rfloor+1</span> times. The statement
+runs <span
+class="math inline">(\lfloor\log_3N\rfloor+1)(\lfloor\log_2N\rfloor+1)</span>
+times, which is <span class="math inline">\Theta(\lg N\cdot\lg
+N)=\Theta(\lg^2N)</span> (the base of a logarithm only changes a
+constant factor, <span class="math inline">\log_3N=\lg N/\lg3</span>).
+The exact count matches this formula for every <span
+class="math inline">N</span> from 1 to 1999 (code); for <span
+class="math inline">N=1000</span> it prints 70 times.</p>
+<p><strong>(ii) <span class="math inline">\Theta(2^N)</span>.</strong>
+Let <span class="math inline">T(N)</span> be the number of prints. The
+loop prints <span class="math inline">N</span> times and then there are
+<strong>two</strong> recursive calls on <span
+class="math inline">N-1</span>: <span
+class="math display">T(N)=2T(N-1)+N,\qquad T(0)=0.</span> Unrolling or
+guessing from <span class="math inline">T(1..5)=1,4,11,26,57</span>
+gives <span class="math inline">T(N)=2^{N+1}-N-2</span>, which is
+verified by induction: <span
+class="math inline">2\,(2^{N}-(N-1)-2)+N=2^{N+1}-N-2</span>. So <span
+class="math inline">T(N)=\Theta(2^N)</span>.</p>
+<p>(Assumption: each <code>cout</code> counts as one operation, <span
+class="math inline">N\ge1</span>, and the arithmetic in the loops is
+free. The <code>return a + b</code> of a <code>void</code> function is a
+typing slip in the paper; only the number of calls matters.)</p>
+<p><strong>Link.</strong> (i) is the “multiplicative loop counter”
+pattern: a loop whose counter is multiplied by a constant runs <span
+class="math inline">\log</span> many times. (ii) is the “branch twice,
+shrink by one” pattern, <span class="math inline">2^N</span>, the same
+as the champagne and rod-cutting recursions without memoization; the
+extra linear term <span class="math inline">N</span> only lowers the
+exact value by <span class="math inline">N+2</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S1 1(b)</strong> Consider the algorithm in Figure Q1b
+for searching a key value in a binary search tree. For simplicity, we
+assume the tree is a complete balanced tree consisting of <span
+class="math inline">n</span> nodes and <span
+class="math inline">k</span> levels, where <span
+class="math inline">n=2^k-1</span>. (i) Assuming that the searched key
+is always in the tree, analyze the best-case and worst-case complexities
+of the algorithm in terms of the number of key comparisons. Describe the
+best-case and worst-case scenarios. (ii) Suppose there is an equal
+chance for the key to be found at each level of the tree. Derive the
+average-case time complexity of the algorithm.</p>
+<figure>
+<img src="img/pyp/1819s1_q1b.png"
+alt="Figure Q1b (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1b (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The code makes two key comparisons at a node that does not match
+(<code>item == key</code>, then <code>item &lt; key</code>) and only
+<strong>one</strong> at the node that matches (it returns TRUE after the
+first test). So a key at level <span class="math inline">\ell</span>
+(root is level 1) costs <span
+class="math inline">2(\ell-1)+1=2\ell-1</span> comparisons.</p>
+<p><strong>(i) Best case: 1 comparison</strong>, when the key is at the
+<strong>root</strong> (<span class="math inline">O(1)</span>).
+<strong>Worst case: <span class="math inline">2k-1</span>
+comparisons</strong>, when the key is at a <strong>leaf</strong> (level
+<span class="math inline">k</span>): <span
+class="math inline">2k-1=2\lg(n+1)-1=O(\lg n)</span>. (Checked by
+running the search on a tree of 15 nodes: levels 1 to 4 cost 1, 3, 5,
+7.)</p>
+<p><strong>(ii) Average case.</strong> Each level <span
+class="math inline">\ell=1..k</span> has probability <span
+class="math inline">\frac1k</span>, so <span
+class="math display">\text{average}=\frac1k\sum_{\ell=1}^{k}(2\ell-1)=\frac1k\cdot
+k^2=k=\lg(n+1)=O(\lg n).</span> (The circulated solution counts 2
+comparisons at every level including the match and gets <span
+class="math inline">k+1</span>; same order.)</p>
+<p>If instead every <strong>node</strong> is equally likely (the lower
+levels have more nodes), the average rises to about <span
+class="math inline">2k-3</span>, still <span class="math inline">O(\lg
+n)</span>.</p>
+<p><strong>Link.</strong> All three cases are <span
+class="math inline">\Theta(\lg n)</span> or better because the path
+length of a balanced tree is its height <span
+class="math inline">\lg(n+1)</span>, which is the same fact that makes
+<code>fixHeap</code> and binary search <span class="math inline">O(\lg
+n)</span>. A <strong>degenerate</strong> (unbalanced) tree would have a
+worst case of <span class="math inline">n</span> nodes, which is why
+balance is assumed.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S1 1(c)</strong> The series <span
+class="math inline">S(n)=1+2^2+3^2+\dots+n^2</span> computes the sum of
+the squares of <span class="math inline">n</span> positive numbers from
+1 to <span class="math inline">n</span>. Design an algorithm using
+recursive functions for calculating the sum of the squares based on the
+parameter <span class="math inline">n</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">S(1)=1</span> and <span
+class="math inline">S(n)=n^2+S(n-1)</span>:</p>
+<pre><code>int sumSquares(int n):
+    if n == 1: return 1
+    return n*n + sumSquares(n-1)</code></pre>
+<p>It makes <span class="math inline">n</span> calls and <span
+class="math inline">n-1</span> additions, <span
+class="math inline">\Theta(n)</span> time and <span
+class="math inline">\Theta(n)</span> stack space. Check: <span
+class="math inline">S(10)=385=\frac{10\cdot11\cdot21}6</span>, the
+closed form <span class="math inline">\frac{n(n+1)(2n+1)}6</span>.</p>
+<p><strong>Link.</strong> The closed form <span
+class="math inline">\frac{n(n+1)(2n+1)}6</span> makes it <span
+class="math inline">O(1)</span> arithmetic: a recursion is not always
+the best algorithm. The recurrence <span
+class="math inline">S(n)=S(n-1)+n^2</span> is the shape “do a constant
+amount of work, then recurse on one fewer”, which is linear in the
+number of calls, like insertion sort’s outer loop.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S1 1(d)</strong> A divide and conquer algorithm
+typically works by dividing a problem of size <span
+class="math inline">n</span> into <span class="math inline">k</span>
+sub-problems of size <span class="math inline">n/c</span> and combining
+the results with a time cost of <span class="math inline">f(n)</span> in
+a recursive manner. (i) Let <span class="math inline">T(n)</span> be the
+time complexity function of the algorithm for problem size <span
+class="math inline">n</span>. Express the general form of the time
+complexity function using a recurrence equation. (ii) Suppose <span
+class="math inline">k=4</span>, <span class="math inline">c=2</span>,
+<span class="math inline">f(n)=n</span>, and <span
+class="math inline">T(1)=0</span>, solve your recurrence equation in
+Q1(d)(i) and derive the time complexity function of the algorithm.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> <span
+class="math inline">T(n)=k\,T(n/c)+f(n)</span>.</p>
+<p><strong>(ii)</strong> <span
+class="math inline">T(n)=4T(n/2)+n</span>, <span
+class="math inline">T(1)=0</span>, take <span
+class="math inline">n=2^m</span>. Unroll: <span
+class="math display">T(n)=n+4T(n/2)=n+4\big(\tfrac
+n2+4T(n/4)\big)=n+2n+16T(n/4)=n+2n+4n+64T(n/8)=\dots</span> After <span
+class="math inline">i</span> steps <span
+class="math inline">T(n)=n\,(1+2+\dots+2^{i-1})+4^iT(n/2^i)=n(2^i-1)+4^iT(n/2^i)</span>.
+At <span class="math inline">i=\lg n</span> the argument is 1, <span
+class="math inline">2^i=n</span> and <span
+class="math inline">T(1)=0</span>: <span
+class="math display">T(n)=n(n-1)=n^2-n=\Theta(n^2).</span> Check: <span
+class="math inline">T(2)=2</span>, <span
+class="math inline">T(4)=12</span>, <span
+class="math inline">T(8)=56</span> (matches <span
+class="math inline">n^2-n</span> for <span
+class="math inline">n=2^0..2^{13}</span>, code). The master theorem
+agrees: <span class="math inline">a=4</span>, <span
+class="math inline">b=2</span>, <span
+class="math inline">n^{\log_24}=n^2</span> and <span
+class="math inline">f=n</span> is polynomially smaller, so case 1 gives
+<span class="math inline">\Theta(n^2)</span>.</p>
+<p><strong>Link.</strong> Four half-size subproblems with linear work:
+the leaves dominate (<span class="math inline">4^{\lg n}=n^2</span>
+leaves). Compare three subproblems (AY2324 S1 3(a)(ii), <span
+class="math inline">\Theta(n^{1.585})</span>) and two (mergesort, <span
+class="math inline">\Theta(n\lg n)</span>): the exponent <span
+class="math inline">\log_2a</span> rises with each extra subproblem.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY17/18 S1 1(a)</strong> Consider the algorithm
+<code>findSubStr</code> in Figure Q1a that counts the number of
+substrings that begin with a ‘B’ and end with an ‘E’ in a given
+character array <span class="math inline">A</span> with a size of <span
+class="math inline">n</span>. It runs
+<code>for (i=0; i&lt;n-1; i++) if (A[i]=='B') { for (j=i+1; j&lt;n; j++) if (A[j]=='E') count++; }</code>,
+with a comparison with an array element in each <code>if</code>. (i)
+Given an array <span class="math inline">A=</span> “XXBXEEBX”, how many
+comparisons with array elements will the algorithm perform? (ii) Analyze
+the best-case and worst-case complexities of the algorithm in terms of
+the number of comparisons with array elements. Describe the best-case
+and worst-case scenarios. (iii) Suppose there is an equal one-third
+chance for the array elements to be ‘B’, ‘E’ or ‘X’, derive the
+average-case time complexity of the algorithm.</p>
+<figure>
+<img src="img/pyp/1718s1_q1a.png"
+alt="Figure Q1a (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1a (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) 13 comparisons.</strong> <span
+class="math inline">n=8</span>. The outer loop runs <span
+class="math inline">i=0..6</span> (7 iterations) and makes one
+comparison <code>A[i]=='B'</code> in each: 7. The array is X X B X E E B
+X, so there is a ‘B’ at <span class="math inline">i=2</span> and at
+<span class="math inline">i=6</span>. For <span
+class="math inline">i=2</span> the inner loop runs <span
+class="math inline">j=3..7</span>: 5 comparisons (it counts the two E’s
+at positions 4 and 5). For <span class="math inline">i=6</span> it runs
+<span class="math inline">j=7</span>: 1 comparison. Total <span
+class="math inline">7+5+1=13</span>; the algorithm returns count <span
+class="math inline">=2</span>. (The circulated solution says 14. A trace
+of the code as printed in the figure, including a run of it, gives
+13.)</p>
+<p><strong>(ii)</strong> For a given <span class="math inline">i</span>
+with <span class="math inline">A[i]=</span> ‘B’ the inner loop makes
+<span class="math inline">n-1-i</span> comparisons.</p>
+<ul>
+<li><strong>Best case <span class="math inline">O(n)</span>:</strong>
+there is <strong>no ‘B’</strong> at all, or the only ‘B’ is the
+<strong>last</strong> element (the outer loop stops at <span
+class="math inline">n-2</span> and never looks at it). Then only the
+<span class="math inline">n-1</span> outer comparisons are made.</li>
+<li><strong>Worst case <span class="math inline">O(n^2)</span>:</strong>
+every element except possibly the last is ‘B’. Then every outer
+iteration runs the full inner loop: <span
+class="math display">\sum_{i=0}^{n-2}\big(1+(n-1-i)\big)=(n-1)+\frac{n(n-1)}2=\Theta(n^2)</span>
+(equal to 9, 20, 35 for <span class="math inline">n=4,6,8</span>,
+confirmed by running it).</li>
+</ul>
+<p><strong>(iii) Average case <span
+class="math inline">O(n^2)</span>.</strong> The outer comparison is
+always made. The inner loop is entered only when <span
+class="math inline">A[i]=</span> ‘B’, with probability <span
+class="math inline">\frac13</span>, and then costs <span
+class="math inline">n-1-i</span> comparisons. So <span
+class="math display">E[\text{comparisons}]=\sum_{i=0}^{n-2}\Big(1+\frac13(n-1-i)\Big)=(n-1)+\frac13\cdot\frac{n(n-1)}2=\frac{(n-1)(n+6)}6=\Theta(n^2).</span>
+Check by averaging over all <span class="math inline">3^n</span> arrays:
+3, 5, 22/3, 10, 13 for <span class="math inline">n=3..7</span>, exactly
+<span class="math inline">\frac{(n-1)(n+6)}6</span>.</p>
+<p><strong>Link.</strong> The structure is “outer loop, with an inner
+loop entered under a condition”. The condition only scales the inner sum
+by its probability, so the order stays <span
+class="math inline">n^2</span>: a one-third chance reduces the constant
+(from <span class="math inline">\frac12</span> to <span
+class="math inline">\frac16</span>), not the exponent.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY17/18 S1 1(b)</strong> An implementation of the Binary
+Search function is given in Figure Q1b:
+<code>binarySearch(E, first, last, k)</code>: if
+<code>last &lt; first</code> return <span class="math inline">-1</span>;
+<code>mid = (first+last)/2</code>;
+<code>if (k == E[mid]) return mid</code> (array element comparison);
+<code>else if (k &lt; E[mid])</code> (comparison) search
+<code>(first, mid-1)</code>, else search <code>(mid+1, last)</code>. (i)
+By modifying the above implementation, design a Ternary Search algorithm
+that divides an array into three roughly equal parts and, by making a
+constant number of array element comparisons, searches recursively in
+only one of the three parts. Hint: instead of comparing with <span
+class="math inline">E[\text{mid}]</span>, your algorithm should compare
+the searched item <span class="math inline">k</span> with <span
+class="math inline">E[\text{firstThird}]</span> and <span
+class="math inline">E[\text{secondThird}]</span>, where
+<code>firstThird = (2*first + last)/3</code> and
+<code>secondThird = (first + 2*last)/3</code>. (ii) Let <span
+class="math inline">T(i)</span> be the time complexity function in terms
+of the number of array element comparisons performed in your Ternary
+Search algorithm. Express the worst-case time complexity as a recurrence
+equation. (iii) By solving the recurrence equation in Q1(b)(ii), derive
+the time complexity function of the algorithm. You may assume <span
+class="math inline">n=3^d</span>. (iv) Is the asymptotic growth rate of
+the time complexity function derived in Q1(b)(iii) lower than that of
+Binary Search? Briefly justify your answer.</p>
+<figure>
+<img src="img/pyp/1718s1_q1b.png"
+alt="Figure Q1b (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1b (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong></p>
+<pre><code>ternarySearch(E, first, last, k):
+    if last &lt; first: return -1
+    f3 = (2*first + last) / 3;  s3 = (first + 2*last) / 3
+    if k == E[f3]: return f3
+    if k == E[s3]: return s3
+    if k &lt; E[f3]:  return ternarySearch(E, first, f3-1, k)        // left third
+    if k &lt; E[s3]:  return ternarySearch(E, f3+1, s3-1, k)         // middle third
+    return ternarySearch(E, s3+1, last, k)                        // right third</code></pre>
+<p>(The circulated code recurses on
+<code>firstThird, secondThird-1</code> and
+<code>secondThird, last</code>, so it keeps an element that was already
+tested; shrinking past it, as above, is also fine and ensures
+termination.) The code was tested against a plain search on random
+arrays; all answers agree.</p>
+<p><strong>(ii) Worst case.</strong> At most 4 comparisons per call
+(<code>k==E[f3]</code>, <code>k==E[s3]</code>, <code>k&lt;E[f3]</code>,
+<code>k&lt;E[s3]</code>) and the recursion is on at most <span
+class="math inline">n/3</span> elements, e.g. when <span
+class="math inline">k</span> is larger than all elements: <span
+class="math display">T(n)=T(n/3)+c,\qquad c=4\ (\text{a
+constant}).</span></p>
+<p><strong>(iii)</strong> With <span class="math inline">n=3^d</span>:
+<span class="math inline">T(3^d)=T(3^{d-1})+c=\dots=T(1)+c\,d</span>.
+Since <span class="math inline">d=\log_3n</span>, <strong><span
+class="math inline">T(n)=c\log_3n+T(1)=\Theta(\log_3n)=\Theta(\lg
+n)</span>.</strong> (Master theorem: <span
+class="math inline">a=1</span>, <span class="math inline">b=3</span>,
+<span class="math inline">f=c</span>, so <span
+class="math inline">n^{\log_31}=1</span> and <span
+class="math inline">f=\Theta(1)</span>: case 2, <span
+class="math inline">\Theta(\lg n)</span>.)</p>
+<p><strong>(iv) No, the growth rate is the same, <span
+class="math inline">\Theta(\lg n)</span>.</strong> Both are logarithmic:
+<span class="math inline">\log_3n=\lg n/\lg3</span>, so they differ only
+by a constant factor. Counting comparisons, the ternary search is even
+<strong>worse</strong>: binary search makes at most 2 comparisons per
+level over <span class="math inline">\lg n</span> levels, <span
+class="math inline">2\lg n</span>; ternary search makes 4 per level over
+<span class="math inline">\log_3n</span> levels, <span
+class="math inline">\frac4{\lg3}\lg n\approx2.52\lg n</span>. Measured
+on arrays of <span class="math inline">3^d</span> elements: for <span
+class="math inline">n=3^9=19683</span> binary search needed at most 30
+comparisons and ternary at most 40. (The circulated solution answers
+“yes” using the ratio <span
+class="math inline">\log_3n/\log_2n\approx0.63</span>, which only
+compares the number of levels, not the comparisons per level.)</p>
+<p><strong>Link.</strong> Splitting into more parts shrinks the number
+of levels but raises the cost per level: an <span
+class="math inline">m</span>-way search with the same style of
+comparisons makes about <span class="math inline">2(m-1)</span> per
+level over <span class="math inline">\log_mn</span> levels, i.e. <span
+class="math inline">\frac{2(m-1)}{\lg m}\lg n</span>, which grows with
+<span class="math inline">m</span> (2 for <span
+class="math inline">m=2</span>, 2.52 for <span
+class="math inline">m=3</span>, 3 for <span
+class="math inline">m=4</span>). So <span class="math inline">m=2</span>
+is the best choice, and a different base can never beat <span
+class="math inline">\Theta(\lg n)</span>: the base is only a constant
+factor.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY16/17 S2 1(b)</strong> Consider the algorithm in Figure Q1a
+that computes the value of the variable <em>product</em> based on a
+two-dimensional integer array <span class="math inline">A</span> with
+<span class="math inline">m</span> rows and <span
+class="math inline">n</span> columns: it runs through the rows and
+columns; if <code>A[i][j]==0</code> it returns 0; otherwise it does
+<code>product = product*A[i][j]</code>. (i) Assume that <span
+class="math inline">m</span> and <span class="math inline">n</span> are
+positive integers, analyze the best-case and worst-case complexities of
+the algorithm in terms of the number of multiplications. Describe the
+best-case and worst-case scenarios. (ii) Suppose <span
+class="math inline">p</span> is the probability of each array element
+(<span class="math inline">A[i][j]</span>) being equal to zero, derive
+the average-case complexity of the algorithm as an expression of <span
+class="math inline">p</span>, <span class="math inline">m</span> and
+<span class="math inline">n</span>. Hint: you may leave your answer in
+the form of a series.</p>
+<figure>
+<img src="img/pyp/1617s2_q1a.png"
+alt="Figure Q1a (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1a (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> A multiplication is done for every element
+visited before the first zero.</p>
+<ul>
+<li><strong>Best case: 0 multiplications</strong>, <span
+class="math inline">O(1)</span> work: the very first element
+<code>A[0][0]</code> is 0 and the function returns at once. (The
+circulated solution counts the one comparison and writes 1; in terms of
+multiplications it is 0.)</li>
+<li><strong>Worst case: <span class="math inline">mn</span>
+multiplications, <span class="math inline">\Theta(mn)</span>:</strong>
+there is <strong>no zero</strong> in the array, so every element is
+multiplied. (A zero in the last cell gives <span
+class="math inline">mn-1</span>.)</li>
+</ul>
+<p><strong>(ii)</strong> The <span class="math inline">k</span>-th
+element (in row-major order, <span class="math inline">k=1..mn</span>)
+is multiplied exactly when all of the first <span
+class="math inline">k</span> elements are non-zero, which has
+probability <span class="math inline">(1-p)^k</span>. By linearity of
+expectation <span
+class="math display">E[\#\text{multiplications}]=\sum_{k=1}^{mn}(1-p)^k=\frac{(1-p)\big(1-(1-p)^{mn}\big)}{p}\qquad(p&gt;0).</span>
+For <span class="math inline">p\to0</span> this tends to <span
+class="math inline">mn</span> (no zeros: the worst case) and for <span
+class="math inline">p=1</span> it is 0 (the best case). The formula was
+confirmed by exact enumeration for <span class="math inline">m\times
+n=2\times2</span> and <span class="math inline">2\times3</span> with
+<span class="math inline">p=\frac12</span> and <span
+class="math inline">\frac14</span>. For a fixed <span
+class="math inline">p&gt;0</span> and large <span
+class="math inline">mn</span> the sum tends to <span
+class="math inline">\frac{1-p}p</span>, a <strong>constant</strong>: the
+average cost does not grow with the array size.</p>
+<p><strong>Link.</strong> The average is a <strong>geometric
+series</strong>: each element has a chance <span
+class="math inline">p</span> of stopping the scan, so the scan lasts
+about <span class="math inline">\frac1p</span> elements. This is the
+same expected-waiting-time idea as the hash-table probe counts; the
+worst case <span class="math inline">mn</span> is almost never seen when
+zeros are common.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY16/17 S2 1(c)</strong> An implementation of the Tribonacci
+function is given in Figure Q1b: <code>Tribonacci(n)</code> returns 0
+for <span class="math inline">n=1,2</span>, returns 1 for <span
+class="math inline">n=3</span>, and otherwise returns
+<code>Tribonacci(n-1) + Tribonacci(n-2) + Tribonacci(n-3)</code>. (i)
+Let <span class="math inline">W(i)</span> be the time cost in terms of
+the number of additions performed in <code>Tribonacci(i)</code>. Express
+the time cost of the algorithm in Figure Q1b in terms of a recurrence
+equation. (ii) By solving the recurrence equation in Q1(c)(i), show that
+the time complexity of the algorithm is <span
+class="math inline">O(3^n)</span>. (iii) Describe an alternative
+algorithm in pseudocode that computes the Tribonacci function with a
+time complexity of <span class="math inline">O(n)</span>. Briefly
+explain how your algorithm reduces the time complexity.</p>
+<figure>
+<img src="img/pyp/1617s2_q1b.png"
+alt="Figure Q1b (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1b (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> The base cases do no addition. Otherwise the
+call does two additions (three terms) plus the work of the three
+recursive calls: <span class="math display">W(1)=W(2)=W(3)=0,\qquad
+W(i)=W(i-1)+W(i-2)+W(i-3)+2\quad(i\ge4).</span> Values <span
+class="math inline">W(4..12)=2,4,8,16,30,56,104,192,354</span>
+(confirmed by counting additions when running the code).</p>
+<p><strong>(ii)</strong> Induction: <span
+class="math inline">W(i)\le3^i</span> for all <span
+class="math inline">i\ge1</span>. Base cases <span
+class="math inline">W(1..3)=0\le3^i</span>. Step (<span
+class="math inline">i\ge4</span>): assume it for <span
+class="math inline">i-1,i-2,i-3</span>. Then <span
+class="math display">W(i)\le3^{i-1}+3^{i-2}+3^{i-3}+2=3^i\Big(\frac13+\frac19+\frac1{27}\Big)+2=\frac{13}{27}3^i+2\le3^i,</span>
+because <span class="math inline">2\le\frac{14}{27}3^i</span> for <span
+class="math inline">i\ge2</span>. Hence <span
+class="math inline">W(i)=O(3^i)</span>. <span
+class="math inline">\blacksquare</span></p>
+<p>This bound is far from tight. Adding 1 gives <span
+class="math inline">U(i)=W(i)+1=U(i-1)+U(i-2)+U(i-3)</span> with <span
+class="math inline">U(1..3)=1</span>, the Tribonacci recurrence itself,
+whose growth rate is the real root of <span
+class="math inline">x^3=x^2+x+1</span>, <span
+class="math inline">\approx1.839</span>. So the true cost is <span
+class="math inline">\Theta(1.839^n)</span> (the ratio <span
+class="math inline">W(n+1)/W(n)</span> tends to 1.8393, code), and <span
+class="math inline">O(3^n)</span> is a valid but loose bound. (The
+circulated solution reaches <span class="math inline">O(2^n)</span> by a
+long expansion and then says <span
+class="math inline">O(3^n)</span>.)</p>
+<p><strong>(iii) <span class="math inline">O(n)</span> by bottom-up
+dynamic programming:</strong> keep the last three values and loop
+upward,</p>
+<pre><code>Tribonacci(n):
+    if n &lt;= 2: return 0
+    a = 0; b = 0; c = 1                 // values for n-2, n-1, n  starting at n = 3
+    for i = 4 to n:
+        t = a + b + c
+        a = b; b = c; c = t
+    return c</code></pre>
+<p><span class="math inline">n-3</span> iterations, each with 2
+additions: <span class="math inline">O(n)</span> time and <span
+class="math inline">O(1)</span> space. The recursion recomputes the same
+values exponentially many times (the subproblem graph has only <span
+class="math inline">n</span> distinct nodes but the call tree has <span
+class="math inline">\Theta(1.839^n)</span> calls); computing each value
+<strong>once</strong>, from smaller to larger, removes the repetition.
+(Equivalent: top-down with a dictionary. The circulated version uses the
+identity <span class="math inline">T(n)=2T(n-1)-T(n-4)</span> with an
+array, which is also <span class="math inline">O(n)</span> but needs
+<span class="math inline">O(n)</span> space.)</p>
+<p><strong>Link.</strong> The same fix as Fibonacci and the champagne
+and rod-cutting questions: exponential recursion, linear number of
+distinct subproblems. The three-term dependence only changes the number
+of terms kept (three instead of two).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S2 1(b)</strong> Consider the algorithm
+<code>IsSorted</code> in Figure Q1b that checks if a given array of
+<span class="math inline">n</span> integers is sorted in increasing
+order. The algorithm works by scanning the array from the beginning to
+the end and comparing each element (except the last) with its next
+element. The algorithm terminates as soon as any two elements compared
+are not in increasing order. (i) Analyze the best-case and worst-case
+time complexities of the algorithm in terms of the number of comparisons
+between array elements. Describe the best-case and worst-case scenarios.
+(ii) Assume that each array element comparison fails (returns FALSE)
+with an equal probability of <span class="math inline">p</span>, derive
+the average-case time complexity of the algorithm as an expression of
+<span class="math inline">n</span> and <span
+class="math inline">p</span>.</p>
+<figure>
+<img src="img/pyp/1516s2_q1b.png"
+alt="Figure Q1b (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1b (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) Best case: 1 comparison, <span
+class="math inline">O(1)</span>:</strong> the first pair is out of order
+(<code>array[0] &gt; array[1]</code>) and the function returns FALSE at
+once. <strong>Worst case: <span class="math inline">n-1</span>
+comparisons, <span class="math inline">O(n)</span>:</strong> the array
+<strong>is sorted</strong> (or only the last pair is out of order), so
+every adjacent pair is compared.</p>
+<p><strong>(ii)</strong> Comparison <span class="math inline">k</span>
+(<span class="math inline">k=1..n-1</span>) is performed exactly when
+the first <span class="math inline">k-1</span> comparisons all passed,
+which has probability <span class="math inline">(1-p)^{k-1}</span>. By
+linearity of expectation <span
+class="math display">E[\#\text{comparisons}]=\sum_{k=1}^{n-1}(1-p)^{k-1}=\frac{1-(1-p)^{n-1}}{p}.</span>
+For <span class="math inline">p\to0</span> it tends to <span
+class="math inline">n-1</span> (the worst case) and for <span
+class="math inline">p=1</span> it is 1 (the best case). For fixed <span
+class="math inline">p&gt;0</span> it tends to <span
+class="math inline">\frac1p</span>, a constant: <strong>the average cost
+does not grow with <span class="math inline">n</span>.</strong> Checked
+by exact enumeration for <span class="math inline">n=6</span>, <span
+class="math inline">p=\frac12</span> (31/16) and <span
+class="math inline">p=\frac13</span> (211/81).</p>
+<p>(The circulated solution writes the same quantity as a sum of the
+“stops early” and “sorted” cases, which is equal.)</p>
+<p><strong>Link.</strong> The same shape as AY1617 S2 1(b) (the
+zero-product scan): a loop that stops at the first “event” of
+probability <span class="math inline">p</span> per step has an expected
+length of <span class="math inline">\frac1p</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S2 1(c)</strong> Using the divide and conquer
+strategy, provide the pseudocode of an alternative algorithm for
+checking if a given array of <span class="math inline">n</span> integers
+is sorted in increasing order. Hint: your algorithm, using the header
+<code>Boolean RecSorted(int array[], int start, int end)</code>, should
+work by recursively splitting the array of elements into two equal parts
+and recursively checking the individual parts. <strong>(d)</strong>
+Express the worst-case time cost of the algorithm in Q1(c), in terms of
+the number of array element comparisons, as a recurrence equation.
+Assuming that <span class="math inline">n=2^k</span>, solve the
+recurrence equation and derive the time complexity function of the
+algorithm.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(c)</strong> The array is sorted exactly when both halves are
+sorted <strong>and</strong> the last element of the left half is at most
+the first element of the right half.</p>
+<pre><code>Boolean RecSorted(array, start, end):
+    if start &gt;= end: return TRUE                     // 0 or 1 element
+    mid = (start + end) / 2
+    if array[mid] &gt; array[mid+1]: return FALSE       // the boundary pair
+    return RecSorted(array, start, mid) AND RecSorted(array, mid+1, end)</code></pre>
+<p>(The circulated code splits at <code>mid</code> and shares the
+element <code>array[mid]</code> between the two halves; the split above
+gives disjoint halves. Both are correct.) Tested against
+<code>a == sorted(a)</code> on 500 random arrays.</p>
+<p><strong>(d)</strong> One comparison for the boundary pair, then two
+sub-problems of half the size. In the worst case (the array is sorted)
+neither half returns early: <span
+class="math display">T(n)=2T(n/2)+1,\qquad T(1)=0.</span> Unrolling with
+<span class="math inline">n=2^k</span>: <span
+class="math inline">T(n)=1+2+4+\dots+2^{k-1}=2^k-1</span>, so
+<strong><span class="math inline">T(n)=n-1=\Theta(n)</span></strong>
+(master case 1, <span class="math inline">a=2</span>, <span
+class="math inline">b=2</span>, <span class="math inline">f=1</span>).
+Confirmed: 15 comparisons for a sorted array of 16.</p>
+<p><strong>Link.</strong> The recursive version is correct but
+<strong>no better</strong> than the scan of part (b): both need <span
+class="math inline">n-1</span> comparisons on a sorted array. Divide and
+conquer helps only when the halves are not both needed, or can be
+combined cheaply; here every adjacent pair must still be looked at once,
+which is a lower bound.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S1 1(a)</strong> Consider the algorithm in Figure Q1a
+that searches for a fake coin among a collection of <span
+class="math inline">n</span> coins, where <span
+class="math inline">n&gt;0</span>. The algorithm works by recursively
+searching for the fake coin by comparing the first and last coins in the
+remaining coins. For simplicity, it is assumed that there is exactly one
+fake coin, which has a lighter weight. The algorithm terminates as soon
+as a lighter coin is found. (i) Given a problem size of <span
+class="math inline">n</span>, analyze the best-case and worst-case time
+complexities of the algorithm in terms of the number of comparisons
+between array elements. Provide an example of the array values for each
+of the cases. For simplicity, you may assume <span
+class="math inline">n</span> is even. (ii) Analyze the average-case time
+complexity of the algorithm in terms of the number of comparisons
+between array elements. Your answer should consider both even and odd
+values of <span class="math inline">n</span>.</p>
+<figure>
+<img src="img/pyp/1516s1_q1a.png"
+alt="Figure Q1a (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1a (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The function compares the first and the last of the remaining coins:
+if <code>wtCoin[start] &lt; wtCoin[end]</code> the first is the fake (1
+comparison); else if <code>wtCoin[start] &gt; wtCoin[end]</code> the
+last is the fake (2 comparisons); else both are genuine and it recurses
+on the inner coins (2 comparisons spent). One coin left: it is the fake
+(0 comparisons).</p>
+<p><strong>(i) Best case: 1 comparison, <span
+class="math inline">O(1)</span>.</strong> The fake coin is the
+<strong>first</strong> coin, e.g. weights <span
+class="math inline">[1,2,2,2,2,2]</span>. <strong>Worst case: <span
+class="math inline">n</span> comparisons, <span
+class="math inline">O(n)</span>.</strong> The fake coin is in the
+<strong>middle</strong>, as the second of the last pair of coins, so
+every outer pair costs 2 comparisons and the last pair costs 2: for
+<span class="math inline">n=6</span>, e.g. <span
+class="math inline">[2,2,2,1,2,2]</span>: pairs (0,5), (1,4) cost 2
+each, then the pair (2,3) costs 2 (the <code>&lt;</code> test fails, the
+<code>&gt;</code> test finds coin 3): <span
+class="math inline">2+2+2=6=n</span>. In general <span
+class="math inline">2\cdot\frac n2=n</span>.</p>
+<p><strong>(ii) Average case.</strong> Let the fake coin be equally
+likely at each of the <span class="math inline">n</span> positions. For
+<span class="math inline">n</span> even, the coin at position <span
+class="math inline">i</span> is in pair number <span
+class="math inline">k=\min(i,n-1-i)</span> (counting from 0). If it is
+on the front side it costs <span class="math inline">2k+1</span>
+comparisons; on the back side <span class="math inline">2k+2</span>. The
+costs by position are <span
+class="math inline">1,3,5,\dots,n-1,\;n,\dots,6,4,2</span>, which are
+exactly the numbers <span class="math inline">1..n</span> once each. So
+<span
+class="math display">E=\frac{1+2+\dots+n}n=\frac{n+1}2=\Theta(n)\qquad(n\text{
+even}).</span> For <span class="math inline">n</span> odd the middle
+coin is the last one left and costs <span class="math inline">n-1</span>
+(no comparison for a single coin), so the costs are <span
+class="math inline">1,3,\dots,n-2,\;n-1,\;n-1,\;n-3,\dots,4,2</span> and
+<span
+class="math display">E=\frac{n(n+1)/2-1}{n}=\frac{n+1}2-\frac1n=\frac{(n-1)(n+2)}{2n}=\Theta(n)\qquad(n\text{
+odd}).</span> (Checked by running the code on every position for <span
+class="math inline">n=6,7,8,9</span>: averages 7/2, 27/7, 9/2,
+44/9.)</p>
+<p><strong>Link.</strong> All three cases are linear. This algorithm
+uses only “first against last” comparisons, which are two-way, so it
+discards two coins per two comparisons: <span
+class="math inline">\Theta(n)</span>. The next parts use a
+<strong>balance</strong> to compare whole piles, which discards a
+constant fraction of the coins each time.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S1 1(b)</strong> Consider the algorithm in Figure Q1b
+that solves the fake coin problem by recursively splitting the set of
+coins into two piles and comparing the weight of one pile against the
+weight of the other pile. Given an odd number of coins, one coin is left
+out of comparison. If pile 1 is lighter than pile 2, it continues
+searching in pile 1; if pile 2 is lighter than pile 1, it continues
+searching in pile 2; otherwise it identifies the extra coin as the fake
+coin. Express the worst-case time cost of the algorithm, in terms of the
+number of comparisons (using the <code>compare_weight</code> function),
+as a recurrence equation. Assuming that <span
+class="math inline">n=2^k</span>, solve the recurrence equation and
+derive the time complexity function of the algorithm.</p>
+<figure>
+<img src="img/pyp/1516s1_q1b.png"
+alt="Figure Q1b (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q1b (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Each call makes <strong>one</strong> <code>compare_weight</code> and
+then recurses on one pile of <span class="math inline">\lfloor
+n/2\rfloor</span> coins (worst case: the fake coin is never the left-out
+coin, so the search goes down to a single coin): <span
+class="math display">T(n)=T(n/2)+1,\qquad T(1)=0.</span> For <span
+class="math inline">n=2^k</span>: <span
+class="math inline">T(2^k)=T(2^{k-1})+1=\dots=T(1)+k=k</span>, so
+<strong><span class="math inline">T(n)=\lg n=\Theta(\lg
+n)</span></strong> (master case 2 with <span
+class="math inline">a=1</span>, <span class="math inline">b=2</span>,
+<span class="math inline">f=1</span>). Simulation: 3, 6 and 10 weighings
+for <span class="math inline">n=8</span>, 64 and 1024.</p>
+<p><strong>Link.</strong> Comparing piles is like binary search: each
+weighing halves the candidates. A balance has <strong>three</strong>
+outcomes (left lighter, right lighter, equal), which part (c)
+exploits.</p>
+<p><strong>(c)</strong> Describe in pseudocode an improved algorithm,
+modified from the algorithm in Q1(b), for identifying the fake coin with
+a lower worst-case time complexity.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Split into three piles</strong> of about equal size, compare
+two of them, and use all three outcomes:</p>
+<pre><code>searchFakeCoin3(coins, n):
+    if n == 1: return coins[0]
+    divide the coins into pile1, pile2, pile3 of ceil(n/3) or fewer coins each
+        (pile1 and pile2 must have the same size)
+    switch compare_weight(pile1, pile2):
+        case pile1 lighter:  return searchFakeCoin3(pile1, size of pile1)
+        case pile2 lighter:  return searchFakeCoin3(pile2, size of pile2)
+        case equal:          return searchFakeCoin3(pile3, size of pile3)   // the fake is in the third pile</code></pre>
+<p>If the two compared piles weigh the same, both are genuine, so the
+fake is in the third pile. Each weighing leaves at most a third of the
+coins: <span class="math display">T(n)=T(n/3)+1,\qquad T(1)=0\
+\Rightarrow\ T(n)=\log_3n.</span> (Simulation: 2, 4 and 6 weighings for
+<span class="math inline">n=9,81,729</span>. For every position of the
+fake coin the algorithm found it.)</p>
+<p><strong>Link.</strong> A balance has 3 outcomes, so <span
+class="math inline">\log_3n</span> weighings is the
+<strong>optimum</strong>: after <span class="math inline">w</span>
+weighings at most <span class="math inline">3^w</span> cases can be told
+apart, and you need <span class="math inline">n</span>. This is the
+information-theoretic bound, the same idea as <span
+class="math inline">\Omega(n\lg n)</span> for comparison sorting (<span
+class="math inline">n!</span> outcomes, 2 per comparison).</p>
+<p><strong>(d)</strong> Assuming that <span class="math inline">n</span>
+is very large, what is the speed up, in terms of the ratio of the time
+complexity function of the algorithm in Q1(b) over the time complexity
+function of your algorithm in Q1(c)? Your answer should be independent
+of <span class="math inline">n</span>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span
+class="math display">\frac{T_{(b)}(n)}{T_{(c)}(n)}=\frac{\log_2n}{\log_3n}=\log_23\approx\mathbf{1.58}.</span>
+The ratio does not depend on <span class="math inline">n</span> because
+<span class="math inline">\log_2n=\log_23\cdot\log_3n</span> (change of
+base). The three-way split is about 1.58 times faster, but both are
+<span class="math inline">\Theta(\lg n)</span>: the speed-up is a
+constant factor.</p>
+<p><strong>Link.</strong> Compare AY1718 S1 1(b): there a three-way
+<strong>search</strong> was no better than a two-way one because each
+level cost more comparisons. Here each level costs the
+<strong>same</strong> (one weighing), so the extra outcome is free, and
+the three-way split wins.</p>
+</div>
+</details>
+<h2 id="tutorials">Tutorials</h2>
+<h3 id="tutorial-8-q1.-solving-recurrences-by-iteration">Tutorial 8 Q1.
+Solving recurrences by iteration</h3>
+<div class="q">
+<p>Solve the following recurrences by the iteration method.</p>
+<ol type="1">
+<li><span class="math inline">T(1) = 1</span>, and for <span
+class="math inline">n \ge 2</span>, <span class="math inline">T(n) =
+3T(n-1) + 2</span>.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Expand the recurrence again and again. Each step replaces <span
+class="math inline">T(\cdot)</span> by its definition.</p>
+<p><span class="math display">
+\begin{aligned}
+T(n) &amp;= 3T(n-1) + 2 \\
+&amp;= 3\bigl(3T(n-2) + 2\bigr) + 2 = 3^2 T(n-2) + 3 \cdot 2 + 2 \\
+&amp;= 3^2\bigl(3T(n-3) + 2\bigr) + 3 \cdot 2 + 2 = 3^3 T(n-3) + 3^2
+\cdot 2 + 3 \cdot 2 + 2
+\end{aligned}
+</span></p>
+<p>After <span class="math inline">i</span> expansions the pattern is
+<span class="math inline">3^i T(n-i) + 2(3^{i-1} + \dots + 3 +
+1)</span>. The argument reaches the base case <span
+class="math inline">T(1)</span> when <span class="math inline">n - i =
+1</span>, so <span class="math inline">i = n - 1</span>:</p>
+<p><span class="math display">
+T(n) = 3^{n-1} T(1) + 2\,(3^{n-2} + \dots + 3^2 + 3 + 1)
+</span></p>
+<p>Put <span class="math inline">T(1) = 1</span>. The bracket is a
+geometric sum with <span class="math inline">n - 1</span> terms, and its
+value is <span class="math inline">(3^{n-1} - 1)/(3 - 1)</span>:</p>
+<p><span class="math display">
+T(n) = 3^{n-1} + 2 \cdot \frac{3^{n-1} - 1}{3 - 1} = 3^{n-1} + 3^{n-1} -
+1 = 2 \cdot 3^{n-1} - 1
+</span></p>
+<p>This is the exact value. Check: <span class="math inline">T(2) = 3
+\cdot 1 + 2 = 5</span>, and <span class="math inline">2 \cdot 3^1 - 1 =
+5</span>.</p>
+<p>Now drop the <span class="math inline">-1</span>, because it only
+makes the value smaller. Then change the 2 to a 3, because <span
+class="math inline">2 \cdot 3^{n-1} \le 3 \cdot 3^{n-1}</span>:</p>
+<p><span class="math display">
+T(n) = 2 \cdot 3^{n-1} - 1 \le 2 \cdot 3^{n-1} \le 3^n
+</span></p>
+<p>So <span class="math inline">T(n) = O(3^n)</span>.</p>
+</div>
+</details>
+<div class="q">
+<ol start="2" type="1">
+<li><span class="math inline">T(1) = 1</span>, and for <span
+class="math inline">n \ge 2</span>, a power of 2, <span
+class="math inline">T(n) = 2T(n/2) + 6n</span>.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Expand three times.</p>
+<p><span class="math display">
+\begin{aligned}
+T(n) &amp;= 2T(n/2) + 6n \\
+&amp;= 2\bigl(2T(n/2^2) + 6(n/2)\bigr) + 6n = 2^2 T(n/2^2) + 6n + 6n \\
+&amp;= 2^2\bigl(2T(n/2^3) + 6(n/2^2)\bigr) + 6n + 6n = 2^3 T(n/2^3) + 6n
++ 6n + 6n
+\end{aligned}
+</span></p>
+<p>Each expansion adds exactly <span class="math inline">6n</span>. The
+reason: after <span class="math inline">i</span> expansions there are
+<span class="math inline">2^i</span> copies of <span
+class="math inline">T</span>. Each copy adds <span class="math inline">6
+\cdot (n/2^i)</span> when it expands. So the new cost is <span
+class="math inline">2^i \cdot 6n/2^i = 6n</span>. The copies double and
+the sizes halve, and the two changes cancel.</p>
+<p>After <span class="math inline">k</span> expansions, <span
+class="math inline">T(n) = 2^k T(n/2^k) + 6kn</span>. The size reaches 1
+when <span class="math inline">n = 2^k</span>, so <span
+class="math inline">k = \lg n</span>:</p>
+<p><span class="math display">
+T(n) = 2^k T(1) + 6kn = n + 6n \lg n
+</span></p>
+<p>Check: <span class="math inline">T(2) = 2 \cdot 1 + 12 = 14</span>,
+and <span class="math inline">2 + 6 \cdot 2 \cdot 1 = 14</span>.</p>
+<p>The <span class="math inline">6n \lg n</span> term dominates <span
+class="math inline">n</span>. So <span class="math inline">T(n) = O(n
+\lg n)</span>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: the iteration method</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Expand the recurrence 2 or 3 times. Write each line in full, and do
+not simplify too early.</li>
+<li>Find the pattern after <span class="math inline">i</span>
+expansions. Write the answer as: (number of copies of <span
+class="math inline">T</span>) <span class="math inline">\times</span>
+<span class="math inline">T</span>(smaller input) + (cost added so
+far).</li>
+<li>Count the expansions to the base case. For <span
+class="math inline">T(n-1)</span> the input shrinks by 1 each time, so
+<span class="math inline">i = n - 1</span>. For <span
+class="math inline">T(n/2)</span> the input halves each time, so <span
+class="math inline">n/2^i = 1</span> and <span class="math inline">i =
+\lg n</span>.</li>
+<li>Replace <span class="math inline">T</span>(base) by its value and
+add up the extra costs.</li>
+<li>Recognise the sum.
+<ul>
+<li>Same cost each level (here <span class="math inline">6n</span>):
+cost <span class="math inline">\times</span> number of levels.</li>
+<li>Costs that grow by a constant factor (<span class="math inline">2
+\cdot 3^j</span>): a <strong>geometric sum</strong>. <span
+class="math inline">1 + r + \dots + r^{m-1} = (r^m - 1)/(r - 1)</span>.
+The largest term decides the order.</li>
+<li>Costs that grow by a constant step (<span
+class="math inline">2n</span>, <span class="math inline">2(n-1)</span>,
+…): an <strong>arithmetic sum</strong>. It gives <span
+class="math inline">n^2</span> order.</li>
+</ul></li>
+<li>State the exact value if you can. Check it on <span
+class="math inline">T(2)</span>. Then simplify to a big-O bound.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 1.1.</strong> Let <span class="math inline">T(1) =
+1</span> and, for <span class="math inline">n \ge 2</span>, <span
+class="math inline">T(n) = T(n-1) + 2n</span>. Solve it by the iteration
+method.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 1.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Expand:</p>
+<p><span class="math display">
+T(n) = T(n-1) + 2n = T(n-2) + 2(n-1) + 2n = \dots = T(1) + 2 \cdot 2 + 2
+\cdot 3 + \dots + 2n
+</span></p>
+<p>The input shrinks by 1 each time, so we stop after <span
+class="math inline">n - 1</span> expansions. The extra costs are <span
+class="math inline">2 \cdot 2, 2 \cdot 3, \dots, 2n</span>. This is an
+arithmetic sum:</p>
+<p><span class="math display">
+T(n) = 1 + 2(2 + 3 + \dots + n) = 1 + 2\left(\frac{n(n+1)}{2} - 1\right)
+= n^2 + n - 1
+</span></p>
+<p>Check: <span class="math inline">T(2) = 1 + 4 = 5</span>, and <span
+class="math inline">2^2 + 2 - 1 = 5</span>. Also <span
+class="math inline">T(3) = 5 + 6 = 11</span>, and <span
+class="math inline">9 + 3 - 1 = 11</span>.</p>
+<p>So <span class="math inline">T(n) = O(n^2)</span>. In the general
+method this is step 5, the arithmetic sum.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 1.2.</strong> Let <span class="math inline">T(1) =
+1</span> and, for <span class="math inline">n \ge 2</span> a power of 2,
+<span class="math inline">T(n) = 4T(n/2) + n</span>. Solve it by the
+iteration method.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 1.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>After <span class="math inline">i</span> expansions there are <span
+class="math inline">4^i</span> copies of <span
+class="math inline">T</span>, each of size <span
+class="math inline">n/2^i</span>. Each copy adds <span
+class="math inline">n/2^i</span> when it expands. So level <span
+class="math inline">i</span> adds <span class="math inline">4^i \cdot
+n/2^i = 2^i n</span>. The costs now grow by a factor of 2 per level, so
+this is a geometric sum.</p>
+<p><span class="math display">
+T(n) = 4^k T(1) + n(1 + 2 + 4 + \dots + 2^{k-1}), \qquad k = \lg n
+</span></p>
+<p>Here <span class="math inline">4^k = (2^k)^2 = n^2</span>, and <span
+class="math inline">1 + 2 + \dots + 2^{k-1} = 2^k - 1 = n - 1</span>.
+So:</p>
+<p><span class="math display">
+T(n) = n^2 + n(n - 1) = 2n^2 - n
+</span></p>
+<p>Check: <span class="math inline">T(2) = 4 \cdot 1 + 2 = 6</span>, and
+<span class="math inline">2 \cdot 4 - 2 = 6</span>.</p>
+<p>So <span class="math inline">T(n) = O(n^2)</span>. Compare with Q1
+(2): there the level costs were equal, so the answer had a <span
+class="math inline">\lg n</span> factor. Here the level costs grow, so
+the last level wins.</p>
+</div>
+</details>
+<h3 id="tutorial-8-q2.-solving-recurrences-by-substitution">Tutorial 8
+Q2. Solving recurrences by substitution</h3>
+<div class="q">
+<p>Solve the recurrences in Problem 1 by the substitution method.</p>
+<ol type="1">
+<li><span class="math inline">T(1) = 1</span>, and for <span
+class="math inline">n \ge 2</span>, <span class="math inline">T(n) =
+3T(n-1) + 2</span>.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Concepts: the substitution method</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Substitution</strong> has two steps: guess the bound, then
+prove it by induction.</li>
+<li>To prove <span class="math inline">T(n) \le g(n)</span>:
+<ul>
+<li><strong>Base case:</strong> show it for the smallest <span
+class="math inline">n</span>.</li>
+<li><strong>Inductive step:</strong> assume it for smaller inputs. Put
+the assumption into the recurrence. Show it for the next input.</li>
+</ul></li>
+<li>The proof must end with the <strong>same expression</strong> that
+you assumed. If you assume <span class="math inline">T(k) \le
+g(k)</span>, you must end with <span class="math inline">T(k+1) \le
+g(k+1)</span> exactly. Ending with <span class="math inline">g(k+1) +
+2</span> does not prove it.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer (1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Guess <span class="math inline">T(n) = O(3^n)</span>. We first try to
+prove <span class="math inline">T(n) \le 3^n</span> for <span
+class="math inline">n \ge 1</span>.</p>
+<ul>
+<li><strong>Base case:</strong> <span class="math inline">T(1) = 1 \le
+3^1</span>.</li>
+<li><strong>Inductive step:</strong> assume <span
+class="math inline">T(k) \le 3^k</span>. We must show <span
+class="math inline">T(k+1) \le 3^{k+1}</span>.</li>
+</ul>
+<p><span class="math display">
+T(k+1) = 3T(k) + 2 \le 3 \cdot 3^k + 2 = 3^{k+1} + 2
+</span></p>
+<p>This proves only <span class="math inline">T(k+1) \le 3^{k+1} +
+2</span>, not <span class="math inline">T(k+1) \le 3^{k+1}</span>. The
+proof fails. The expressions must be the same, so we have to get rid of
+the “<span class="math inline">+2</span>”.</p>
+<p>The fix is to prove a stronger claim: <span class="math inline">T(n)
+\le 3^n - 2</span> for <span class="math inline">n \ge 1</span>.</p>
+<ul>
+<li><strong>Base case:</strong> <span class="math inline">T(1) = 1 \le
+3^1 - 2 = 1</span>.</li>
+<li><strong>Inductive step:</strong> assume <span
+class="math inline">T(k) \le 3^k - 2</span>. We must show <span
+class="math inline">T(k+1) \le 3^{k+1} - 2</span>.</li>
+</ul>
+<p><span class="math display">
+T(k+1) = 3T(k) + 2 \le 3(3^k - 2) + 2 = 3^{k+1} - 6 + 2 = 3^{k+1} - 4
+\le 3^{k+1} - 2
+</span></p>
+<p>So <span class="math inline">T(n) \le 3^n - 2</span> for all <span
+class="math inline">n \ge 1</span>. Thus <span class="math inline">T(n)
+= O(3^n - 2) = O(3^n)</span>.</p>
+<p>Why subtracting 2 works: the recurrence multiplies the assumption by
+3, so the “<span class="math inline">-2</span>” becomes “<span
+class="math inline">-6</span>”. The “<span
+class="math inline">+2</span>” in the recurrence then cancels only part
+of it, and “<span class="math inline">-4</span>” is left, which is below
+the target “<span class="math inline">-2</span>”. A plain <span
+class="math inline">3^n</span> has no room to absorb the extra 2.</p>
+</div>
+</details>
+<div class="q">
+<ol start="2" type="1">
+<li><span class="math inline">T(1) = 1</span>, and for <span
+class="math inline">n \ge 2</span>, a power of 2, <span
+class="math inline">T(n) = 2T(n/2) + 6n</span>.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Guess <span class="math inline">T(n) = O(n \lg n)</span>. We try
+<span class="math inline">c = 1</span> for simplicity: prove <span
+class="math inline">T(n) \le n \lg n</span>. We start at <span
+class="math inline">n = 2</span>, not <span class="math inline">n =
+1</span>, because <span class="math inline">\lg 1 = 0</span> and <span
+class="math inline">T(1) = 1 &gt; 0</span>.</p>
+<p><strong>Base case with <span class="math inline">c =
+1</span>.</strong> <span class="math inline">T(2) = 2 \cdot 1 + 6 \cdot
+2 = 14</span>, but <span class="math inline">n \lg n = 2 \lg 2 =
+2</span>. So <span class="math inline">T(2) \le 2\lg 2</span> is false.
+The constant <span class="math inline">c = 1</span> is too small. We try
+<span class="math inline">c = 8</span> instead, and prove <span
+class="math inline">T(n) \le 8 n \lg n</span> for <span
+class="math inline">n \ge 2</span>.</p>
+<p><strong>Base case with <span class="math inline">c =
+8</span>.</strong> <span class="math inline">T(2) = 14</span>, and <span
+class="math inline">8 \cdot 2 \lg 2 = 16</span>. So <span
+class="math inline">T(2) \le 16</span> holds.</p>
+<p><strong>Inductive step.</strong> Write <span class="math inline">n =
+2^k</span> with <span class="math inline">k \ge 1</span>. Assume <span
+class="math inline">T(2^k) \le 8k \cdot 2^k</span>. We must show <span
+class="math inline">T(2^{k+1}) \le 8(k+1) \cdot 2^{k+1}</span>.</p>
+<p><span class="math display">
+\begin{aligned}
+T(2^{k+1}) &amp;= 2T(2^k) + 6 \cdot 2^{k+1} \\
+&amp;\le 2 \cdot 8k \cdot 2^k + 6 \cdot 2^{k+1} \\
+&amp;= 8k \cdot 2^{k+1} + 6 \cdot 2^{k+1} \\
+&amp;= (8k + 6) \cdot 2^{k+1} \\
+&amp;\le 8(k+1) \cdot 2^{k+1}
+\end{aligned}
+</span></p>
+<p>The last step holds because <span class="math inline">8k + 6 \le 8k +
+8</span>. So <span class="math inline">T(n) \le 8n \lg n</span> for
+<span class="math inline">n \ge 2</span>, and <span
+class="math inline">T(n) = O(n \lg n)</span>.</p>
+<p>A note on <span class="math inline">c</span> <em>(new)</em>: the base
+case is not the only problem with <span class="math inline">c =
+1</span>. The step would give <span class="math inline">(k + 6)
+2^{k+1}</span>, which is larger than <span class="math inline">(k+1)
+2^{k+1}</span>. With <span class="math inline">c = 8</span> the factor 8
+on <span class="math inline">k</span> leaves room: <span
+class="math inline">8k + 6 \le 8k + 8</span>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: the substitution method</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li><strong>Guess</strong> the bound. Use the iteration method, a
+recursion tree or the master method to get the guess.</li>
+<li><strong>State</strong> what you prove, with a constant: <span
+class="math inline">T(n) \le c \cdot g(n)</span> for <span
+class="math inline">n \ge n_0</span>.</li>
+<li><strong>Base case.</strong> Pick <span
+class="math inline">n_0</span> so that <span class="math inline">g(n_0)
+&gt; 0</span>. Check the base value. If it fails, make <span
+class="math inline">c</span> bigger.</li>
+<li><strong>Inductive step.</strong> Assume the claim for <span
+class="math inline">k</span> (or <span class="math inline">n/2</span>).
+Put it into the recurrence. Show the claim for the next input.</li>
+<li><strong>End with the same expression</strong> that you assumed. Do
+not accept “<span class="math inline">g</span> + something”.</li>
+<li>If you are off by a <strong>lower-order term</strong> (a constant,
+or <span class="math inline">n</span>), prove a stronger claim: subtract
+that term. Use <span class="math inline">T(n) \le g(n) - d</span> (or
+<span class="math inline">g(n) - dn</span>). The subtracted term is
+multiplied by the recurrence, and that creates the room you need.</li>
+<li>If the base case fails, <strong>move the base case</strong> (use
+<span class="math inline">n_0 = 2</span>) or increase <span
+class="math inline">c</span>. Only the inequality for large <span
+class="math inline">n</span> matters.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 2.1.</strong> Let <span class="math inline">T(1) =
+1</span> and, for <span class="math inline">n \ge 2</span> a power of 2,
+<span class="math inline">T(n) = 4T(n/2) + n</span>. Prove <span
+class="math inline">T(n) = O(n^2)</span> by the substitution method.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 2.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>First try: <span class="math inline">T(n) \le
+cn^2</span>.</strong> Assume <span class="math inline">T(n/2) \le
+c(n/2)^2</span>. Then</p>
+<p><span class="math display">
+T(n) = 4T(n/2) + n \le 4c(n/2)^2 + n = cn^2 + n
+</span></p>
+<p>We reach <span class="math inline">cn^2 + n</span>, not <span
+class="math inline">cn^2</span>. The proof fails. The recurrence leaves
+an extra <span class="math inline">n</span>, and no choice of <span
+class="math inline">c</span> removes it.</p>
+<p><strong>Fix: subtract a lower-order term.</strong> Prove <span
+class="math inline">T(n) \le cn^2 - dn</span> for <span
+class="math inline">n \ge 1</span>.</p>
+<ul>
+<li><strong>Inductive step.</strong> Assume <span
+class="math inline">T(n/2) \le c(n/2)^2 - d(n/2)</span>. Then <span
+class="math display">
+T(n) \le 4\left(c\frac{n^2}{4} - d\frac{n}{2}\right) + n = cn^2 - 2dn +
+n = cn^2 - dn - (d - 1)n
+</span> This is at most <span class="math inline">cn^2 - dn</span> when
+<span class="math inline">d \ge 1</span>. Take <span
+class="math inline">d = 1</span>.</li>
+<li><strong>Base case.</strong> <span class="math inline">T(1) = 1 \le c
+\cdot 1 - d \cdot 1 = c - 1</span>. This needs <span
+class="math inline">c \ge 2</span>. Take <span class="math inline">c =
+2</span>.</li>
+</ul>
+<p>So <span class="math inline">T(n) \le 2n^2 - n</span> for all powers
+of 2, and <span class="math inline">T(n) = O(n^2)</span>. This matches
+the exact value <span class="math inline">2n^2 - n</span> from Extension
+1.2. The “<span class="math inline">-dn</span>” trick of the general
+method (step 6) found it.</p>
+</div>
+</details>
+<h3
+id="tutorial-8-q3.-solving-recurrences-by-the-master-method">Tutorial 8
+Q3. Solving recurrences by the master method</h3>
+<div class="q">
+<p>Solve the following recurrences by the master method.</p>
+<ol type="1">
+<li><span class="math inline">W(n) = W(n/3) + 5</span></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Concepts: the master theorem</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>For <span class="math inline">T(n) = aT(n/b) + f(n)</span> with <span
+class="math inline">a \ge 1</span> and <span class="math inline">b &gt;
+1</span>, compare <span class="math inline">f(n)</span> with <span
+class="math inline">n^{\log_b a}</span>.</p>
+<ul>
+<li><strong>Case 1:</strong> <span class="math inline">f(n) =
+O(n^{\log_b a - \varepsilon})</span> for some <span
+class="math inline">\varepsilon &gt; 0</span> (<span
+class="math inline">f</span> is polynomially smaller). Then <span
+class="math inline">T(n) = \Theta(n^{\log_b a})</span>.</li>
+<li><strong>Case 2:</strong> <span class="math inline">f(n) =
+\Theta(n^{\log_b a})</span> (a tie). Then <span class="math inline">T(n)
+= \Theta(n^{\log_b a} \lg n)</span>.</li>
+<li><strong>Case 3:</strong> <span class="math inline">f(n) =
+\Omega(n^{\log_b a + \varepsilon})</span> for some <span
+class="math inline">\varepsilon &gt; 0</span> (<span
+class="math inline">f</span> is polynomially larger),
+<strong>and</strong> <span class="math inline">a f(n/b) \le c
+f(n)</span> for some <span class="math inline">c &lt; 1</span>
+(regularity). Then <span class="math inline">T(n) =
+\Theta(f(n))</span>.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer (1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Here <span class="math inline">a = 1</span>, <span
+class="math inline">b = 3</span> and <span class="math inline">f(n) =
+5</span>.</p>
+<p><span class="math inline">n^{\log_b a} = n^{\log_3 1} = n^0 =
+1</span>, and <span class="math inline">f(n) = 5 = \Theta(1) =
+\Theta(n^0)</span>.</p>
+<p><span class="math inline">f</span> and <span
+class="math inline">n^{\log_b a}</span> have the same order. This is
+<strong>case 2</strong>:</p>
+<p><span class="math display">
+W(n) = \Theta(n^0 \lg n) = \Theta(\lg n)
+</span></p>
+</div>
+</details>
+<div class="q">
+<ol start="2" type="1">
+<li><span class="math inline">T(n) = 2T(n/2) + n/4</span></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Here <span class="math inline">a = 2</span>, <span
+class="math inline">b = 2</span> and <span class="math inline">f(n) =
+n/4</span>.</p>
+<p><span class="math inline">n^{\log_b a} = n^{\log_2 2} = n^1</span>,
+and <span class="math inline">f(n) = n/4 = \Theta(n) =
+\Theta(n^1)</span>. The constant <span class="math inline">1/4</span>
+does not change the order.</p>
+<p>This is <strong>case 2</strong>:</p>
+<p><span class="math display">
+T(n) = \Theta(n \lg n)
+</span></p>
+</div>
+</details>
+<div class="q">
+<ol start="3" type="1">
+<li><span class="math inline">W(n) = 2W(n/4) + \sqrt{n^3}</span></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (3)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Here <span class="math inline">a = 2</span>, <span
+class="math inline">b = 4</span> and <span class="math inline">f(n) =
+\sqrt{n^3} = n^{3/2}</span>.</p>
+<p><span class="math inline">n^{\log_b a} = n^{\log_4 2} =
+n^{0.5}</span>. We have <span class="math inline">f(n) = n^{3/2} =
+n^{0.5 + 1} = \Omega(n^{0.5 + 1})</span>. So <span
+class="math inline">f</span> is polynomially larger, with <span
+class="math inline">\varepsilon = 1</span>. This points to <strong>case
+3</strong>.</p>
+<p>Case 3 also needs the regularity condition. Check <span
+class="math inline">a f(n/b) \le c f(n)</span> with <span
+class="math inline">c &lt; 1</span>:</p>
+<p><span class="math display">
+2f(n/4) = 2\left(\frac{n}{4}\right)^{3/2} = 2 \cdot n^{3/2} \cdot
+\left(\frac14\right)^{3/2} = 2 \cdot n^{3/2} \cdot \frac18 = \frac14
+n^{3/2}
+</span></p>
+<p>So <span class="math inline">2f(n/4) = \frac14 f(n) \le c f(n)</span>
+with <span class="math inline">c = 1/4 &lt; 1</span>. The condition
+holds. By case 3:</p>
+<p><span class="math display">
+W(n) = \Theta(f(n)) = \Theta(n^{1.5})
+</span></p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: the master method</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Read <span class="math inline">a</span> (the number of subproblems),
+<span class="math inline">b</span> (the shrink factor) and <span
+class="math inline">f(n)</span> (the cost outside the recursive calls).
+Write <span class="math inline">f</span> as a power of <span
+class="math inline">n</span> (for example <span
+class="math inline">\sqrt{n^3} = n^{1.5}</span>).</li>
+<li>Compute the critical exponent <span class="math inline">\log_b
+a</span>. Then <span class="math inline">n^{\log_b a}</span> is the cost
+of the leaves. Note that <span class="math inline">a = 1</span> gives
+<span class="math inline">n^0 = 1</span>.</li>
+<li>Compare <span class="math inline">f(n)</span> with <span
+class="math inline">n^{\log_b a}</span>.
+<ul>
+<li>Smaller by a polynomial factor <span
+class="math inline">n^\varepsilon</span>: <strong>case 1</strong>,
+answer <span class="math inline">\Theta(n^{\log_b a})</span>.</li>
+<li>Same order: <strong>case 2</strong>, answer <span
+class="math inline">\Theta(n^{\log_b a} \lg n)</span>. Constants such as
+<span class="math inline">1/4</span> or <span
+class="math inline">5</span> do not matter.</li>
+<li>Larger by a polynomial factor: <strong>case 3</strong>, answer <span
+class="math inline">\Theta(f(n))</span>, but only if regularity
+holds.</li>
+</ul></li>
+<li>For case 3, compute <span class="math inline">a f(n/b)</span> and
+compare it with <span class="math inline">f(n)</span>. You need a
+constant <span class="math inline">c &lt; 1</span> with <span
+class="math inline">a f(n/b) \le c f(n)</span>. For <span
+class="math inline">f(n) = n^p</span> the ratio is <span
+class="math inline">a/b^p</span>, so the check is <span
+class="math inline">a &lt; b^p</span>.</li>
+<li>If <span class="math inline">f</span> is only a log factor away (for
+example <span class="math inline">n \lg n</span> against <span
+class="math inline">n</span>), no basic case applies. Use the general
+case 2 when <span class="math inline">f = \Theta(n^{\log_b a} \lg^k
+n)</span> with <span class="math inline">k \ge 0</span>. Otherwise the
+master theorem does not apply.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 3.1.</strong> Solve <span class="math inline">W(n)
+= 9W(n/3) + n</span> by the master method.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Here <span class="math inline">a = 9</span>, <span
+class="math inline">b = 3</span> and <span class="math inline">f(n) =
+n</span>.</p>
+<p><span class="math inline">n^{\log_3 9} = n^2</span>. We have <span
+class="math inline">f(n) = n = O(n^{2 - 1})</span>. So <span
+class="math inline">f</span> is polynomially smaller, with <span
+class="math inline">\varepsilon = 1</span>. This is <strong>case
+1</strong>:</p>
+<p><span class="math display">
+W(n) = \Theta(n^2)
+</span></p>
+<p>No regularity check is needed in case 1.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 3.2.</strong> Solve <span class="math inline">W(n)
+= 2W(n/2) + n \lg n</span> by the master method.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Here <span class="math inline">a = 2</span>, <span
+class="math inline">b = 2</span> and <span class="math inline">f(n) = n
+\lg n</span>.</p>
+<p><span class="math inline">n^{\log_2 2} = n</span>. Now <span
+class="math inline">f(n)</span> is larger than <span
+class="math inline">n</span>, but only by a factor <span
+class="math inline">\lg n</span>. That is not a polynomial factor, so
+case 3 does not apply. Write <span class="math inline">f(n) = \Theta(n^1
+\lg^1 n)</span>. This is the <strong>general case 2</strong> with <span
+class="math inline">k = 1</span>:</p>
+<p><span class="math display">
+W(n) = \Theta(n^{\log_b a} \lg^{k+1} n) = \Theta(n \lg^2 n)
+</span></p>
+</div>
+</details>
+<h3
+id="tutorial-8-q4.-linear-homogeneous-recurrences-with-constant-coefficients">Tutorial
+8 Q4. Linear homogeneous recurrences with constant coefficients</h3>
+<div class="q">
+<p>Determine which of the following are linear homogeneous recurrence
+relations with constant coefficients. Also find the degree of those that
+are.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Concepts: what the words mean</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A recurrence is a <strong>linear homogeneous recurrence relation with
+constant coefficients</strong> if it has the form</p>
+<p><span class="math display">
+a_n = c_1 a_{n-1} + c_2 a_{n-2} + \dots + c_d a_{n-d}
+</span></p>
+<p>where <span class="math inline">c_1, \dots, c_d</span> are constants
+and <span class="math inline">c_d \ne 0</span>.</p>
+<ul>
+<li><strong>Linear:</strong> each <span
+class="math inline">a_{n-i}</span> appears to the power 1, alone, and is
+not multiplied by another <span class="math inline">a</span>.</li>
+<li><strong>Homogeneous:</strong> there is no extra term that lacks an
+<span class="math inline">a</span> (no <span
+class="math inline">+n</span>, no <span
+class="math inline">+5</span>).</li>
+<li><strong>Constant coefficients:</strong> each <span
+class="math inline">c_i</span> is a number, not a function of <span
+class="math inline">n</span>.</li>
+<li><strong>Degree</strong> <span class="math inline">d</span>: how far
+back the furthest term reaches.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<ol type="1">
+<li><span class="math inline">a_n = 4a_{n-2} + 5a_{n-3}</span></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Yes. The coefficients 4 and 5 are constants. The furthest term is
+<span class="math inline">a_{n-3}</span>, so the degree is
+<strong>3</strong>. (The missing <span
+class="math inline">a_{n-1}</span> term just has coefficient 0.)</p>
+</div>
+</details>
+<div class="q">
+<ol start="2" type="1">
+<li><span class="math inline">a_n = 2n a_{n-1} + a_{n-2}</span></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>No. The coefficient <span class="math inline">2n</span> changes with
+<span class="math inline">n</span>. It is <strong>not constant
+coefficient</strong>.</p>
+</div>
+</details>
+<div class="q">
+<ol start="3" type="1">
+<li><span class="math inline">a_n = a_{n-1} + a_{n-4}</span></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (3)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Yes. The coefficients are both 1. The furthest term is <span
+class="math inline">a_{n-4}</span>, so the degree is
+<strong>4</strong>.</p>
+</div>
+</details>
+<div class="q">
+<ol start="4" type="1">
+<li><span class="math inline">a_n = a_{n-1}^2 + a_{n-2}</span></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (4)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>No. The term <span class="math inline">a_{n-1}^2</span> is squared.
+It is <strong>not linear</strong>.</p>
+</div>
+</details>
+<div class="q">
+<ol start="5" type="1">
+<li><span class="math inline">a_n = a_{n-2} + n</span></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (5)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>No. The term <span class="math inline">n</span> does not contain any
+<span class="math inline">a</span>. It is <strong>not
+homogeneous</strong>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: the four checks</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Look at the right side of the recurrence, term by term.</p>
+<ol type="1">
+<li><strong>Linear?</strong> Every <span
+class="math inline">a_{n-i}</span> is to the power 1 and is not
+multiplied by another <span class="math inline">a</span> (no <span
+class="math inline">a_{n-1}^2</span>, no <span
+class="math inline">a_{n-1} a_{n-2}</span>).</li>
+<li><strong>Homogeneous?</strong> Every term has an <span
+class="math inline">a</span> in it. A lone <span
+class="math inline">n</span>, constant or <span
+class="math inline">2^n</span> breaks it.</li>
+<li><strong>Constant coefficients?</strong> Each multiplier is a plain
+number. A multiplier that holds <span class="math inline">n</span> (such
+as <span class="math inline">2n</span> or <span
+class="math inline">(-1)^n</span>) breaks it.</li>
+<li><strong>Degree:</strong> if all three checks pass, the degree is the
+largest <span class="math inline">i</span> in <span
+class="math inline">a_{n-i}</span>.</li>
+</ol>
+<p>Only a recurrence that passes all three can be solved with the
+characteristic equation (Q5).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 4.1.</strong> Classify each recurrence. Give the
+degree if it qualifies, and the failed check if it does not.</p>
+<ol type="a">
+<li><span class="math inline">a_n = a_{n-5}</span> (b) <span
+class="math inline">a_n = 0.5a_{n-1} - a_{n-2}</span> (c) <span
+class="math inline">a_n = a_{n-1} + 1</span> (d) <span
+class="math inline">a_n = (-1)^n a_{n-1}</span></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 4.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><ol type="a">
+<li>Yes. The only coefficient is 1. The furthest term is <span
+class="math inline">a_{n-5}</span>, so the degree is
+<strong>5</strong>.</li>
+</ol></li>
+<li><ol start="2" type="a">
+<li>Yes. The coefficients <span class="math inline">0.5</span> and <span
+class="math inline">-1</span> are constants. The degree is
+<strong>2</strong>. A negative or fractional coefficient is fine.</li>
+</ol></li>
+<li><ol start="3" type="a">
+<li>No. The “<span class="math inline">+1</span>” is a term without an
+<span class="math inline">a</span>. It is <strong>not
+homogeneous</strong> (check 2).</li>
+</ol></li>
+<li><ol start="4" type="a">
+<li>No. The coefficient <span class="math inline">(-1)^n</span> changes
+with <span class="math inline">n</span>. It is <strong>not constant
+coefficient</strong> (check 3).</li>
+</ol></li>
+</ul>
+</div>
+</details>
+<h3 id="tutorial-8-q5.-solving-linear-homogeneous-recurrences">Tutorial
+8 Q5. Solving linear homogeneous recurrences</h3>
+<div class="q">
+<p>Solve the following recurrence relations together with the initial
+conditions given.</p>
+<ol type="1">
+<li><span class="math inline">a_n = 7a_{n-1} - 10a_{n-2}</span> for
+<span class="math inline">n \ge 2</span>, <span class="math inline">a_0
+= 1</span>, <span class="math inline">a_1 = 0</span></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Concepts: the characteristic equation</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>For <span class="math inline">a_n = c_1 a_{n-1} + c_2
+a_{n-2}</span>, try <span class="math inline">a_n = t^n</span>. This
+gives <span class="math inline">t^n = c_1 t^{n-1} + c_2 t^{n-2}</span>.
+Divide by <span class="math inline">t^{n-2}</span> to get the
+<strong>characteristic equation</strong>: <span class="math inline">t^2
+- c_1 t - c_2 = 0</span>.</li>
+<li><strong>Two distinct roots</strong> <span class="math inline">t_1,
+t_2</span>: the general solution is <span class="math inline">a_n = C
+t_1^n + D t_2^n</span>.</li>
+<li><strong>One repeated root</strong> <span
+class="math inline">t</span>: the general solution is <span
+class="math inline">a_n = (C + nD) t^n</span>.</li>
+<li>The two constants <span class="math inline">C</span> and <span
+class="math inline">D</span> come from the two initial conditions <span
+class="math inline">a_0</span> and <span
+class="math inline">a_1</span>.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer (1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The characteristic equation is <span class="math inline">t^2 - 7t +
+10 = 0</span>, so <span class="math inline">(t - 2)(t - 5) =
+0</span>.</p>
+<p>There are two distinct roots: <span class="math inline">t_1 =
+2</span> and <span class="math inline">t_2 = 5</span>. So <span
+class="math inline">a_n = C \cdot 2^n + D \cdot 5^n</span>.</p>
+<p>Put in the initial conditions to find <span
+class="math inline">C</span> and <span class="math inline">D</span>.</p>
+<ul>
+<li><span class="math inline">a_0 = 1</span>: <span
+class="math inline">C + D = 1</span>. Multiply by 2: <span
+class="math inline">2C + 2D = 2</span>.</li>
+<li><span class="math inline">a_1 = 0</span>: <span
+class="math inline">2C + 5D = 0</span>.</li>
+</ul>
+<p>Subtract the second equation from the first: <span
+class="math inline">-3D = 2</span>, so <span class="math inline">D =
+-2/3</span>. Then <span class="math inline">C = 1 - D = 5/3</span>.</p>
+<p><span class="math display">
+a_n = \frac53 \cdot 2^n - \frac23 \cdot 5^n
+</span></p>
+<p>Check: from the recurrence, <span class="math inline">a_2 = 7 \cdot 0
+- 10 \cdot 1 = -10</span>. From the formula, <span
+class="math inline">\frac53 \cdot 4 - \frac23 \cdot 25 = \frac{20 -
+50}{3} = -10</span>.</p>
+</div>
+</details>
+<div class="q">
+<ol start="2" type="1">
+<li><span class="math inline">a_n = 4a_{n-2}</span> for <span
+class="math inline">n \ge 2</span>, <span class="math inline">a_0 =
+6</span>, <span class="math inline">a_1 = 8</span></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (2)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The characteristic equation is <span class="math inline">t^2 - 4 =
+0</span>, so <span class="math inline">t^2 = 4</span>.</p>
+<p>There are two distinct roots: <span class="math inline">t_1 =
+2</span> and <span class="math inline">t_2 = -2</span>. So <span
+class="math inline">a_n = C \cdot 2^n + D \cdot (-2)^n</span>.</p>
+<ul>
+<li><span class="math inline">a_0 = 6</span>: <span
+class="math inline">C + D = 6</span>. Multiply by 2: <span
+class="math inline">2C + 2D = 12</span>.</li>
+<li><span class="math inline">a_1 = 8</span>: <span
+class="math inline">2C - 2D = 8</span>.</li>
+</ul>
+<p>Add the two equations: <span class="math inline">4C = 20</span>, so
+<span class="math inline">C = 5</span>. Then <span class="math inline">D
+= 6 - 5 = 1</span>.</p>
+<p><span class="math display">
+a_n = 5 \cdot 2^n + (-2)^n
+</span></p>
+<p>Check: from the recurrence, <span class="math inline">a_2 = 4 \cdot 6
+= 24</span>. From the formula, <span class="math inline">5 \cdot 4 + 4 =
+24</span>.</p>
+</div>
+</details>
+<div class="q">
+<ol start="3" type="1">
+<li><span class="math inline">a_n = 2a_{n-1} - a_{n-2}</span> for all
+<span class="math inline">n \ge 2</span>, <span class="math inline">a_0
+= 1</span>, <span class="math inline">a_1 = 3</span></li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (3)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The characteristic equation is <span class="math inline">t^2 - 2t + 1
+= 0</span>, so <span class="math inline">(t - 1)^2 = 0</span>.</p>
+<p>There is a single (repeated) root: <span class="math inline">t =
+1</span>. So <span class="math inline">a_n = (C + nD) \cdot 1^n = C +
+nD</span>.</p>
+<ul>
+<li><span class="math inline">a_0 = 1</span>: <span
+class="math inline">C = 1</span>.</li>
+<li><span class="math inline">a_1 = 3</span>: <span
+class="math inline">C + D = 3</span>, so <span class="math inline">D =
+2</span>.</li>
+</ul>
+<p><span class="math display">
+a_n = 1 + 2n
+</span></p>
+<p>Check: from the recurrence, <span class="math inline">a_2 = 2 \cdot 3
+- 1 = 5</span>. From the formula, <span class="math inline">1 + 2 \cdot
+2 = 5</span>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: the characteristic equation</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Check the recurrence is linear, homogeneous, with constant
+coefficients (Q4).</li>
+<li>Write the characteristic equation: replace <span
+class="math inline">a_{n-i}</span> by <span
+class="math inline">t^{d-i}</span> and move everything to the left. For
+<span class="math inline">a_n = c_1 a_{n-1} + c_2 a_{n-2}</span> it is
+<span class="math inline">t^2 - c_1 t - c_2 = 0</span>.</li>
+<li>Find the roots. Factor, or use the quadratic formula.</li>
+<li>Write the general solution.
+<ul>
+<li>Distinct roots <span class="math inline">t_1, t_2</span>: <span
+class="math inline">a_n = C t_1^n + D t_2^n</span>.</li>
+<li>A repeated root <span class="math inline">t</span>: <span
+class="math inline">a_n = (C + nD) t^n</span>. The extra factor <span
+class="math inline">n</span> gives the second independent solution
+<em>(new)</em>: without it, there is only one constant and two initial
+conditions cannot be met.</li>
+</ul></li>
+<li>Put <span class="math inline">n = 0</span> and <span
+class="math inline">n = 1</span> into the general solution. Set them
+equal to <span class="math inline">a_0</span> and <span
+class="math inline">a_1</span>. Solve the two equations for <span
+class="math inline">C</span> and <span
+class="math inline">D</span>.</li>
+<li>Check on <span class="math inline">a_2</span>: compute it from the
+recurrence and from the formula. The two must agree.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 5.1.</strong> Solve <span class="math inline">a_n =
+6a_{n-1} - 9a_{n-2}</span> for <span class="math inline">n \ge 2</span>,
+with <span class="math inline">a_0 = 1</span> and <span
+class="math inline">a_1 = 6</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 5.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>The characteristic equation is <span class="math inline">t^2 - 6t + 9
+= 0</span>, so <span class="math inline">(t - 3)^2 = 0</span>. There is
+a repeated root <span class="math inline">t = 3</span>. So <span
+class="math inline">a_n = (C + nD) \cdot 3^n</span>.</p>
+<ul>
+<li><span class="math inline">a_0 = 1</span>: <span
+class="math inline">C = 1</span>.</li>
+<li><span class="math inline">a_1 = 6</span>: <span
+class="math inline">(C + D) \cdot 3 = 6</span>, so <span
+class="math inline">C + D = 2</span> and <span class="math inline">D =
+1</span>.</li>
+</ul>
+<p><span class="math display">
+a_n = (1 + n) \cdot 3^n
+</span></p>
+<p>Check: from the recurrence, <span class="math inline">a_2 = 6 \cdot 6
+- 9 \cdot 1 = 27</span>. From the formula, <span class="math inline">(1
++ 2) \cdot 9 = 27</span>.</p>
+<p>This is the repeated-root case of Q5 (3), with a root other than 1.
+Note that the root multiplies the whole bracket: <span
+class="math inline">(C + nD) \cdot 3^n</span>, not <span
+class="math inline">C + nD \cdot 3^n</span>.</p>
+</div>
+</details>
+<div class="q">
+<hr />
+</div>
+
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="drill.js"></script>
+</body></html>

@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>7. Memory Organization · SC2005 Operating Systems</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=0FF8E2A0">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">7. Memory
+Organization</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">7. Memory Organization</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-overview/1.html"
+                   data-nav="notes/1-overview/1.html">1. Overview of
+Operating Systems</a></li>
+            <li><a href="../../notes/2-processes-threads/2.html"
+                   data-nav="notes/2-processes-threads/2.html">2.
+Processes and Threads</a></li>
+            <li><a href="../../notes/3-cpu-scheduling/3.html"
+                   data-nav="notes/3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../../notes/4-synchronization/4.html"
+                   data-nav="notes/4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../../notes/5-deadlocks/5.html"
+                   data-nav="notes/5-deadlocks/5.html">5.
+Deadlocks</a></li>
+            <li><a href="../../notes/6a-rtos/6a.html"
+                   data-nav="notes/6a-rtos/6a.html">6a. Real-Time
+Operating Systems</a></li>
+            <li><a href="../../notes/6b-virtualization/6b.html"
+                   data-nav="notes/6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../../notes/7-memory-organization/7.html"
+                   data-nav="notes/7-memory-organization/7.html">7.
+Memory Organization</a></li>
+            <li><a href="../../notes/8-virtual-memory/8.html"
+                   data-nav="notes/8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../../notes/9-file-systems/9.html"
+                   data-nav="notes/9-file-systems/9.html">9. File
+Systems</a></li>
+            <li><a href="../../notes/10-io-disk/10.html"
+                   data-nav="notes/10-io-disk/10.html">10. I/O Systems
+and Disk</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Course
+Cheatsheet</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../../notes/labs/lab-1.html"
+                   data-nav="notes/labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../../notes/labs/lab-2.html"
+                   data-nav="notes/labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3.html"
+                   data-nav="notes/labs/lab-3/lab-3.html">Lab 3
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3-quiz.html"
+                   data-nav="notes/labs/lab-3/lab-3-quiz.html">Lab 3
+Quiz</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4.html"
+                   data-nav="notes/labs/lab-4/lab-4.html">Lab 4
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4-quiz.html"
+                   data-nav="notes/labs/lab-4/lab-4-quiz.html">Lab 4
+Quiz</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#binding-code-and-data-to-memory"
+id="toc-binding-code-and-data-to-memory">1. Binding Code and Data to
+Memory</a>
+<ul>
+<li><a href="#logical-vs.-physical-address"
+id="toc-logical-vs.-physical-address">Logical vs. physical
+address</a></li>
+</ul></li>
+<li><a href="#contiguous-allocation" id="toc-contiguous-allocation">2.
+Contiguous Allocation</a>
+<ul>
+<li><a href="#choosing-a-hole" id="toc-choosing-a-hole">Choosing a
+hole</a></li>
+<li><a href="#fragmentation"
+id="toc-fragmentation">Fragmentation</a></li>
+</ul></li>
+<li><a href="#paging" id="toc-paging">3. Paging</a>
+<ul>
+<li><a href="#address-translation" id="toc-address-translation">Address
+translation</a></li>
+<li><a href="#page-table-implementation"
+id="toc-page-table-implementation">Page-table implementation</a></li>
+<li><a href="#tlb" id="toc-tlb">TLB</a></li>
+<li><a href="#shared-pages" id="toc-shared-pages">Shared pages</a></li>
+</ul></li>
+<li><a href="#multi-level-and-inverted-page-tables"
+id="toc-multi-level-and-inverted-page-tables">4. Multi-Level and
+Inverted Page Tables</a>
+<ul>
+<li><a href="#two-level-paging" id="toc-two-level-paging">Two-level
+paging</a></li>
+<li><a href="#inverted-page-table" id="toc-inverted-page-table">Inverted
+page table</a></li>
+</ul></li>
+<li><a href="#segmentation" id="toc-segmentation">5.
+Segmentation</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>To run, a program’s code and data must be in physical memory. This
+chapter covers how program addresses are <strong>bound</strong> to
+memory addresses, how memory is shared among processes
+(<strong>contiguous allocation</strong>, <strong>paging</strong>,
+<strong>segmentation</strong>), and how the hardware speeds up paging
+(<strong>TLB</strong>, <strong>multi-level</strong> and
+<strong>inverted</strong> page tables).</p>
+<hr />
+<h2 id="binding-code-and-data-to-memory">1. Binding Code and Data to
+Memory</h2>
+<p>To run a program, the OS creates a <strong>process image</strong>
+(text, data, heap, stack; chapter 2) and loads it into memory.</p>
+<figure>
+<img width="1400" height="863" src="media/7-artifacts/process-image.webp" style="width:45.0%"
+loading="lazy" decoding="async" alt="Process image" />
+<figcaption aria-hidden="true">Process image</figcaption>
+</figure>
+<figure>
+<img width="1400" height="865" src="media/7-artifacts/compile-link-load.webp" style="width:60.0%"
+loading="lazy" decoding="async" alt="Compile, link, load" />
+<figcaption aria-hidden="true">Compile, link, load</figcaption>
+</figure>
+<ul>
+<li><strong>Compiler:</strong> source code → object module.</li>
+<li><strong>Linker:</strong> combines object modules and library code,
+resolving references → load module.</li>
+<li><strong>Loader:</strong> creates the process image, allocates
+memory, and loads the image into it.</li>
+</ul>
+<p>An instruction such as <code>LOAD X</code> or <code>JUMP Y</code>
+names an address. <strong>Address binding</strong> decides which
+physical address that becomes. It can happen at three stages:</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 29%" />
+<col style="width: 26%" />
+<col style="width: 26%" />
+</colgroup>
+<thead>
+<tr>
+<th>Stage</th>
+<th>How</th>
+<th>Address format in the image</th>
+<th>Check per access</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Compile time</strong></td>
+<td>Memory location known in advance; compiler emits <strong>absolute
+code</strong>. Must recompile if the start changes.</td>
+<td>Absolute</td>
+<td>Trap if address &lt; base <strong>or</strong> ≥ base + limit; else
+use the address as is</td>
+</tr>
+<tr>
+<td><strong>Load time</strong></td>
+<td>Compiler emits <strong>relocatable code</strong>; the
+<strong>loader</strong> binds it once.</td>
+<td>Absolute (after loading)</td>
+<td>Same as above</td>
+</tr>
+<tr>
+<td><strong>Execution time</strong></td>
+<td>Binding is <strong>delayed until run time</strong>, so the process
+can move during execution.</td>
+<td><strong>Relative</strong> (starts at 0)</td>
+<td>Trap if address ≥ limit; else <strong>physical = address +
+base</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><img width="1400" height="969" src="media/7-artifacts/compile-time-binding.webp"
+style="width:45.0%" loading="lazy" decoding="async"
+alt="Compile-time binding" /> <img width="1400" height="969"
+src="media/7-artifacts/load-time-binding.webp" style="width:45.0%"
+loading="lazy" decoding="async" alt="Load-time binding" /> <img width="1400" height="903"
+src="media/7-artifacts/execution-time-binding.webp" style="width:45.0%"
+loading="lazy" decoding="async" alt="Execution-time binding" /></p>
+<p><strong>Lecture example (execution time):</strong> base = 1024, limit
+= 1000 (base + limit = 2024). The image holds <code>LOAD 800</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>800</mn><mo>&lt;</mo><mn>1000</mn></mrow><annotation encoding="application/x-tex">800 &lt; 1000</annotation></semantics></math>,
+so physical address
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>800</mn><mo>+</mo><mn>1024</mn><mo>=</mo><mn>1824</mn></mrow><annotation encoding="application/x-tex">= 800 + 1024 = 1824</annotation></semantics></math>.
+With compile- or load-time binding the image would already hold
+<code>LOAD 1824</code>.</p>
+<figure>
+<img width="1391" height="969" src="media/7-artifacts/mmu-relocation.webp" style="width:60.0%"
+loading="lazy" decoding="async" alt="Execution-time relocation" />
+<figcaption aria-hidden="true">Execution-time relocation</figcaption>
+</figure>
+<h3 id="logical-vs.-physical-address">Logical vs. physical address</h3>
+<ul>
+<li><strong>Address space:</strong> all addresses a process can
+access.</li>
+<li><strong>Logical address:</strong> the address used in the code,
+generated by the CPU when it executes an instruction.</li>
+<li><strong>Physical address:</strong> the address the memory unit
+sees.</li>
+<li>The logical address space is a linear, contiguous sequence of bytes.
+With execution-time binding it <strong>always starts at 0</strong> (0 to
+limit − 1).</li>
+<li>With compile- and load-time binding, logical and physical addresses
+are <strong>identical</strong>; with execution-time binding they
+differ.</li>
+</ul>
+<hr />
+<h2 id="contiguous-allocation">2. Contiguous Allocation</h2>
+<p>Two approaches to sharing memory: <strong>contiguous
+allocation</strong> (each process’s logical address space stays in one
+piece of physical memory) and <strong>non-contiguous allocation</strong>
+(paging, segmentation).</p>
+<ul>
+<li><strong>Fixed partitioning:</strong> memory is divided into regions
+with fixed boundaries.</li>
+<li><strong>Dynamic partitioning:</strong> a <strong>hole</strong> is a
+block of free memory; holes of various sizes are scattered through
+memory. An arriving process gets memory from a hole large enough for it.
+The OS tracks allocated partitions and holes.</li>
+</ul>
+<figure>
+<img width="1400" height="794" src="media/7-artifacts/dynamic-partitioning.webp"
+style="width:65.0%" loading="lazy" decoding="async"
+alt="Dynamic partitioning over time" />
+<figcaption aria-hidden="true">Dynamic partitioning over
+time</figcaption>
+</figure>
+<h3 id="choosing-a-hole">Choosing a hole</h3>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 31%" />
+<col style="width: 56%" />
+</colgroup>
+<thead>
+<tr>
+<th>Rule</th>
+<th>Picks</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>First-fit</strong></td>
+<td>The first hole big enough</td>
+<td>Fastest</td>
+</tr>
+<tr>
+<td><strong>Best-fit</strong></td>
+<td>The <strong>smallest</strong> hole big enough</td>
+<td>Must search the whole list unless sorted by size; leaves the
+<strong>smallest</strong> leftover hole</td>
+</tr>
+<tr>
+<td><strong>Worst-fit</strong></td>
+<td>The <strong>largest</strong> hole</td>
+<td>Must search the whole list; leaves the <strong>largest</strong>
+leftover hole</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="fragmentation">Fragmentation</h3>
+<ul>
+<li><strong>External fragmentation:</strong> enough total memory exists
+for a request, but it is not contiguous. It lies
+<strong>outside</strong> partitions.</li>
+<li><strong>Internal fragmentation:</strong> the allocated block is
+slightly larger than the request; the difference lies unused
+<strong>inside</strong> the partition.</li>
+</ul>
+<div class="table-wrap">
+<table style="width: 55%;">
+<colgroup>
+<col style="width: 38%" />
+<col style="width: 41%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Scheme</th>
+<th style="text-align: center;">Internal</th>
+<th style="text-align: center;">External</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fixed partitions</td>
+<td style="text-align: center;">Yes</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td>Dynamic partitions</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+<tr>
+<td>Paging</td>
+<td style="text-align: center;">Yes (last page only)</td>
+<td style="text-align: center;">No</td>
+</tr>
+<tr>
+<td>Segmentation</td>
+<td style="text-align: center;">No</td>
+<td style="text-align: center;">Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Compaction</strong> shuffles memory contents to gather free
+memory into one large block, reducing external fragmentation. It is
+possible <strong>only if the process image uses relocatable addresses
+and binding is done at execution time</strong>: moving a process with
+absolute addresses breaks every address inside it.</p>
+<figure>
+<img width="1400" height="794" src="media/7-artifacts/compaction.webp" style="width:65.0%"
+loading="lazy" decoding="async" alt="Compaction" />
+<figcaption aria-hidden="true">Compaction</figcaption>
+</figure>
+<details class="qa box">
+<summary>
+<strong>AY15/16 S2 Q3a:</strong> First, best and worst fit <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>A system uses dynamic partitioning.
+Memory has holes, in physical address order, of 4 KB, 8 KB, 20 KB, 9 KB,
+14 KB, 10 KB and 40 KB. Given a request of 12 KB, identify the hole
+allocated under first fit, best fit and worst fit.</em></p>
+<p><strong>Solution:</strong> Holes big enough for 12 KB: 20, 14,
+40.</p>
+<ul>
+<li><strong>First fit:</strong> the first big-enough hole in address
+order → <strong>20 KB</strong>.</li>
+<li><strong>Best fit:</strong> the smallest big-enough hole → <strong>14
+KB</strong> (leaves 2 KB).</li>
+<li><strong>Worst fit:</strong> the largest hole → <strong>40
+KB</strong> (leaves 28 KB).</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 8 Q1:</strong> Best fit and first fit with compaction
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>A system provides 4800 words of user
+memory, with multiple-partition multiprogramming. Four processes occupy
+memory (start, length): (1000, 1200), (3100, 700), (4000, 400), (4400,
+200). For a new request: Step 1, use best fit; do Step 2 only if no hole
+fits. Step 2, compact by moving occupied partitions toward lower
+addresses, stopping as soon as a hole is large enough; if still not
+enough, block the process. Requests arrive for 600, 250 and 1050 words,
+in that order.</em> <em>(a) Show the memory allocation after all three
+requests. (b) Repeat with first fit in Step 1. (c) Which yields lower
+overhead in total relocation of occupied partitions?</em></p>
+<p><strong>Solution</strong> <em>(my working; Tutorial 8 solutions are
+not out yet)</em>:</p>
+<p>Occupied: A 1000–2199, B 3100–3799, C 4000–4399, D 4400–4599. Holes:
+0–999 (1000), 2200–3099 (900), 3800–3999 (200), 4600–4799 (200).</p>
+<p><strong>(a) Best fit</strong></p>
+<ol type="1">
+<li>600 → smallest hole ≥ 600 is 900 → <strong>2200–2799</strong>. Hole
+left: 2800–3099 (300).</li>
+<li>250 → smallest hole ≥ 250 is 300 → <strong>2800–3049</strong>. Hole
+left: 3050–3099 (50).</li>
+<li>1050 → holes are 1000, 50, 200, 200: none fits.
+<strong>Compact</strong> from address 0 upward:
+<ul>
+<li>move A to 0–1199 (free 1200–2199, 1000: not enough);</li>
+<li>move the 600-block to 1200–1799 (free 1800–2799, still 1000);</li>
+<li>move the 250-block to 1800–2049 → free <strong>2050–3099 =
+1050</strong>. Stop. Allocate <strong>2050–3099</strong>.</li>
+</ul></li>
+<li>Relocated <strong>3 partitions</strong> (1200 + 600 + 250 =
+<strong>2050 words</strong>).</li>
+</ol>
+<p><strong>(b) First fit</strong></p>
+<ol type="1">
+<li>600 → first hole ≥ 600 is 0–999 → <strong>0–599</strong>. Hole left:
+600–999 (400).</li>
+<li>250 → <strong>600–849</strong>. Hole left: 850–999 (150).</li>
+<li>1050 → holes 150, 900, 200, 200: none fits.
+<strong>Compact:</strong> the two new blocks already sit at the bottom;
+move A to 850–2049 → free <strong>2050–3099 = 1050</strong>. Allocate
+it.</li>
+<li>Relocated <strong>1 partition</strong> (<strong>1200
+words</strong>).</li>
+</ol>
+<p><strong>(c)</strong> <strong>First fit</strong> gives lower
+relocation overhead here (1 partition, 1200 words vs. 3 partitions, 2050
+words). In both cases B, C, D stay put and 3800–3999 and 4600–4799
+remain free.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 8 Q2:</strong> Internal fragmentation; compaction with
+absolute addresses <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>(a) Identify memory allocation schemes
+that suffer from internal fragmentation. (b) Explain why memory
+compaction cannot be performed if absolute address format is used in the
+code.</em></p>
+<p><strong>Answer</strong> <em>(my working)</em>:</p>
+<ul>
+<li><strong>(a)</strong> <strong>Fixed partitioning</strong> (a process
+smaller than its partition wastes the rest) and <strong>paging</strong>
+(the last page of a process is rarely full; on average half a page is
+wasted).</li>
+<li><strong>(b)</strong> With absolute addresses (compile- or load-time
+binding), every address in the code is a physical address. Moving the
+process would leave all those addresses pointing at the old location,
+and nothing adds an offset at run time. Compaction needs relocatable
+addresses with execution-time binding, so that only the base register
+changes.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="paging">3. Paging</h2>
+<p>Paging lets a process’s memory be <strong>non-contiguous</strong>: a
+process gets physical memory wherever it is free.</p>
+<ul>
+<li><strong>Frames:</strong> physical memory divided into fixed-size
+blocks; the size is a power of 2, <strong>between 512 bytes and 8192
+bytes</strong>.</li>
+<li><strong>Pages:</strong> logical memory divided into blocks of the
+same size.</li>
+<li>The OS keeps track of all free frames. To run a program of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+pages, it finds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+free frames and loads the program.</li>
+<li>A <strong>page table</strong> translates logical to physical
+addresses.</li>
+<li><strong>No external fragmentation.</strong> <strong>Internal
+fragmentation</strong> is still possible: the last page may not fill its
+frame.</li>
+</ul>
+<figure>
+<img width="1400" height="856" src="media/7-artifacts/paging-example.webp" style="width:60.0%"
+loading="lazy" decoding="async"
+alt="Paging example: 4 pages of 4 bytes, 8 frames" />
+<figcaption aria-hidden="true">Paging example: 4 pages of 4 bytes, 8
+frames</figcaption>
+</figure>
+<h3 id="address-translation">Address translation</h3>
+<p>Page size
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>n</mi></msup><annotation encoding="application/x-tex">2^n</annotation></semantics></math>
+bytes, logical address space
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>m</mi></msup><annotation encoding="application/x-tex">2^m</annotation></semantics></math>
+bytes, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>m</mi><mo>−</mo><mi>n</mi></mrow></msup><annotation encoding="application/x-tex">2^{m-n}</annotation></semantics></math>
+pages:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><munder><mi>p</mi><mo accent="true">⏟</mo></munder><mrow><mi>m</mi><mo>−</mo><mi>n</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bits</mtext></mrow></mrow></munder><mspace width="0.278em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">|</mo><mspace width="0.278em"></mspace><munder><munder><mi>d</mi><mo accent="true">⏟</mo></munder><mrow><mi>n</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bits</mtext></mrow></mrow></munder></mrow><annotation encoding="application/x-tex">\underbrace{p}_{m-n \text{ bits}} \;\Big|\; \underbrace{d}_{n \text{ bits}}</annotation></semantics></math></p>
+<ul>
+<li><strong>Page number
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>p</mi><annotation encoding="application/x-tex">p</annotation></semantics></math>:</strong>
+index into the page table; the entry holds the frame number
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>.</li>
+<li><strong>Offset
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>:</strong>
+combined with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>f</mi><annotation encoding="application/x-tex">f</annotation></semantics></math>
+to form the physical address.</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">physical address</mtext><mo>=</mo><mi>f</mi><mo>×</mo><msup><mn>2</mn><mi>n</mi></msup><mo>+</mo><mi>d</mi><mspace width="2.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mrow><mtext mathvariant="normal">i.e. </mtext><mspace width="0.333em"></mspace></mrow><mi>f</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bits followed by </mtext><mspace width="0.333em"></mspace></mrow><mi>d</mi><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> bits</mtext></mrow><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">\text{physical address} = f \times 2^n + d \qquad (\text{i.e. } f \text{ bits followed by } d \text{ bits})</annotation></semantics></math></p>
+<p><img width="1400" height="820" src="media/7-artifacts/address-translation-scheme.webp"
+style="width:60.0%" loading="lazy" decoding="async"
+alt="Address translation scheme" /> <img width="1400" height="866"
+src="media/7-artifacts/address-translation-example.webp"
+style="width:60.0%" loading="lazy" decoding="async"
+alt="Translation example" /></p>
+<h3 id="page-table-implementation">Page-table implementation</h3>
+<ul>
+<li>The page table is kept in <strong>main memory</strong>.</li>
+<li>The <strong>page-table base register (PTBR)</strong> points to the
+page table of the current process.</li>
+<li>The <strong>page-table length register (PTLR)</strong> gives its
+size.</li>
+<li>So <strong>every data or instruction access needs two memory
+accesses</strong>: one for the page-table entry and one for the data.
+EAT
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>2</mn><mi>τ</mi></mrow><annotation encoding="application/x-tex">= 2\tau</annotation></semantics></math>
+for memory cycle time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">\tau</annotation></semantics></math>.</li>
+</ul>
+<h3 id="tlb">TLB</h3>
+<p>A <strong>translation look-aside buffer (TLB)</strong> (associative
+registers) is a small, fast hardware cache of page-table entries.</p>
+<figure>
+<img width="1400" height="949" src="media/7-artifacts/paging-with-tlb.webp" style="width:60.0%"
+loading="lazy" decoding="async" alt="Paging with a TLB" />
+<figcaption aria-hidden="true">Paging with a TLB</figcaption>
+</figure>
+<p>TLB lookup time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ε</mi><annotation encoding="application/x-tex">\varepsilon</annotation></semantics></math>,
+memory cycle time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">\tau</annotation></semantics></math>,
+hit ratio
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>
+(fraction of lookups found in the TLB):</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">EAT</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mi>τ</mi><mo>+</mo><mi>ε</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>α</mi><mo>+</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mi>τ</mi><mo>+</mo><mi>ε</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>−</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mspace width="0.167em"></mspace><mi>τ</mi><mo>+</mo><mi>ε</mi></mrow><annotation encoding="application/x-tex">\text{EAT} = (\tau + \varepsilon)\,\alpha + (2\tau + \varepsilon)(1 - \alpha) = (2 - \alpha)\,\tau + \varepsilon</annotation></semantics></math></p>
+<p>A hit costs one memory access; a miss costs two. The TLB helps only
+if EAT
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>&lt;</mo><mn>2</mn><mi>τ</mi></mrow><annotation encoding="application/x-tex">&lt; 2\tau</annotation></semantics></math>,
+that is,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>&gt;</mo><mi>ε</mi><mi>/</mi><mi>τ</mi></mrow><annotation encoding="application/x-tex">\alpha &gt; \varepsilon / \tau</annotation></semantics></math>.
+<strong>A TLB does not always improve EAT:</strong> with a very low hit
+ratio, the lookup time is pure overhead.</p>
+<h3 id="shared-pages">Shared pages</h3>
+<p>Several processes can share code by mapping their pages to the
+<strong>same frames</strong>. The shared code must be
+<strong>reentrant</strong> (read-only), so no process can change it.</p>
+<figure>
+<img width="1400" height="856" src="media/7-artifacts/shared-pages.webp" style="width:60.0%"
+loading="lazy" decoding="async" alt="Shared pages" />
+<figcaption aria-hidden="true">Shared pages</figcaption>
+</figure>
+<details class="qa box">
+<summary>
+<strong>AY15/16 S2 Q3b:</strong> Page table from a mapping diagram <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>The figure shows the mapping of a
+process’s logical pages to physical memory; × means the page is not in
+memory. (i) Draw the page table. (ii) Translate the logical addresses
+001101101011 and 010110110101. (iii) What is the page size?</em></p>
+<figure>
+<img width="740" height="335" src="media/7-artifacts/pyp-ay1516s2-q3-mapping.webp"
+style="width:55.0%" loading="lazy" decoding="async"
+alt="Logical pages 0–7 mapped to frames 0–3" />
+<figcaption aria-hidden="true">Logical pages 0–7 mapped to frames
+0–3</figcaption>
+</figure>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(i)</strong></li>
+</ul>
+<div class="table-wrap">
+<table style="width: 48%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 12%" />
+<col style="width: 8%" />
+<col style="width: 12%" />
+<col style="width: 8%" />
+<col style="width: 12%" />
+<col style="width: 12%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr>
+<th>Page</th>
+<th style="text-align: center;">0</th>
+<th style="text-align: center;">1</th>
+<th style="text-align: center;">2</th>
+<th style="text-align: center;">3</th>
+<th style="text-align: center;">4</th>
+<th style="text-align: center;">5</th>
+<th style="text-align: center;">6</th>
+<th style="text-align: center;">7</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Frame</td>
+<td style="text-align: center;">–</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">–</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">–</td>
+<td style="text-align: center;">–</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">3</td>
+</tr>
+<tr>
+<td>Valid</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><strong>(ii)</strong> 8 pages → 3-bit page number; the address has
+12 bits, so the offset has <strong>9 bits</strong>. 4 frames → 2-bit
+frame number.
+<ul>
+<li><code>001 101101011</code>: page 1 → frame 2 (<code>10</code>) →
+physical <strong><code>10 101101011</code></strong>.</li>
+<li><code>010 110110101</code>: page 2 is not in memory → <strong>page
+fault</strong>, no physical address yet.</li>
+</ul></li>
+<li><strong>(iii)</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>9</mn></msup><mo>=</mo><mn mathvariant="bold">𝟓𝟏𝟐</mn></mrow><annotation encoding="application/x-tex">2^9 = \mathbf{512}</annotation></semantics></math>
+<strong>bytes</strong>. (The posted solution writes “512 bits”; the unit
+is bytes.)</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 8 Q3 and AY19/20 S1 Q3b:</strong> Effective access time
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Tutorial 8 Q3:</strong> <em>A paging system keeps the page
+table in memory. (a) If a memory reference takes 200 ns, how long does a
+paged memory reference take? (b) With associative registers, 75% of
+page-table references are found there, and finding an entry there takes
+zero time. What is the effective memory reference time?</em></p>
+<p><em>(my working)</em></p>
+<ul>
+<li><strong>(a)</strong> Page-table access + data access
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>2</mn><mo>×</mo><mn>200</mn><mo>=</mo><mn mathvariant="bold">𝟒𝟎𝟎</mn></mrow><annotation encoding="application/x-tex">= 2 \times 200 = \mathbf{400}</annotation></semantics></math>
+<strong>ns</strong>.</li>
+<li><strong>(b)</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">EAT</mtext><mo>=</mo><mn>0.75</mn><mo>×</mo><mn>200</mn><mo>+</mo><mn>0.25</mn><mo>×</mo><mn>400</mn><mo>=</mo><mn>150</mn><mo>+</mo><mn>100</mn><mo>=</mo><mn mathvariant="bold">𝟐𝟓𝟎</mn></mrow><annotation encoding="application/x-tex">\text{EAT} = 0.75 \times 200 + 0.25 \times 400 = 150 + 100 = \mathbf{250}</annotation></semantics></math>
+<strong>ns</strong>.</li>
+</ul>
+<p><strong>AY19/20 S1 Q3b:</strong> <em>TLB access takes 20 ns and
+memory access 80 ns. (i) With a TLB hit ratio of 80%, what is the EAT?
+(ii) What is the minimal hit ratio so that EAT with the TLB is less than
+without it?</em></p>
+<ul>
+<li><strong>(i)</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">EAT</mtext><mo>=</mo><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>−</mo><mn>0.8</mn><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>80</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>20</mn><mo>=</mo><mn>96</mn><mo>+</mo><mn>20</mn><mo>=</mo><mn mathvariant="bold">𝟏𝟏𝟔</mn></mrow><annotation encoding="application/x-tex">\text{EAT} = (2 - 0.8)(80) + 20 = 96 + 20 = \mathbf{116}</annotation></semantics></math>
+<strong>ns</strong>.</li>
+<li><strong>(ii)</strong> Without a TLB:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>×</mo><mn>80</mn><mo>=</mo><mn>160</mn></mrow><annotation encoding="application/x-tex">2 \times 80 = 160</annotation></semantics></math>
+ns. Need
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>−</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mo stretchy="false" form="prefix">(</mo><mn>80</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>20</mn><mo>&lt;</mo><mn>160</mn></mrow><annotation encoding="application/x-tex">(2 - \alpha)(80) + 20 &lt; 160</annotation></semantics></math>
+→
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>180</mn><mo>−</mo><mn>80</mn><mi>α</mi><mo>&lt;</mo><mn>160</mn></mrow><annotation encoding="application/x-tex">180 - 80\alpha &lt; 160</annotation></semantics></math>
+→
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>&gt;</mo><mn mathvariant="bold">𝟎.𝟐𝟓</mn></mrow><annotation encoding="application/x-tex">\alpha &gt; \mathbf{0.25}</annotation></semantics></math>.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 8 Q4:</strong> Address formats and table sizes <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>A computer has a 32-bit logical
+address, 1 KB pages and 1 GB of physical memory. (a) Give the format of
+the logical and physical addresses. (b) How many entries are there in a
+page table? (c) With an inverted page table, how many entries are
+there?</em></p>
+<p><strong>Solution</strong> <em>(my working)</em>:</p>
+<ul>
+<li>Offset:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> KB</mtext></mrow><mo>=</mo><msup><mn>2</mn><mn>10</mn></msup></mrow><annotation encoding="application/x-tex">1\text{ KB} = 2^{10}</annotation></semantics></math>
+→ <strong>10 bits</strong>.</li>
+<li><strong>(a)</strong> Logical: <strong>page 22 bits | offset 10
+bits</strong>. Frames
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><msup><mn>2</mn><mn>30</mn></msup><mi>/</mi><msup><mn>2</mn><mn>10</mn></msup><mo>=</mo><msup><mn>2</mn><mn>20</mn></msup></mrow><annotation encoding="application/x-tex">= 2^{30} / 2^{10} = 2^{20}</annotation></semantics></math>,
+so physical: <strong>frame 20 bits | offset 10 bits</strong>.</li>
+<li><strong>(b)</strong> One entry per page:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>22</mn></msup><annotation encoding="application/x-tex">2^{22}</annotation></semantics></math>
+entries.</li>
+<li><strong>(c)</strong> One entry per frame:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>20</mn></msup><annotation encoding="application/x-tex">2^{20}</annotation></semantics></math>
+entries.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 9 Q1(a):</strong> Paging translation <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>A computer has a 10-bit logical
+address. Translate the logical address 1000011011 to a physical address
+if paging is used, the page size is 128 bytes, and the page table is: 0
+→ 01011, 1 → 00010, 2 → 00010, 3 → 10101, 4 → 01001, 5 → 01100, 6 →
+11010, 7 → 00110.</em></p>
+<p><strong>Solution</strong> <em>(my working)</em>:</p>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>128</mn><mo>=</mo><msup><mn>2</mn><mn>7</mn></msup></mrow><annotation encoding="application/x-tex">128 = 2^7</annotation></semantics></math>
+→ offset <strong>7 bits</strong>; page number
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mo>−</mo><mn>7</mn><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">10 - 7 = 3</annotation></semantics></math>
+bits.</li>
+<li><code>100 | 0011011</code>: page
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><msub><mn>100</mn><mn>2</mn></msub><mo>=</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">= 100_2 = 4</annotation></semantics></math>,
+offset
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><msub><mn>0011011</mn><mn>2</mn></msub><mo>=</mo><mn>27</mn></mrow><annotation encoding="application/x-tex">= 0011011_2 = 27</annotation></semantics></math>.</li>
+<li>Page 4 → frame <code>01001</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>9</mn></mrow><annotation encoding="application/x-tex">= 9</annotation></semantics></math>.</li>
+<li>Physical
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>9</mn><mo>×</mo><mn>128</mn><mo>+</mo><mn>27</mn><mo>=</mo><mn mathvariant="bold">𝟏𝟏𝟕𝟗</mn></mrow><annotation encoding="application/x-tex">= 9 \times 128 + 27 = \mathbf{1179}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>=</mo><annotation encoding="application/x-tex">=</annotation></semantics></math>
+<code>01001 0011011</code>.</li>
+</ol>
+</div>
+</details>
+<hr />
+<h2 id="multi-level-and-inverted-page-tables">4. Multi-Level and
+Inverted Page Tables</h2>
+<h3 id="two-level-paging">Two-level paging</h3>
+<p>A 32-bit machine with 4 KB pages has a 20-bit page number and a
+12-bit offset:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>20</mn></msup><annotation encoding="application/x-tex">2^{20}</annotation></semantics></math>
+page-table entries. At 4 bytes each, <strong>every page table occupies 4
+MB</strong>, which is hard to allocate contiguously. So the page table
+itself is <strong>paged</strong> (divided into pages), at the cost of a
+small increase in access time.</p>
+<p><img width="1400" height="775" src="media/7-artifacts/two-level-page-table.webp"
+style="width:60.0%" loading="lazy" decoding="async"
+alt="Two-level page table" /> <img width="1400" height="733"
+src="media/7-artifacts/two-level-sizes.webp" style="width:60.0%"
+loading="lazy" decoding="async" alt="Two-level sizes" /></p>
+<ul>
+<li>One page of the inner table holds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> KB</mtext></mrow><mi>/</mi><mn>4</mn><mo>=</mo><msup><mn>2</mn><mn>10</mn></msup></mrow><annotation encoding="application/x-tex">4\text{ KB} / 4 = 2^{10}</annotation></semantics></math>
+entries →
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>2</mn></msub><annotation encoding="application/x-tex">p_2</annotation></semantics></math>
+= <strong>10 bits</strong>.</li>
+<li>The inner table occupies
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>4</mn><mo>×</mo><msup><mn>2</mn><mn>20</mn></msup><mi>/</mi><mn>4</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="normal"> K</mtext></mrow><mo>=</mo><msup><mn>2</mn><mn>10</mn></msup></mrow><annotation encoding="application/x-tex">4 \times 2^{20} / 4\text{ K} = 2^{10}</annotation></semantics></math>
+pages, so the outer table has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>10</mn></msup><annotation encoding="application/x-tex">2^{10}</annotation></semantics></math>
+entries →
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>
+= <strong>10 bits</strong>.</li>
+</ul>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><munder><munder><msub><mi>p</mi><mn>1</mn></msub><mo accent="true">⏟</mo></munder><mn>10</mn></munder><mspace width="0.278em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">|</mo><mspace width="0.278em"></mspace><munder><munder><msub><mi>p</mi><mn>2</mn></msub><mo accent="true">⏟</mo></munder><mn>10</mn></munder><mspace width="0.278em"></mspace><mo minsize="180%" maxsize="180%" stretchy="true" form="prefix">|</mo><mspace width="0.278em"></mspace><munder><munder><mi>d</mi><mo accent="true">⏟</mo></munder><mn>12</mn></munder></mrow><annotation encoding="application/x-tex">\underbrace{p_1}_{10} \;\Big|\; \underbrace{p_2}_{10} \;\Big|\; \underbrace{d}_{12}</annotation></semantics></math></p>
+<p>Translation: PTBR → outer table entry
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>1</mn></msub><annotation encoding="application/x-tex">p_1</annotation></semantics></math>
+gives the frame of an inner-table page (F#1) → entry
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>p</mi><mn>2</mn></msub><annotation encoding="application/x-tex">p_2</annotation></semantics></math>
+in that page gives the data frame (F#2) → physical address = F#2
+followed by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>d</mi><annotation encoding="application/x-tex">d</annotation></semantics></math>.
+Without a TLB, a
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>-level
+table costs
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">k + 1</annotation></semantics></math>
+memory accesses per reference.</p>
+<p><strong>Method (multi-level sizing):</strong></p>
+<ol type="1">
+<li>Offset bits
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">page size</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">d = \log_2(\text{page size})</annotation></semantics></math>;
+page-number bits
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mi>m</mi><mo>−</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">= m - d</annotation></semantics></math>.</li>
+<li>Entries per page
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext mathvariant="normal">page size</mtext><mi>/</mi><mtext mathvariant="normal">PTE size</mtext></mrow><annotation encoding="application/x-tex">= \text{page size} / \text{PTE size}</annotation></semantics></math>;
+each inner level uses
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mrow><mi mathvariant="normal">log</mi><mo>&#8289;</mo></mrow><mn>2</mn></msub><annotation encoding="application/x-tex">\log_2</annotation></semantics></math>
+of that many bits.</li>
+<li>The outer level gets the remaining bits. Add levels until the outer
+table fits in one page.</li>
+</ol>
+<h3 id="inverted-page-table">Inverted page table</h3>
+<p>Normally each process has its own page table, whose size grows with
+the <strong>logical</strong> address space, so many page tables use a
+lot of memory. An <strong>inverted page table</strong> is a
+<strong>single table with one entry per physical frame</strong>, holding
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><mtext mathvariant="normal">process-id</mtext><mo>,</mo><mtext mathvariant="normal">page-no</mtext><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle \text{process-id}, \text{page-no} \rangle</annotation></semantics></math>.</p>
+<figure>
+<img width="1400" height="753" src="media/7-artifacts/inverted-page-table.webp" style="width:60.0%"
+loading="lazy" decoding="async" alt="Inverted page table" />
+<figcaption aria-hidden="true">Inverted page table</figcaption>
+</figure>
+<ul>
+<li>Logical address:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><mtext mathvariant="normal">process-id</mtext><mo>,</mo><mtext mathvariant="normal">page-no</mtext><mo>,</mo><mtext mathvariant="normal">offset</mtext><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle \text{process-id}, \text{page-no}, \text{offset} \rangle</annotation></semantics></math>.</li>
+<li>The pair
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><mtext mathvariant="normal">process-id</mtext><mo>,</mo><mtext mathvariant="normal">page-no</mtext><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle \text{process-id}, \text{page-no} \rangle</annotation></semantics></math>
+is searched for in the table. If it matches entry
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+the physical address is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><mi>i</mi><mo>,</mo><mtext mathvariant="normal">offset</mtext><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle i, \text{offset} \rangle</annotation></semantics></math>.</li>
+<li><strong>Saves memory</strong>, but <strong>increases search
+time</strong>: the table is sorted by physical address while lookups use
+the logical address.</li>
+</ul>
+<details class="qa box">
+<summary>
+<strong>Tutorial 9 Q2 (also AY18/19 S2 Q3b):</strong> Two-level format
+in terms of x and y <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>A system uses paging. A logical
+address has x bits of page number and y bits of offset. (a) What is the
+page size? (b) How many page-table entries are there? (c) With 4-byte
+entries and a two-level scheme, how many entries are in the outer table,
+and what is the logical address format?</em></p>
+<p><strong>Solution</strong> <em>(my working; matches the AY18/19 S2
+posted answer)</em>:</p>
+<ul>
+<li><strong>(a)</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>y</mi></msup><annotation encoding="application/x-tex">2^y</annotation></semantics></math>
+bytes.</li>
+<li><strong>(b)</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mi>x</mi></msup><annotation encoding="application/x-tex">2^x</annotation></semantics></math>
+entries (one per page).</li>
+<li><strong>(c)</strong> The single-level table is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>x</mi></msup><mo>×</mo><mn>4</mn><mo>=</mo><msup><mn>2</mn><mrow><mi>x</mi><mo>+</mo><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">2^x \times 4 = 2^{x+2}</annotation></semantics></math>
+bytes, which spans
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mrow><mi>x</mi><mo>+</mo><mn>2</mn></mrow></msup><mi>/</mi><msup><mn>2</mn><mi>y</mi></msup><mo>=</mo><msup><mn>2</mn><mrow><mi>x</mi><mo>−</mo><mi>y</mi><mo>+</mo><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">2^{x+2} / 2^y = 2^{x-y+2}</annotation></semantics></math>
+pages. So the <strong>outer table has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mrow><mi>x</mi><mo>−</mo><mi>y</mi><mo>+</mo><mn>2</mn></mrow></msup><annotation encoding="application/x-tex">2^{x-y+2}</annotation></semantics></math>
+entries</strong>. One page holds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mi>y</mi></msup><mi>/</mi><mn>4</mn><mo>=</mo><msup><mn>2</mn><mrow><mi>y</mi><mo>−</mo><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">2^y / 4 = 2^{y-2}</annotation></semantics></math>
+entries, so the inner index has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>−</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">y - 2</annotation></semantics></math>
+bits. Format:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">[</mo><mspace width="0.167em"></mspace><mi>x</mi><mo>−</mo><mi>y</mi><mo>+</mo><mn>2</mn><mo>∣</mo><mi>y</mi><mo>−</mo><mn>2</mn><mo>∣</mo><mi>y</mi><mspace width="0.167em"></mspace><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">[\,x - y + 2 \mid y - 2 \mid y\,]</annotation></semantics></math>.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Additional Practice Q4:</strong> How many levels? <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>A paged memory system uses 1024-byte
+pages and 4-byte page-table entries; the logical address space is 2³⁰
+bytes. (a) What is the size of the page table with single-level paging?
+(b) What is the minimum number of levels so that the outermost page
+table fits within a single frame?</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(a)</strong> Pages
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><msup><mn>2</mn><mn>30</mn></msup><mi>/</mi><msup><mn>2</mn><mn>10</mn></msup><mo>=</mo><msup><mn>2</mn><mn>20</mn></msup></mrow><annotation encoding="application/x-tex">= 2^{30} / 2^{10} = 2^{20}</annotation></semantics></math>;
+table
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><msup><mn>2</mn><mn>20</mn></msup><mo>×</mo><mn>4</mn><mo>=</mo><mrow><mn mathvariant="bold">𝟒</mn><mrow><mspace width="0.333em"></mspace><mtext mathvariant="bold"> 𝐌𝐁</mtext></mrow></mrow></mrow><annotation encoding="application/x-tex">= 2^{20} \times 4 = \mathbf{4\text{ MB}}</annotation></semantics></math>.</li>
+<li><strong>(b)</strong> One page holds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1024</mn><mi>/</mi><mn>4</mn><mo>=</mo><mn>256</mn><mo>=</mo><msup><mn>2</mn><mn>8</mn></msup></mrow><annotation encoding="application/x-tex">1024 / 4 = 256 = 2^8</annotation></semantics></math>
+entries, so each level resolves 8 bits of the 20-bit page number.
+<ul>
+<li>Two levels:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>20</mn><mo>=</mo><mn>12</mn><mo>+</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">20 = 12 + 8</annotation></semantics></math>;
+the outer table has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>12</mn></msup><annotation encoding="application/x-tex">2^{12}</annotation></semantics></math>
+entries (16 KB) → too big.</li>
+<li>Three levels:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>20</mn><mo>=</mo><mn>4</mn><mo>+</mo><mn>8</mn><mo>+</mo><mn>8</mn></mrow><annotation encoding="application/x-tex">20 = 4 + 8 + 8</annotation></semantics></math>;
+the outer table has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>4</mn></msup><annotation encoding="application/x-tex">2^4</annotation></semantics></math>
+entries → fits. <strong>Minimum 3 levels.</strong></li>
+</ul></li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY16/17 S1 Q3b:</strong> Reading a two-level split <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>A two-level paging scheme partitions
+32-bit logical addresses as 9 bits | 10 bits | 13 bits. (i) What is the
+page size? (ii) How many entries are in the outer page table? (iv) With
+single-level paging, how many entries are in the page table?</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(i)</strong> Offset 13 bits →
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>13</mn></msup><mo>=</mo><mn mathvariant="bold">𝟖𝟏𝟗𝟐</mn></mrow><annotation encoding="application/x-tex">2^{13} = \mathbf{8192}</annotation></semantics></math>
+<strong>bytes</strong>.</li>
+<li><strong>(ii)</strong> Outer index 9 bits →
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>9</mn></msup><mo>=</mo><mn mathvariant="bold">𝟓𝟏𝟐</mn></mrow><annotation encoding="application/x-tex">2^9 = \mathbf{512}</annotation></semantics></math>
+entries.</li>
+<li><strong>(iv)</strong> Page number
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>9</mn><mo>+</mo><mn>10</mn><mo>=</mo><mn>19</mn></mrow><annotation encoding="application/x-tex">9 + 10 = 19</annotation></semantics></math>
+bits →
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mn>2</mn><mn>19</mn></msup><mo>=</mo><mrow><mn mathvariant="bold">𝟓𝟐𝟒</mn><mo mathvariant="bold">,</mo><mn mathvariant="bold">𝟐𝟖𝟖</mn></mrow></mrow><annotation encoding="application/x-tex">2^{19} = \mathbf{524{,}288}</annotation></semantics></math>
+entries.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="segmentation">5. Segmentation</h2>
+<p><strong>Segmentation</strong> breaks a program into its
+<strong>logical segments</strong> (main program, subroutines, stack,
+symbol table) and allocates each separately. Unlike pages,
+<strong>segments vary in size</strong>; like pages, a process’s segments
+need not be contiguous.</p>
+<figure>
+<img width="1400" height="880" src="media/7-artifacts/segmentation-example.webp"
+style="width:55.0%" loading="lazy" decoding="async"
+alt="Logical segments" />
+<figcaption aria-hidden="true">Logical segments</figcaption>
+</figure>
+<ul>
+<li>Logical address:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><mrow><mtext mathvariant="normal">segment-no </mtext><mspace width="0.333em"></mspace></mrow><mi>s</mi><mo>,</mo><mrow><mtext mathvariant="normal">offset </mtext><mspace width="0.333em"></mspace></mrow><mi>d</mi><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle \text{segment-no } s, \text{offset } d \rangle</annotation></semantics></math>.</li>
+<li><strong>Segment table</strong> entry: <strong>base</strong>
+(starting physical address) and <strong>limit</strong> (segment
+length).</li>
+<li><strong>Segment-table base register (STBR)</strong> points to the
+table; <strong>segment-table length register (STLR)</strong> gives the
+number of segments the program uses.</li>
+</ul>
+<figure>
+<img width="1400" height="894" src="media/7-artifacts/segmentation-translation.webp"
+style="width:60.0%" loading="lazy" decoding="async"
+alt="Segmentation translation" />
+<figcaption aria-hidden="true">Segmentation translation</figcaption>
+</figure>
+<p><strong>Translation:</strong> (1) look up entry
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>s</mi><annotation encoding="application/x-tex">s</annotation></semantics></math>;
+(2) check
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>&lt;</mo><mtext mathvariant="normal">limit</mtext></mrow><annotation encoding="application/x-tex">d &lt; \text{limit}</annotation></semantics></math>,
+otherwise trap; (3) physical address
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mtext mathvariant="normal">base</mtext><mo>+</mo><mi>d</mi></mrow><annotation encoding="application/x-tex">= \text{base} + d</annotation></semantics></math>.</p>
+<p><strong>Lecture example:</strong> translate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><mn>3</mn><mo>,</mo><mn>128</mn><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle 3, 128 \rangle</annotation></semantics></math>.
+Entry 3: base 3200, limit 1100.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>128</mn><mo>&lt;</mo><mn>1100</mn></mrow><annotation encoding="application/x-tex">128 &lt; 1100</annotation></semantics></math>,
+so the address is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3200</mn><mo>+</mo><mn>128</mn><mo>=</mo><mn mathvariant="bold">𝟑𝟑𝟐𝟖</mn></mrow><annotation encoding="application/x-tex">3200 + 128 = \mathbf{3328}</annotation></semantics></math>.</p>
+<p>Because segments vary in length, allocating them is a dynamic
+storage-allocation problem (usually best-fit or first-fit). When a
+process leaves, its segments become holes of varying sizes:
+<strong>external fragmentation</strong>, but <strong>no internal
+fragmentation</strong>.</p>
+<details class="qa box">
+<summary>
+<strong>Tutorial 9 Q1(b):</strong> Segmentation translation <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Same 10-bit logical address
+1000011011. Segmentation is used; the maximum segment size is 256 bytes.
+Segment table (limit, base): 0: (00010000, 010000000000), 1: (00001000,
+100000000000), 2: (00100000, 010011010000), 3: (00011000,
+100001100000).</em></p>
+<p><strong>Solution</strong> <em>(my working)</em>:</p>
+<ol type="1">
+<li>Max segment 256 =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>8</mn></msup><annotation encoding="application/x-tex">2^8</annotation></semantics></math>
+→ offset <strong>8 bits</strong>; segment number
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn><mo>−</mo><mn>8</mn><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">10 - 8 = 2</annotation></semantics></math>
+bits.</li>
+<li><code>10 | 00011011</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>s</mi><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">s = 2</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>27</mn></mrow><annotation encoding="application/x-tex">d = 27</annotation></semantics></math>.</li>
+<li>Segment 2: limit <code>00100000</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>32</mn></mrow><annotation encoding="application/x-tex">= 32</annotation></semantics></math>;
+base <code>010011010000</code>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>1232</mn></mrow><annotation encoding="application/x-tex">= 1232</annotation></semantics></math>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>27</mn><mo>&lt;</mo><mn>32</mn></mrow><annotation encoding="application/x-tex">27 &lt; 32</annotation></semantics></math>
+→ legal. Physical
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>=</mo><mn>1232</mn><mo>+</mo><mn>27</mn><mo>=</mo><mn mathvariant="bold">𝟏𝟐𝟓𝟗</mn></mrow><annotation encoding="application/x-tex">= 1232 + 27 = \mathbf{1259}</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo>=</mo><annotation encoding="application/x-tex">=</annotation></semantics></math>
+<code>010011101011</code>.</li>
+</ol>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY19/20 S1 Q3c:</strong> Paging vs. segmentation <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Compare paging and segmentation in
+terms of fragmentation and support for code sharing.</em></p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 41%" />
+<col style="width: 43%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th>Paging</th>
+<th>Segmentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fragmentation</td>
+<td>Internal (last page); <strong>no external</strong></td>
+<td>External (holes left by departed segments); <strong>no
+internal</strong></td>
+</tr>
+<tr>
+<td>Code sharing</td>
+<td>Through shared pages; the code in the page must not be
+modifiable</td>
+<td>At <strong>segment</strong> level, which matches logical units of
+the program (e.g. a subroutine)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Past-paper T/F:</strong> Binding, allocation, translation <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY17/18 S2 Q3a(i):</strong> <em>With execution-time binding,
+addresses generated by the CPU directly access physical memory.</em>
+<strong>False.</strong> The CPU’s logical address goes through the
+relocation register in the MMU.</li>
+<li><strong>AY18/19 S2 Q3a(i):</strong> <em>With load-time binding,
+logical and physical addresses are identical.</em>
+<strong>True.</strong> The loader writes absolute addresses.</li>
+<li><strong>AY19/20 S1 Q3a(ii):</strong> <em>If address binding is
+performed during load time, the compiler must generate re-locatable
+code.</em> <strong>True.</strong> The loader then binds it to absolute
+addresses.</li>
+<li><strong>AY16/17 S1 Q3a(iii):</strong> <em>With demand paging,
+address binding must be performed during load time.</em>
+<strong>False.</strong> Pages move between disk and any frame, so
+binding must be at execution time.</li>
+<li><strong>AY19/20 S1 Q3a(iii):</strong> <em>Worst-fit results in the
+smallest leftover hole in memory.</em> <strong>False.</strong> It leaves
+the largest; best-fit leaves the smallest.</li>
+<li><strong>AY16/17 S1 Q3a(i):</strong> <em>Segmentation suffers from
+internal fragmentation.</em> <strong>False.</strong> It suffers from
+external fragmentation.</li>
+<li><strong>AY16/17 S1 Q3a(ii):</strong> <em>The TLB is used to reduce
+page faults.</em> <strong>False.</strong> It reduces effective memory
+access time.</li>
+<li><strong>AY18/19 S1 Q3a(i):</strong> <em>Using a TLB always improves
+the effective memory access time.</em> <strong>False.</strong> With a
+very low hit ratio, the TLB lookup only adds time.</li>
+<li><strong>AY19/20 S1 Q3a(iv):</strong> <em>An inverted page table
+increases the time needed for address translation.</em>
+<strong>True.</strong> The table must be searched for the
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo stretchy="false" form="prefix">⟨</mo><annotation encoding="application/x-tex">\langle</annotation></semantics></math>pid,
+page<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mo stretchy="false" form="postfix">⟩</mo><annotation encoding="application/x-tex">\rangle</annotation></semantics></math>
+pair.</li>
+</ul>
+</div>
+</details>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/6b-virtualization/6b.html">← 6b.
+Virtualization</a>
+  <a class="next-page" href="../../notes/8-virtual-memory/8.html">8.
+Virtual Memory →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Mermaid diagrams. Pandoc emits ```mermaid fences as <pre class="mermaid">,
+  // which nothing renders, so the source showed as a code block. Swap each for
+  // a plain <div class="mermaid"> (also keeps the copy-button script below off
+  // it) and load the library only on pages that actually have a diagram.
+  (function () {
+    var blocks = document.querySelectorAll('main#content pre.mermaid');
+    if (!blocks.length) return;
+    blocks.forEach(function (pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    import('https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs')
+      .then(function (m) {
+        m.default.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default' });
+        return m.default.run({ querySelector: 'main#content div.mermaid' });
+      })
+      .catch(function () { /* offline: the diagram source stays visible as text */ });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+
+<script>
+  // Tap-to-answer quiz (mcq.lua). A tap locks in the pick, marks it right or
+  // wrong, and shows the reason. A bar pinned to the bottom keeps the score and
+  // lists the misses once every question is answered. A no-op on pages with no
+  // .mcq block. Nothing is stored: a reload starts the quiz fresh.
+  (function () {
+    var qs = Array.prototype.slice.call(document.querySelectorAll('main#content .mcq'));
+    if (!qs.length) return;
+    var picks = qs.map(function () { return null; });
+
+    var bar = document.createElement('div');
+    bar.className = 'mcq-bar';
+    bar.innerHTML = '<span class="mcq-score"></span>' +
+      '<span class="mcq-actions"><button type="button" class="mcq-reveal">Show all answers</button>' +
+      '<button type="button" class="mcq-reset">Reset</button></span>' +
+      '<span class="mcq-end" hidden></span>';
+    document.getElementById('content').appendChild(bar);
+    document.body.classList.add('has-mcq-bar');
+
+    function opts(q) { return Array.prototype.slice.call(q.querySelectorAll('.mcq-opt')); }
+
+    function show(i) {
+      var q = qs[i];
+      opts(q).forEach(function (b, j) {
+        b.disabled = true;
+        b.classList.remove('is-right', 'is-wrong', 'is-dim');
+        var tag = b.querySelector('.mcq-tag');
+        tag.textContent = '';
+        if (b.hasAttribute('data-ok')) { b.classList.add('is-right'); tag.textContent = 'correct'; }
+        else if (j === picks[i]) { b.classList.add('is-wrong'); tag.textContent = 'your pick'; }
+        else b.classList.add('is-dim');
+      });
+      q.querySelector('.mcq-why').hidden = false;
+    }
+
+    function correct(i) {
+      return picks[i] !== null && opts(qs[i])[picks[i]].hasAttribute('data-ok');
+    }
+
+    function tally() {
+      var done = 0, right = 0, miss = [];
+      qs.forEach(function (q, i) {
+        if (picks[i] !== null) done++;
+        if (correct(i)) right++; else miss.push(i + 1);
+      });
+      bar.querySelector('.mcq-score').innerHTML =
+        '<b>' + done + '</b> / ' + qs.length + ' answered · ' + right + ' correct';
+      var end = bar.querySelector('.mcq-end');
+      if (done === qs.length) {
+        end.hidden = false;
+        end.textContent = miss.length ? 'Revisit: ' + miss.map(function (n) {
+          return 'Q' + n; }).join(', ') : 'Clean sweep.';
+      } else end.hidden = true;
+    }
+
+    qs.forEach(function (q, i) {
+      opts(q).forEach(function (b, j) {
+        b.addEventListener('click', function () {
+          if (b.disabled) return;
+          picks[i] = j; show(i); tally();
+        });
+      });
+    });
+    bar.querySelector('.mcq-reveal').addEventListener('click', function () {
+      qs.forEach(function (q, i) { show(i); });
+    });
+    bar.querySelector('.mcq-reset').addEventListener('click', function () {
+      qs.forEach(function (q, i) {
+        picks[i] = null;
+        opts(q).forEach(function (b) {
+          b.disabled = false;
+          b.classList.remove('is-right', 'is-wrong', 'is-dim');
+          b.querySelector('.mcq-tag').textContent = '';
+        });
+        q.querySelector('.mcq-why').hidden = true;
+      });
+      tally();
+      window.scrollTo(0, 0);
+    });
+    tally();
+  })();
+</script>
+</body>
+</html>

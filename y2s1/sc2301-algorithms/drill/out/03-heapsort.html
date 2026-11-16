@@ -1,0 +1,1949 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>3. Heaps and heapsort</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="drill.css">
+</head><body data-page="03-heapsort">
+<nav class="top"><a href="index.html">All topics</a><span id="count"></span>
+<label><input type="checkbox" id="onlyshaky"> only shaky</label>
+<button id="export">Copy progress</button></nav>
+<main>
+<h1 id="heaps-and-heapsort">3. Heaps and heapsort</h1>
+<h2 id="facts">Facts</h2>
+<div class="q">
+<p>Define a max-heap. Which two properties does it have?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A <strong>complete binary tree</strong> (all levels full except
+possibly the last, which fills from the left) with the <strong>heap
+order</strong>: every node’s key is at least the keys of its children.
+The maximum is at the root.</p>
+</div>
+</details>
+<div class="q">
+<p>In a 1-indexed array heap with <span class="math inline">n</span>
+nodes, give the parent, left child and right child of node <span
+class="math inline">k</span>. Which indices are leaves?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Parent <span class="math inline">\lfloor k/2\rfloor</span>, left
+child <span class="math inline">2k</span>, right child <span
+class="math inline">2k+1</span>. Leaves are <span
+class="math inline">\lfloor n/2\rfloor+1,\dots,n</span>. The last
+internal node is <span class="math inline">\lfloor n/2\rfloor</span>.
+The height is <span class="math inline">\lfloor\lg n\rfloor</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>What does <code>fixHeap</code> do, what must hold before it runs, and
+what is its cost?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>It sinks a key <span class="math inline">k</span> placed at a root
+whose two subtrees are already heaps, by repeatedly swapping it with the
+larger child until it dominates both children. At most 2 comparisons per
+level (larger child, then compare with <span
+class="math inline">k</span>), so <span
+class="math inline">\le2\lfloor\lg n\rfloor</span> comparisons, <span
+class="math inline">O(\log n)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>How does <code>constructHeap</code> work, and what is its cost?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Call <code>fixHeap</code> on nodes <span class="math inline">\lfloor
+n/2\rfloor</span> down to 1 (leaves are already heaps). Cost <span
+class="math inline">\Theta(n)</span>, not <span
+class="math inline">\Theta(n\log n)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Why is bottom-up construction linear?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Few nodes are high. About <span class="math inline">n/2^{h+1}</span>
+nodes have height <span class="math inline">h</span>, and each costs
+<span class="math inline">O(h)</span>. So the total is <span
+class="math inline">\sum_h \frac{n}{2^{h+1}}\cdot O(h)=O\!\left(n\sum_h
+\frac{h}{2^h}\right)=O(n)</span>, since <span
+class="math inline">\sum_{h\ge1} h/2^h=2</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Describe the two phases of heapsort and its cost, space and
+stability.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Phase 1: build a max-heap, <span
+class="math inline">\Theta(n)</span>. Phase 2: for <span
+class="math inline">i=n</span> down to 2, swap the root with the last
+heap element, shrink the heap, and <code>fixHeap</code> the root: <span
+class="math inline">\le 2\lfloor\lg n\rfloor</span> comparisons each.
+Total <span class="math inline">\Theta(n\log n)</span> for best, average
+and worst case. In-place (<span class="math inline">O(1)</span>),
+<strong>not stable</strong>.</p>
+</div>
+</details>
+<div class="q">
+<p>How many comparisons does <code>constructHeap</code> make on a
+decreasing array of <span class="math inline">n</span> distinct keys,
+and why is that the best case?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Exactly <span class="math inline">n-1</span>. A decreasing array is
+already a max-heap, so each <code>fixHeap</code> stops at once, using 2
+comparisons for a node with two children and 1 for a node with one
+child. In total every non-root node is compared once as a child: <span
+class="math inline">n-1</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Priority-queue operations on a heap and their cost.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>Find max: <span class="math inline">O(1)</span>.</li>
+<li>Extract max: <span class="math inline">O(\log n)</span> (move last
+key to root, <code>fixHeap</code>).</li>
+<li>Insert: <span class="math inline">O(\log n)</span> (place at the
+end, sift up while larger than the parent).</li>
+<li>Build from <span class="math inline">n</span> keys: <span
+class="math inline">\Theta(n)</span>.</li>
+<li>Increase a key: <span class="math inline">O(\log n)</span> (sift
+up).</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p>Merge <span class="math inline">k</span> sorted lists with <span
+class="math inline">n</span> elements in total. Method and cost.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Keep a min-heap of size <span class="math inline">k</span> holding
+the current head of each list. Repeatedly extract the minimum, output
+it, and insert the next element from the same list. Each of the <span
+class="math inline">n</span> outputs costs <span
+class="math inline">O(\log k)</span>, so <span
+class="math inline">O(n\log k)</span> time and <span
+class="math inline">O(k)</span> extra space (plus the output).</p>
+</div>
+</details>
+<div class="q">
+<p>Why is the lower bound for building a heap different from
+sorting?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Building a heap only needs the <strong>heap order</strong>, a partial
+order, so <span class="math inline">\Theta(n)</span> suffices. Sorting
+needs a total order, which costs <span class="math inline">\Omega(n\log
+n)</span> comparisons. Heapsort pays the <span class="math inline">n\log
+n</span> in phase 2.</p>
+</div>
+</details>
+<h2 id="problems">Problems</h2>
+<h3 id="problem-1-trace-and-compare">Problem 1: trace and compare</h3>
+<div class="q">
+<p><strong>(a)</strong> Build a max-heap from <span
+class="math inline">[3,9,2,8,5,7,1,6]</span> with
+<code>constructHeap</code>. Show the array after each
+<code>fixHeap</code> call.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">n=8</span>, so call <code>fixHeap</code> at
+nodes 4, 3, 2, 1.</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>Call</th>
+<th>Action</th>
+<th>Array</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>start</td>
+<td></td>
+<td><span class="math inline">[3,9,2,8,5,7,1,6]</span></td>
+</tr>
+<tr>
+<td>node 4 (key 8)</td>
+<td>child 6; <span class="math inline">8\ge6</span>, stop</td>
+<td><span class="math inline">[3,9,2,8,5,7,1,6]</span></td>
+</tr>
+<tr>
+<td>node 3 (key 2)</td>
+<td>children 7, 1; larger 7 &gt; 2, swap</td>
+<td><span class="math inline">[3,9,7,8,5,2,1,6]</span></td>
+</tr>
+<tr>
+<td>node 2 (key 9)</td>
+<td>children 8, 5; <span class="math inline">9\ge8</span>, stop</td>
+<td><span class="math inline">[3,9,7,8,5,2,1,6]</span></td>
+</tr>
+<tr>
+<td>node 1 (key 3)</td>
+<td>children 9, 7; swap with 9; at node 2 children 8, 5; swap with 8; at
+node 4 child 6; swap with 6</td>
+<td><span class="math inline">[9,8,7,6,5,2,1,3]</span></td>
+</tr>
+</tbody>
+</table>
+<p>Comparisons: node 4: 1; node 3: 2; node 2: 2; node 1: 2 + 2 + 1 = 5.
+Total 10.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Perform the first extraction of heapsort on that
+heap. Give the array.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Move the root 9 to position 8 and <code>fixHeap</code> the key 3 (the
+old last element) into a heap of size 7: children 8, 7; swap with 8; at
+node 2 children 6, 5; swap with 6; at node 4 no children, stop. Array:
+<span class="math inline">[8,6,7,3,5,2,1\,|\,9]</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(c)</strong> Heapsort sorts <strong>all</strong> inputs in
+<span class="math inline">\Theta(n\log n)</span>, but quicksort is
+usually faster in practice. Give two reasons from this course’s
+analysis, and one case where heapsort is the better choice.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Reasons: heapsort makes about <span class="math inline">2n\lg
+n</span> comparisons against quicksort’s average <span
+class="math inline">1.39n\lg n</span>, and heapsort jumps around the
+array (poor cache behaviour) while partitioning scans sequentially.
+Heapsort is better when you need a <strong>guaranteed</strong> <span
+class="math inline">O(n\log n)</span> worst case with <span
+class="math inline">O(1)</span> space, for example in a real-time
+system, where quicksort’s <span class="math inline">\Theta(n^2)</span>
+worst case is unacceptable.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(d)</strong> Link to Dijkstra and Prim: what does the
+priority queue support, and which operation makes the heap version <span
+class="math inline">O(|E|\log|V|)</span>?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Extract-min (done <span class="math inline">|V|</span> times) and
+decrease-key (done up to <span class="math inline">|E|</span> times,
+each <span class="math inline">O(\log|V|)</span> by sifting up). The
+<span class="math inline">|E|</span> decrease-key calls dominate: <span
+class="math inline">O(|E|\log|V|)</span>. With an array instead of a
+heap, extract-min is <span class="math inline">O(|V|)</span> and
+decrease-key is <span class="math inline">O(1)</span>, giving <span
+class="math inline">O(|V|^2)</span>, better on dense graphs where <span
+class="math inline">|E|\approx|V|^2</span>.</p>
+</div>
+</details>
+<h2 id="past-year-questions">Past-year questions</h2>
+<p>Questions from past papers (SC2001/CZ2101/CE2001). Every answer was
+worked out and checked by code; where a circulated official solution
+exists it was compared, and disagreements are flagged.</p>
+<div class="q">
+<p><strong>AY25/26 S2 1(d)</strong> Heap Sort. A. Best-case running time
+<span class="math inline">O(n)</span>. B. Constructing a heap requires
+<span class="math inline">O(n)</span>. C. Besides the input array, Heap
+Sort needs an extra array to store the sorted result. D. The array <span
+class="math inline">[18,13,8,11,2,7,3,8,9,1]</span> is a valid
+maximizing heap. E. Heap Sort is stable.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>B and D.</strong></p>
+<ul>
+<li>A false: the extraction phase is <span
+class="math inline">\Theta(n\log n)</span> for any input (with distinct
+keys). B true: bottom-up construction is <span
+class="math inline">\Theta(n)</span>.</li>
+<li>C false: in place. E false: heapsort is not stable.</li>
+<li>D true. With 1-indexed positions: node 1 (18) has children 13, 8;
+node 2 (13) has 11, 2; node 3 (8) has 7, 3; node 4 (11) has 8, 9; node 5
+(2) has child 1. Every parent is at least its children. (Checked by
+code.)</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S2 1(d)</strong> For the HeapSort algorithm taught in
+the lectures, what are the time complexities of <code>getMax()</code>,
+<code>fixHeap()</code>, <code>deleteMax()</code>,
+<code>Heapifying()</code> and <code>constructionHeap()</code>?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><code>getMax()</code>: <strong><span
+class="math inline">O(1)</span></strong>, the maximum is the root
+<code>H[0]</code>.</li>
+<li><code>fixHeap()</code>: <strong><span class="math inline">O(\lg
+n)</span></strong>, the key sinks at most the height <span
+class="math inline">\lfloor\lg n\rfloor</span> with at most 2
+comparisons per level.</li>
+<li><code>deleteMax()</code>: <strong><span class="math inline">O(\lg
+n)</span></strong>, move the last key to the root, then one
+<code>fixHeap</code>.</li>
+<li><code>Heapifying()</code> (= <code>constructionHeap()</code>, the
+bottom-up build that calls <code>fixHeap</code> on every internal node):
+<strong><span class="math inline">O(n)</span></strong>.</li>
+</ul>
+<p>(The paper lists “Heapifying” and “constructionHeap” separately. In
+the lecture both names mean the bottom-up build, <span
+class="math inline">\Theta(n)</span>. If an examiner means “insert the
+keys one by one”, that is <span class="math inline">O(n\lg
+n)</span>.)</p>
+<p><strong>Link.</strong> The <span class="math inline">O(n)</span>
+build is not the <span class="math inline">O(n\lg n)</span> you get from
+<span class="math inline">n</span> calls of an <span
+class="math inline">O(\lg n)</span> routine: most nodes sit near the
+leaves and sink only 0 or 1 level. As a recurrence it is <span
+class="math inline">T(n)=2T(n/2)+\lg n</span>, which is master case 1
+(the leaves dominate), <span class="math inline">\Theta(n)</span>.
+Compare mergesort <span class="math inline">T(n)=2T(n/2)+n</span>, case
+2, <span class="math inline">\Theta(n\lg n)</span>: the same tree shape,
+a different cost per node.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S1 1(c)</strong> Which statements about the HeapSort
+algorithm (on <span class="math inline">n</span> elements) are TRUE? A.
+The worst-case time complexity ONLY occurs when the input array is
+sorted in reverse order. B. The best-case time complexity ONLY occurs
+when the input array is already sorted. C. Heapsort is an unstable
+sorting algorithm, meaning it does not preserve the relative order of
+elements with equal values. D. HeapSort is generally slower than
+QuickSort as the former requires additional space to construct the Heap.
+E. As the Heap shrinks during the sorting, we can indeed find a better
+asymptotic time complexity than <span class="math inline">O(n\log
+n)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>C only.</strong></p>
+<ul>
+<li>A, B false: heapsort is <span class="math inline">\Theta(n\log
+n)</span> for every input (with distinct keys), so no input is
+special.</li>
+<li>C true: the swap of the root with the last element moves equal keys
+past each other.</li>
+<li>D false: heapsort builds the heap <strong>in place</strong>, so it
+needs no extra space. (It is slower than quicksort in practice because
+of poor cache behaviour, which is a different reason.)</li>
+<li>E false: the <span class="math inline">n</span> extractions cost
+<span class="math inline">\sum_{i}\lg i=\lg n!=\Theta(n\log n)</span>.
+The shrinking heap lowers the constant, not the order.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S1 1(d)</strong> Given <span
+class="math inline">k</span> lists with a total of <span
+class="math inline">n</span> numbers, <span
+class="math inline">k\ge2</span>. We design an algorithm to merge the
+<span class="math inline">k</span> lists into one list sorted in
+decreasing order. A. If all the <span class="math inline">k</span> lists
+are sorted, we have a time complexity better than <span
+class="math inline">O(n\log n)</span>. B. If all the <span
+class="math inline">k</span> lists are sorted, we can use MergeSort to
+achieve time complexity <span class="math inline">O(n\log k)</span>. C.
+If the <span class="math inline">k</span> lists are not sorted, we can
+use the following to achieve <span class="math inline">O(n\log
+k)</span>: 1) sort each one, 2) use a Heap to maintain the head elements
+of the lists, and 3) continually use getMax and Fixheap to exhaust all
+the <span class="math inline">n</span> elements. D. If the <span
+class="math inline">k</span> lists are not sorted, we can never achieve
+<span class="math inline">O(n\log k)</span> running time. E. Regardless
+of whether the <span class="math inline">k</span> lists are sorted or
+not, we can only achieve <span class="math inline">O(n\log n)</span>
+running time.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>A, B and D</strong> (A and D hold when <span
+class="math inline">k</span> is small compared with <span
+class="math inline">n</span>, which is how the question is meant).</p>
+<ul>
+<li>B true: merge the lists pairwise like the merge steps of mergesort.
+There are <span class="math inline">\lceil\lg k\rceil</span> rounds and
+each round touches all <span class="math inline">n</span> numbers, so
+<span class="math inline">\Theta(n\log k)</span>. The heap version (step
+2 and 3 of option C without step 1) also gives <span
+class="math inline">O(n\log k)</span>: each of the <span
+class="math inline">n</span> extractions costs <span
+class="math inline">O(\log k)</span> on a heap of <span
+class="math inline">k</span> heads.</li>
+<li>A true: <span class="math inline">n\log k&lt;n\log n</span> when
+<span class="math inline">k&lt;n</span>. For <span
+class="math inline">k=2</span> it is <span
+class="math inline">O(n)</span>.</li>
+<li>C false: step 1 costs <span class="math inline">\sum n_i\log
+n_i</span>, which is <span class="math inline">\Theta(n\log n)</span>
+(for example <span class="math inline">k=2</span> lists of <span
+class="math inline">n/2</span>), so the total is <span
+class="math inline">O(n\log n)</span>, not <span
+class="math inline">O(n\log k)</span>.</li>
+<li>D true as a general statement: for <span
+class="math inline">k=2</span> unsorted lists, producing sorted output
+is sorting <span class="math inline">n</span> numbers, which needs <span
+class="math inline">\Omega(n\log n)</span> comparisons, while <span
+class="math inline">n\log 2=O(n)</span>. (If <span
+class="math inline">k=\Theta(n)</span> the two bounds coincide, so
+“never” is loose.)</li>
+<li>E false: sorted lists give <span class="math inline">O(n\log
+k)</span>.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S2 1(c)</strong> Consider a heap stored in the input
+array <span
+class="math inline">B=[90,89,70,36,75,63,65,21,18,15]</span>. Execute
+the <code>deleteMax()</code> function once on <span
+class="math inline">B</span>. Show the content of the resultant
+array.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>First check that <span class="math inline">B</span> is a max-heap
+(each parent at least its children): 90 over 89, 70; 89 over 36, 75; 70
+over 63, 65; 36 over 21, 18; 75 over 15. Yes.</p>
+<p><code>deleteMax()</code>: return the root 90, move the
+<strong>last</strong> key (15) to the root, shrink the heap to 9 keys,
+then <code>fixHeap</code> the root:</p>
+<ol type="1">
+<li>Root 15, children 89 and 70. The larger child is 89, and <span
+class="math inline">89&gt;15</span>: swap. The 15 is now at index
+1.</li>
+<li>Children of index 1: 36 and 75. The larger is 75, and <span
+class="math inline">75&gt;15</span>: swap. The 15 is now at index 4. Its
+children would be at indices 9 and 10, but the heap has only 9 keys
+(indices 0 to 8), so it stops.</li>
+</ol>
+<p>Result (heap of 9 keys): <strong><span
+class="math inline">[89,75,70,36,15,63,65,21,18]</span></strong>, and
+the deleted maximum is 90. (If <code>deleteMax</code> is the in-place
+heapsort step, the maximum is kept after the heap: <span
+class="math inline">[89,75,70,36,15,63,65,21,18\,|\,90]</span>.) It is a
+valid max-heap: every parent is at least its children.</p>
+<p><strong>Link.</strong> The key 15 was the smallest key in the heap,
+so it sank until it ran out of children (two levels here; the full
+height of this tree is 3). A key taken from the bottom of a heap almost
+always sinks far, which is the reason <code>deleteMax</code> costs <span
+class="math inline">\Theta(\log n)</span> even though the heap property
+is “mostly” satisfied.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S1 1(d)</strong> (MCQ) Given <span
+class="math inline">n</span> entries, which statement on the time
+complexity of the HeapSort algorithm is true? A. Only the Best case is
+<span class="math inline">O(n\log n)</span>. B. Only the Worst case is
+<span class="math inline">O(n^2)</span>. C. The Best case is <span
+class="math inline">O(n\log n)</span> and the Worst case is <span
+class="math inline">O(n^2)</span>. D. The Best case is <span
+class="math inline">O(n)</span> and the Worst case is <span
+class="math inline">O(n\log n)</span>. E. Both the Best case and the
+Worst case are <span class="math inline">O(n^2)</span>. F. Both the Best
+case and Worst case are <span class="math inline">O(n\log n)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>F.</strong> Building the heap is <span
+class="math inline">\Theta(n)</span> and each of the <span
+class="math inline">n-1</span> <code>deleteMax</code> calls costs <span
+class="math inline">O(\log n)</span>, so the sort is <span
+class="math inline">O(n\log n)</span> in the worst case. The extraction
+phase costs <span class="math inline">\Theta(n\log n)</span> on every
+input (with distinct keys), so no input beats <span
+class="math inline">n\log n</span> by more than a constant, and the best
+case is also <span class="math inline">O(n\log n)</span>. A is false
+(the worst case is also <span class="math inline">O(n \log n)</span>), B
+and E are false (never quadratic), C is false (the worst case is not
+<span class="math inline">n^2</span>), D is false for distinct keys.</p>
+<p>(Flag: “best case <span class="math inline">O(\cdot)</span>”
+statements are upper bounds, so F is true as stated. If every key is
+equal the extraction phase degenerates to <span
+class="math inline">O(n)</span>, but the course treats heapsort as <span
+class="math inline">\Theta(n\log n)</span> on every input, which is the
+answer the question wants.)</p>
+<p><strong>Link.</strong> Heapsort is, with mergesort, one of the two
+sorts in the course with the same order of growth on every input. Its
+cost does not depend on how sorted the array is, even though its first
+phase (<span class="math inline">O(n)</span>) is cheaper than the
+second.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY20/21 S2 2(b)</strong> A maximizing heap structure of 9
+keys is represented in an array <span
+class="math inline">[Y,R,P,D,F,B,K,A,C]</span>. With schematic drawings
+of the original and result heaps respectively, describe how the
+<code>fixHeap</code> function works in the deletion of <span
+class="math inline">Y</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Letters compare in alphabetical order (<span
+class="math inline">Y</span> is the largest). <strong>Original
+heap</strong> (the array read level by level; each parent is at least
+its children: <span class="math inline">Y\ge R,P</span>; <span
+class="math inline">R\ge D,F</span>; <span class="math inline">P\ge
+B,K</span>; <span class="math inline">D\ge A,C</span>):</p>
+<figure>
+<img src="fig/pyp2021s2_heap_before.svg" alt="Original heap" />
+<figcaption aria-hidden="true">Original heap</figcaption>
+</figure>
+<p><strong>Deletion of the maximum <span
+class="math inline">Y</span>.</strong></p>
+<ol type="1">
+<li>Remove the root <span class="math inline">Y</span> and move the
+<strong>last</strong> key <span class="math inline">C</span> to the
+root. The heap now has 8 keys: <span
+class="math inline">[C,R,P,D,F,B,K,A]</span>. The shape is correct (a
+complete tree), but the root <span class="math inline">C</span> may
+violate the heap order.</li>
+<li><code>fixHeap</code> lets <span class="math inline">C</span> sink.
+Root <span class="math inline">C</span> has children <span
+class="math inline">R</span> and <span class="math inline">P</span>; the
+larger child is <span class="math inline">R</span> and <span
+class="math inline">R&gt;C</span>, so swap: the root is <span
+class="math inline">R</span> and <span class="math inline">C</span> is
+now at index 1.</li>
+<li><span class="math inline">C</span> at index 1 has children <span
+class="math inline">D</span> and <span class="math inline">F</span>; the
+larger is <span class="math inline">F</span> and <span
+class="math inline">F&gt;C</span>, so swap: <span
+class="math inline">F</span> moves up and <span
+class="math inline">C</span> is at index 4.</li>
+<li>Index 4 has no children (the heap has only 8 keys, so indices 9 and
+10 do not exist). Stop.</li>
+</ol>
+<p><strong>Result heap</strong> <span
+class="math inline">[R,F,P,D,C,B,K,A]</span> (the path the key <span
+class="math inline">C</span> sank along is red; each parent is at least
+its children: <span class="math inline">R\ge F,P</span>; <span
+class="math inline">F\ge D,C</span>; <span class="math inline">P\ge
+B,K</span>; <span class="math inline">D\ge A</span>):</p>
+<figure>
+<img src="fig/pyp2021s2_heap_after.svg" alt="Heap after deleting Y" />
+<figcaption aria-hidden="true">Heap after deleting Y</figcaption>
+</figure>
+<p>The maximum <span class="math inline">Y</span> is returned, 2 levels
+were sunk and 4 comparisons were made (2 per level).</p>
+<p><strong>Link.</strong> The last key <span
+class="math inline">C</span> is small, so it sank, but only 2 of the 3
+possible levels because the tree shrank by one. The heap order is
+restored along a single root-to-leaf path of larger children, hence
+<span class="math inline">O(\log n)</span> per deletion and <span
+class="math inline">O(n\log n)</span> for the heapsort of <span
+class="math inline">n</span> deletions.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY19/20 S1 2(d)</strong> Suppose an array <span
+class="math inline">C=[1,2,3,6,5,7,4]</span> is given as input to
+Heapsort. (i) Show the content of array <span
+class="math inline">C</span> after the heap construction phase. (ii)
+What is the time complexity of <code>fixHeap</code> in Heapsort for an
+input array of <span class="math inline">n</span> elements? Briefly
+justify your answer.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> Bottom-up construction calls
+<code>fixHeap</code> on the internal nodes, index 2 down to 0 (7 keys,
+so the last internal node is index <span
+class="math inline">\lfloor7/2\rfloor-1=2</span>):</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>call</th>
+<th>node (key)</th>
+<th>children</th>
+<th>result array</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>index 2 (3)</td>
+<td>7, 4</td>
+<td>larger child 7 &gt; 3: swap. <span
+class="math inline">[1,2,7,6,5,3,4]</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td>index 1 (2)</td>
+<td>6, 5</td>
+<td>larger child 6 &gt; 2: swap. <span
+class="math inline">[1,6,7,2,5,3,4]</span></td>
+</tr>
+<tr>
+<td>3</td>
+<td>index 0 (1)</td>
+<td>6, 7</td>
+<td>larger child 7 &gt; 1: swap, then at index 2 the children 3 and 4:
+larger 4 &gt; 1: swap. <span
+class="math inline">[7,6,4,2,5,3,1]</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Result: <span
+class="math inline">C=[7,6,4,2,5,3,1]</span></strong>, a valid max-heap
+(every parent at least its children).</p>
+<figure>
+<img src="fig/pyp1920s1_heap.svg"
+alt="The max-heap after construction" />
+<figcaption aria-hidden="true">The max-heap after
+construction</figcaption>
+</figure>
+<p><strong>(ii) <span class="math inline">O(\lg n)</span>.</strong>
+<code>fixHeap</code> moves one key down along a single path, one level
+per step, with at most two comparisons per level. A heap with <span
+class="math inline">n</span> nodes has height <span
+class="math inline">\lfloor\lg n\rfloor</span>, because level <span
+class="math inline">h</span> holds up to <span
+class="math inline">2^h</span> nodes. So at most <span
+class="math inline">\lfloor\lg n\rfloor</span> steps: <span
+class="math inline">O(\lg n)</span>. (The whole construction is <span
+class="math inline">\Theta(n)</span> because most nodes are near the
+leaves and sink only 0 or 1 levels.)</p>
+<p><strong>Link.</strong> In call 3 the key 1 sank two levels, the
+maximum possible for 7 keys (height 2). Building bottom-up costs <span
+class="math inline">2+2+4=8</span> comparisons here, against <span
+class="math inline">n\lg n\approx20</span> for <span
+class="math inline">n</span> separate insertions.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S2 2(b)</strong> Assume an array of 10 distinct keys
+in decreasing order is to be sorted into increasing order by HeapSort.
+With a schematic drawing, show the procedure of heap construction and
+state how many key comparisons are done in this procedure.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>To sort into <strong>increasing</strong> order the lecture’s HeapSort
+builds a <strong>maximizing</strong> heap and repeatedly removes the
+maximum to the end of the array. A decreasing array <span
+class="math inline">[10,9,8,7,6,5,4,3,2,1]</span> is <strong>already a
+max-heap</strong>, because each parent <span
+class="math inline">a[i]</span> is larger than its children <span
+class="math inline">a[2i+1]</span> and <span
+class="math inline">a[2i+2]</span> (a decreasing sequence satisfies
+<span class="math inline">a[i]&gt;a[j]</span> for <span
+class="math inline">j&gt;i</span>).</p>
+<figure>
+<img src="fig/pyp1819s2_heap.svg"
+alt="The heap: the array 10 9 … 1 read level by level is already a max-heap" />
+<figcaption aria-hidden="true">The heap: the array 10 9 … 1 read level
+by level is already a max-heap</figcaption>
+</figure>
+<p>Construction calls <code>fixHeap</code> on the internal nodes, index
+4 down to 0, and no key moves:</p>
+<table>
+<thead>
+<tr>
+<th>node</th>
+<th>key</th>
+<th>children</th>
+<th>comparisons</th>
+<th>swaps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>index 4</td>
+<td>6</td>
+<td>1 (only one child)</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>index 3</td>
+<td>7</td>
+<td>3, 2</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>index 2</td>
+<td>8</td>
+<td>5, 4</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>index 1</td>
+<td>9</td>
+<td>7, 6</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>index 0</td>
+<td>10</td>
+<td>9, 8</td>
+<td>2</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>9 key comparisons, 0 swaps</strong> (2 per node with two
+children, 1 for the node with one child). This is the <strong>best
+case</strong> of heap construction, as on the heap page.</p>
+<p>(Flag: the circulated solution gets <strong>14</strong> comparisons
+because it builds a <em>minimizing</em> heap from the decreasing array,
+which does need work: 14 comparisons and 8 swaps (code). That would be
+the right count if the algorithm sorted by repeatedly removing the
+minimum, but the lecture’s HeapSort uses a max-heap for increasing
+order.)</p>
+<p><strong>Link.</strong> The same decreasing array is the
+<strong>best</strong> input for max-heap construction (9 comparisons)
+and a <strong>bad</strong> input for min-heap construction (14), the
+reverse of what the shape suggests. The best case of the <em>whole</em>
+sort is not better, since the extraction phase costs <span
+class="math inline">\Theta(n\log n)</span> for any distinct keys.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY18/19 S1 3(d)</strong> Suppose an array <span
+class="math inline">A=[25,30,40,55,20,50]</span> is given as input to
+Heapsort. (i) Show the contents of array <span
+class="math inline">A</span> after the heap construction phase. How many
+key comparisons and swaps are done respectively to construct a
+maximizing heap from <span class="math inline">A</span>? (ii) Show the
+contents of the heap in the array after two calls of
+<code>deleteMax()</code> on the heap constructed in Q3(d)(i).</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> Bottom-up construction calls
+<code>fixHeap</code> on the internal nodes, index 2 down to 0. A
+<code>fixHeap</code> step compares the two children (if both exist) and
+then the larger child with the sinking key.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr>
+<th>call</th>
+<th>node (key)</th>
+<th>children</th>
+<th>action</th>
+<th>comparisons</th>
+<th>swaps</th>
+<th>array</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>index 2 (40)</td>
+<td>50 (only child)</td>
+<td><span class="math inline">50&gt;40</span>: swap</td>
+<td>1</td>
+<td>1</td>
+<td>25 30 50 55 20 40</td>
+</tr>
+<tr>
+<td>2</td>
+<td>index 1 (30)</td>
+<td>55, 20</td>
+<td>larger 55 <span class="math inline">&gt;30</span>: swap</td>
+<td>2</td>
+<td>1</td>
+<td>25 55 50 30 20 40</td>
+</tr>
+<tr>
+<td>3</td>
+<td>index 0 (25)</td>
+<td>55, 50</td>
+<td>55 <span class="math inline">&gt;25</span>: swap; then at index 1
+children 30, 20: <span class="math inline">30&gt;25</span> swap</td>
+<td>4</td>
+<td>2</td>
+<td>55 30 50 25 20 40</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Heap: <span class="math inline">[55,30,50,25,20,40]</span>
+with 7 comparisons and 4 swaps</strong> (matches the circulated
+answer).</p>
+<p><strong>(ii)</strong> <code>deleteMax</code> moves the last key to
+the root and sinks it:</p>
+<ul>
+<li>First: remove 55, move 40 to the root: <span
+class="math inline">[40,30,50,25,20]</span>; children 30, 50: larger 50
+<span class="math inline">&gt;40</span>, swap: <strong><span
+class="math inline">[50,30,40,25,20]</span></strong>.</li>
+<li>Second: remove 50, move 20 to the root: <span
+class="math inline">[20,30,40,25]</span>; children 30, 40: larger 40
+<span class="math inline">&gt;20</span> swap, giving <span
+class="math inline">[40,30,20,25]</span>; at index 2 there are no
+children in a 4-key heap. Result <strong><span
+class="math inline">[40,30,20,25]</span></strong>.</li>
+</ul>
+<p>(In the in-place heapsort the removed keys 55 and 50 would be stored
+at the end of the array.)</p>
+<p><strong>Link.</strong> Counting a one-child node as 1 comparison
+(call 1) is why the total is 7, not 8. The two removed maxima come out
+in decreasing order (55, 50), which is how heapsort sorts: repeated
+<code>deleteMax</code> writes the array from the back.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY17/18 S1 3(b)</strong> The <em>height</em> of a heap is the
+number of edges on the longest path between the root and a leaf. Draw
+two example maximizing heaps both of height equal to 3, one with the
+maximum number of nodes and the other with the minimum number of nodes.
+Each node of your heaps should contain an integer as the key.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A heap is a complete binary tree. Height 3 means the deepest leaf is
+at depth 3.</p>
+<ul>
+<li><strong>Maximum number of nodes:</strong> the last level (depth 3)
+is <strong>full</strong>: <span
+class="math inline">1+2+4+8=2^4-1=\mathbf{15}</span> nodes.</li>
+<li><strong>Minimum number of nodes:</strong> levels 0 to 2 are full (7
+nodes) and the last level holds just <strong>one</strong> node, at the
+leftmost position: <span class="math inline">7+1=\mathbf{8}</span>
+nodes.</li>
+</ul>
+<p>Any max-heap shape works; a decreasing array is always a valid
+max-heap. For example:</p>
+<ul>
+<li>15 nodes, array <span class="math inline">[15,14,13,\dots,1]</span>:
+root 15; level 1: 14, 13; level 2: 12, 11, 10, 9; level 3: 8, 7, 6, 5,
+4, 3, 2, 1.</li>
+<li>8 nodes, array <span class="math inline">[8,7,6,5,4,3,2,1]</span>:
+root 8; level 1: 7, 6; level 2: 5, 4, 3, 2; level 3: 1 (the left child
+of the node 5).</li>
+</ul>
+<p><strong>Link.</strong> A heap of height <span
+class="math inline">h</span> has between <span
+class="math inline">2^h</span> and <span
+class="math inline">2^{h+1}-1</span> nodes, so its height is <span
+class="math inline">\lfloor\lg n\rfloor</span>. That is the fact behind
+<span class="math inline">O(\lg n)</span> for <code>fixHeap</code> and
+the <span class="math inline">O(n)</span> bound for building a heap
+(most nodes are near the bottom).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY17/18 S1 3(e)</strong> Given an unsorted array of <span
+class="math inline">n</span> integers, design an algorithm to find the
+<span class="math inline">k</span> largest elements with the worst-case
+time complexity <span class="math inline">O(n+k\lg n)</span>, where
+<span class="math inline">1\le k\le n</span>. You can use any algorithm
+learnt in the lectures as a subroutine of your algorithm (i.e. you need
+not write the pseudocode of the subroutine). Briefly explain the
+worst-case time complexity of your algorithm.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li><strong>Build a maximizing heap</strong> from the <span
+class="math inline">n</span> integers (the lecture’s bottom-up
+construction): <span class="math inline">\Theta(n)</span>.</li>
+<li><strong>Call <code>deleteMax()</code> <span
+class="math inline">k</span> times.</strong> Each call returns the
+current maximum and restores the heap with <code>fixHeap</code>: <span
+class="math inline">O(\lg n)</span>. The <span
+class="math inline">k</span> results are the <span
+class="math inline">k</span> largest elements, in decreasing order.</li>
+</ol>
+<p>Total worst case: <span class="math inline">\Theta(n)+k\cdot O(\lg
+n)=O(n+k\lg n)</span>.</p>
+<p>(The circulated solution’s step 1 says “construct a max heap” and
+writes <code>deleteMin</code> by mistake in the following lines; the
+idea is the same.)</p>
+<p><strong>Link.</strong> For <span class="math inline">k=1</span> this
+is the <span class="math inline">O(n)</span> maximum, and for <span
+class="math inline">k=n</span> it is heapsort, <span
+class="math inline">O(n\lg n)</span>: the one formula covers the whole
+range. Using sorting instead would cost <span class="math inline">O(n\lg
+n)</span> whatever <span class="math inline">k</span> is, so the heap
+wins whenever <span class="math inline">k\ll n</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY16/17 S2 3(d)</strong> For each of the trees in Figure Q3,
+is it a maximizing heap? Briefly justify your answers.</p>
+<figure>
+<img src="img/pyp/1617s2_q3.png"
+alt="Figure Q3 (clipped from the paper): trees (A), (B), (C)" />
+<figcaption aria-hidden="true">Figure Q3 (clipped from the paper): trees
+(A), (B), (C)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A maximizing heap needs <strong>two</strong> properties: the tree is
+a <strong>complete binary tree</strong> (all levels full except the
+last, which is filled from the left), and every parent is at least as
+large as its children.</p>
+<ul>
+<li><strong>(A) Not a heap.</strong> The order is fine (9 <span
+class="math inline">\ge</span> 5, 8; 5 <span
+class="math inline">\ge</span> 2; 8 <span class="math inline">\ge</span>
+1), but the shape is <strong>not complete</strong>: the node 5 has only
+a <strong>right</strong> child (2) and no left child, so the last level
+is not filled from the left.</li>
+<li><strong>(B) A maximizing heap.</strong> Shape: 9, then 8 and 5, then
+2, 4 under 8 and 1 as the left child of 5: complete. Order: 9 <span
+class="math inline">\ge</span> 8, 5; 8 <span
+class="math inline">\ge</span> 2, 4; 5 <span
+class="math inline">\ge</span> 1. As an array <span
+class="math inline">[9,8,5,2,4,1]</span>.</li>
+<li><strong>(C) Not a heap.</strong> The shape is complete, but the
+parent <strong>5 is smaller than its child 7</strong>, which breaks the
+heap order.</li>
+</ul>
+<p>(The circulated solution accepts (A) because it checks only the key
+order; the lecture’s heap is also a complete tree. If your mark scheme
+follows that solution, (A) is “yes” for the order and “no” for the
+shape: state both.)</p>
+<p><strong>Link.</strong> The heap is stored in an array, which only
+works for a <strong>complete</strong> tree (children at <span
+class="math inline">2i+1</span> and <span
+class="math inline">2i+2</span> with no gaps). That is why the shape
+condition is part of the definition and not an optional extra.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY16/17 S2 3(e)</strong> Prove that the height of a
+maximizing heap with <span class="math inline">n</span> nodes is <span
+class="math inline">\Theta(\lg n)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Let the height (number of edges on the longest root-to-leaf path) be
+<span class="math inline">h</span>. A complete binary tree of height
+<span class="math inline">h</span> has all levels <span
+class="math inline">0..h-1</span> full and at least one node at level
+<span class="math inline">h</span>, so <span
+class="math display">\underbrace{1+2+\dots+2^{h-1}}_{2^h-1}+1\le
+n\le\underbrace{1+2+\dots+2^h}_{2^{h+1}-1}.</span> That is <span
+class="math inline">2^h\le n\le2^{h+1}-1&lt;2^{h+1}</span>. Taking <span
+class="math inline">\lg</span>: <span class="math inline">h\le\lg
+n&lt;h+1</span>, so <strong><span class="math inline">h=\lfloor\lg
+n\rfloor=\Theta(\lg n)</span>.</strong> (The circulated proof writes the
+same inequalities with <span class="math inline">k=h+1</span> levels.)
+<span class="math inline">\blacksquare</span></p>
+<p><strong>Link.</strong> The height is the longest path a key can sink
+in <code>fixHeap</code>, so <span class="math inline">\lfloor\lg
+n\rfloor</span> is exactly why <code>fixHeap</code> and
+<code>deleteMax</code> are <span class="math inline">O(\lg n)</span>.
+Every extra level doubles the capacity, which is also the reason binary
+search and balanced trees are logarithmic.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S2 3(a)</strong> In a maximizing heap in which all
+elements are distinct, where might the smallest element be located?
+Illustrate your answer by drawing two binary trees each containing 6
+nodes.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>The smallest element is always at a leaf</strong>, never at
+an internal node: an internal node has at least one child, and a parent
+is larger than its children, so it cannot be the smallest. In a heap of
+6 nodes the leaves are the nodes at array positions 3, 4 and 5
+(0-indexed), so the minimum can be any of the three. Two examples:</p>
+<ul>
+<li><span class="math inline">[6,5,4,1,3,2]</span>: root 6; children 5
+and 4; the node 5 has children 1 and 3; the node 4 has child 2. The
+smallest key, 1, is the <strong>left child of 5</strong>.</li>
+<li><span class="math inline">[6,5,4,3,2,1]</span>: root 6; children 5
+and 4; the node 5 has children 3 and 2; the node 4 has child 1. The
+smallest key, 1, is the <strong>left child of 4</strong>, at the last
+position.</li>
+</ul>
+<p>(Both satisfy the heap order: each parent exceeds its children, and
+the trees are complete.)</p>
+<p><strong>Link.</strong> More than half of a heap’s nodes are leaves
+(<span class="math inline">\lceil n/2\rceil</span>), so the minimum is
+hard to find by following the structure: finding the smallest key in a
+max-heap costs <span class="math inline">\Theta(n)</span> (scan the
+leaves), unlike the maximum at the root.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S1 3(b)</strong> Give a maximizing heap of size 15,
+for which the minimum number of key comparisons is needed for the
+<code>deleteMax</code> operation. Assume the keys in the heap are
+distinct integers from the set <span
+class="math inline">\{1,2,\dots,15\}</span>. Draw a binary tree to
+represent the heap, and justify your answer.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><code>deleteMax</code> removes the root, moves the
+<strong>last</strong> key <span class="math inline">K</span> to the root
+(leaving a heap of 14 keys) and calls <code>fixHeap</code>. Each level
+costs 2 comparisons (the two children against each other, then the
+larger child against <span class="math inline">K</span>) or 1 when the
+node has one child, and the key stops as soon as it is not smaller than
+the larger child.</p>
+<p><strong>Lower bound: 4 comparisons.</strong></p>
+<ul>
+<li>At the root the two children exist, so the first level always costs
+2 comparisons.</li>
+<li>The second largest key, 14, is a child of the root: its parent must
+be larger than 14, and only 15 is, so 14 sits directly under the root.
+The moved key <span class="math inline">K</span> is a leaf key with
+<span class="math inline">K&lt;14</span>, so it <strong>cannot
+stop</strong> at the root: it swaps with 14 (or with the other child if
+that is larger) and moves to level 1.</li>
+<li>At level 1 the node has two children (it is index 1 or 2 of a 14-key
+heap, with children at 3, 4 or 5, 6), so this level also costs 2
+comparisons. So at least <span class="math inline">2+2=4</span>
+comparisons are always needed, and 4 is reached when <span
+class="math inline">K</span> stops at level 1, i.e. <span
+class="math inline">K</span> is larger than the two children of the node
+it lands on.</li>
+</ul>
+<p><strong>An example reaching 4:</strong> the array <span
+class="math inline">[15,14,13,6,5,12,11,4,3,2,1,10,9,8,7]</span> (a
+valid heap: each parent exceeds its children). <code>deleteMax</code>:
+remove 15, move the last key 7 to the root; the children are 14 and 13
+(1 comparison), <span class="math inline">14&gt;7</span> (2nd
+comparison), swap; the 7 is now at index 1 whose children are 6 and 5:
+<span class="math inline">6&gt;5</span> (3rd), <span
+class="math inline">6&lt;7</span> (4th) so it stops. <strong>4
+comparisons.</strong></p>
+<figure>
+<img src="fig/pyp1516s1_heap_min.svg"
+alt="A maximizing heap of 15 distinct keys whose deleteMax takes only 4 comparisons" />
+<figcaption aria-hidden="true">A maximizing heap of 15 distinct keys
+whose deleteMax takes only 4 comparisons</figcaption>
+</figure>
+<p>(Over 200,000 random heaps of 15 keys the number of comparisons for
+<code>deleteMax</code> was always 4, 5 or 6, so 4 is the minimum and 6
+the maximum.)</p>
+<p>(Flag: the circulated solution draws the heap <span
+class="math inline">[15,14,7,13,12,6,5,11,10,9,8,4,3,2,1]</span> and
+describes it as maximising the comparisons. That heap does need 6
+comparisons, the <strong>maximum</strong>, so it answers the opposite of
+the question as printed, which asks for the minimum.)</p>
+<p><strong>Link.</strong> The best case of <code>fixHeap</code> is not
+“no work”: because the root’s replacement is always a leaf key, it must
+move at least one level. The worst case, 6 comparisons, is the full
+height 3 with 2 comparisons per level.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY15/16 S1 3(c)</strong> From the input array <span
+class="math inline">A=(6,3,8,9,2,4)</span>, construct a maximizing heap
+and then use the Heapsort algorithm to sort the array elements in
+ascending order. Illustrate the operations of Heapsort by drawing binary
+trees. Count the numbers of comparisons between array elements for
+constructing the heap and for sorting the array, respectively.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Count one comparison between the two children (when both exist) and
+one between the larger child and the sinking key.</p>
+<p><strong>Heap construction</strong> (internal nodes at indices 2, 1,
+0):</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>call</th>
+<th>node (key)</th>
+<th>children</th>
+<th>action</th>
+<th>comparisons</th>
+<th>array</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>index 2 (8)</td>
+<td>4 (only child)</td>
+<td><span class="math inline">4&lt;8</span>, no swap</td>
+<td>1</td>
+<td>6 3 8 9 2 4</td>
+</tr>
+<tr>
+<td>2</td>
+<td>index 1 (3)</td>
+<td>9, 2</td>
+<td>larger 9 <span class="math inline">&gt;3</span>: swap</td>
+<td>2</td>
+<td>6 9 8 3 2 4</td>
+</tr>
+<tr>
+<td>3</td>
+<td>index 0 (6)</td>
+<td>9, 8</td>
+<td>larger 9 <span class="math inline">&gt;6</span>: swap; then at index
+1 children 3, 2: <span class="math inline">3&lt;6</span> stop</td>
+<td>4</td>
+<td>9 6 8 3 2 4</td>
+</tr>
+</tbody>
+</table>
+<p><strong>7 comparisons</strong> to build the heap <span
+class="math inline">[9,6,8,3,2,4]</span> (matches the circulated
+count).</p>
+<figure>
+<img src="fig/pyp1516s1_heap6.svg" alt="The heap after construction" />
+<figcaption aria-hidden="true">The heap after construction</figcaption>
+</figure>
+<p><strong>Sorting phase</strong> (swap the root with the last key of
+the heap, shrink the heap, <code>fixHeap</code> the root):</p>
+<table>
+<thead>
+<tr>
+<th>step</th>
+<th>swap</th>
+<th>heap part after fixHeap</th>
+<th>sorted part</th>
+<th>comparisons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>9 with 4</td>
+<td>8 6 4 3 2</td>
+<td>9</td>
+<td>2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>8 with 2</td>
+<td>6 3 4 2</td>
+<td>8 9</td>
+<td>3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>6 with 2</td>
+<td>4 3 2</td>
+<td>6 8 9</td>
+<td>2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>4 with 2</td>
+<td>3 2</td>
+<td>4 6 8 9</td>
+<td>1</td>
+</tr>
+<tr>
+<td>5</td>
+<td>3 with 2</td>
+<td>2</td>
+<td>3 4 6 8 9</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>Detail of the comparisons (heap sizes 5, 4, 3, 2): after the first
+swap the heap is <span class="math inline">[4,6,8,3,2]</span>: children
+6, 8 (1), <span class="math inline">8&gt;4</span> (2): swap, then index
+2 has no children: <strong>2</strong>. Next <span
+class="math inline">[2,6,4,3]</span>: children 6, 4 (1), <span
+class="math inline">6&gt;2</span> (2), swap; then index 1 has the child
+3 (index 3), <span class="math inline">3&gt;2</span> (3), swap:
+<strong>3</strong>. Next <span class="math inline">[2,3,4]</span>:
+children 3, 4 (1), <span class="math inline">4&gt;2</span> (2):
+<strong>2</strong>. Next <span class="math inline">[2,3]</span>: one
+child, <span class="math inline">3&gt;2</span>: <strong>1</strong>. The
+last heap has one key: <strong>0</strong>. So the sorting phase costs
+<span class="math inline">2+3+2+1+0=8</span> comparisons.</p>
+<p><strong>Sorted array: <span
+class="math inline">(2,3,4,6,8,9)</span>.</strong> Total <strong>7
+comparisons</strong> to construct and <strong>8 comparisons</strong> to
+sort (15 in all), under this counting convention. (Checked by running
+it.)</p>
+<p><strong>Link.</strong> Construction costs <span
+class="math inline">7\le2n</span> while the extraction phase costs <span
+class="math inline">8</span> for <span class="math inline">n=6</span>
+and grows as <span class="math inline">n\lg n</span>: this is why heap
+construction is the cheap part of heapsort.</p>
+</div>
+</details>
+<h2 id="tutorials">Tutorials</h2>
+<h3 id="tutorial-4-q1.-building-a-max-heap-of-dates">Tutorial 4 Q1.
+Building a max-heap of dates</h3>
+<div class="q">
+<p>Given an array with content (of type date): 1 Jul, 30 Jan, 22 Mar, 22
+Dec, 30 May, 21 Feb, 3 Nov, 7 Jun, 22 Feb, 21 Nov, 30 Dec; all of the
+same year. Suppose an earlier date is considered larger than a later
+date; for example, “30 Jan” is larger than “30 Dec”. In order to sort
+these dates by heapsort, we construct a max-heap. Show the contents of
+the array (representing the max-heap) after the heap construction
+phase.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Concepts: fixHeap and the build order</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li>In a <strong>max-heap</strong>, every node is at least as large as
+its children. Node <span class="math inline">k</span> has children <span
+class="math inline">2k</span> and <span
+class="math inline">2k+1</span>.</li>
+<li><code>fixHeap</code> repairs one node whose two subtrees are already
+heaps. At each level it makes 2 comparisons: one to find the larger
+child, one to compare that child with the sinking key. If the child is
+larger, the child moves up.</li>
+<li>To build a heap, fix every node that has a child, children before
+parents. The lecture’s recursive <code>heapifying</code> does this in
+post-order: left subtree, right subtree, then the root. The loop from
+node <span class="math inline">\lfloor n/2 \rfloor</span> down to 1
+gives the same heap.</li>
+<li>Here “larger” means “earlier in the year”.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<figure>
+<img src="img/tutorial-4-artifacts/dates-initial.png"
+style="width:80.0%"
+alt="The array as a tree before construction: 1 Jul at the root, 30 Jan and 22 Mar below it, then 22 Dec, 30 May, 21 Feb, 3 Nov, then 7 Jun, 22 Feb, 21 Nov, 30 Dec (Tutorial 4 solutions)." />
+<figcaption aria-hidden="true">The array as a tree before construction:
+1 Jul at the root, 30 Jan and 22 Mar below it, then 22 Dec, 30 May, 21
+Feb, 3 Nov, then 7 Jun, 22 Feb, 21 Nov, 30 Dec (Tutorial 4
+solutions).</figcaption>
+</figure>
+<p><code>heapifying</code> fixes the nodes in post-order: 4, 5, 2, 3,
+then 1.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th>Fix at node</th>
+<th>Key</th>
+<th>What happens</th>
+<th>Comparisons</th>
+<th>Swaps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4</td>
+<td>22 Dec</td>
+<td>Children 7 Jun, 22 Feb. 22 Feb is larger and beats 22 Dec, so 22 Feb
+moves up. 22 Dec goes to node 9.</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>5</td>
+<td>30 May</td>
+<td>Children 21 Nov, 30 Dec. 30 May is larger than both. No move.</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>2</td>
+<td>30 Jan</td>
+<td>Children 22 Feb, 30 May. 30 Jan is larger than both. No move.</td>
+<td>2</td>
+<td>0</td>
+</tr>
+<tr>
+<td>3</td>
+<td>22 Mar</td>
+<td>Children 21 Feb, 3 Nov. 21 Feb is larger, so it moves up.</td>
+<td>2</td>
+<td>1</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1 Jul</td>
+<td>30 Jan moves up to node 1. Then 22 Feb moves up to node 2. Then 7
+Jun moves up to node 4. 1 Jul ends at node 8.</td>
+<td>6</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img src="img/tutorial-4-artifacts/dates-final-heap.png"
+style="width:80.0%"
+alt="The final step: 1 Jul sinks from the root to node 8, while 30 Jan, 22 Feb and 7 Jun each move up one level. 6 comparisons and 3 swaps (Tutorial 4 solutions)." />
+<figcaption aria-hidden="true">The final step: 1 Jul sinks from the root
+to node 8, while 30 Jan, 22 Feb and 7 Jun each move up one level. 6
+comparisons and 3 swaps (Tutorial 4 solutions).</figcaption>
+</figure>
+<p>Heapifying performs <strong>14</strong> date comparisons and
+<strong>5</strong> swaps in the heap construction phase. The resulting
+array is:</p>
+<table>
+<colgroup>
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+<col style="width: 9%" />
+</colgroup>
+<thead>
+<tr>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>11</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>30 Jan</td>
+<td>22 Feb</td>
+<td>21 Feb</td>
+<td>7 Jun</td>
+<td>30 May</td>
+<td>22 Mar</td>
+<td>3 Nov</td>
+<td>1 Jul</td>
+<td>22 Dec</td>
+<td>21 Nov</td>
+<td>30 Dec</td>
+</tr>
+</tbody>
+</table>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: trace heap construction by hand</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ol type="1">
+<li>Draw the array as a tree, level by level. Number the nodes.</li>
+<li>List the nodes with children: <span class="math inline">\lfloor n/2
+\rfloor</span> down to 1. (Post-order gives the same final heap.)</li>
+<li>For each one, sink its key: compare the two children (1), then
+compare the larger child with the key (1). If the child is larger, it
+moves up and the key continues down. A node with one child costs only 1
+comparison at that level.</li>
+<li>Count per fix: moves = levels sunk; comparisons = about 2 per level
+visited.</li>
+<li>Check the result: every parent beats both children.</li>
+</ol>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 1.1.</strong> Insert the date 15 Jan into the final
+heap from Q1. Show the array and count the comparisons.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 1.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Insert puts 15 Jan at the next free position, node 12, then bubbles
+it up while it beats its parent.</p>
+<ul>
+<li>The parent of 12 is node 6 (22 Mar). 15 Jan is earlier, so they
+swap. (1 comparison)</li>
+<li>The parent of 6 is node 3 (21 Feb). Swap. (1 comparison)</li>
+<li>The parent of 3 is node 1 (30 Jan). 15 Jan is earlier. Swap. (1
+comparison)</li>
+</ul>
+<table>
+<colgroup>
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+<col style="width: 8%" />
+</colgroup>
+<thead>
+<tr>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+<th>11</th>
+<th>12</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15 Jan</td>
+<td>22 Feb</td>
+<td>30 Jan</td>
+<td>7 Jun</td>
+<td>30 May</td>
+<td>21 Feb</td>
+<td>3 Nov</td>
+<td>1 Jul</td>
+<td>22 Dec</td>
+<td>21 Nov</td>
+<td>30 Dec</td>
+<td>22 Mar</td>
+</tr>
+</tbody>
+</table>
+<p>3 comparisons, one per level. Insert costs at most the height, <span
+class="math inline">\lfloor \lg 12 \rfloor = 3</span>.</p>
+</div>
+</details>
+<h3 id="tutorial-4-q2.-heap-construction-on-a-decreasing-array">Tutorial
+4 Q2. Heap construction on a decreasing array</h3>
+<div class="q">
+<p>An array of distinct keys in decreasing order is to be sorted (into
+increasing order) by heapsort.</p>
+<ol type="a">
+<li>How many comparisons of keys are done in the heap construction phase
+if there are 10 elements?</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (a)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">2 + 1 + 2 + 2 + 2 = 9</span>.</p>
+<figure>
+<img src="img/tutorial-4-artifacts/decreasing-heap.png"
+style="width:80.0%"
+alt="The array 10 9 8 7 6 5 4 3 2 1 as a heap. Each node with children is compared with its children, and the table lists the cost of each fix (Tutorial 4 solutions)." />
+<figcaption aria-hidden="true">The array 10 9 8 7 6 5 4 3 2 1 as a heap.
+Each node with children is compared with its children, and the table
+lists the cost of each fix (Tutorial 4 solutions).</figcaption>
+</figure>
+<table>
+<thead>
+<tr>
+<th>Nodes compared</th>
+<th>Comparisons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4, 8, 9</td>
+<td>2</td>
+</tr>
+<tr>
+<td>5, 10</td>
+<td>1</td>
+</tr>
+<tr>
+<td>2, 4, 5</td>
+<td>2</td>
+</tr>
+<tr>
+<td>3, 6, 7</td>
+<td>2</td>
+</tr>
+<tr>
+<td>1, 2, 3</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+</div>
+</details>
+<div class="q">
+<ol start="2" type="a">
+<li>How many are done if there are <span class="math inline">n</span>
+elements? Show how you derive your answer.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (b)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Node <span class="math inline">i</span> is an
+<strong>internal</strong> node (not a leaf) if and only if <span
+class="math inline">1 \le 2i \le n</span>, so <span
+class="math inline">\frac{1}{2} \le i \le \frac{n}{2}</span>. Thus:</p>
+<ul>
+<li>if <span class="math inline">n</span> is even, there are <span
+class="math inline">n/2</span> internal nodes;</li>
+<li>if <span class="math inline">n</span> is odd, there are <span
+class="math inline">(n-1)/2</span> internal nodes.</li>
+</ul>
+<p>Since the keys are in decreasing order, fixHeap does only one or two
+key comparisons each time it is called, and no key moves.</p>
+<ul>
+<li><strong>If <span class="math inline">n</span> is even</strong>, the
+last internal node has only one child. So fixHeap does only one
+comparison at that node, and two at each other internal node. Total:
+<span class="math inline">2(n/2 - 1) + 1 = n - 1</span>.</li>
+<li><strong>If <span class="math inline">n</span> is odd</strong>, each
+of the <span class="math inline">(n-1)/2</span> internal nodes has two
+children. fixHeap does two comparisons at each. Total: <span
+class="math inline">2 \times (n-1)/2 = n - 1</span>.</li>
+</ul>
+<p>In both cases, the total is <span class="math inline">n - 1</span>
+key comparisons.</p>
+</div>
+</details>
+<div class="q">
+<ol start="3" type="a">
+<li>Is an array in decreasing order the best case, the worst case, or an
+intermediate case for this algorithm? Justify your answer.</li>
+</ol>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (c)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>It is the <strong>best case</strong>. No key moves. So in the
+heapifying algorithm, fixHeap only compares the root with its two
+children, and never needs to continue down, as it does in an
+intermediate or worst case.</p>
+<p>Every internal node must be compared with its children at least once,
+so no input can do fewer comparisons.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: count heap-construction comparisons</strong>
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>Best case</strong> (no key moves): each internal node costs
+2, or 1 if it has a single child. There are <span
+class="math inline">\lfloor n/2 \rfloor</span> internal nodes, and only
+node <span class="math inline">n/2</span> (when <span
+class="math inline">n</span> is even) has one child. The total is always
+<span class="math inline">n - 1</span>.</li>
+<li><strong>Any other input:</strong> trace it with the method of Q1.
+Each extra level a key sinks costs up to 2 more comparisons.</li>
+<li><strong>Worst case:</strong> still <span
+class="math inline">O(n)</span>, because most nodes sit near the bottom
+and can sink only a little.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 2.1.</strong> Build a max-heap from the
+<strong>increasing</strong> array 1 2 3 4 5 6 7 8 9 10. Count the
+comparisons. Compare with part (a).</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 2.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Use the loop order 5, 4, 3, 2, 1.</p>
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th>Fix at node</th>
+<th>What happens</th>
+<th>Comparisons</th>
+<th>Array after</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5 (key 5)</td>
+<td>One child, 10: 1 comparison. 10 moves up.</td>
+<td>1</td>
+<td>1 2 3 4 10 6 7 8 9 5</td>
+</tr>
+<tr>
+<td>4 (key 4)</td>
+<td>Children 8, 9: 9 is larger and beats 4. 9 moves up.</td>
+<td>2</td>
+<td>1 2 3 9 10 6 7 8 4 5</td>
+</tr>
+<tr>
+<td>3 (key 3)</td>
+<td>Children 6, 7: 7 moves up.</td>
+<td>2</td>
+<td>1 2 7 9 10 6 3 8 4 5</td>
+</tr>
+<tr>
+<td>2 (key 2)</td>
+<td>Children 9, 10: 10 moves up (2). At node 5, one child (5): 5 moves
+up (1).</td>
+<td>3</td>
+<td>1 10 7 9 5 6 3 8 4 2</td>
+</tr>
+<tr>
+<td>1 (key 1)</td>
+<td>10 moves up (2), then 9 (2), then 8 (2). 1 ends at node 8.</td>
+<td>6</td>
+<td>10 9 7 8 5 6 3 1 4 2</td>
+</tr>
+</tbody>
+</table>
+<p>Total: <span class="math inline">1 + 2 + 2 + 3 + 6 = 14</span>
+comparisons, against 9 for the decreasing array. The increasing array is
+not the best case, because keys must sink.</p>
+</div>
+</details>
+<h3 id="tutorial-4-q3.-merging-k-sorted-lists-in-on-log-k">Tutorial 4
+Q3. Merging k sorted lists in O(n log k)</h3>
+<div class="q">
+<p>Given <span class="math inline">k</span> lists with a total of <span
+class="math inline">n</span> numbers, where <span class="math inline">k
+\ge 2</span> and each list has been sorted in decreasing order, design
+an algorithm to merge the <span class="math inline">k</span> lists into
+one list sorted in decreasing order, in running time <span
+class="math inline">O(n \log k)</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>One algorithm is to use a maximizing heap.</p>
+<ol type="1">
+<li>First, insert the <span class="math inline">k</span> elements from
+the heads of the <span class="math inline">k</span> sorted lists into a
+maximizing heap. This takes <span class="math inline">O(k)</span>
+time.</li>
+<li>Then, use getMax() to obtain the maximum element from the heap, and
+append it at the end of the merged list (initially empty). Suppose this
+element came from the <span class="math inline">j</span>-th list. Then
+insert the element from the <strong>next</strong> position of the <span
+class="math inline">j</span>-th list into the heap, using fixHeap: it
+takes the place of the root and sinks.</li>
+<li>Continue in this fashion until all the <span
+class="math inline">k</span> lists have been exhausted. (When list <span
+class="math inline">j</span> is empty, the last heap element takes the
+root’s place instead, and the heap shrinks by one.)</li>
+</ol>
+<p><strong>Analysis.</strong> For one element, an insertion using
+fixHeap takes <span class="math inline">O(\log k)</span> time, because
+the heap never holds more than <span class="math inline">k</span>
+elements. Hence for the <span class="math inline">n</span> elements, the
+running time is <span class="math inline">O(n \log k)</span>.</p>
+<p><strong>Example.</strong> Input: three sorted arrays <span
+class="math inline">A_1 = [9, 7, 5, 2]</span>, <span
+class="math inline">A_2 = [4, 3, 1]</span>, <span
+class="math inline">A_3 = [8, 6, 2, 1, 0]</span>. Output: a merged list
+<span class="math inline">M</span>.</p>
+<figure>
+<img src="img/tutorial-4-artifacts/kmerge-start.png" style="width:65.0%"
+alt="The start: the heads 9, 4 and 8 form the heap, with 9 at the root. M is empty (Tutorial 4 solutions)." />
+<figcaption aria-hidden="true">The start: the heads 9, 4 and 8 form the
+heap, with 9 at the root. M is empty (Tutorial 4
+solutions).</figcaption>
+</figure>
+<table>
+<thead>
+<tr>
+<th>Step</th>
+<th>Output</th>
+<th>Comes from</th>
+<th>Inserted next</th>
+<th>Heap after</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>9</td>
+<td><span class="math inline">A_1</span></td>
+<td>7</td>
+<td>8, 4, 7</td>
+</tr>
+<tr>
+<td>2</td>
+<td>8</td>
+<td><span class="math inline">A_3</span></td>
+<td>6</td>
+<td>7, 4, 6</td>
+</tr>
+<tr>
+<td>3</td>
+<td>7</td>
+<td><span class="math inline">A_1</span></td>
+<td>5</td>
+<td>6, 4, 5</td>
+</tr>
+</tbody>
+</table>
+<figure>
+<img src="img/tutorial-4-artifacts/kmerge-step3.png" style="width:75.0%"
+alt="After three steps, M = 9 8 7. The next head of A1, 5, is inserted, and the heap becomes 6, 4, 5 (Tutorial 4 solutions)." />
+<figcaption aria-hidden="true">After three steps, M = 9 8 7. The next
+head of A1, 5, is inserted, and the heap becomes 6, 4, 5 (Tutorial 4
+solutions).</figcaption>
+</figure>
+<p>Continue in this fashion until all the input lists are exhausted.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>General method: keep a heap of size k, not n</strong> <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>When the answer comes out in order but only a few items can be “next”
+at any time, keep <strong>only those candidates</strong> in a heap.</p>
+<ul>
+<li>Here, the next output is always one of the <span
+class="math inline">k</span> current heads. So the heap holds <span
+class="math inline">k</span> items, and each step costs <span
+class="math inline">O(\log k)</span>, not <span
+class="math inline">O(\log n)</span>.</li>
+<li>Total = (number of outputs) <span class="math inline">\times</span>
+(cost per heap step) = <span class="math inline">n \times O(\log
+k)</span>.</li>
+<li>Use a max-heap for lists in decreasing order, a min-heap for
+increasing order.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>Extension 3.1.</strong> A simpler plan merges list 1 with
+list 2, then the result with list 3, and so on, with the merge from
+mergesort. Each list has <span class="math inline">n/k</span> elements.
+How long does it take?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer (Extension 3.1)</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Merging two lists costs about their total length.</p>
+<ul>
+<li>Merge <span class="math inline">i</span> joins a list of <span
+class="math inline">i \cdot n/k</span> elements with one of <span
+class="math inline">n/k</span>, so it costs about <span
+class="math inline">(i+1)\,n/k</span>.</li>
+<li>Summed over <span class="math inline">i = 1, \dots, k-1</span>:
+about <span class="math inline">\frac{n}{k} \cdot \frac{k^2}{2} =
+\frac{nk}{2}</span>.</li>
+</ul>
+<p>That is <span class="math inline">O(nk)</span>, worse than <span
+class="math inline">O(n \log k)</span>. The early elements are copied
+again in every merge. The heap touches each element only once.</p>
+</div>
+</details>
+
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="drill.js"></script>
+</body></html>

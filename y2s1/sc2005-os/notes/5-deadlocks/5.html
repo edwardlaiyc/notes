@@ -1,0 +1,1661 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>5. Deadlocks · SC2005 Operating Systems</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=0FF8E2A0">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">5.
+Deadlocks</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">5. Deadlocks</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-overview/1.html"
+                   data-nav="notes/1-overview/1.html">1. Overview of
+Operating Systems</a></li>
+            <li><a href="../../notes/2-processes-threads/2.html"
+                   data-nav="notes/2-processes-threads/2.html">2.
+Processes and Threads</a></li>
+            <li><a href="../../notes/3-cpu-scheduling/3.html"
+                   data-nav="notes/3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../../notes/4-synchronization/4.html"
+                   data-nav="notes/4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../../notes/5-deadlocks/5.html"
+                   data-nav="notes/5-deadlocks/5.html">5.
+Deadlocks</a></li>
+            <li><a href="../../notes/6a-rtos/6a.html"
+                   data-nav="notes/6a-rtos/6a.html">6a. Real-Time
+Operating Systems</a></li>
+            <li><a href="../../notes/6b-virtualization/6b.html"
+                   data-nav="notes/6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../../notes/7-memory-organization/7.html"
+                   data-nav="notes/7-memory-organization/7.html">7.
+Memory Organization</a></li>
+            <li><a href="../../notes/8-virtual-memory/8.html"
+                   data-nav="notes/8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../../notes/9-file-systems/9.html"
+                   data-nav="notes/9-file-systems/9.html">9. File
+Systems</a></li>
+            <li><a href="../../notes/10-io-disk/10.html"
+                   data-nav="notes/10-io-disk/10.html">10. I/O Systems
+and Disk</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Course
+Cheatsheet</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../../notes/labs/lab-1.html"
+                   data-nav="notes/labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../../notes/labs/lab-2.html"
+                   data-nav="notes/labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3.html"
+                   data-nav="notes/labs/lab-3/lab-3.html">Lab 3
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3-quiz.html"
+                   data-nav="notes/labs/lab-3/lab-3-quiz.html">Lab 3
+Quiz</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4.html"
+                   data-nav="notes/labs/lab-4/lab-4.html">Lab 4
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4-quiz.html"
+                   data-nav="notes/labs/lab-4/lab-4-quiz.html">Lab 4
+Quiz</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#the-deadlock-problem" id="toc-the-deadlock-problem">1. The
+Deadlock Problem</a>
+<ul>
+<li><a href="#system-model" id="toc-system-model">System model</a></li>
+</ul></li>
+<li><a href="#resource-allocation-graph-rag"
+id="toc-resource-allocation-graph-rag">2. Resource-Allocation Graph
+(RAG)</a></li>
+<li><a href="#the-four-deadlock-conditions"
+id="toc-the-four-deadlock-conditions">3. The Four Deadlock
+Conditions</a></li>
+<li><a href="#handling-deadlocks" id="toc-handling-deadlocks">4.
+Handling Deadlocks</a></li>
+<li><a href="#deadlock-prevention" id="toc-deadlock-prevention">5.
+Deadlock Prevention</a></li>
+<li><a href="#deadlock-avoidance" id="toc-deadlock-avoidance">6.
+Deadlock Avoidance</a>
+<ul>
+<li><a href="#safe-state" id="toc-safe-state">Safe state</a></li>
+<li><a href="#bankers-algorithm" id="toc-bankers-algorithm">Banker’s
+algorithm</a></li>
+<li><a href="#lecture-example" id="toc-lecture-example">Lecture
+example</a></li>
+</ul></li>
+<li><a href="#deadlock-detection-not-examinable"
+id="toc-deadlock-detection-not-examinable">7. Deadlock Detection (not
+examinable)</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>Processes compete for a finite set of resources. When each process in
+a group holds something another one needs, and none will let go, the
+whole group stops. This chapter defines that state, gives the four
+conditions it needs, and covers the two ways the course handles it:
+<strong>prevention</strong> (break a condition) and
+<strong>avoidance</strong> (the Banker’s algorithm). Deadlock
+<strong>detection</strong> is in the lecture but marked <strong>not
+examinable</strong>.</p>
+<hr />
+<h2 id="the-deadlock-problem">1. The Deadlock Problem</h2>
+<p>A <strong>deadlock</strong> is a set of blocked processes, each
+<strong>holding a resource</strong> and <strong>waiting for a resource
+held by another process in the set</strong>.</p>
+<ul>
+<li><strong>Tape drives:</strong> the system has two tape drives;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>
+each need both. Each holds one and waits for the other.</li>
+<li><strong>Semaphores</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi><mo>=</mo><mi>B</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">A = B = 1</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+runs <code>wait(A); wait(B);</code> and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+runs <code>wait(B); wait(A);</code>. A context switch after each first
+<code>wait</code> deadlocks them.</li>
+</ul>
+<figure>
+<img width="1400" height="418" src="media/5-artifacts/bridge-crossing.webp" style="width:55.0%"
+loading="lazy" decoding="async" alt="Bridge crossing" />
+<figcaption aria-hidden="true">Bridge crossing</figcaption>
+</figure>
+<p><strong>Bridge crossing:</strong> only one car fits on the bridge, so
+the bridge is a shared resource. A deadlock is resolved if one car
+<strong>backs up</strong> (releases the resource and rolls back);
+several cars may have to back up.</p>
+<p>A deadlock needs at least <strong>two</strong> processes: one process
+alone cannot hold-and-wait against itself.</p>
+<h3 id="system-model">System model</h3>
+<ul>
+<li>Resource types
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>R</mi><mi>m</mi></msub></mrow><annotation encoding="application/x-tex">R_1, \dots, R_m</annotation></semantics></math>
+(memory space, I/O devices, semaphores). Type
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>i</mi></msub><annotation encoding="application/x-tex">R_i</annotation></semantics></math>
+has
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>W</mi><mi>i</mi></msub><annotation encoding="application/x-tex">W_i</annotation></semantics></math>
+identical <strong>instances</strong>.</li>
+<li>Each process uses a resource in three steps:
+<strong>request</strong> a number of instances, <strong>use</strong>
+them, <strong>release</strong> them.</li>
+</ul>
+<hr />
+<h2 id="resource-allocation-graph-rag">2. Resource-Allocation Graph
+(RAG)</h2>
+<p>The vertices are the processes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>P</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">P = \{P_1, \dots, P_n\}</annotation></semantics></math>
+(circles) and the resource types
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>=</mo><mo stretchy="false" form="prefix">{</mo><msub><mi>R</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>R</mi><mi>m</mi></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">R = \{R_1, \dots, R_m\}</annotation></semantics></math>
+(boxes, one dot per instance). There are two kinds of directed edge:</p>
+<div class="table-wrap">
+<table style="width: 87%;">
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 40%" />
+<col style="width: 31%" />
+</colgroup>
+<thead>
+<tr>
+<th>Edge</th>
+<th>Meaning</th>
+<th>Removed when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Request</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mi>i</mi></msub><mo>→</mo><msub><mi>R</mi><mi>j</mi></msub></mrow><annotation encoding="application/x-tex">P_i \to R_j</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+waits for an instance of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math></td>
+<td>the request is granted</td>
+</tr>
+<tr>
+<td><strong>Assignment</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mi>j</mi></msub><mo>→</mo><msub><mi>P</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">R_j \to P_i</annotation></semantics></math></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+holds an instance of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math></td>
+<td>the resource is released</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img width="1297" height="1037" src="media/5-artifacts/rag-notation.webp" style="width:55.0%"
+loading="lazy" decoding="async" alt="RAG notation" />
+<figcaption aria-hidden="true">RAG notation</figcaption>
+</figure>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 30%" />
+<col style="width: 70%" />
+</colgroup>
+<thead>
+<tr>
+<th>Graph</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img width="844" height="1093" src="media/5-artifacts/rag-no-deadlock.webp" style="width:95.0%"
+loading="lazy" decoding="async" alt="No cycle" /></td>
+<td>No cycle → <strong>no deadlock</strong>. Run order
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>3</mn></msub><mo>→</mo><msub><mi>P</mi><mn>2</mn></msub><mo>→</mo><msub><mi>P</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">P_3 \to P_2 \to P_1</annotation></semantics></math>
+meets every request.</td>
+</tr>
+<tr>
+<td><img width="843" height="1093" src="media/5-artifacts/rag-deadlock.webp" style="width:95.0%"
+loading="lazy" decoding="async" alt="Cycle, single instances" /></td>
+<td>Cycle, and the processes on it are stuck →
+<strong>deadlock</strong>.</td>
+</tr>
+<tr>
+<td><img width="1006" height="1150" src="media/5-artifacts/rag-cycle-no-deadlock.webp"
+style="width:95.0%" loading="lazy" decoding="async"
+alt="Cycle, several instances" /></td>
+<td>Cycle, but other instances exist → <strong>no deadlock</strong>.
+Order
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>2</mn></msub><mo>→</mo><msub><mi>P</mi><mn>4</mn></msub><mo>→</mo><msub><mi>P</mi><mn>3</mn></msub><mo>→</mo><msub><mi>P</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">P_2 \to P_4 \to P_3 \to P_1</annotation></semantics></math>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Basic facts:</strong></p>
+<ul>
+<li><strong>No cycle → no deadlock.</strong></li>
+<li><strong>Cycle</strong>, and <strong>one instance per resource type →
+deadlock.</strong></li>
+<li><strong>Cycle</strong>, and <strong>several instances per type →
+deadlock possible</strong>, not certain.</li>
+</ul>
+<p><strong>Method for a multi-instance RAG:</strong> find a process
+whose outstanding requests the free instances can satisfy; let it
+finish, return everything it holds, and erase its edges. Repeat.
+Processes that can never be erased are deadlocked.</p>
+<details class="qa box">
+<summary>
+<strong>AY19/20 S1 Q2b:</strong> Build a RAG from a request sequence
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Construct the resource-allocation
+graph for the following sequence of requests. Assume there is only one
+instance of each resource type. Is the system deadlocked? Justify.</em>
+<em>P1 requests R; P2 requests S; P3 requests T; P1 requests S; P3
+requests R.</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li>Granted:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>R</mi><mo>→</mo><msub><mi>P</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">R \to P_1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>→</mo><msub><mi>P</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">S \to P_2</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>→</mo><msub><mi>P</mi><mn>3</mn></msub></mrow><annotation encoding="application/x-tex">T \to P_3</annotation></semantics></math>.
+Waiting:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>1</mn></msub><mo>→</mo><mi>S</mi></mrow><annotation encoding="application/x-tex">P_1 \to S</annotation></semantics></math>
+(held by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>),
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>3</mn></msub><mo>→</mo><mi>R</mi></mrow><annotation encoding="application/x-tex">P_3 \to R</annotation></semantics></math>
+(held by
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>).</li>
+<li>Path:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>P</mi><mn>3</mn></msub><mo>→</mo><mi>R</mi><mo>→</mo><msub><mi>P</mi><mn>1</mn></msub><mo>→</mo><mi>S</mi><mo>→</mo><msub><mi>P</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">P_3 \to R \to P_1 \to S \to P_2</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>
+requests nothing more, so there is <strong>no cycle → no
+deadlock</strong>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>
+finishes and releases
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+→
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+gets
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>,
+finishes, releases
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+→
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>3</mn></msub><annotation encoding="application/x-tex">P_3</annotation></semantics></math>
+gets
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>R</mi><annotation encoding="application/x-tex">R</annotation></semantics></math>
+and finishes.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 6 Q1:</strong> True/false on deadlock basics <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Indicate whether the following
+statements are true or false. Justify your answers.</em> <em>(a) In the
+dining-philosopher problem with five philosophers, if we allow at most
+four of them to be hungry simultaneously, deadlock may still occur.</em>
+<em>(b) It is impossible to have a deadlock involving only one single
+process.</em> <em>(c) If a resource allocation graph contains a cycle,
+then a deadlock has occurred.</em></p>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>(a) False.</strong> With at most four hungry philosophers
+and five chopsticks, at least one of them gets both chopsticks.</li>
+<li><strong>(b) True.</strong> The hold-and-wait condition can never be
+satisfied with a single process.</li>
+<li><strong>(c) False.</strong> It depends on the number of instances
+per resource type.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Past-paper T/F:</strong> Graphs and conditions <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY16/17 S1 Q1a(iv):</strong> <em>Deadlocks can occur even if
+the resource allocation graph does not have a cycle.</em>
+<strong>False.</strong> No cycle means no deadlock.</li>
+<li><strong>AY17/18 S1 Q1a(ii):</strong> <em>(RAG with a cycle where R1
+has two instances) The system is deadlocked.</em>
+<strong>False.</strong> The second instance of R1 lets P1 continue and
+break the cycle.</li>
+<li><strong>AY17/18 S2 Q2a(iii):</strong> <em>Desktop operating systems
+like Windows never have deadlock issues.</em> <strong>False.</strong>
+Windows ignores deadlocks (pretends they never occur), because
+prevention or detection costs constant overhead.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="the-four-deadlock-conditions">3. The Four Deadlock
+Conditions</h2>
+<p>Deadlock <strong>may</strong> arise if all four hold at the same
+time. They are <strong>necessary but not sufficient</strong>: all four
+can hold without a deadlock (for example, a cycle through multi-instance
+resources).</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 25%" />
+<col style="width: 74%" />
+</colgroup>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>1. Mutual exclusion</strong></td>
+<td>Only one process at a time can use a resource instance.</td>
+</tr>
+<tr>
+<td><strong>2. Hold and wait</strong></td>
+<td>A process holding at least one resource waits for more resources
+held by other processes.</td>
+</tr>
+<tr>
+<td><strong>3. No preemption</strong></td>
+<td>A resource is released only voluntarily, by the process holding it,
+after it finishes its task.</td>
+</tr>
+<tr>
+<td><strong>4. Circular wait</strong></td>
+<td>Waiting processes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">{</mo><msub><mi>P</mi><mn>0</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>P</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">}</mo></mrow><annotation encoding="application/x-tex">\{P_0, \dots, P_n\}</annotation></semantics></math>
+exist where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+waits for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>,
+…,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>n</mi></msub><annotation encoding="application/x-tex">P_n</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr />
+<h2 id="handling-deadlocks">4. Handling Deadlocks</h2>
+<p>The lecture gives three methods:</p>
+<ol type="1">
+<li><strong>Ensure the system never enters a deadlock state:</strong>
+prevention (§5) or avoidance (§6).</li>
+<li><strong>Allow deadlock, then detect and recover</strong> (detection
+is not examinable).</li>
+<li><strong>Ignore the problem</strong> and pretend deadlocks never
+occur. <strong>Used by most operating systems, including UNIX</strong>
+(and Windows).</li>
+</ol>
+<hr />
+<h2 id="deadlock-prevention">5. Deadlock Prevention</h2>
+<p><strong>Prevent at least one of the four conditions.</strong> The
+lecture illustrates each with the dining philosophers (chapter 4): each
+chopstick is a binary semaphore, and philosopher
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+runs
+<code>wait(chopstick[i]); wait(chopstick[(i+1)%5]); eat; signal(...); signal(...); think</code>.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 40%" />
+<col style="width: 41%" />
+</colgroup>
+<thead>
+<tr>
+<th>Condition</th>
+<th>How to break it (general)</th>
+<th>Dining philosophers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Mutual exclusion</strong></td>
+<td>Make the resource shareable. Often impossible.</td>
+<td>Chopsticks cannot be shared at the same time, so this condition
+<strong>cannot be eliminated</strong>.</td>
+</tr>
+<tr>
+<td><strong>Hold and wait</strong></td>
+<td>Whenever a process requests a resource, it must hold no other
+resource.</td>
+<td>Pick up chopsticks <strong>only if both are available</strong>.</td>
+</tr>
+<tr>
+<td><strong>No preemption</strong></td>
+<td>If a request cannot be granted, the process releases what it
+holds.</td>
+<td>If a philosopher cannot get the second chopstick, it
+<strong>releases the first</strong>.</td>
+</tr>
+<tr>
+<td><strong>Circular wait</strong></td>
+<td>Impose an order on resources; request only in increasing order.</td>
+<td>(1) At most <strong>four</strong> philosophers hungry at once. (2)
+<strong>Odd–even:</strong> odd philosophers take left then right, even
+ones right then left. (3) Acquire chopsticks <strong>only in
+order</strong> (figure).</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure>
+<img width="1400" height="1081" src="media/5-artifacts/chopstick-ordering.webp" style="width:50.0%"
+loading="lazy" decoding="async"
+alt="Chopstick ordering prevents circular wait" />
+<figcaption aria-hidden="true">Chopstick ordering prevents circular
+wait</figcaption>
+</figure>
+<p>With ordered chopsticks A &lt; B &lt; C &lt; D &lt; E, the
+philosopher between E and A must take A first. A cycle would need every
+philosopher to hold a lower chopstick while waiting for a higher one,
+which is impossible around a closed ring.</p>
+<hr />
+<h2 id="deadlock-avoidance">6. Deadlock Avoidance</h2>
+<p>The avoidance algorithm examines the resource-allocation state each
+time a process requests an available resource. <strong>If immediate
+allocation leaves the system safe, grant it; otherwise the process
+waits.</strong> The system never enters an unsafe state.</p>
+<h3 id="safe-state">Safe state</h3>
+<p>A completion sequence
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>P</mi><mi>n</mi></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_1, P_2, \dots, P_n \rangle</annotation></semantics></math>
+is <strong>safe</strong> if, for each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>,
+the resources
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+may still request can be satisfied by the <strong>currently available
+resources plus the resources held by all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>j</mi></msub><annotation encoding="application/x-tex">P_j</annotation></semantics></math>
+with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>j</mi><mo>&lt;</mo><mi>i</mi></mrow><annotation encoding="application/x-tex">j &lt; i</annotation></semantics></math></strong>.
+Then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+waits for the earlier processes to finish, takes what it needs, runs,
+returns everything, and so on down the list.</p>
+<p>The system is in a <strong>safe state</strong> if <strong>at least
+one</strong> safe sequence exists.</p>
+<p><strong>Lecture example:</strong> Available = 1.</p>
+<div class="table-wrap">
+<table style="width: 30%;">
+<colgroup>
+<col style="width: 35%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math></th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math></th>
+<th
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>3</mn></msub><annotation encoding="application/x-tex">P_3</annotation></semantics></math></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hold</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+</tr>
+<tr>
+<td>Request</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo>,</mo><msub><mi>P</mi><mn>3</mn></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_1, P_2, P_3 \rangle</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>≤</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">1 \le 1</annotation></semantics></math>;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn><mo>≤</mo><mn>1</mn><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">2 \le 1 + 1</annotation></semantics></math>;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>≤</mo><mn>1</mn><mo>+</mo><mn>1</mn><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">3 \le 1 + 1 + 1</annotation></semantics></math>
+→ <strong>safe</strong>.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>3</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo>,</mo><msub><mi>P</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_3, P_2, P_1 \rangle</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mo>&gt;</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">3 &gt; 1</annotation></semantics></math>
+→ <strong>not safe</strong>.</li>
+<li>Is the system safe? <strong>Yes</strong>: one safe sequence exists.
+Other unsafe orderings do not matter.</li>
+</ul>
+<figure>
+<img width="804" height="638" src="media/5-artifacts/safe-unsafe-deadlock.webp"
+style="width:45.0%" loading="lazy" decoding="async"
+alt="Safe, unsafe, deadlock" />
+<figcaption aria-hidden="true">Safe, unsafe, deadlock</figcaption>
+</figure>
+<ul>
+<li><strong>Safe → no deadlock.</strong></li>
+<li><strong>Unsafe → deadlock is possible</strong>, not certain: if a
+process releases resources well before it completes, deadlock may not
+occur.</li>
+<li><strong>Deadlock → unsafe.</strong></li>
+</ul>
+<h3 id="bankers-algorithm">Banker’s algorithm</h3>
+<p>Checks whether granting a request could lead to an unsafe state, for
+<strong>multiple instances</strong> of each resource type.
+<strong>Assumptions:</strong> each process declares in advance the
+<strong>maximum</strong> instances of each type it may need, and a
+process that gets all its resources returns them in finite time.</p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+processes,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math>
+resource types:</p>
+<div class="table-wrap">
+<table style="width: 75%;">
+<colgroup>
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 65%" />
+</colgroup>
+<thead>
+<tr>
+<th>Structure</th>
+<th>Size</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Available</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>m</mi><annotation encoding="application/x-tex">m</annotation></semantics></math></td>
+<td><code>Available[j] = k</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+instances of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math>
+are free</td>
+</tr>
+<tr>
+<td><strong>Max</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n \times m</annotation></semantics></math></td>
+<td><code>Max[i,j] = k</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+may request at most
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>Allocation</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n \times m</annotation></semantics></math></td>
+<td><code>Allocation[i,j] = k</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+holds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math></td>
+</tr>
+<tr>
+<td><strong>Need</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi><mo>×</mo><mi>m</mi></mrow><annotation encoding="application/x-tex">n \times m</annotation></semantics></math></td>
+<td><code>Need[i,j] = k</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+may need
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+more of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>j</mi></msub><annotation encoding="application/x-tex">R_j</annotation></semantics></math></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mtext mathvariant="normal">Need</mtext><mo>=</mo><mtext mathvariant="normal">Max</mtext><mo>−</mo><mtext mathvariant="normal">Allocation</mtext></mrow><annotation encoding="application/x-tex">\text{Need} = \text{Max} - \text{Allocation}</annotation></semantics></math></p>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mn>1</mn></msub><mo>≤</mo><msub><mi>V</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">V_1 \le V_2</annotation></semantics></math>
+means
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>V</mi><mn>1</mn></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo><mo>≤</mo><msub><mi>V</mi><mn>2</mn></msub><mo stretchy="false" form="prefix">[</mo><mi>j</mi><mo stretchy="false" form="postfix">]</mo></mrow><annotation encoding="application/x-tex">V_1[j] \le V_2[j]</annotation></semantics></math>
+for <strong>every</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>j</mi><annotation encoding="application/x-tex">j</annotation></semantics></math>.</p>
+<p><strong>Part 1: safety algorithm</strong></p>
+<ol type="1">
+<li><code>Work = Available</code>; <code>Finish[i] = false</code> for
+all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>.</li>
+<li>Find
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
+with <code>Finish[i] == false</code> and <code>Need[i] ≤ Work</code>. If
+none, go to step 4. (If several fit, any choice works.)</li>
+<li><code>Work = Work + Allocation[i]</code>;
+<code>Finish[i] = true</code>; go to step 2. (<code>Work</code> is
+Available plus everything held by the finished processes.)</li>
+<li>If <code>Finish[i] == true</code> for all
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>,
+the state is <strong>safe</strong>; the order found is a safe sequence.
+Otherwise it is <strong>unsafe</strong>.</li>
+</ol>
+<p><strong>Part 2: resource-request algorithm</strong> for request
+vector
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mtext mathvariant="normal">Request</mtext><mi>i</mi></msub><annotation encoding="application/x-tex">\text{Request}_i</annotation></semantics></math>:</p>
+<ol type="1">
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Request</mtext><mi>i</mi></msub><mo>≤</mo><msub><mtext mathvariant="normal">Need</mtext><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\text{Request}_i \le \text{Need}_i</annotation></semantics></math>,
+go on; otherwise <strong>error</strong> (the process exceeded its
+maximum claim).</li>
+<li>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Request</mtext><mi>i</mi></msub><mo>≤</mo><mtext mathvariant="normal">Available</mtext></mrow><annotation encoding="application/x-tex">\text{Request}_i \le \text{Available}</annotation></semantics></math>,
+go on; otherwise
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+<strong>waits</strong> (resources not available).</li>
+<li><strong>Pretend to allocate:</strong>
+<code>Available -= Request_i</code>;
+<code>Allocation_i += Request_i</code>;
+<code>Need_i -= Request_i</code>.</li>
+<li>Run the safety algorithm. <strong>Safe</strong> → allocate.
+<strong>Unsafe</strong> →
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+waits and the old state is restored.</li>
+</ol>
+<h3 id="lecture-example">Lecture example</h3>
+<p>Five processes, A = 10, B = 5, C = 7 instances.</p>
+<div class="table-wrap">
+<table style="width: 47%;">
+<colgroup>
+<col style="width: 12%" />
+<col style="width: 27%" />
+<col style="width: 17%" />
+<col style="width: 17%" />
+<col style="width: 25%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: center;">Allocation</th>
+<th style="text-align: center;">Max</th>
+<th style="text-align: center;">Need</th>
+<th style="text-align: center;">Available</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math></td>
+<td style="text-align: center;">0 1 0</td>
+<td style="text-align: center;">7 5 3</td>
+<td style="text-align: center;">7 4 3</td>
+<td style="text-align: center;">3 3 2</td>
+</tr>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math></td>
+<td style="text-align: center;">2 0 0</td>
+<td style="text-align: center;">3 2 2</td>
+<td style="text-align: center;">1 2 2</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math></td>
+<td style="text-align: center;">3 0 2</td>
+<td style="text-align: center;">9 0 2</td>
+<td style="text-align: center;">6 0 0</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>3</mn></msub><annotation encoding="application/x-tex">P_3</annotation></semantics></math></td>
+<td style="text-align: center;">2 1 1</td>
+<td style="text-align: center;">2 2 2</td>
+<td style="text-align: center;">0 1 1</td>
+<td style="text-align: center;"></td>
+</tr>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>4</mn></msub><annotation encoding="application/x-tex">P_4</annotation></semantics></math></td>
+<td style="text-align: center;">0 0 2</td>
+<td style="text-align: center;">4 3 3</td>
+<td style="text-align: center;">4 3 1</td>
+<td style="text-align: center;"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Safety:</strong></p>
+<div class="table-wrap">
+<table style="width: 46%;">
+<colgroup>
+<col style="width: 23%" />
+<col style="width: 13%" />
+<col style="width: 34%" />
+<col style="width: 28%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Work</th>
+<th style="text-align: center;">Run</th>
+<th style="text-align: center;">Need ≤ Work</th>
+<th style="text-align: center;">Work after</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">(3,3,2)</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math></td>
+<td style="text-align: center;">(1,2,2)</td>
+<td style="text-align: center;">(5,3,2)</td>
+</tr>
+<tr>
+<td style="text-align: center;">(5,3,2)</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>3</mn></msub><annotation encoding="application/x-tex">P_3</annotation></semantics></math></td>
+<td style="text-align: center;">(0,1,1)</td>
+<td style="text-align: center;">(7,4,3)</td>
+</tr>
+<tr>
+<td style="text-align: center;">(7,4,3)</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>4</mn></msub><annotation encoding="application/x-tex">P_4</annotation></semantics></math></td>
+<td style="text-align: center;">(4,3,1)</td>
+<td style="text-align: center;">(7,4,5)</td>
+</tr>
+<tr>
+<td style="text-align: center;">(7,4,5)</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math></td>
+<td style="text-align: center;">(6,0,0)</td>
+<td style="text-align: center;">(10,4,7)</td>
+</tr>
+<tr>
+<td style="text-align: center;">(10,4,7)</td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math></td>
+<td style="text-align: center;">(7,4,3)</td>
+<td style="text-align: center;">(10,5,7)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Safe</strong>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><msub><mi>P</mi><mn>3</mn></msub><mo>,</mo><msub><mi>P</mi><mn>4</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo>,</mo><msub><mi>P</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_1, P_3, P_4, P_2, P_0 \rangle</annotation></semantics></math>
+(running
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+before
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>
+also works).</p>
+<p><strong>Requests:</strong></p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 24%" />
+<col style="width: 20%" />
+<col style="width: 25%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th>Request</th>
+<th>Step 1 (≤ Need)</th>
+<th>Step 2 (≤ Available)</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>:
+(1,0,2)</td>
+<td>102 ≤ 122 ✓</td>
+<td>102 ≤ 332 ✓</td>
+<td>Pretend: Available 230, Alloc₁ 302, Need₁ 020. Safety finds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><msub><mi>P</mi><mn>3</mn></msub><mo>,</mo><msub><mi>P</mi><mn>4</mn></msub><mo>,</mo><msub><mi>P</mi><mn>0</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_1, P_3, P_4, P_0, P_2 \rangle</annotation></semantics></math>
+→ <strong>grant</strong>.</td>
+</tr>
+<tr>
+<td>then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>:
+(1,0,2) again</td>
+<td>102 ≤ 020 ✗</td>
+<td></td>
+<td><strong>Error</strong>: exceeds its claim.</td>
+</tr>
+<tr>
+<td>then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:
+(0,2,0)</td>
+<td>020 ≤ 743 ✓</td>
+<td>020 ≤ 230 ✓</td>
+<td>Pretend: Available 210, Need₀ 723. No
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mtext mathvariant="normal">Need</mtext><mi>i</mi></msub><mo>≤</mo><mn>210</mn></mrow><annotation encoding="application/x-tex">\text{Need}_i \le 210</annotation></semantics></math>
+→ <strong>unsafe</strong>, restore,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+waits.</td>
+</tr>
+<tr>
+<td>then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>4</mn></msub><annotation encoding="application/x-tex">P_4</annotation></semantics></math>:
+(2,3,0)</td>
+<td>230 ≤ 431 ✓</td>
+<td>230 ≤ 230 ✓</td>
+<td>Pretend: Available 000. No process can finish →
+<strong>unsafe</strong>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>4</mn></msub><annotation encoding="application/x-tex">P_4</annotation></semantics></math>
+waits.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<details class="qa box">
+<summary>
+<strong>Tutorial 6 Q2:</strong> Single-resource Banker’s <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>A resource-allocation state is given
+below. Assume Available = 2. (a) If PROCESS 4 requests one unit of the
+resource next, does this lead to a safe state or an unsafe one? (b) If
+PROCESS 3 requests one unit next?</em></p>
+<div class="table-wrap">
+<table style="width: 31%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 41%" />
+<col style="width: 19%" />
+<col style="width: 22%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: center;">Allocation</th>
+<th style="text-align: center;">Max</th>
+<th style="text-align: center;">Need</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">5</td>
+</tr>
+<tr>
+<td>P2</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">4</td>
+</tr>
+<tr>
+<td>P3</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">2</td>
+</tr>
+<tr>
+<td>P4</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">3</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(a)</strong> Pretend: Available = 1, Alloc₄ = 5, Need₄ = 2.
+Needs are 5, 4, 2, 2; none ≤ 1. <strong>Unsafe.</strong></li>
+<li><strong>(b)</strong> Pretend: Available = 1, Alloc₃ = 3, Need₃ = 1.
+P3 (1 ≤ 1) → Work 4 → P2 (4 ≤ 4) → 5 → P1 (5 ≤ 5) → 6 → P4 (3 ≤ 6) → 10.
+<strong>Safe</strong>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>3</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo>,</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><msub><mi>P</mi><mn>4</mn></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_3, P_2, P_1, P_4 \rangle</annotation></semantics></math>.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 6 Q3:</strong> Minimum unknowns in Available <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Five processes P0–P4 and four resource
+types A–D. Available = (0, x, y, 1). Process P3 requests (A=0, B=0, C=0,
+D=1) next. Compute the minimum values of x and y so that this request
+can be granted and the resulting state is safe. Show the safety
+steps.</em></p>
+<div class="table-wrap">
+<table style="width: 35%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 51%" />
+<col style="width: 34%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: center;">Allocation ABCD</th>
+<th style="text-align: center;">Need ABCD</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td style="text-align: center;">2 2 0 0</td>
+<td style="text-align: center;">1 4 0 0</td>
+</tr>
+<tr>
+<td>P1</td>
+<td style="text-align: center;">3 1 0 0</td>
+<td style="text-align: center;">0 1 0 0</td>
+</tr>
+<tr>
+<td>P2</td>
+<td style="text-align: center;">1 1 0 0</td>
+<td style="text-align: center;">1 0 0 0</td>
+</tr>
+<tr>
+<td>P3</td>
+<td style="text-align: center;">0 0 1 1</td>
+<td style="text-align: center;">0 0 1 1</td>
+</tr>
+<tr>
+<td>P4</td>
+<td style="text-align: center;">0 0 1 1</td>
+<td style="text-align: center;">0 0 3 2</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Solution:</strong></p>
+<ol type="1">
+<li>The request fits Need₃ (0011) and Available (D = 1). Pretend:
+Available =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo>,</mo><mi>x</mi><mo>,</mo><mi>y</mi><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(0, x, y, 0)</annotation></semantics></math>,
+Alloc₃ = 0012, Need₃ = 0010.</li>
+<li><strong>Split the problem:</strong> A and B are used only by P0–P2;
+C and D only by P3 and P4.</li>
+<li><strong>x:</strong> P1 and P2 can run with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x = 1</annotation></semantics></math>
+and return B = 1 + 1. P0 needs B = 4, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>+</mo><mn>2</mn><mo>≥</mo><mn>4</mn></mrow><annotation encoding="application/x-tex">x + 2 \ge 4</annotation></semantics></math>
+→
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>≥</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">x \ge 2</annotation></semantics></math>.</li>
+<li><strong>y:</strong> P3 can run with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">y = 1</annotation></semantics></math>
+and return C = 1. P4 needs C = 3, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>+</mo><mn>1</mn><mo>≥</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">y + 1 \ge 3</annotation></semantics></math>
+→
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>≥</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">y \ge 2</annotation></semantics></math>.
+(D: P4 needs 2; P3 returns 2.)</li>
+<li><strong>Minimum x = 2, y = 2.</strong> Check from (0,2,2,0):</li>
+</ol>
+<div class="table-wrap">
+<table style="width: 42%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 14%" />
+<col style="width: 38%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Work</th>
+<th style="text-align: center;">Run</th>
+<th style="text-align: center;">Need ≤ Work</th>
+<th style="text-align: center;">Work after</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">0220</td>
+<td style="text-align: center;">P1</td>
+<td style="text-align: center;">0100</td>
+<td style="text-align: center;">3320</td>
+</tr>
+<tr>
+<td style="text-align: center;">3320</td>
+<td style="text-align: center;">P2</td>
+<td style="text-align: center;">1000</td>
+<td style="text-align: center;">4420</td>
+</tr>
+<tr>
+<td style="text-align: center;">4420</td>
+<td style="text-align: center;">P3</td>
+<td style="text-align: center;">0010</td>
+<td style="text-align: center;">4432</td>
+</tr>
+<tr>
+<td style="text-align: center;">4432</td>
+<td style="text-align: center;">P0</td>
+<td style="text-align: center;">1400</td>
+<td style="text-align: center;">6632</td>
+</tr>
+<tr>
+<td style="text-align: center;">6632</td>
+<td style="text-align: center;">P4</td>
+<td style="text-align: center;">0032</td>
+<td style="text-align: center;">6643</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Safe sequence
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo>,</mo><msub><mi>P</mi><mn>3</mn></msub><mo>,</mo><msub><mi>P</mi><mn>0</mn></msub><mo>,</mo><msub><mi>P</mi><mn>4</mn></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_1, P_2, P_3, P_0, P_4 \rangle</annotation></semantics></math>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Additional Practice Q3 (also AY16/17 S1 Q2b):</strong> Minimum x
+for a safe state <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Four processes P0–P3 and three
+resource types A, B, C. Available = (0, 1, x). Compute the minimum value
+for x so that this system state is safe.</em></p>
+<div class="table-wrap">
+<table style="width: 33%;">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 51%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: center;">Allocation ABC</th>
+<th style="text-align: center;">Need ABC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td style="text-align: center;">2 1 1</td>
+<td style="text-align: center;">0 1 0</td>
+</tr>
+<tr>
+<td>P1</td>
+<td style="text-align: center;">1 1 0</td>
+<td style="text-align: center;">2 1 2</td>
+</tr>
+<tr>
+<td>P2</td>
+<td style="text-align: center;">1 1 1</td>
+<td style="text-align: center;">2 0 1</td>
+</tr>
+<tr>
+<td>P3</td>
+<td style="text-align: center;">1 1 1</td>
+<td style="text-align: center;">4 1 0</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Solution:</strong> Look for an order that never needs C from
+Available.</p>
+<ol type="1">
+<li>P0 (Need 010 ≤ 01x) → Work =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>2</mn><mo>,</mo><mi>x</mi><mo>+</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(2, 2, x+1)</annotation></semantics></math>.</li>
+<li>P2 (Need 201): needs C = 1 ≤
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">x + 1</annotation></semantics></math>,
+true for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">x = 0</annotation></semantics></math>
+→ Work =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>3</mn><mo>,</mo><mn>3</mn><mo>,</mo><mi>x</mi><mo>+</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(3, 3, x+2)</annotation></semantics></math>.</li>
+<li>P1 (Need 212): needs C = 2 ≤
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>+</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">x + 2</annotation></semantics></math>
+→ Work =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>4</mn><mo>,</mo><mn>4</mn><mo>,</mo><mi>x</mi><mo>+</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(4, 4, x+2)</annotation></semantics></math>.</li>
+<li>P3 (Need 410) → Work =
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mn>5</mn><mo>,</mo><mn>5</mn><mo>,</mo><mi>x</mi><mo>+</mo><mn>3</mn><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(5, 5, x+3)</annotation></semantics></math>.</li>
+</ol>
+<p>Every step holds with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">x = 0</annotation></semantics></math>,
+so the <strong>minimum is x = 0</strong>, sequence
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>0</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo>,</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><msub><mi>P</mi><mn>3</mn></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_0, P_2, P_1, P_3 \rangle</annotation></semantics></math>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY18/19 S1 Q2b:</strong> Totals, safety, minimum Available,
+request <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Five processes P1–P5 and two resource
+types A, B. Available = (4, 3).</em></p>
+<div class="table-wrap">
+<table style="width: 30%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 53%" />
+<col style="width: 30%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: center;">Allocation AB</th>
+<th style="text-align: center;">Max AB</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td style="text-align: center;">0 1</td>
+<td style="text-align: center;">3 3</td>
+</tr>
+<tr>
+<td>P2</td>
+<td style="text-align: center;">1 0</td>
+<td style="text-align: center;">4 5</td>
+</tr>
+<tr>
+<td>P3</td>
+<td style="text-align: center;">0 1</td>
+<td style="text-align: center;">5 4</td>
+</tr>
+<tr>
+<td>P4</td>
+<td style="text-align: center;">1 0</td>
+<td style="text-align: center;">3 3</td>
+</tr>
+<tr>
+<td>P5</td>
+<td style="text-align: center;">0 0</td>
+<td style="text-align: center;">5 5</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><em>(i) What are the total numbers of instances of A and B? (ii) Is
+the state safe? (iii) What are the minimum values required in Available
+to ensure the system is safe? (iv) P2 requests 3 instances each of A and
+B. Is it safe to grant?</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(i)</strong> Total = Available + all Allocation: A = 4 + 2 =
+<strong>6</strong>, B = 3 + 2 = <strong>5</strong>.</li>
+<li><strong>(ii)</strong> Need: P1 32, P2 35, P3 53, P4 23, P5 55. Work
+43 → P1 → 44 → P4 → 54 → P3 → 55 → P2 → 65 → P5 → 65.
+<strong>Safe</strong>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>1</mn></msub><mo>,</mo><msub><mi>P</mi><mn>4</mn></msub><mo>,</mo><msub><mi>P</mi><mn>3</mn></msub><mo>,</mo><msub><mi>P</mi><mn>2</mn></msub><mo>,</mo><msub><mi>P</mi><mn>5</mn></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_1, P_4, P_3, P_2, P_5 \rangle</annotation></semantics></math>.</li>
+<li><strong>(iii)</strong> Try smaller vectors:
+<ul>
+<li>(3,3): P1 → 34 → P4 → 44; P3 needs A = 5, P2 needs B = 5 → stuck.
+Unsafe.</li>
+<li>(3,4): P1 → 35 → P4 → 45 → P2 → 55 → P3 → 56 → P5.
+<strong>Safe.</strong></li>
+<li>(4,3): the given state, <strong>safe</strong>. (4,2) and (2,4) are
+unsafe.</li>
+<li>Minimum: <strong>(3,4) or (4,3)</strong>.</li>
+</ul></li>
+<li><strong>(iv)</strong> (3,3) ≤ Need₂ (3,5) and ≤ Available (4,3).
+Pretend: Available = (1,0), Need₂ = (0,2). No Need ≤ (1,0).
+<strong>Unsafe → do not grant.</strong></li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY17/18 S2 Q2b and Q2a(v):</strong> Safety check and a request
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question (Q2b):</strong> <em>Three processes, Available = (2,
+2, 0). (i) Is the system safe? (ii) Should a request for (A=2, B=1, C=0)
+from P3 be granted?</em></p>
+<div class="table-wrap">
+<table style="width: 33%;">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 51%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th></th>
+<th style="text-align: center;">Allocation ABC</th>
+<th style="text-align: center;">Need ABC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td style="text-align: center;">1 2 1</td>
+<td style="text-align: center;">2 1 4</td>
+</tr>
+<tr>
+<td>P2</td>
+<td style="text-align: center;">1 2 3</td>
+<td style="text-align: center;">1 2 0</td>
+</tr>
+<tr>
+<td>P3</td>
+<td style="text-align: center;">1 0 2</td>
+<td style="text-align: center;">3 1 1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(i)</strong> Work 220 → P2 (120) → 343 → P3 (311) → 445 → P1
+(214) → 566. <strong>Safe</strong>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">⟨</mo><msub><mi>P</mi><mn>2</mn></msub><mo>,</mo><msub><mi>P</mi><mn>3</mn></msub><mo>,</mo><msub><mi>P</mi><mn>1</mn></msub><mo stretchy="false" form="postfix">⟩</mo></mrow><annotation encoding="application/x-tex">\langle P_2, P_3, P_1 \rangle</annotation></semantics></math>.</li>
+<li><strong>(ii)</strong> 210 ≤ Need₃ (311) and ≤ Available (220).
+Pretend: Available = 010, Need₃ = 100. P1 needs 214, P2 needs 120, P3
+needs 100; none ≤ 010. <strong>Unsafe → do not grant.</strong></li>
+</ul>
+<p><strong>Q2a(v):</strong> <em>A system is not safe if there is at
+least one unsafe sequence of process executions.</em>
+<strong>False.</strong> It is safe if <strong>at least one</strong> safe
+sequence exists, whatever the other orders do.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY18/19 S2 Q2a(iii):</strong> Avoidance and requests <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><em>Deadlock avoidance allows processes to request for resources at
+will.</em> <strong>True.</strong> Processes may request at any time
+(within their declared maximum); the avoidance algorithm only grants a
+request if the resulting state is safe.</p>
+</div>
+</details>
+<hr />
+<h2 id="deadlock-detection-not-examinable">7. Deadlock Detection (not
+examinable)</h2>
+<p>The system allows deadlock, runs a detection algorithm, then
+recovers. For multiple instances the detection algorithm looks like the
+safety algorithm, but uses the <strong>current Request</strong> matrix
+instead of Need, and starts with <code>Finish[i] = true</code> for
+processes holding nothing. Any process left with
+<code>Finish[i] == false</code> is deadlocked. The lecture marks this
+part and its examples not examinable.</p>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/4-synchronization/4.html">← 4.
+Process Synchronization</a>
+  <a class="next-page" href="../../notes/6a-rtos/6a.html">6a. Real-Time
+Operating Systems →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Mermaid diagrams. Pandoc emits ```mermaid fences as <pre class="mermaid">,
+  // which nothing renders, so the source showed as a code block. Swap each for
+  // a plain <div class="mermaid"> (also keeps the copy-button script below off
+  // it) and load the library only on pages that actually have a diagram.
+  (function () {
+    var blocks = document.querySelectorAll('main#content pre.mermaid');
+    if (!blocks.length) return;
+    blocks.forEach(function (pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    import('https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs')
+      .then(function (m) {
+        m.default.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default' });
+        return m.default.run({ querySelector: 'main#content div.mermaid' });
+      })
+      .catch(function () { /* offline: the diagram source stays visible as text */ });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+
+<script>
+  // Tap-to-answer quiz (mcq.lua). A tap locks in the pick, marks it right or
+  // wrong, and shows the reason. A bar pinned to the bottom keeps the score and
+  // lists the misses once every question is answered. A no-op on pages with no
+  // .mcq block. Nothing is stored: a reload starts the quiz fresh.
+  (function () {
+    var qs = Array.prototype.slice.call(document.querySelectorAll('main#content .mcq'));
+    if (!qs.length) return;
+    var picks = qs.map(function () { return null; });
+
+    var bar = document.createElement('div');
+    bar.className = 'mcq-bar';
+    bar.innerHTML = '<span class="mcq-score"></span>' +
+      '<span class="mcq-actions"><button type="button" class="mcq-reveal">Show all answers</button>' +
+      '<button type="button" class="mcq-reset">Reset</button></span>' +
+      '<span class="mcq-end" hidden></span>';
+    document.getElementById('content').appendChild(bar);
+    document.body.classList.add('has-mcq-bar');
+
+    function opts(q) { return Array.prototype.slice.call(q.querySelectorAll('.mcq-opt')); }
+
+    function show(i) {
+      var q = qs[i];
+      opts(q).forEach(function (b, j) {
+        b.disabled = true;
+        b.classList.remove('is-right', 'is-wrong', 'is-dim');
+        var tag = b.querySelector('.mcq-tag');
+        tag.textContent = '';
+        if (b.hasAttribute('data-ok')) { b.classList.add('is-right'); tag.textContent = 'correct'; }
+        else if (j === picks[i]) { b.classList.add('is-wrong'); tag.textContent = 'your pick'; }
+        else b.classList.add('is-dim');
+      });
+      q.querySelector('.mcq-why').hidden = false;
+    }
+
+    function correct(i) {
+      return picks[i] !== null && opts(qs[i])[picks[i]].hasAttribute('data-ok');
+    }
+
+    function tally() {
+      var done = 0, right = 0, miss = [];
+      qs.forEach(function (q, i) {
+        if (picks[i] !== null) done++;
+        if (correct(i)) right++; else miss.push(i + 1);
+      });
+      bar.querySelector('.mcq-score').innerHTML =
+        '<b>' + done + '</b> / ' + qs.length + ' answered · ' + right + ' correct';
+      var end = bar.querySelector('.mcq-end');
+      if (done === qs.length) {
+        end.hidden = false;
+        end.textContent = miss.length ? 'Revisit: ' + miss.map(function (n) {
+          return 'Q' + n; }).join(', ') : 'Clean sweep.';
+      } else end.hidden = true;
+    }
+
+    qs.forEach(function (q, i) {
+      opts(q).forEach(function (b, j) {
+        b.addEventListener('click', function () {
+          if (b.disabled) return;
+          picks[i] = j; show(i); tally();
+        });
+      });
+    });
+    bar.querySelector('.mcq-reveal').addEventListener('click', function () {
+      qs.forEach(function (q, i) { show(i); });
+    });
+    bar.querySelector('.mcq-reset').addEventListener('click', function () {
+      qs.forEach(function (q, i) {
+        picks[i] = null;
+        opts(q).forEach(function (b) {
+          b.disabled = false;
+          b.classList.remove('is-right', 'is-wrong', 'is-dim');
+          b.querySelector('.mcq-tag').textContent = '';
+        });
+        q.querySelector('.mcq-why').hidden = true;
+      });
+      tally();
+      window.scrollTo(0, 0);
+    });
+    tally();
+  })();
+</script>
+</body>
+</html>

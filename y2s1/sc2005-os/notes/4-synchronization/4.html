@@ -1,0 +1,1904 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>4. Process Synchronization · SC2005 Operating Systems</title>
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t !== 'light' && t !== 'dark') { t = 'light'; }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="../../assets/style.css?v=0FF8E2A0">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+
+<div id="reading-bar" class="reading-bar" aria-hidden="true">
+  <button type="button" id="reading-bar-title" class="reading-bar-title"
+          title="Back to top" aria-label="Back to top">4. Process
+Synchronization</button>
+  <div class="reading-progress" aria-hidden="true">
+    <span id="reading-progress-fill" class="reading-progress-fill"></span>
+  </div>
+</div>
+
+<button id="theme-toggle" class="theme-toggle" type="button"
+        aria-label="Switch colour theme" title="Switch colour theme" aria-pressed="false">
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <circle cx="12" cy="12" r="5"></circle>
+    <path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path>
+  </svg>
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" fill="none"
+       stroke="currentColor" stroke-width="2" stroke-linecap="round"
+       stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<header class="site-header">
+  <a class="parent-link" href="../../../index.html">&#8593;&#8194;Year 2
+· Semester 1</a>
+  <p class="course-code">SC2005</p>
+  <p class="site-title">Operating Systems</p>
+  <h1 class="page-title">4. Process Synchronization</h1>
+
+
+  <nav class="site-navigation" aria-label="Course navigation">
+    <details>
+      <summary>Navigation</summary>
+      <div class="navigation-grid">
+        <section class="navigation-group">
+          <h2>Course</h2>
+          <ul>
+            <li><a href="../../index.html"
+                   data-nav="index.html">Overview</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Lectures</h2>
+          <ul>
+            <li><a href="../../notes/1-overview/1.html"
+                   data-nav="notes/1-overview/1.html">1. Overview of
+Operating Systems</a></li>
+            <li><a href="../../notes/2-processes-threads/2.html"
+                   data-nav="notes/2-processes-threads/2.html">2.
+Processes and Threads</a></li>
+            <li><a href="../../notes/3-cpu-scheduling/3.html"
+                   data-nav="notes/3-cpu-scheduling/3.html">3. CPU
+Scheduling</a></li>
+            <li><a href="../../notes/4-synchronization/4.html"
+                   data-nav="notes/4-synchronization/4.html">4. Process
+Synchronization</a></li>
+            <li><a href="../../notes/5-deadlocks/5.html"
+                   data-nav="notes/5-deadlocks/5.html">5.
+Deadlocks</a></li>
+            <li><a href="../../notes/6a-rtos/6a.html"
+                   data-nav="notes/6a-rtos/6a.html">6a. Real-Time
+Operating Systems</a></li>
+            <li><a href="../../notes/6b-virtualization/6b.html"
+                   data-nav="notes/6b-virtualization/6b.html">6b.
+Virtualization</a></li>
+            <li><a href="../../notes/7-memory-organization/7.html"
+                   data-nav="notes/7-memory-organization/7.html">7.
+Memory Organization</a></li>
+            <li><a href="../../notes/8-virtual-memory/8.html"
+                   data-nav="notes/8-virtual-memory/8.html">8. Virtual
+Memory</a></li>
+            <li><a href="../../notes/9-file-systems/9.html"
+                   data-nav="notes/9-file-systems/9.html">9. File
+Systems</a></li>
+            <li><a href="../../notes/10-io-disk/10.html"
+                   data-nav="notes/10-io-disk/10.html">10. I/O Systems
+and Disk</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Revision</h2>
+          <ul>
+            <li><a href="../../notes/cheatsheet.html"
+                   data-nav="notes/cheatsheet.html">Course
+Cheatsheet</a></li>
+          </ul>
+        </section>
+        <section class="navigation-group">
+          <h2>Labs</h2>
+          <ul>
+            <li><a href="../../notes/labs/lab-1.html"
+                   data-nav="notes/labs/lab-1.html">Lab 1 Guide</a></li>
+            <li><a href="../../notes/labs/lab-2.html"
+                   data-nav="notes/labs/lab-2.html">Lab 2 Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3.html"
+                   data-nav="notes/labs/lab-3/lab-3.html">Lab 3
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-3/lab-3-quiz.html"
+                   data-nav="notes/labs/lab-3/lab-3-quiz.html">Lab 3
+Quiz</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4.html"
+                   data-nav="notes/labs/lab-4/lab-4.html">Lab 4
+Guide</a></li>
+            <li><a href="../../notes/labs/lab-4/lab-4-quiz.html"
+                   data-nav="notes/labs/lab-4/lab-4-quiz.html">Lab 4
+Quiz</a></li>
+          </ul>
+        </section>
+      </div>
+    </details>
+  </nav>
+
+  <nav class="page-contents" aria-label="Page contents">
+    <p class="page-contents-title">Contents</p>
+    <div id="TOC">
+<ul>
+<li><a href="#race-conditions" id="toc-race-conditions">1. Race
+Conditions</a>
+<ul>
+<li><a href="#example-producerconsumer-with-a-shared-counter"
+id="toc-example-producerconsumer-with-a-shared-counter">Example:
+producer–consumer with a shared counter</a></li>
+</ul></li>
+<li><a href="#the-critical-section-problem"
+id="toc-the-critical-section-problem">2. The Critical-Section
+Problem</a></li>
+<li><a href="#user-level-solutions-for-two-processes"
+id="toc-user-level-solutions-for-two-processes">3. User-Level Solutions
+for Two Processes</a>
+<ul>
+<li><a href="#algorithm-1-turn-only-strict-alternation"
+id="toc-algorithm-1-turn-only-strict-alternation">Algorithm 1:
+<code>turn</code> only (strict alternation)</a></li>
+<li><a href="#algorithm-2-flag-only"
+id="toc-algorithm-2-flag-only">Algorithm 2: <code>flag</code>
+only</a></li>
+<li><a href="#algorithm-3-flag-turn-petersons-algorithm"
+id="toc-algorithm-3-flag-turn-petersons-algorithm">Algorithm 3:
+<code>flag</code> + <code>turn</code> (Peterson’s algorithm)</a></li>
+</ul></li>
+<li><a href="#hardware-support-testandset"
+id="toc-hardware-support-testandset">4. Hardware Support:
+<code>TestAndSet</code></a>
+<ul>
+<li><a href="#disabling-interrupts"
+id="toc-disabling-interrupts">Disabling interrupts</a></li>
+<li><a href="#testandset"
+id="toc-testandset"><code>TestAndSet</code></a></li>
+</ul></li>
+<li><a href="#semaphores" id="toc-semaphores">5. Semaphores</a>
+<ul>
+<li><a href="#busy-waiting-implementation"
+id="toc-busy-waiting-implementation">Busy-waiting
+implementation</a></li>
+<li><a href="#blocking-implementation-the-one-used-now"
+id="toc-blocking-implementation-the-one-used-now">Blocking
+implementation (the one used now)</a></li>
+</ul></li>
+<li><a href="#using-semaphores" id="toc-using-semaphores">6. Using
+Semaphores</a>
+<ul>
+<li><a href="#best-practice-three-steps"
+id="toc-best-practice-three-steps">Best practice (three steps)</a></li>
+<li><a href="#semaphores-for-ordering"
+id="toc-semaphores-for-ordering">Semaphores for ordering</a></li>
+<li><a href="#incorrect-use-deadlock-and-starvation"
+id="toc-incorrect-use-deadlock-and-starvation">Incorrect use: deadlock
+and starvation</a></li>
+</ul></li>
+<li><a href="#classic-synchronization-problems"
+id="toc-classic-synchronization-problems">7. Classic Synchronization
+Problems</a>
+<ul>
+<li><a href="#bounded-buffer-with-many-producers-and-consumers"
+id="toc-bounded-buffer-with-many-producers-and-consumers">Bounded buffer
+with many producers and consumers</a></li>
+<li><a href="#dining-philosophers" id="toc-dining-philosophers">Dining
+philosophers</a></li>
+<li><a href="#readerswriters"
+id="toc-readerswriters">Readers–writers</a></li>
+</ul></li>
+<li><a href="#monitors-not-examinable"
+id="toc-monitors-not-examinable">8. Monitors (not examinable)</a></li>
+</ul>
+    </div>
+  </nav>
+</header>
+
+<main id="content">
+<p>Concurrent processes that share data can leave it inconsistent: the
+final value depends on where the context switches fall. This chapter
+defines that problem (the <strong>critical-section problem</strong>),
+then solves it three ways: user-level software, hardware instructions
+(<code>TestAndSet</code>), and OS <strong>semaphores</strong>. It ends
+with three classic problems.</p>
+<hr />
+<h2 id="race-conditions">1. Race Conditions</h2>
+<p>Data is <strong>inconsistent</strong> when its value depends on the
+order in which instructions from concurrent processes run, that is, on
+when context switches occur. Keeping it consistent needs mechanisms that
+order the reads and writes of shared data.</p>
+<h3 id="example-producerconsumer-with-a-shared-counter">Example:
+producer–consumer with a shared counter</h3>
+<figure>
+<img width="1400" height="524" src="media/4-artifacts/producer-consumer-buffer.webp"
+style="width:60.0%" loading="lazy" decoding="async"
+alt="Producer and consumer share a bounded buffer" />
+<figcaption aria-hidden="true">Producer and consumer share a bounded
+buffer</figcaption>
+</figure>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define BUFFER_SIZE </span><span class="dv">10</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>item buffer<span class="op">[</span>BUFFER_SIZE<span class="op">];</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> in <span class="op">=</span> <span class="dv">0</span><span class="op">,</span> out <span class="op">=</span> <span class="dv">0</span><span class="op">;</span>   <span class="co">// next empty slot (producer), next full slot (consumer)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> counter <span class="op">=</span> <span class="dv">0</span><span class="op">;</span>       <span class="co">// items in the buffer</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">// Producer                                  // Consumer</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span>                                  <span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>counter <span class="op">==</span> BUFFER_SIZE<span class="op">);</span>  <span class="co">// full     while (counter == 0);  // empty</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  buffer<span class="op">[</span>in<span class="op">]</span> <span class="op">=</span> nextProduced<span class="op">;</span>                   nextConsumed <span class="op">=</span> buffer<span class="op">[</span>out<span class="op">];</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  in <span class="op">=</span> <span class="op">(</span>in <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> BUFFER_SIZE<span class="op">;</span>                 out <span class="op">=</span> <span class="op">(</span>out <span class="op">+</span> <span class="dv">1</span><span class="op">)</span> <span class="op">%</span> BUFFER_SIZE<span class="op">;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  counter<span class="op">++;</span>                                   counter<span class="op">--;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>                                            <span class="op">}</span></span></code></pre></div>
+<p><code>counter++</code> and <code>counter--</code> each compile to
+three machine instructions:</p>
+<div class="table-wrap">
+<table style="width: 56%;">
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>Producer <code>counter++</code></th>
+<th>Consumer <code>counter--</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>register1 = counter</code></td>
+<td><code>register2 = counter</code></td>
+</tr>
+<tr>
+<td><code>register1 = register1 + 1</code></td>
+<td><code>register2 = register2 - 1</code></td>
+</tr>
+<tr>
+<td><code>counter = register1</code></td>
+<td><code>counter = register2</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Start with <code>counter = 5</code>, run each once, and switch
+between them like this:</p>
+<ol type="1">
+<li>Producer: <code>register1 = counter</code> → 5;
+<code>register1 = register1 + 1</code> → 6.</li>
+<li>Switch. Consumer: <code>register2 = counter</code> → 5;
+<code>register2 = register2 - 1</code> → 4.</li>
+<li>Switch. Producer: <code>counter = register1</code> →
+<strong>6</strong>.</li>
+<li>Switch. Consumer: <code>counter = register2</code> →
+<strong>4</strong>.</li>
+</ol>
+<p>The answer should be 5. This is a <strong>race condition</strong>:
+the result depends on the timing of the context switches. Making each
+single read or write atomic does not help, because the context switch
+falls <strong>between</strong> the read and the write.</p>
+<details class="qa box">
+<summary>
+<strong>Past-paper T/F:</strong> Race conditions <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY18/19 S2 Q2a(i):</strong> <em>Race conditions happen
+because of context switches.</em> <strong>True.</strong> The
+interleaving of non-atomic instruction sequences by context switches
+causes them; disabling context switches (atomic execution) prevents
+them.</li>
+<li><strong>AY19/20 S1 Q2a(i):</strong> <em>To prevent race conditions,
+it is sufficient to ensure that each read or write to any shared
+variable is atomic.</em> <strong>False.</strong> <code>counter++</code>
+is a read, an add and a write; a switch between the read and the write
+still loses an update. The whole sequence needs mutual exclusion. (The
+posted student solution says True; that is wrong.)</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="the-critical-section-problem">2. The Critical-Section
+Problem</h2>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+processes share some data. Each process has a <strong>critical section
+(CS)</strong>: the code that accesses the shared data (changes shared
+variables, updates a table, writes a file), where at least one process
+writes. The problem is to design a protocol so that <strong>no two
+processes execute their critical sections at the same time</strong>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    entry section       <span class="co">// ask permission to enter</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>        critical section</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    exit section        <span class="co">// leave, notify the others</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        remainder section</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>Assumptions:</strong> every process makes progress in its
+critical and remainder sections, and nothing is assumed about the
+relative speed of the processes.</p>
+<p>A correct entry/exit protocol must satisfy:</p>
+<ol type="1">
+<li><strong>Mutual exclusion:</strong> if a process is in its CS, no
+other process is in its CS.</li>
+<li><strong>Progress:</strong> if no process is in its CS and some
+processes want to enter, the choice of who enters next <strong>cannot be
+postponed indefinitely</strong>.</li>
+<li><strong>Bounded waiting:</strong> after a process asks to enter and
+before it is let in, other processes may enter their CS only a
+<strong>bounded number of times</strong>.</li>
+</ol>
+<p>Progress and bounded waiting together ensure that no process is stuck
+in its entry section forever. <strong>Progress does not imply bounded
+waiting</strong>: a protocol that always favours
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+always lets somebody in, but
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+may wait forever.</p>
+<hr />
+<h2 id="user-level-solutions-for-two-processes">3. User-Level Solutions
+for Two Processes</h2>
+<p>These use only shared variables, no OS support.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>
+is one process and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>k</mi></msub><annotation encoding="application/x-tex">P_k</annotation></semantics></math>
+the other.</p>
+<h3 id="algorithm-1-turn-only-strict-alternation">Algorithm 1:
+<code>turn</code> only (strict alternation)</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> turn <span class="op">=</span> <span class="dv">0</span><span class="op">;</span>                       <span class="co">// turn == i: Pi may enter</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>turn <span class="op">!=</span> i<span class="op">);</span>   critical section<span class="op">;</span>   turn <span class="op">=</span> k<span class="op">;</span>   remainder section<span class="op">;</span></span></code></pre></div>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 9%" />
+<col style="width: 69%" />
+</colgroup>
+<thead>
+<tr>
+<th>Property</th>
+<th style="text-align: center;">Holds?</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mutual exclusion</td>
+<td style="text-align: center;">Yes</td>
+<td><code>turn</code> changes only in the exit section, so the other
+process cannot get in.</td>
+</tr>
+<tr>
+<td>Progress</td>
+<td style="text-align: center;"><strong>No</strong></td>
+<td><code>turn = 0</code> and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+is in a long remainder section (an endless loop or blocked I/O).
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+wants in but must wait.</td>
+</tr>
+<tr>
+<td>Bounded waiting</td>
+<td style="text-align: center;">Yes</td>
+<td><code>turn</code> alternates fairly between the two.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="algorithm-2-flag-only">Algorithm 2: <code>flag</code> only</h3>
+<p>Algorithm 1 cannot tell whether a process even wants to enter.
+Algorithm 2 gives each process a flag to say so.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>boolean flag<span class="op">[</span><span class="dv">2</span><span class="op">]</span> <span class="op">=</span> <span class="op">{</span><span class="kw">false</span><span class="op">,</span> <span class="kw">false</span><span class="op">};</span>   <span class="co">// flag[i]: Pi wants to enter</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>flag<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>   <span class="cf">while</span> <span class="op">(</span>flag<span class="op">[</span>k<span class="op">]);</span>   critical section<span class="op">;</span>   flag<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span>   remainder section<span class="op">;</span></span></code></pre></div>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 9%" />
+<col style="width: 69%" />
+</colgroup>
+<thead>
+<tr>
+<th>Property</th>
+<th style="text-align: center;">Holds?</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mutual exclusion</td>
+<td style="text-align: center;">Yes</td>
+<td>When
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+is in, <code>flag[0] = true</code> until its exit section, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+waits.</td>
+</tr>
+<tr>
+<td>Progress</td>
+<td style="text-align: center;"><strong>No</strong></td>
+<td><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+sets <code>flag[0] = true</code>, switch,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+sets <code>flag[1] = true</code>. Both loop forever.</td>
+</tr>
+<tr>
+<td>Bounded waiting</td>
+<td style="text-align: center;">Yes</td>
+<td>Once
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+has set its flag,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+cannot enter ahead of it.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="algorithm-3-flag-turn-petersons-algorithm">Algorithm 3:
+<code>flag</code> + <code>turn</code> (Peterson’s algorithm)</h3>
+<p>Algorithm 2 cannot choose between two processes that want in at the
+same time. Algorithm 3 adds <code>turn</code> to break the tie.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>flag<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>                        <span class="co">// I want to enter</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>turn <span class="op">=</span> k<span class="op">;</span>                              <span class="co">// but you go first</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>flag<span class="op">[</span>k<span class="op">]</span> <span class="op">&amp;&amp;</span> turn <span class="op">==</span> k<span class="op">);</span>          <span class="co">// wait while you want in and it is your turn</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    critical section</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>flag<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    remainder section</span></code></pre></div>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 9%" />
+<col style="width: 69%" />
+</colgroup>
+<thead>
+<tr>
+<th>Property</th>
+<th style="text-align: center;">Holds?</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mutual exclusion</td>
+<td style="text-align: center;">Yes</td>
+<td>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+is in, <code>flag[0] = true</code>. A
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+that now wants in first sets <code>turn = 0</code>, so its loop
+condition stays true.</td>
+</tr>
+<tr>
+<td>Progress</td>
+<td style="text-align: center;">Yes</td>
+<td>If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+is in its remainder section, <code>flag[1] = false</code> and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+enters at once. If both are in the entry section, the latest value of
+<code>turn</code> admits one.</td>
+</tr>
+<tr>
+<td>Bounded waiting</td>
+<td style="text-align: center;">Yes</td>
+<td>A process that leaves and tries again sets <code>turn</code> to the
+other, so the waiter enters after at most one entry.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>These software solutions are hard to extend beyond two processes,
+which is why the OS provides support.</p>
+<details class="qa box">
+<summary>
+<strong>Tutorial 4 Q1 / AY17/18 S1 Q1c:</strong> A flawed flag/turn
+protocol <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Consider the following user-level
+solution to the critical section problem, where <code>flag</code> and
+<code>turn</code> are shared variables initialized to false and 0,
+respectively. Determine which of the three requirements are not
+satisfied, with justifications.</em></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">// P0                               // P1</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span>                         <span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  flag <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>                        turn <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>turn <span class="op">==</span> <span class="dv">1</span><span class="op">);</span>                  <span class="cf">while</span> <span class="op">(</span>flag and turn <span class="op">==</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  critical<span class="op">-</span>section                    critical<span class="op">-</span>section</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  turn <span class="op">=</span> <span class="dv">1</span><span class="op">;</span>                           flag <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  remainder<span class="op">-</span>section                   remainder<span class="op">-</span>section</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>                                   <span class="op">}</span></span></code></pre></div>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Mutual exclusion fails.</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>:
+<code>turn = 0</code>; <code>flag</code> is false, so it enters its CS.
+Switch.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:
+<code>flag = true</code>; <code>turn</code> is 0 (not 1), so it enters
+too. Both are inside.</li>
+<li><strong>Progress fails.</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+passes once and leaves with <code>turn = 1</code>. It comes back, sets
+<code>flag = true</code>, and spins on <code>while (turn == 1)</code>
+forever if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+stays in its remainder section, even though the CS is empty.</li>
+<li><strong>Bounded waiting holds.</strong> If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+waits at <code>while (turn == 1)</code>, it enters as soon as
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+runs <code>turn = 0</code>, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+enters <strong>0</strong> times first. If
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+waits, it enters when
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+runs <code>turn = 1</code> after its CS, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+enters at most <strong>once</strong> first.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 4 Q2:</strong> Disabling interrupts; progress
+vs. bounded waiting <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Indicate whether the following
+statements are true or false. Justify your answers.</em> <em>(a) Mutual
+exclusion can be achieved by disabling interrupts during the critical
+section.</em> <em>(b) If a solution to a critical section problem
+satisfies progress, then it also satisfies bounded waiting.</em></p>
+<p><strong>Answer:</strong></p>
+<ul>
+<li><strong>(a) True.</strong> With interrupts disabled, no other
+process, not even the OS, can run during the critical section.</li>
+<li><strong>(b) False.</strong> A solution can always favour
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+and still satisfy progress. With <code>flag</code> initially false and a
+large <code>timeout</code>:</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">// P0                          // P1</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>flag<span class="op">);</span>                  <span class="cf">while</span> <span class="op">(</span>flag<span class="op">)</span> <span class="op">{</span> wait<span class="op">(</span>timeout<span class="op">);</span> <span class="op">}</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>flag <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>                   flag <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>critical section<span class="op">;</span>              critical section<span class="op">;</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>flag <span class="op">=</span> <span class="kw">false</span><span class="op">;</span>                  flag <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span></code></pre></div>
+<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+backs off for a long time each time it finds <code>flag</code> set, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+can enter again and again: bounded waiting fails for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY19/20 S1 Q1a:</strong> Peterson with the wrong turn value
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Consider the following user-level
+solution to the critical section problem, where the code for a process
+Pi (i = 0 or 1) is shown. (i) Explain how the mutual exclusion property
+is violated. (ii) Propose a simple modification to fix the
+problem.</em></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  flag<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  turn <span class="op">=</span> i<span class="op">;</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>flag<span class="op">[</span>i<span class="op">+</span><span class="dv">1</span> mod <span class="dv">2</span><span class="op">]</span> and turn <span class="op">==</span> i<span class="op">+</span><span class="dv">1</span> mod <span class="dv">2</span><span class="op">);</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  critical<span class="op">-</span>section</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  flag<span class="op">[</span>i<span class="op">]</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  remainder<span class="op">-</span>section</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(i)</strong> Each process gives the turn to
+<strong>itself</strong>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:
+<code>flag[0] = true</code>. Switch.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>:
+<code>flag[1] = true</code>. Switch.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:
+<code>turn = 0</code>; the loop tests <code>turn == 1</code>, false, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+enters. Switch.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>:
+<code>turn = 1</code>; the loop tests <code>turn == 0</code>, false, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+enters. Both are inside.</li>
+<li><strong>(ii)</strong> Change <code>turn = i</code> to
+<code>turn = i+1 mod 2</code> (give the turn to the other process). This
+is Peterson’s algorithm. Removing <code>flag</code> (Algorithm 1) or
+<code>turn</code> (Algorithm 2) also restores mutual exclusion, but each
+breaks progress.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY18/19 S2 Q2d:</strong> Peterson with turn set before flag
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Justify if this code satisfies all the
+properties required for a solution to the critical section problem.
+<code>turn</code> is initialized to 0 and <code>flag[2]</code> to
+false.</em></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// P0                                    // P1</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span>                              <span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  turn <span class="op">=</span> <span class="dv">1</span><span class="op">;</span>                                turn <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  flag<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>                          flag<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="kw">true</span><span class="op">;</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>flag<span class="op">[</span><span class="dv">1</span><span class="op">]</span> and turn <span class="op">==</span> <span class="dv">1</span><span class="op">);</span>           <span class="cf">while</span> <span class="op">(</span>flag<span class="op">[</span><span class="dv">0</span><span class="op">]</span> and turn <span class="op">==</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  critical section                         critical section</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  flag<span class="op">[</span><span class="dv">0</span><span class="op">]</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span>                         flag<span class="op">[</span><span class="dv">1</span><span class="op">]</span> <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  remainder section <span class="op">}</span>                      remainder section <span class="op">}</span></span></code></pre></div>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Mutual exclusion fails.</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:
+<code>turn = 1</code>. Switch.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>:
+<code>turn = 0</code>, <code>flag[1] = true</code>; <code>flag[0]</code>
+is false, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+enters. Switch.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>:
+<code>flag[0] = true</code>; <code>turn</code> is 0, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+enters. Both are inside. The order matters: Peterson sets the flag
+<strong>before</strong> the turn.</li>
+<li>Progress and bounded waiting hold: <code>turn</code> holds only 0 or
+1, so one waiter always gets in, and each exit clears that process’s
+flag.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="hardware-support-testandset">4. Hardware Support:
+<code>TestAndSet</code></h2>
+<p>The OS supports the critical-section problem at three levels, low to
+high: <strong>synchronization hardware</strong>,
+<strong>semaphores</strong>, <strong>monitors</strong>.</p>
+<h3 id="disabling-interrupts">Disabling interrupts</h3>
+<p>With interrupts disabled during the CS, nothing else can run, so
+mutual exclusion holds. Only the kernel may do it (disabling interrupts
+is privileged), and it does not stop other cores on a
+multiprocessor.</p>
+<h3 id="testandset"><code>TestAndSet</code></h3>
+<p>Modern CPUs provide <strong>atomic</strong> instructions: they run
+without interruption, so no context switch can fall inside them.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>boolean TestAndSet<span class="op">(</span>boolean <span class="op">*</span>target<span class="op">)</span> <span class="op">{</span>   <span class="co">// runs atomically</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    boolean rv <span class="op">=</span> <span class="op">*</span>target<span class="op">;</span>               <span class="co">// get current value</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>target <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>                     <span class="co">// store true</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rv<span class="op">;</span>                          <span class="co">// return old value</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>boolean lock <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="op">(</span>TestAndSet<span class="op">(&amp;</span>lock<span class="op">));</span>          <span class="co">// entry: acquire lock</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        critical section</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    lock <span class="op">=</span> <span class="kw">false</span><span class="op">;</span>                       <span class="co">// exit: release lock</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>        remainder section</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>A process enters when <code>TestAndSet</code> returns
+<code>false</code>, which also sets <code>lock</code> to
+<code>true</code>.</p>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 9%" />
+<col style="width: 69%" />
+</colgroup>
+<thead>
+<tr>
+<th>Property</th>
+<th style="text-align: center;">Holds?</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Mutual exclusion</td>
+<td style="text-align: center;">Yes</td>
+<td><code>lock</code> is false just before the winner’s
+<code>TestAndSet</code> and true afterwards; only the exit section
+resets it.</td>
+</tr>
+<tr>
+<td>Progress</td>
+<td style="text-align: center;">Yes</td>
+<td>If <code>lock</code> is false, the first process to call
+<code>TestAndSet</code> enters at once.</td>
+</tr>
+<tr>
+<td>Bounded waiting</td>
+<td style="text-align: center;"><strong>No</strong></td>
+<td>See below.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Why bounded waiting fails.</strong> Suppose round-robin with
+a 10 ms quantum, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>’s
+loop (test, CS, release, test again) takes exactly the quantum, so
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+is always <strong>inside its CS</strong> when it is switched out.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+then always finds the lock held and spins for its whole quantum, while
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+enters again and again.</p>
+<p>The textbook has a longer <code>TestAndSet</code> solution with a
+<code>waiting[]</code> array that does satisfy bounded waiting; the
+lecture marks it <strong>not examinable</strong>.</p>
+<figure>
+<img width="1400" height="857" src="media/4-artifacts/testandset-bounded-waiting.webp"
+style="width:55.0%" loading="lazy" decoding="async"
+alt="Bounded-waiting TestAndSet (not examinable)" />
+<figcaption aria-hidden="true">Bounded-waiting TestAndSet (not
+examinable)</figcaption>
+</figure>
+<p><strong>Busy waiting</strong> (spinning in the entry loop) wastes CPU
+time, but it needs no context switch, so it is the better choice when
+critical sections are very short.</p>
+<details class="qa box">
+<summary>
+<strong>Tutorial 4 Q3:</strong> TestAndSet that stores false <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Consider the following implementation
+of <code>TestAndSet()</code>, and a hardware-level solution where the
+initial value of <code>lock</code> is True. Does this solution satisfy
+mutual exclusion and progress? Justify your answers.</em></p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>boolean TestAndSet<span class="op">(</span>boolean <span class="op">*</span>target<span class="op">)</span> <span class="op">{</span>    <span class="co">// Process Pi</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>    boolean rv <span class="op">=</span> <span class="op">*</span>target<span class="op">;</span>                <span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>target <span class="op">=</span> <span class="kw">false</span><span class="op">;</span>                       <span class="cf">while</span> <span class="op">(</span>TestAndSet<span class="op">(&amp;</span>lock<span class="op">)</span> <span class="op">==</span> <span class="kw">false</span><span class="op">);</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> rv<span class="op">;</span>                             critical<span class="op">-</span>section</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>                                          lock <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>                                           remainder<span class="op">-</span>section</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>                                         <span class="op">}</span></span></code></pre></div>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Mutual exclusion holds.</strong> The first process gets
+<code>true</code>, leaves the loop, and leaves
+<code>lock = false</code>. Every other process then gets
+<code>false</code> and loops.</li>
+<li><strong>Progress fails.</strong> Nothing ever sets <code>lock</code>
+back to <code>true</code>; the exit section writes <code>false</code>.
+After the first CS, every <code>TestAndSet</code> returns
+<code>false</code>, so nobody ever enters although the CS is empty.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY18/19 S1 Q1c:</strong> Entry and exit code for a TestAndSet
+that stores false <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Suppose <code>TestAndSet</code> is
+implemented as <code>rv = *target; *target = false; return rv;</code>.
+Give the code for Entry and Exit sections using this TestAndSet, which
+ensures mutual exclusion for critical sections in processes.</em></p>
+<p><strong>Solution:</strong> invert the meaning of <code>lock</code>:
+<code>true</code> means free.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>boolean lock <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>                 <span class="co">// initially free</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(!</span>TestAndSet<span class="op">(&amp;</span>lock<span class="op">));</span>          <span class="co">// entry: wait until we read true</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    critical section</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>lock <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>                         <span class="co">// exit: mark free again</span></span></code></pre></div>
+<p>The first process reads <code>true</code> and leaves
+<code>lock = false</code>, so the others read <code>false</code> and
+wait until the exit section sets it back to <code>true</code>.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY18/19 S2 Q2b and Q2a(iv):</strong> Why a plain Boolean lock
+fails <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question (Q2b):</strong> <em>A system does not have the
+atomic TestAndSet() instruction. Devise a concrete example with
+pseudo-code to explain whether a simple Boolean variable “lock” could be
+used to ensure mutual exclusion for the critical section
+problem.</em></p>
+<p><strong>Solution:</strong> It cannot.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span>lock<span class="op">);</span>  lock <span class="op">=</span> <span class="kw">true</span><span class="op">;</span>     <span class="co">// entry (lock starts false)</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>critical section</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>lock <span class="op">=</span> <span class="kw">false</span><span class="op">;</span>                   <span class="co">// exit</span></span></code></pre></div>
+<ol type="1">
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+runs <code>while (lock)</code>, finds <code>false</code>, leaves the
+loop. Switch.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>
+runs <code>while (lock)</code>, finds <code>false</code>, leaves the
+loop. Switch.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+sets <code>lock = true</code> and enters. Switch.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>
+sets <code>lock = true</code> and enters. Both are inside.</li>
+</ol>
+<p>The test and the set are separate instructions;
+<code>TestAndSet</code> exists to make them one atomic step.</p>
+<p><strong>Q2a(iv):</strong> <em>A solution implemented with only the
+atomic TestAndSet() instruction would violate the progress
+requirement.</em> <strong>False.</strong> It satisfies progress; it
+violates only <strong>bounded waiting</strong>.</p>
+</div>
+</details>
+<hr />
+<h2 id="semaphores">5. Semaphores</h2>
+<p>A <strong>semaphore</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+is an integer shared variable that processes can access only through two
+<strong>atomic</strong> system calls:</p>
+<ul>
+<li><code>Wait(S)</code>: if
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S &gt; 0</annotation></semantics></math>,
+decrement
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>;
+otherwise wait (in the waiting state, or in a busy loop).</li>
+<li><code>Signal(S)</code>: increment
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>.</li>
+</ul>
+<div class="table-wrap">
+<table style="width: 57%;">
+<colgroup>
+<col style="width: 36%" />
+<col style="width: 63%" />
+</colgroup>
+<thead>
+<tr>
+<th>Type</th>
+<th>Values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Counting semaphore</strong></td>
+<td>Any integer (unrestricted domain)</td>
+</tr>
+<tr>
+<td><strong>Binary semaphore</strong></td>
+<td>Never greater than 1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Critical section with a semaphore:</strong> shared
+<code>semaphore mutex = 1;</code> and each process runs
+<code>Wait(mutex); critical section; Signal(mutex); remainder section</code>.</p>
+<h3 id="busy-waiting-implementation">Busy-waiting implementation</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>S<span class="op">):</span>   <span class="cf">while</span> <span class="op">(</span>S <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">);</span>  <span class="co">// busy wait</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>           S<span class="op">--;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>S<span class="op">):</span> S<span class="op">++;</span></span></code></pre></div>
+<ul>
+<li><strong>Pro:</strong> no context-switch overhead.</li>
+<li><strong>Con:</strong> wastes CPU cycles; inefficient when critical
+sections are long.</li>
+<li><code>S++</code> and <code>S--</code> must be atomic (each is a
+load, add, store), and <strong>all of <code>Wait(S)</code> must be
+atomic</strong>. Otherwise, with
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">S = 1</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+passes <code>while (S &lt;= 0)</code>; switch;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+passes the loop and runs <code>S--</code>; switch;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+runs <code>S--</code>. Both are in the CS.</li>
+</ul>
+<h3 id="blocking-implementation-the-one-used-now">Blocking
+implementation (the one used now)</h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">typedef</span> <span class="kw">struct</span> <span class="op">{</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> value<span class="op">;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> process <span class="op">*</span>L<span class="op">;</span>      <span class="co">// queue of PCBs waiting on this semaphore</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> semaphore<span class="op">;</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>S<span class="op">):</span>   S<span class="op">.</span>value<span class="op">--;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>           <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> block<span class="op">();</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>S<span class="op">):</span> S<span class="op">.</span>value<span class="op">++;</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>           <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span> wakeup<span class="op">(</span>P<span class="op">);</span>   <span class="co">// P taken from S.L</span></span></code></pre></div>
+<div class="table-wrap">
+<table>
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 84%" />
+</colgroup>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Steps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>block()</code></td>
+<td>Remove the current process from the ready queue, add it to
+<code>S.L</code>, set its state to <strong>waiting</strong>. (This leads
+to a context switch.)</td>
+</tr>
+<tr>
+<td><code>wakeup(P)</code></td>
+<td>Remove a process
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>P</mi><annotation encoding="application/x-tex">P</annotation></semantics></math>
+from <code>S.L</code>, add it to the ready queue, set its state to
+<strong>ready</strong>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Reading the value.</strong> With initial value
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>I</mi><annotation encoding="application/x-tex">I</annotation></semantics></math>:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mi>I</mi><mo>−</mo><mi>#</mi><mtext mathvariant="normal">Wait</mtext><mo>+</mo><mi>#</mi><mtext mathvariant="normal">Signal</mtext></mrow><annotation encoding="application/x-tex">S = I - \#\text{Wait} + \#\text{Signal}</annotation></semantics></math></p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S &gt; 0</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+more processes can pass <code>Wait</code> without blocking.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>&lt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S &lt; 0</annotation></semantics></math>:
+exactly
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>S</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|S|</annotation></semantics></math>
+processes are blocked in <code>S.L</code>. (If
+<code>S.value = -2</code>, two processes wait.)</li>
+</ul>
+<p><strong><code>Wait</code> and <code>Signal</code> must still be
+atomic</strong>, including both the update and the test:</p>
+<ul>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">S = 1</annotation></semantics></math>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+runs <code>S.value--</code>; switch;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+runs <code>S.value--</code> →
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">-1</annotation></semantics></math>
+and blocks; switch;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+tests
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1</mn><mo>&lt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">-1 &lt; 0</annotation></semantics></math>
+and <strong>also blocks</strong>. Nobody is in the CS: progress
+fails.</li>
+<li><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">S = -1</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>
+blocked).
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+runs <code>S.value++</code>; switch;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+runs <code>S.value++</code> → 1, tests
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>≤</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">1 \le 0</annotation></semantics></math>,
+no wakeup; switch;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+tests
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>≤</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">1 \le 0</annotation></semantics></math>,
+no wakeup.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>
+is never woken.</li>
+<li>An unprotected <code>--</code> / <code>++</code> can also lose
+updates and break mutual exclusion.</li>
+</ul>
+<p><strong>Why the decrement comes first in <code>Wait</code>.</strong>
+If <code>Wait</code> were
+<code>if (S.value &lt;= 0) block(); S.value--;</code>, a process could
+be switched out between <code>block()</code> returning and
+<code>S.value--</code>. With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S = 0</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+blocks;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+signals
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">S = 1</annotation></semantics></math>)
+and wakes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>2</mn></msub><annotation encoding="application/x-tex">P_2</annotation></semantics></math>
+runs <code>Wait</code>, sees 1, decrements and enters; then
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+decrements and also enters. Mutual exclusion fails.</p>
+<details class="qa box">
+<summary>
+<strong>Tutorial 5 Q2:</strong> Wait blocks only below −1 <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Consider the following implementations
+of <code>Wait()</code> and <code>Signal()</code>. Suppose these system
+calls are guaranteed to be atomic and a semaphore S is used to protect
+critical sections (<code>Wait(S); CS; Signal(S); remainder</code>). S is
+initialized to 0. Does this solution ensure mutual exclusion and
+progress?</em></p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>S<span class="op">):</span>   S<span class="op">.</span>value<span class="op">--;</span>  <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;</span> <span class="op">-</span><span class="dv">1</span><span class="op">)</span> block<span class="op">();</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>S<span class="op">):</span> S<span class="op">.</span>value<span class="op">++;</span>  <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span> wakeup<span class="op">();</span></span></code></pre></div>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Mutual exclusion holds.</strong> The first <code>Wait</code>
+makes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">S = -1</annotation></semantics></math>
+and does not block (the test is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>&lt;</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">&lt; -1</annotation></semantics></math>),
+so that process enters. Any later <code>Wait</code> makes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>≤</mo><mi>−</mi><mn>2</mn></mrow><annotation encoding="application/x-tex">S \le -2</annotation></semantics></math>
+and blocks until the first process signals. Because <code>Wait</code>
+and <code>Signal</code> run in pairs in that order from 0,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+never exceeds 0.</li>
+<li><strong>Progress holds.</strong> When
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+goes from
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">-1</annotation></semantics></math>
+to 0, <code>Signal</code> calls an unnecessary <code>wakeup()</code>
+with nobody waiting (harmless). When
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>&lt;</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">S &lt; -1</annotation></semantics></math>,
+processes are blocked and every <code>Signal</code> wakes one. No
+process is ever blocked while the semaphore is free
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S = 0</annotation></semantics></math>).</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Tutorial 5 Q3:</strong> Build Wait and Signal from TestAndSet
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Describe how <code>Wait(S)</code> and
+<code>Signal(S)</code> of a semaphore can be implemented using a
+TestAndSet instruction, given the semaphore structure
+<code>{int value; struct process *L;}</code>. Hint: the semaphore value
+and the process queue L are shared variables.</em></p>
+<p><strong>Solution:</strong> The critical section is the update of
+<code>S.value</code> and <code>S.L</code>, not the whole of
+<code>block()</code>/<code>wakeup()</code>. Guard it with a shared
+<code>boolean lock = false</code>, and <strong>release the lock before
+sleeping</strong>:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>S<span class="op">):</span>   <span class="cf">while</span> <span class="op">(</span>TestAndSet<span class="op">(&amp;</span>lock<span class="op">));</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>           S<span class="op">.</span>value<span class="op">--;</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>           <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>               add this process to S<span class="op">.</span>L<span class="op">;</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>               lock <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>               block<span class="op">();</span>                <span class="co">// put current process in waiting state</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>           <span class="op">}</span> <span class="cf">else</span> lock <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>S<span class="op">):</span> <span class="cf">while</span> <span class="op">(</span>TestAndSet<span class="op">(&amp;</span>lock<span class="op">));</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>           S<span class="op">.</span>value<span class="op">++;</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>           <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>               remove a process P from S<span class="op">.</span>L<span class="op">;</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>               wakeup<span class="op">(</span>P<span class="op">);</span>              <span class="co">// add P to the ready queue</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>           <span class="op">}</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>           lock <span class="op">=</span> <span class="kw">false</span><span class="op">;</span></span></code></pre></div>
+<p>If a process kept <code>lock</code> while it slept, no
+<code>Signal</code> could ever get the lock to wake it.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY16/17 S1 Q1c (also Additional Practice Q2):</strong> Reading a
+semaphore’s value <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Consider a semaphore S that uses
+blocking implementation. At the current time instant, (a) 2 processes
+are holding S having successfully executed Wait(S) previously, and (b)
+the blocked process list for S contains 4 PCBs.</em> <em>(i) What is the
+value of S at the current time instant?</em> <em>(ii) Suppose the value
+of S changes to −1 after executing Signal(S) five times and Wait(S) two
+times in some order. What are the minimum and maximum intermediate
+values that S can have? Give the sequences.</em> <em>(iii) What is the
+largest value that S can ever have? Justify your answer.</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(i)</strong> Four blocked processes →
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mrow><mi mathvariant="bold-italic">−</mi><mn mathvariant="bold">𝟒</mn></mrow></mrow><annotation encoding="application/x-tex">S = \mathbf{-4}</annotation></semantics></math>.
+The two holders are not blocked and do not count.</li>
+<li><strong>(ii)</strong> Check:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>4</mn><mo>+</mo><mn>5</mn><mo>−</mo><mn>2</mn><mo>=</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">-4 + 5 - 2 = -1</annotation></semantics></math>.
+<strong>Minimum:</strong> both <code>Wait</code>s first:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>4</mn><mo>→</mo><mi>−</mi><mn>5</mn><mo>→</mo><mrow><mi mathvariant="bold-italic">−</mi><mn mathvariant="bold">𝟔</mn></mrow></mrow><annotation encoding="application/x-tex">-4 \to -5 \to \mathbf{-6}</annotation></semantics></math>.
+<strong>Maximum:</strong> all five <code>Signal</code>s first:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>4</mn><mo>+</mo><mn>5</mn><mo>=</mo><mn mathvariant="bold">𝟏</mn></mrow><annotation encoding="application/x-tex">-4 + 5 = \mathbf{1}</annotation></semantics></math>.</li>
+<li><strong>(iii)</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mn mathvariant="bold">𝟐</mn><annotation encoding="application/x-tex">\mathbf{2}</annotation></semantics></math>.
+The two holders and the four blocked processes will each eventually call
+<code>Signal</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>4</mn><mo>+</mo><mn>6</mn><mo>=</mo><mn>2</mn></mrow><annotation encoding="application/x-tex">-4 + 6 = 2</annotation></semantics></math>.
+So the semaphore started at 2, and it can never be higher than its
+initial value.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY18/19 S1 Q1d and Q1a(iv):</strong> Signal that tests before
+incrementing <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question (Q1d):</strong> <em>Consider the following blocking
+implementations. If these system calls are guaranteed to be atomic, do
+they ensure mutual exclusion?</em></p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>S<span class="op">):</span>   S<span class="op">.</span>value<span class="op">--;</span>  <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> block<span class="op">();</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>S<span class="op">):</span> <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> wakeup<span class="op">();</span>  S<span class="op">.</span>value<span class="op">++;</span></span></code></pre></div>
+<p><strong>Solution:</strong> <strong>Yes.</strong> <code>Signal</code>
+tests before incrementing, so it wakes a process exactly when one is
+blocked
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>&lt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S &lt; 0</annotation></semantics></math>
+means
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>S</mi><mo stretchy="false" form="prefix">|</mo></mrow><annotation encoding="application/x-tex">|S|</annotation></semantics></math>
+waiters). With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">S = 1</annotation></semantics></math>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+enters
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S = 0</annotation></semantics></math>);
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+blocks
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">-1</annotation></semantics></math>);
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>’s
+<code>Signal</code> sees
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>−</mi><mn>1</mn><mo>&lt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">-1 &lt; 0</annotation></semantics></math>,
+wakes
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>,
+and sets
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S = 0</annotation></semantics></math>,
+so only
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+is inside. With nobody waiting, <code>Signal</code> just restores
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+to 1. Atomicity rules out interleaving inside the calls.</p>
+<p><strong>Q1a(iv):</strong> <em>When the value of a semaphore is
+positive, it denotes the number of processes that have currently locked
+this semaphore.</em> <strong>False.</strong> A positive value is the
+number of further processes that can pass <code>Wait</code> before the
+next one blocks.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY19/20 S1 Q2c:</strong> Wait that blocks on zero, Signal that
+wakes below zero <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Suppose these system calls are atomic
+and S is a binary semaphore whose blocked queue is FIFO, used as
+<code>Wait(S); CS; Signal(S); remainder</code>. Does this ensure mutual
+exclusion, progress and bounded waiting?</em></p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>S<span class="op">):</span>   <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;=</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span> S<span class="op">.</span>value<span class="op">--;</span> block<span class="op">();</span> <span class="op">}</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>           <span class="cf">else</span>              <span class="op">{</span> S<span class="op">.</span>value<span class="op">--;</span> <span class="op">}</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>S<span class="op">):</span> S<span class="op">.</span>value<span class="op">++;</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>           <span class="cf">if</span> <span class="op">(</span>S<span class="op">.</span>value <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> wakeup<span class="op">();</span></span></code></pre></div>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>Mutual exclusion holds.</strong> Only a <code>Wait</code>
+that finds
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">S = 1</annotation></semantics></math>
+passes; it leaves
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S = 0</annotation></semantics></math>,
+and every later <code>Wait</code> blocks.</li>
+<li><strong>Progress fails.</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+holds the semaphore
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S = 0</annotation></semantics></math>).
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+calls <code>Wait</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mi>−</mi><mn>1</mn></mrow><annotation encoding="application/x-tex">S = -1</annotation></semantics></math>,
+blocks.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+calls <code>Signal</code>:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">S = 0</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn><mo>&lt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">0 &lt; 0</annotation></semantics></math>
+is false, so <strong>no wakeup</strong>.
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+stays blocked although the CS is empty. (<code>Signal</code> should test
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>≤</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\le 0</annotation></semantics></math>.)</li>
+<li><strong>Bounded waiting holds</strong> (posted answer): the queue is
+FIFO, so no later process overtakes an earlier one.</li>
+</ul>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>Past-paper T/F:</strong> Semaphore implementations <span
+class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>AY17/18 S2 Q2a(i):</strong> <em>If the semaphore wait()
+operation is not atomic, mutual exclusion is violated.</em>
+<strong>True.</strong> A context switch between <code>S.value--</code>
+and the test can leave
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>S</mi><annotation encoding="application/x-tex">S</annotation></semantics></math>
+inconsistent and let two processes in.</li>
+<li><strong>AY17/18 S2 Q2a(ii):</strong> <em>A process runs quickly so
+it can cut the queue into the critical section all the time. This is a
+progress violation.</em> <strong>False.</strong> Someone always enters,
+so progress holds; it is a <strong>bounded-waiting</strong>
+violation.</li>
+<li><strong>AY17/18 S2 Q2a(iv):</strong> <em>For semaphore
+implementation, blocking is not always better than busy waiting.</em>
+<strong>True.</strong> For short critical sections busy waiting avoids
+the context-switch overhead.</li>
+<li><strong>AY18/19 S2 Q2a(v):</strong> <em>For semaphore, the blocking
+implementation is better than busy waiting if the critical section is
+short.</em> <strong>False</strong>, for the same reason.</li>
+<li><strong>AY18/19 S2 Q2a(ii):</strong> <em>Mutual exclusion is to
+ensure that a process is not stuck in the critical section forever.</em>
+<strong>False.</strong> It ensures no two processes are in their
+critical sections at once.</li>
+<li><strong>AY18/19 S2 Q2a(vi):</strong> <em>Blocking semaphores may
+lead to starvation for some processes.</em> <strong>True.</strong> It
+depends on the queue discipline (LIFO, priority); see §6.</li>
+</ul>
+</div>
+</details>
+<hr />
+<h2 id="using-semaphores">6. Using Semaphores</h2>
+<h3 id="best-practice-three-steps">Best practice (three steps)</h3>
+<ol type="1">
+<li><strong>Understand the scenario:</strong> identify the shared
+variables/data and the shared resources.</li>
+<li><strong>Protect the shared variables:</strong> find the critical
+section; guard it with a <strong>binary</strong> semaphore
+(<code>Wait</code> on entry, <code>Signal</code> on exit).</li>
+<li><strong>Protect the shared resources:</strong> one semaphore per
+kind of resource, <strong>initial value = number of instances</strong>.
+<code>Wait</code> when a resource is requested/consumed,
+<code>Signal</code> when it is released.</li>
+</ol>
+<h3 id="semaphores-for-ordering">Semaphores for ordering</h3>
+<p>To run code
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>B</mi><annotation encoding="application/x-tex">B</annotation></semantics></math>
+in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>k</mi></msub><annotation encoding="application/x-tex">P_k</annotation></semantics></math>
+only after code
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>A</mi><annotation encoding="application/x-tex">A</annotation></semantics></math>
+in
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mi>i</mi></msub><annotation encoding="application/x-tex">P_i</annotation></semantics></math>,
+use <code>semaphore flag = 0</code>:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Pi                 // Pk</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>A<span class="op">;</span>                    Wait<span class="op">(</span>flag<span class="op">);</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>flag<span class="op">);</span>         B<span class="op">;</span></span></code></pre></div>
+<h3 id="incorrect-use-deadlock-and-starvation">Incorrect use: deadlock
+and starvation</h3>
+<ul>
+<li><strong>Deadlock:</strong> two or more processes wait forever for an
+event that only one of the waiting processes can cause. With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><mi>Q</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">S = Q = 1</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+runs <code>Wait(S); Wait(Q)</code> and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+runs <code>Wait(Q); Wait(S)</code>. Interleave:
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+<code>Wait(S)</code>; switch;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+<code>Wait(Q)</code> then <code>Wait(S)</code> (blocks); switch;
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+<code>Wait(Q)</code> (blocks). Both wait forever.</li>
+<li><strong>Starvation:</strong> a process is never removed from the
+semaphore queue because of the queue discipline, for example
+<strong>priority</strong> order (low-priority processes keep being
+overtaken) or <strong>LIFO</strong> order.</li>
+</ul>
+<hr />
+<h2 id="classic-synchronization-problems">7. Classic Synchronization
+Problems</h2>
+<h3 id="bounded-buffer-with-many-producers-and-consumers">Bounded buffer
+with many producers and consumers</h3>
+<p>With several producers and consumers, <code>in</code> and
+<code>out</code> are shared too. Use three semaphores:</p>
+<div class="table-wrap">
+<table style="width: 60%;">
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 11%" />
+<col style="width: 68%" />
+</colgroup>
+<thead>
+<tr>
+<th>Semaphore</th>
+<th style="text-align: center;">Init</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mutex</code></td>
+<td style="text-align: center;">1</td>
+<td>Binary: mutual exclusion on the buffer</td>
+</tr>
+<tr>
+<td><code>empty</code></td>
+<td
+style="text-align: center;"><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math></td>
+<td>Counting: empty slots, for producers</td>
+</tr>
+<tr>
+<td><code>full</code></td>
+<td style="text-align: center;">0</td>
+<td>Counting: full slots, for consumers</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code>counter</code> is no longer needed: <code>full</code> and
+<code>empty</code> already count the items and the free slots.</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Producer                         // Consumer</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span>                         <span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  produce nextProduced<span class="op">;</span>               Wait<span class="op">(</span>full<span class="op">);</span>      <span class="co">// take a full slot</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  Wait<span class="op">(</span>empty<span class="op">);</span>   <span class="co">// take an empty     Wait(mutex);</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  Wait<span class="op">(</span>mutex<span class="op">);</span>   <span class="co">//   slot            nextConsumed = item from buffer;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  add nextProduced to buffer<span class="op">;</span>         Signal<span class="op">(</span>mutex<span class="op">);</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  Signal<span class="op">(</span>mutex<span class="op">);</span>                      Signal<span class="op">(</span>empty<span class="op">);</span>   <span class="co">// tell producers</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  Signal<span class="op">(</span>full<span class="op">);</span>  <span class="co">// tell consumers    consume nextConsumed;</span></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>                                   <span class="op">}</span></span></code></pre></div>
+<figure>
+<img width="1400" height="835" src="media/4-artifacts/bounded-buffer-consumer.webp"
+style="width:55.0%" loading="lazy" decoding="async"
+alt="Consumer process" />
+<figcaption aria-hidden="true">Consumer process</figcaption>
+</figure>
+<p><strong>Order rule:</strong> <code>Wait</code> on the counting
+semaphore <strong>before</strong> <code>Wait(mutex)</code>. If the
+consumer runs <code>Wait(mutex); Wait(full);</code> on an empty buffer,
+it blocks while holding <code>mutex</code>, so no producer can add an
+item: <strong>deadlock</strong>. The order of the two
+<code>Signal</code>s does not matter, because <code>Signal</code> never
+blocks.</p>
+<h3 id="dining-philosophers">Dining philosophers</h3>
+<p>Five philosophers sit at a round table and alternate between thinking
+and eating. There are five plates and five chopsticks, one between each
+pair of plates; a philosopher needs both neighbouring chopsticks to
+eat.</p>
+<figure>
+<img width="737" height="641" src="media/4-artifacts/dining-philosophers.webp" style="width:50.0%"
+loading="lazy" decoding="async" alt="Dining philosophers" />
+<figcaption aria-hidden="true">Dining philosophers</figcaption>
+</figure>
+<div class="sourceCode" id="cb22"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>semaphore chopstick<span class="op">[</span><span class="dv">5</span><span class="op">];</span>   <span class="co">// all initialized to 1</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span>               <span class="co">// philosopher i</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    Wait<span class="op">(</span>chopstick<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>    Wait<span class="op">(</span>chopstick<span class="op">[(</span>i<span class="op">+</span><span class="dv">1</span><span class="op">)</span> <span class="op">%</span> <span class="dv">5</span><span class="op">]);</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    eat<span class="op">;</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    Signal<span class="op">(</span>chopstick<span class="op">[</span>i<span class="op">]);</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>    Signal<span class="op">(</span>chopstick<span class="op">[(</span>i<span class="op">+</span><span class="dv">1</span><span class="op">)</span> <span class="op">%</span> <span class="dv">5</span><span class="op">]);</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>    think<span class="op">;</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><strong>Deadlock:</strong>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>0</mn></msub><annotation encoding="application/x-tex">P_0</annotation></semantics></math>
+takes chopstick 0, switch,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>1</mn></msub><annotation encoding="application/x-tex">P_1</annotation></semantics></math>
+takes 1, …,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>P</mi><mn>4</mn></msub><annotation encoding="application/x-tex">P_4</annotation></semantics></math>
+takes 4. Every philosopher holds one chopstick and waits for the next.
+Remedies:</p>
+<ol type="1">
+<li>Allow <strong>at most four</strong> philosophers to be hungry at the
+same time (then at least one gets both chopsticks).</li>
+<li>Pick up the chopsticks <strong>only if both are
+available</strong>.</li>
+<li><strong>Asymmetric:</strong> odd philosophers pick up left then
+right; even philosophers pick up right then left.</li>
+</ol>
+<p>Chapter 5 shows which deadlock condition each remedy breaks.</p>
+<h3 id="readerswriters">Readers–writers</h3>
+<p>A database is shared: a <strong>writer</strong> needs exclusive
+access, while <strong>many readers</strong> may read together. The first
+reader blocks the writers and the last reader lets them back in. This
+version gives <strong>readers preference</strong> (writers can starve);
+a writer-preference version also exists.</p>
+<div class="table-wrap">
+<table style="width: 62%;">
+<colgroup>
+<col style="width: 19%" />
+<col style="width: 11%" />
+<col style="width: 69%" />
+</colgroup>
+<thead>
+<tr>
+<th>Shared</th>
+<th style="text-align: center;">Init</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>readcount</code></td>
+<td style="text-align: center;">0</td>
+<td>Number of readers in the database</td>
+</tr>
+<tr>
+<td><code>mutex</code></td>
+<td style="text-align: center;">1</td>
+<td>Binary: protects <code>readcount</code></td>
+</tr>
+<tr>
+<td><code>wrt</code></td>
+<td style="text-align: center;">1</td>
+<td>Binary: mutual exclusion on the database</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Writer                       // Reader</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>Wait<span class="op">(</span>wrt<span class="op">);</span>                      Wait<span class="op">(</span>mutex<span class="op">);</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  writing is performed            readcount<span class="op">++;</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>Signal<span class="op">(</span>wrt<span class="op">);</span>                      <span class="cf">if</span> <span class="op">(</span>readcount <span class="op">==</span> <span class="dv">1</span><span class="op">)</span> Wait<span class="op">(</span>wrt<span class="op">);</span>   <span class="co">// first reader locks writers out</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>                                Signal<span class="op">(</span>mutex<span class="op">);</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>                                  reading is performed</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>                                Wait<span class="op">(</span>mutex<span class="op">);</span></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>                                  readcount<span class="op">--;</span></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>                                  <span class="cf">if</span> <span class="op">(</span>readcount <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> Signal<span class="op">(</span>wrt<span class="op">);</span> <span class="co">// last reader lets writers in</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>                                Signal<span class="op">(</span>mutex<span class="op">);</span></span></code></pre></div>
+<details class="qa box">
+<summary>
+<strong>Tutorial 5 Q1 (also AY16/17 S1 Q2c):</strong> Apples and oranges
+without deadlock <span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Alice must pair exactly 1 apple with 2
+oranges, picking them from two baskets. Each basket is protected by a
+semaphore: A for apples, O for oranges; she must acquire a basket’s
+semaphore to access it. Fill boxes 1–5 using only Wait(A), Wait(O),
+Signal(A), Signal(O) (any number, including zero, per box). The solution
+must be deadlock-free even with other players running different
+code.</em></p>
+<pre><code>[1]  // pick 1 apple
+[2]
+if (at least 2 oranges in basket) {
+    pick 2 oranges and pair with apple
+    [3]
+} else {
+    [4]
+    drop 1 apple back in basket
+    [5]
+}</code></pre>
+<p><strong>Solution:</strong></p>
+<div class="table-wrap">
+<table style="width: 82%;">
+<colgroup>
+<col style="width: 7%" />
+<col style="width: 25%" />
+<col style="width: 67%" />
+</colgroup>
+<thead>
+<tr>
+<th style="text-align: center;">Box</th>
+<th>Code</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">1</td>
+<td><code>Wait(A)</code></td>
+<td>Take the apple basket</td>
+</tr>
+<tr>
+<td style="text-align: center;">2</td>
+<td><code>Signal(A); Wait(O)</code></td>
+<td>Release apples, then check oranges</td>
+</tr>
+<tr>
+<td style="text-align: center;">3</td>
+<td><code>Signal(O)</code></td>
+<td>Took 2 oranges; release the basket</td>
+</tr>
+<tr>
+<td style="text-align: center;">4</td>
+<td><code>Signal(O); Wait(A)</code></td>
+<td>Not enough: release oranges, reopen the apple basket</td>
+</tr>
+<tr>
+<td style="text-align: center;">5</td>
+<td><code>Signal(A)</code></td>
+<td>Apple returned; release</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>There is no deadlock because Alice <strong>never holds both
+semaphores at once</strong> (no nesting), so no circular wait can
+form.</p>
+<p>AY16/17 S1 Q2c(ii) then asks whether this is a good strategy:
+<strong>no</strong>, Alice takes an apple even when there are no
+oranges. Better to pick only when both are present.</p>
+</div>
+</details>
+<details class="qa box">
+<summary>
+<strong>AY17/18 S2 Q2c:</strong> Bounded buffer with the waits swapped
+<span class="qa-caret" aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Question:</strong> <em>Multiple producers and consumers share
+a buffer of at most 10 items; each needs exclusive access to it.
+<code>full = 0</code>, <code>empty = 10</code>,
+<code>mutex = 1</code>.</em></p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">// Producer                    // Consumer</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span>                    <span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  wait<span class="op">(</span>mutex<span class="op">);</span>                   wait<span class="op">(</span>mutex<span class="op">);</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  wait<span class="op">(</span>empty<span class="op">);</span>                   wait<span class="op">(</span>full<span class="op">);</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  produce an item p<span class="op">;</span>             c <span class="op">=</span> an item from buffer<span class="op">;</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  add p to buffer<span class="op">;</span>               signal<span class="op">(</span>empty<span class="op">);</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  signal<span class="op">(</span>full<span class="op">);</span>                  signal<span class="op">(</span>mutex<span class="op">);</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  signal<span class="op">(</span>mutex<span class="op">);</span>                 consume item c<span class="op">;</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>                              <span class="op">}</span></span></code></pre></div>
+<p><em>(i) Identify and explain two problems. (ii) Blocking semaphores
+are used. With 10 processes in the system, what are the minimum and
+maximum values of <code>mutex</code>? (iii) Modify the code so a
+consumer consumes all available items once it gains access to the
+buffer.</em></p>
+<p><strong>Solution:</strong></p>
+<ul>
+<li><strong>(i)</strong> Both take <code>mutex</code> before the
+counting semaphore.
+<ol type="1">
+<li>Buffer <strong>full</strong>: a producer holds <code>mutex</code>
+and blocks on <code>empty</code>. No consumer can get <code>mutex</code>
+to free a slot → <strong>deadlock</strong>.</li>
+<li>Buffer <strong>empty</strong>: a consumer holds <code>mutex</code>
+and blocks on <code>full</code>. No producer can get <code>mutex</code>
+to add an item → <strong>deadlock</strong>.</li>
+</ol>
+<ul>
+<li>Fix: <code>wait(empty)</code> / <code>wait(full)</code> first, then
+<code>wait(mutex)</code>.</li>
+</ul></li>
+<li><strong>(ii)</strong> <strong>Maximum 1</strong> (initial value;
+only one process holds it). <strong>Minimum −9</strong>: one process
+holds it (0) and the other 9 each decrement and block.</li>
+<li><strong>(iii)</strong> <em>(My working; the posted solution is
+incomplete.)</em> Count the items under <code>mutex</code>, and let only
+one consumer at a time take items, so no other consumer can hold a
+<code>full</code> signal that belongs to them:</li>
+</ul>
+<div class="sourceCode" id="cb26"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span>              <span class="co">// items in buffer, protected by mutex</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>semaphore cmutex <span class="op">=</span> <span class="dv">1</span><span class="op">;</span>       <span class="co">// one consumer at a time</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co">// Producer                          // Consumer</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span>                          <span class="cf">while</span> <span class="op">(</span><span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  produce p<span class="op">;</span>                           wait<span class="op">(</span>cmutex<span class="op">);</span></span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  wait<span class="op">(</span>empty<span class="op">);</span>                         wait<span class="op">(</span>full<span class="op">);</span>             <span class="co">// at least one item</span></span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  wait<span class="op">(</span>mutex<span class="op">);</span>                         wait<span class="op">(</span>mutex<span class="op">);</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  add p to buffer<span class="op">;</span>  count<span class="op">++;</span>           n <span class="op">=</span> count<span class="op">;</span>  take all n items<span class="op">;</span>  count <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  signal<span class="op">(</span>mutex<span class="op">);</span>                       signal<span class="op">(</span>mutex<span class="op">);</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  signal<span class="op">(</span>full<span class="op">);</span>                        <span class="cf">for</span> <span class="op">(</span>k <span class="op">=</span> <span class="dv">1</span><span class="op">;</span> k <span class="op">&lt;</span> n<span class="op">;</span> k<span class="op">++)</span> wait<span class="op">(</span>full<span class="op">);</span>    <span class="co">// absorb the other n-1 signals</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>                                      <span class="cf">for</span> <span class="op">(</span>k <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> k <span class="op">&lt;</span> n<span class="op">;</span> k<span class="op">++)</span> signal<span class="op">(</span>empty<span class="op">);</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>                                       signal<span class="op">(</span>cmutex<span class="op">);</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>                                       consume the n items<span class="op">;</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>                                     <span class="op">}</span></span></code></pre></div>
+<p>The consumer waits on <code>full</code> only for items it already
+counted; their producers have released <code>mutex</code> and call
+<code>signal(full)</code> without needing any lock, so this cannot
+deadlock.</p>
+</div>
+</details>
+<hr />
+<h2 id="monitors-not-examinable">8. Monitors (not examinable)</h2>
+<p>A <strong>monitor</strong> is a high-level construct: a collection of
+procedures and data. Processes call its procedures to access the data,
+the data can be accessed only by those procedures, and <strong>only one
+process can be active in the monitor at a time</strong>. The lecture
+marks this slide not examinable.</p>
+</main>
+
+<nav class="sequence-navigation" aria-label="Chapter sequence">
+  <a class="previous-page" href="../../notes/3-cpu-scheduling/3.html">← 3.
+CPU Scheduling</a>
+  <a class="next-page" href="../../notes/5-deadlocks/5.html">5.
+Deadlocks →</a>
+</nav>
+
+<footer class="site-footer">
+  <nav class="footer-socials" aria-label="Edward Lai on social media">
+    <a href="https://linkedin.com/in/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="LinkedIn" title="LinkedIn">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V8.99h3.41v1.57h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zM7.12 20.45H3.56V8.99h3.56v11.46z"></path>
+      </svg>
+    </a>
+    <a href="https://github.com/edwardlaiyc" target="_blank" rel="noopener noreferrer"
+       aria-label="GitHub" title="GitHub">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2.23c-3.22.7-3.9-1.37-3.9-1.37-.53-1.34-1.29-1.7-1.29-1.7-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.04 1.78 2.72 1.27 3.38.97.1-.75.4-1.27.74-1.56-2.57-.29-5.27-1.29-5.27-5.7 0-1.27.45-2.3 1.19-3.11-.12-.29-.52-1.47.11-3.07 0 0 .97-.31 3.16 1.19a10.98 10.98 0 0 1 5.76 0c2.2-1.5 3.16-1.19 3.16-1.19.63 1.6.23 2.78.11 3.07.74.81 1.19 1.84 1.19 3.11 0 4.43-2.71 5.4-5.29 5.69.42.36.79 1.06.79 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .7z"></path>
+      </svg>
+    </a>
+  </nav>
+  <p>Edward Lai</p>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var button = document.getElementById('theme-toggle');
+
+    function theme() {
+      return root.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+    }
+
+    function renderTheme(next, persist) {
+      root.setAttribute('data-theme', next);
+      button.setAttribute('aria-pressed', next === 'dark' ? 'true' : 'false');
+      button.title = next === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+      if (persist) {
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      }
+    }
+
+    renderTheme(theme(), false);
+    button.addEventListener('click', function () {
+      renderTheme(theme() === 'dark' ? 'light' : 'dark', true);
+    });
+
+    var path = location.pathname.replace(/^\/+/, '');
+    var current = location.pathname.split('/').pop() || 'index.html';
+    document.querySelectorAll('.page-nav a[data-page]').forEach(function (link) {
+      if (link.getAttribute('data-page') === current) link.setAttribute('aria-current', 'page');
+    });
+
+    document.querySelectorAll('.navigation-grid a[data-nav]').forEach(function (link) {
+      var targetParts = link.getAttribute('data-nav').split('#');
+      var target = targetParts[0];
+      var fragmentMatches = targetParts.length === 1 ||
+        location.hash === '#' + targetParts[1];
+      if (target && fragmentMatches &&
+          (path === target || path.endsWith('/' + target))) {
+        link.setAttribute('aria-current', 'page');
+      }
+    });
+  })();
+</script>
+
+<script>
+  // Reading progress + scroll title bar. Updates a top progress fill from the
+  // scroll fraction, and reveals the title bar once the page header scrolls off.
+  (function () {
+    var fill = document.getElementById('reading-progress-fill');
+    var bar = document.getElementById('reading-bar');
+    var header = document.querySelector('.site-header');
+    if (!fill) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var doc = document.documentElement;
+      var max = (doc.scrollHeight - doc.clientHeight) || 1;
+      var y = window.scrollY || doc.scrollTop || 0;
+      fill.style.width = Math.min(100, Math.max(0, (y / max) * 100)) + '%';
+      if (bar && header) {
+        var threshold = header.offsetTop + header.offsetHeight - 8;
+        bar.classList.toggle('is-visible', y > threshold);
+      }
+    }
+    function onScroll() {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+    update();
+
+    // In-page jumps (contents links, the title bar's back-to-top). The browser's
+    // own smooth scroll scales with distance and took about a second on a long
+    // page; this one always takes SCROLL_MS, easing out so it never snaps.
+    var SCROLL_MS = 250;
+    var reduce = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var anim = 0;
+    // style.css keeps `scroll-behavior: smooth` for older pages, which would
+    // smooth every frame of this animation too; 'instant' overrides it.
+    function jump(y) {
+      try { window.scrollTo({ top: y, behavior: 'instant' }); }
+      catch (err) { window.scrollTo(0, y); }
+    }
+    function scrollToY(target) {
+      var doc = document.documentElement;
+      var max = doc.scrollHeight - doc.clientHeight;
+      target = Math.max(0, Math.min(max, target));
+      var start = window.scrollY || doc.scrollTop || 0;
+      var dist = target - start;
+      cancelAnimationFrame(anim);
+      if (reduce || Math.abs(dist) < 2) { jump(target); return; }
+      var t0 = null;
+      function step(now) {
+        if (t0 === null) t0 = now;
+        var p = Math.min(1, (now - t0) / SCROLL_MS);
+        var eased = 1 - Math.pow(1 - p, 3);          // ease-out cubic
+        jump(start + dist * eased);
+        if (p < 1) anim = requestAnimationFrame(step);
+      }
+      anim = requestAnimationFrame(step);
+    }
+
+    var title = document.getElementById('reading-bar-title');
+    if (title) {
+      title.addEventListener('click', function () { scrollToY(0); });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (e.defaultPrevented || e.button !== 0 ||
+          e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      var id = decodeURIComponent(a.getAttribute('href').slice(1));
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      e.preventDefault();
+      // Respect each target's scroll-margin-top, which clears the fixed bar.
+      var margin = parseFloat(getComputedStyle(el).scrollMarginTop) || 0;
+      var y = el.getBoundingClientRect().top + (window.scrollY || 0) - margin;
+      if (history.pushState) history.pushState(null, '', '#' + id);
+      scrollToY(y);
+      if (a.classList.contains('skip-link')) el.focus({ preventScroll: true });
+    });
+  })();
+</script>
+
+<script>
+  // Mermaid diagrams. Pandoc emits ```mermaid fences as <pre class="mermaid">,
+  // which nothing renders, so the source showed as a code block. Swap each for
+  // a plain <div class="mermaid"> (also keeps the copy-button script below off
+  // it) and load the library only on pages that actually have a diagram.
+  (function () {
+    var blocks = document.querySelectorAll('main#content pre.mermaid');
+    if (!blocks.length) return;
+    blocks.forEach(function (pre) {
+      var div = document.createElement('div');
+      div.className = 'mermaid';
+      div.textContent = pre.textContent;
+      pre.parentNode.replaceChild(div, pre);
+    });
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    import('https://cdn.jsdelivr.net/npm/mermaid@11.4.0/dist/mermaid.esm.min.mjs')
+      .then(function (m) {
+        m.default.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default' });
+        return m.default.run({ querySelector: 'main#content div.mermaid' });
+      })
+      .catch(function () { /* offline: the diagram source stays visible as text */ });
+  })();
+</script>
+
+<script>
+  // Copy-to-clipboard button on every code block. Progressive enhancement:
+  // wraps each <pre> in a .code-wrapper and adds a button; a no-op where the
+  // Clipboard API is unavailable, so JS-off / old browsers just see plain code.
+  (function () {
+    if (!navigator.clipboard) return;
+    var copyIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<rect x="9" y="9" width="13" height="13" rx="2"></rect>' +
+      '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+      'stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+      '<path d="M20 6 9 17l-5-5"></path></svg>';
+
+    document.querySelectorAll('main#content pre').forEach(function (pre) {
+      var wrap = document.createElement('div');
+      wrap.className = 'code-wrapper';
+      pre.parentNode.insertBefore(wrap, pre);
+      wrap.appendChild(pre);
+
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'code-copy';
+      btn.innerHTML = copyIcon;
+      btn.title = 'Copy';
+      btn.setAttribute('aria-label', 'Copy code to clipboard');
+      wrap.appendChild(btn);
+
+      var reset;
+      btn.addEventListener('click', function () {
+        navigator.clipboard.writeText(pre.innerText).then(function () {
+          btn.innerHTML = checkIcon;
+          btn.title = 'Copied';
+          btn.classList.add('is-copied');
+          clearTimeout(reset);
+          reset = setTimeout(function () {
+            btn.innerHTML = copyIcon;
+            btn.title = 'Copy';
+            btn.classList.remove('is-copied');
+          }, 1600);
+        }).catch(function () {
+          btn.title = 'Copy failed';
+          clearTimeout(reset);
+          reset = setTimeout(function () { btn.title = 'Copy'; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+
+<script>
+  // Tap-to-answer quiz (mcq.lua). A tap locks in the pick, marks it right or
+  // wrong, and shows the reason. A bar pinned to the bottom keeps the score and
+  // lists the misses once every question is answered. A no-op on pages with no
+  // .mcq block. Nothing is stored: a reload starts the quiz fresh.
+  (function () {
+    var qs = Array.prototype.slice.call(document.querySelectorAll('main#content .mcq'));
+    if (!qs.length) return;
+    var picks = qs.map(function () { return null; });
+
+    var bar = document.createElement('div');
+    bar.className = 'mcq-bar';
+    bar.innerHTML = '<span class="mcq-score"></span>' +
+      '<span class="mcq-actions"><button type="button" class="mcq-reveal">Show all answers</button>' +
+      '<button type="button" class="mcq-reset">Reset</button></span>' +
+      '<span class="mcq-end" hidden></span>';
+    document.getElementById('content').appendChild(bar);
+    document.body.classList.add('has-mcq-bar');
+
+    function opts(q) { return Array.prototype.slice.call(q.querySelectorAll('.mcq-opt')); }
+
+    function show(i) {
+      var q = qs[i];
+      opts(q).forEach(function (b, j) {
+        b.disabled = true;
+        b.classList.remove('is-right', 'is-wrong', 'is-dim');
+        var tag = b.querySelector('.mcq-tag');
+        tag.textContent = '';
+        if (b.hasAttribute('data-ok')) { b.classList.add('is-right'); tag.textContent = 'correct'; }
+        else if (j === picks[i]) { b.classList.add('is-wrong'); tag.textContent = 'your pick'; }
+        else b.classList.add('is-dim');
+      });
+      q.querySelector('.mcq-why').hidden = false;
+    }
+
+    function correct(i) {
+      return picks[i] !== null && opts(qs[i])[picks[i]].hasAttribute('data-ok');
+    }
+
+    function tally() {
+      var done = 0, right = 0, miss = [];
+      qs.forEach(function (q, i) {
+        if (picks[i] !== null) done++;
+        if (correct(i)) right++; else miss.push(i + 1);
+      });
+      bar.querySelector('.mcq-score').innerHTML =
+        '<b>' + done + '</b> / ' + qs.length + ' answered · ' + right + ' correct';
+      var end = bar.querySelector('.mcq-end');
+      if (done === qs.length) {
+        end.hidden = false;
+        end.textContent = miss.length ? 'Revisit: ' + miss.map(function (n) {
+          return 'Q' + n; }).join(', ') : 'Clean sweep.';
+      } else end.hidden = true;
+    }
+
+    qs.forEach(function (q, i) {
+      opts(q).forEach(function (b, j) {
+        b.addEventListener('click', function () {
+          if (b.disabled) return;
+          picks[i] = j; show(i); tally();
+        });
+      });
+    });
+    bar.querySelector('.mcq-reveal').addEventListener('click', function () {
+      qs.forEach(function (q, i) { show(i); });
+    });
+    bar.querySelector('.mcq-reset').addEventListener('click', function () {
+      qs.forEach(function (q, i) {
+        picks[i] = null;
+        opts(q).forEach(function (b) {
+          b.disabled = false;
+          b.classList.remove('is-right', 'is-wrong', 'is-dim');
+          b.querySelector('.mcq-tag').textContent = '';
+        });
+        q.querySelector('.mcq-why').hidden = true;
+      });
+      tally();
+      window.scrollTo(0, 0);
+    });
+    tally();
+  })();
+</script>
+</body>
+</html>

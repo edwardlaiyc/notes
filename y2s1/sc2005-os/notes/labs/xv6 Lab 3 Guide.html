@@ -1,0 +1,488 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>xv6 Lab 3 Guide</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap">
+<style>
+/* Layout: one reading column on paper, hairline rules instead of cards; greys carry structure, rust accent only for traps and the one thing to notice */
+:root{
+  --paper:#fbfbf9; --tint:#f1f1ed; --code:#f3f3f0;
+  --ink:#15181c; --body:#40454c; --muted:#747981; --faint:#a4a8ae;
+  --rule:#e1e1dc; --rule-strong:#c9cacc;
+  --bar:#5a6069; --mid:#a9aeb4; --lite:#dcdee1;
+  --accent:#a8461f;
+  --onbar:#dcdee1;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --display:'Plus Jakarta Sans','Inter',system-ui,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#000000; --tint:#0e0e0e; --code:#121212;
+  --ink:#f3f3f1; --body:#c8cacd; --muted:#8a8f96; --faint:#5d6168;
+  --rule:#1d1d1d; --rule-strong:#343434;
+  --bar:#e4e5e7; --mid:#6b7076; --lite:#232427; --onbar:#55595f;
+  --accent:#e0703f; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --paper:#000000; --tint:#0e0e0e; --code:#121212;
+  --ink:#f3f3f1; --body:#c8cacd; --muted:#8a8f96; --faint:#5d6168;
+  --rule:#1d1d1d; --rule-strong:#343434;
+  --bar:#e4e5e7; --mid:#6b7076; --lite:#232427; --onbar:#55595f;
+  --accent:#e0703f; color-scheme:dark;}
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--body);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.wrap{max-width:660px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));padding-block:0 72px}
+
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--rule)}
+nav .row{max-width:660px;margin:0 auto;display:flex;gap:22px;overflow-x:auto;padding-block:13px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));scrollbar-width:none}
+nav .row::-webkit-scrollbar{display:none}
+nav a{flex:none;font-size:14px;font-weight:500;color:var(--muted)}
+nav a:hover{color:var(--ink)}
+
+header{padding-block:40px 6px}
+.meta{font-size:14px;font-weight:500;color:var(--muted);margin:0 0 12px}
+h1{font-family:var(--display);font-weight:700;font-size:31px;line-height:1.15;letter-spacing:-.01em;color:var(--ink);margin:0 0 14px;text-wrap:balance}
+.lede{font-size:17px;line-height:1.55;margin:0}
+
+section{padding-top:52px;scroll-margin-top:56px}
+h2{font-family:var(--display);font-weight:700;font-size:25px;line-height:1.2;letter-spacing:-.01em;color:var(--ink);margin:0 0 18px;text-wrap:balance}
+h3{font-family:var(--display);font-weight:600;font-size:18px;color:var(--ink);margin:34px 0 10px;text-wrap:balance}
+p{margin:0 0 14px}
+b,strong{font-weight:600;color:var(--ink)}
+code{font-family:var(--mono);font-size:.86em;color:var(--ink);background:var(--code);padding:.08em .32em}
+pre{font-family:var(--mono);font-size:13px;line-height:1.6;color:var(--ink);background:var(--code);border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule);padding:14px 16px;overflow-x:auto;margin:0 0 18px}
+pre code{background:none;padding:0;font-size:inherit}
+.c{color:var(--muted)}
+
+ul.plain{list-style:none;margin:0 0 16px;padding:0}
+ul.plain li{position:relative;padding-left:22px;margin:0 0 8px}
+ul.plain li::before{content:"–";position:absolute;left:0;color:var(--muted)}
+ol.steps{list-style:none;counter-reset:s;margin:0 0 16px;padding:0;border-top:1px solid var(--rule-strong)}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:8px;padding:11px 0;border-bottom:1px solid var(--rule)}
+ol.steps li::before{content:counter(s);font-family:var(--display);font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+ol.steps li>span{min-width:0}
+
+figure{margin:22px 0 26px}
+figure svg{display:block;width:100%;height:auto;max-width:460px}
+figcaption{font-size:14px;line-height:1.5;color:var(--muted);margin-top:10px}
+
+.quiz{border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule);padding:14px 0;margin:0 0 16px}
+.quiz .qlabel{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.quiz .qtext{font-family:var(--display);font-weight:600;color:var(--ink);font-size:16px;line-height:1.4;margin-bottom:10px}
+.quiz ol{margin:0;padding-left:1.4em;font-size:15px}
+.quiz li{margin-bottom:4px}
+.quiz li.ok{color:var(--ink);font-weight:600}
+.quiz li.ok::after{content:"  correct";font-size:12px;font-weight:600;color:var(--accent)}
+.trap{display:grid;grid-template-columns:52px 1fr;gap:10px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:12px 0;margin:-1px 0 0}
+.trap+:not(.trap){margin-top:18px}
+.trap>span:first-child{font-size:13px;font-weight:600;color:var(--accent);padding-top:2px}
+.trap>span:last-child{min-width:0;font-size:15px;line-height:1.55}
+
+.facts{display:grid;grid-template-columns:minmax(0,9.5em) 1fr;column-gap:20px;border-top:1px solid var(--rule-strong);margin:0 0 18px}
+.facts>div{padding:12px 0;border-bottom:1px solid var(--rule);min-width:0}
+.facts>div:nth-child(odd){font-family:var(--mono);font-size:14px;font-weight:600;color:var(--ink);overflow-wrap:anywhere;padding-top:14px}
+.facts .sub{display:block;font-size:14px;color:var(--muted)}
+
+.tbl{overflow-x:auto;margin:0 0 18px}
+table{border-collapse:collapse;width:100%}
+th{font-size:13px;font-weight:500;color:var(--muted);text-align:left;padding:0 14px 9px 0;border-bottom:1px solid var(--rule-strong);vertical-align:bottom}
+td{font-size:15px;line-height:1.45;padding:11px 14px 11px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+td:first-child{color:var(--ink);font-variant-numeric:tabular-nums}
+td code{white-space:nowrap}
+tr.bad td{color:var(--accent)}
+
+.qs{border-top:1px solid var(--rule-strong)}
+details{border-bottom:1px solid var(--rule)}
+summary{cursor:pointer;list-style:none;display:grid;grid-template-columns:34px 1fr 16px;gap:8px;align-items:baseline;padding:15px 0}
+summary::-webkit-details-marker{display:none}
+summary .qn{font-family:var(--display);font-weight:600;font-size:15px;color:var(--accent);font-variant-numeric:tabular-nums}
+summary .qt{font-family:var(--display);font-weight:600;font-size:16px;line-height:1.35;color:var(--ink);min-width:0}
+summary .tg{font-size:18px;color:var(--faint);line-height:1}
+details[open] summary .tg{transform:rotate(45deg)}
+details .ans{padding:0 0 16px 42px;font-size:15px}
+details .ans p:last-child{margin:0}
+
+.dg text{font-family:var(--sans)}
+.dg .t{font-size:13px;font-weight:500;fill:var(--ink)}
+.dg .s{font-size:11px;fill:var(--muted)}
+.dg .h{font-size:11px;font-weight:500;fill:var(--muted)}
+.dg .m{font-family:var(--mono);font-size:11.5px;fill:var(--ink)}
+.dg .inv{fill:var(--paper)}
+.dg .acc{fill:var(--accent)}
+.dg .box{fill:var(--paper);stroke:var(--ink);stroke-width:1.3}
+.dg .ol{fill:var(--paper);stroke:var(--faint);stroke-width:1.3}
+.dg .own{fill:var(--bar)}
+.dg .lite{fill:var(--lite)}
+.dg .abox{fill:var(--paper);stroke:var(--accent);stroke-width:1.3}
+.dg .ln{stroke:var(--muted);stroke-width:1.3;fill:none}
+.dg .lacc{stroke:var(--accent);stroke-width:1.3;fill:none}
+.dg .dash{stroke:var(--faint);stroke-width:1.3;stroke-dasharray:5 4;fill:none}
+.dg .ah{fill:var(--muted)}
+.dg .aha{fill:var(--accent)}
+.dg .rule{stroke:var(--rule-strong);stroke-width:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<nav aria-label="Parts"><div class="row">
+  <a href="#p1">Spinlocks</a><a href="#p1b">Sleep &amp; wakeup</a><a href="#p1c">Spin vs sleep</a><a href="#p2">Semaphore</a><a href="#p3">Counter</a><a href="#p4">Producer–consumer</a><a href="#check">Self-check</a>
+</div></nav>
+
+<div class="wrap">
+<header>
+  <div class="meta">SC2005 · Lab 3</div>
+  <h1>Synchronization and semaphores</h1>
+  <p class="lede">How xv6 stops two CPUs from entering the same critical section, how a process waits for a condition without wasting CPU time, how you build a blocking semaphore on top of both, and how you use it to fix a lost update and coordinate a bounded buffer. Checked against the course's <code>lab3</code> branch.</p>
+</header>
+
+<!-- ================= PART 1.1 ================= -->
+<section id="p1">
+  <div class="meta">Part 1.1</div>
+  <h2>Spinlocks: why acquiring must be one atomic step</h2>
+  <p>This lab runs with <code>CPUS=3</code>, so three processes can be running at literally the same instant. If two of them touch the same kernel data, you need a way to say "only one CPU in here at a time". That's a <strong>lock</strong>.</p>
+  <p>A spinlock is just a word in memory, <code>locked</code>, in <code>struct spinlock</code> (<code>kernel/spinlock.h</code>). 0 means free, 1 means held. The obvious way to take it is "check it's 0, then set it to 1". That doesn't work.</p>
+
+  <h3>The broken version: check, then set</h3>
+  <p>Two CPUs both want an unlocked lock:</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Step</th><th>CPU 0</th><th>CPU 1</th><th>locked</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>reads locked → 0, "it's free"</td><td></td><td>0</td></tr>
+      <tr><td>2</td><td></td><td>reads locked → 0, "it's free"</td><td>0</td></tr>
+      <tr><td>3</td><td>sets locked = 1, enters</td><td></td><td>1</td></tr>
+      <tr class="bad"><td>4</td><td></td><td>sets locked = 1, enters</td><td>1</td></tr>
+    </tbody>
+  </table></div>
+  <p>Both CPUs saw 0 before either wrote 1, so both believe they hold the lock. The gap between the check and the set is the whole problem.</p>
+
+  <h3>The fix: test-and-set</h3>
+  <p><code>acquire()</code> uses <code>__sync_lock_test_and_set(&amp;lk-&gt;locked, 1)</code>, which compiles to a single RISC-V instruction, <code>amoswap</code>. It writes 1 and returns the old value in <strong>one indivisible step</strong>. No other CPU can sneak in between the read and the write.</p>
+<pre><code>while(__sync_lock_test_and_set(&amp;lk-&gt;locked, 1) != 0)
+  ;   <span class="c">// old value was 1: someone holds it, try again (spin)</span></code></pre>
+  <p>If two CPUs swap at the same moment, the hardware orders them. The first gets back 0 and owns the lock. The second gets back the 1 the first one just wrote, so it keeps spinning.</p>
+
+  <h3>Why disabling interrupts isn't enough</h3>
+  <p><code>acquire()</code> starts with <code>push_off()</code>, which turns off interrupts. It's tempting to think that makes the critical section safe on its own. It doesn't, because interrupts are <strong>per CPU</strong>: turning them off only stops <em>this</em> CPU from being interrupted. The other two CPUs keep running, and nothing stops them from reaching the same data.</p>
+  <p>So what are disabled interrupts for? If an interrupt handler on this CPU tried to take a lock this CPU already holds, it would spin forever, because the holder can't run until the handler returns. Keeping interrupts off while a lock is held rules that deadlock out. The atomic swap is what keeps other CPUs out.</p>
+  <ul class="plain">
+    <li><strong>Atomic swap</strong> stops other CPUs entering.</li>
+    <li><strong>Interrupts off</strong> stops this CPU deadlocking against its own interrupt handler.</li>
+    <li><code>holding(lk)</code> makes <code>acquire()</code> panic if this CPU tries to take a lock it already holds.</li>
+  </ul>
+  <div class="trap"><span>Trap</span><span>"Interrupts are disabled, so no one else can enter" is only true with one CPU. On a multiprocessor it's the atomic instruction that gives mutual exclusion.</span></div>
+</section>
+
+<!-- ================= PART 1.2 ================= -->
+<section id="p1b">
+  <div class="meta">Part 1.2</div>
+  <h2>Waiting for a condition: sleep() and wakeup()</h2>
+  <p>A spinlock is fine for a wait of a few instructions. But sometimes a process has to wait for something that may take ages: a semaphore to become non-zero, a child to exit. Spinning that whole time burns a CPU doing nothing. It's better to go to sleep and be woken when the condition changes.</p>
+  <p>The kernel gives you two functions in <code>kernel/proc.c</code>:</p>
+  <div class="facts">
+    <div>sleep(chan, lk)</div><div>Mark me SLEEPING on channel <code>chan</code> and give up the CPU<span class="sub">Not the same as the user <code>sleep(ticks)</code> system call. This one waits for a condition, not a time.</span></div>
+    <div>wakeup(chan)</div><div>Make every process sleeping on <code>chan</code> RUNNABLE<span class="sub">It skips the process calling it.</span></div>
+    <div>chan</div><div>Any address both sides agree on<span class="sub">Just a label for "who to wake". It isn't a queue and it doesn't hold the data.</span></div>
+  </div>
+
+  <h3>The danger: a lost wakeup</h3>
+  <p>Waiting means two steps: check the condition, then go to sleep. Picture a naive version where the waiter checks, lets go of the lock protecting the data, and only then marks itself SLEEPING:</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Step</th><th>Waiter</th><th>Signaller</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>checks: value is 0, must wait</td><td></td></tr>
+      <tr><td>2</td><td>releases the lock</td><td></td></tr>
+      <tr><td>3</td><td></td><td>takes the lock, value = 1, calls wakeup</td></tr>
+      <tr><td>4</td><td></td><td>wakeup finds nobody SLEEPING yet, does nothing</td></tr>
+      <tr class="bad"><td>5</td><td>marks itself SLEEPING, sleeps forever</td><td></td></tr>
+    </tbody>
+  </table></div>
+  <p>The value is 1, but the waiter sleeps forever because its wakeup came in the gap between its check and its sleep.</p>
+
+  <h3>How xv6 closes the gap: two locks</h3>
+  <div class="facts">
+    <div>lk</div><div>The condition lock<span class="sub">Protects the shared data being checked (for your semaphore, its value). The caller holds it while checking.</span></div>
+    <div>p-&gt;lock</div><div>The process lock<span class="sub">Protects this process's state and sleep channel. <code>wakeup()</code> must take it to look at the process.</span></div>
+  </div>
+<pre><code>sleep(chan, lk):
+  acquire(&amp;p-&gt;lock);   <span class="c">// 1. grab my process lock FIRST</span>
+  release(lk);         <span class="c">// 2. only now let go of the condition lock</span>
+  p-&gt;chan = chan;
+  p-&gt;state = SLEEPING; <span class="c">// 3. mark myself asleep</span>
+  sched();             <span class="c">// 4. switch away (the scheduler releases p-&gt;lock)</span>
+  p-&gt;chan = 0;         <span class="c">// ...woken up and picked again</span>
+  release(&amp;p-&gt;lock);
+  acquire(lk);         <span class="c">// 5. take the condition lock back before returning</span></code></pre>
+
+  <figure>
+    <svg class="dg" viewBox="0 0 360 214" role="img" aria-label="The waiter holds p->lock from before releasing lk until after it is SLEEPING, so wakeup cannot check it in between">
+      <text class="h" x="80" y="14" text-anchor="middle">Waiter</text>
+      <text class="h" x="280" y="14" text-anchor="middle">Signaller</text>
+      <line class="dash" x1="80" y1="22" x2="80" y2="208"/><line class="dash" x1="280" y1="22" x2="280" y2="208"/>
+      <rect class="lite" x="20" y="30" width="120" height="30"/><text class="m" x="30" y="50">hold lk, check</text>
+      <rect class="own" x="20" y="70" width="120" height="96"/>
+      <text class="m inv" x="30" y="90">take p-&gt;lock</text>
+      <text class="m inv" x="30" y="110">release lk</text>
+      <text class="m inv" x="30" y="130">SLEEPING</text>
+      <text class="m inv" x="30" y="150">sched()</text>
+      <text class="s" x="146" y="80">holding p-&gt;lock</text>
+      <rect class="lite" x="220" y="96" width="120" height="30"/><text class="m" x="230" y="116">take lk, value++</text>
+      <rect class="abox" x="220" y="136" width="120" height="30"/><text class="m acc" x="230" y="156">wakeup: wait</text>
+      <text class="s acc" x="220" y="182">blocks on p-&gt;lock until the</text>
+      <text class="s acc" x="220" y="196">waiter is fully asleep</text>
+      <line class="ln" x1="140" y1="112" x2="212" y2="112"/><path class="ah" d="M220 112 l-9 -4.5 v9 z"/>
+      <text class="s" x="150" y="126">lk now free</text>
+    </svg>
+    <figcaption>Because the waiter takes p-&gt;lock before releasing lk, there is no moment where wakeup can look at the waiter and see it "not yet asleep".</figcaption>
+  </figure>
+
+  <p>The signaller holds <code>lk</code> while it changes the data and calls <code>wakeup()</code>. To check whether the waiter is asleep, <code>wakeup()</code> must take the waiter's <code>p-&gt;lock</code>. The waiter took that lock <em>before</em> releasing <code>lk</code> and keeps it until it's SLEEPING and has switched away. So at every moment the waiter is protected by at least one of the two locks. There's no gap to lose the wakeup in.</p>
+
+  <h3>Why the waiter must re-check in a loop</h3>
+  <p><code>wakeup()</code> only makes sleepers RUNNABLE. It doesn't run them straight away, and it doesn't reserve anything for them. Two things can happen before a woken process actually runs:</p>
+  <ul class="plain">
+    <li><code>wakeup()</code> wakes <strong>every</strong> process on that channel. If one unit became available and three were waiting, only one can have it.</li>
+    <li>Another process can grab the resource in the time between "made RUNNABLE" and "actually running".</li>
+  </ul>
+  <p>So the waiter wraps its check in a <code>while</code>, not an <code>if</code>: wake up, take <code>lk</code> back, look again, and sleep again if it still can't proceed.</p>
+  <div class="trap"><span>Trap</span><span>Being woken doesn't mean the condition is true. It only means "something changed, go and look".</span></div>
+</section>
+
+<!-- ================= PART 1.3 ================= -->
+<section id="p1c">
+  <div class="meta">Part 1.3</div>
+  <h2>Spinning vs sleeping</h2>
+  <p>Sleeping isn't free. It costs a trip through <code>sched()</code> into the scheduler, picking another process, and later a wakeup plus another switch back in. That overhead is a fixed cost, on the order of hundreds to thousands of cycles. Spinning costs exactly as long as the wait.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Wait</th><th>Cheaper</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>10 cycles</td><td>Spin</td><td>The wait is over long before a context switch could even finish</td></tr>
+      <tr><td>10,000 cycles</td><td>Sleep</td><td>Spinning wastes 10,000 cycles that another process could use; the switch costs far less</td></tr>
+    </tbody>
+  </table></div>
+  <p>The manual asks you to state your assumptions. Here are the ones that matter:</p>
+  <ul class="plain">
+    <li>Spinning only makes sense if the lock holder is running on <strong>another CPU</strong> and will release soon. With one CPU, the holder can't run while you spin, so you'd spin for your entire time slice.</li>
+    <li>These numbers are illustrations, not measured xv6 thresholds. The real break-even depends on how expensive a switch is on that machine.</li>
+  </ul>
+</section>
+
+<!-- ================= PART 2 ================= -->
+<section id="p2">
+  <div class="meta">Part 2</div>
+  <h2>Completing the blocking semaphore</h2>
+  <p>A semaphore combines the two tools from Part 1: a short spinlock to update its count safely, and <code>sleep()</code>/<code>wakeup()</code> to wait when the count is zero.</p>
+
+  <h3>Three names that look alike</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Name</th><th>Where</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>seminit()</code></td><td>kernel, at boot</td><td>Sets up the whole <code>semaphores[32]</code> array: marks every slot unused and initialises each slot's lock</td></tr>
+      <tr><td><code>sem_init(value)</code></td><td>user system call</td><td>What a user program calls to get a semaphore</td></tr>
+      <tr><td><code>sem_alloc(value)</code></td><td>kernel</td><td>What <code>sys_sem_init</code> calls: finds a free slot, sets its value, returns its index as the <code>semid</code>, or -1 if all 32 are taken</td></tr>
+    </tbody>
+  </table></div>
+  <p>Each slot is a <code>struct semaphore</code> holding a <code>lock</code>, a <code>value</code> and an <code>in_use</code> flag. A <code>semid</code> is just the slot's index in the kernel array.</p>
+
+  <h3>This semaphore never goes negative</h3>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>Lecture version</th><th>This lab</th></tr></thead>
+    <tbody>
+      <tr><td>Wait</td><td>Decrement first; block if it went below 0</td><td>Sleep <strong>while</strong> the value is 0; decrement once it's positive</td></tr>
+      <tr><td>Value range</td><td>Can be negative</td><td>Always 0 or more</td></tr>
+      <tr><td>Negative value means</td><td>|S| processes are blocked</td><td>Never happens</td></tr>
+    </tbody>
+  </table></div>
+  <div class="trap"><span>Trap</span><span>The manual says not to mix the two. In this lab, a value of 0 can mean "nobody waiting" or "five processes waiting". The count doesn't tell you how many are blocked.</span></div>
+
+  <h3>What each operation has to do</h3>
+  <p>The TODOs ask you to uncomment <code>struct semaphore *sem = &amp;semaphores[semid];</code> and fill in the rest. In outline:</p>
+<pre><code>sem_wait:
+  acquire(&amp;sem-&gt;lock)
+  while value == 0:
+      sleep(sem, &amp;sem-&gt;lock)    <span class="c">// channel = this semaphore's address</span>
+  value--
+  release(&amp;sem-&gt;lock)
+
+sem_signal:
+  acquire(&amp;sem-&gt;lock)
+  value++
+  wakeup(sem)                  <span class="c">// same channel as the waiters</span>
+  release(&amp;sem-&gt;lock)
+
+sem_getvalue:
+  acquire, copy value, release, return the copy</code></pre>
+  <ul class="plain">
+    <li><strong>Lock:</strong> each semaphore's own <code>sem-&gt;lock</code>. It's the condition lock from Part 1: it protects <code>value</code>.</li>
+    <li><strong>Channel:</strong> the semaphore's own address. Waiters on semaphore 3 aren't woken by a signal on semaphore 5.</li>
+    <li><strong>Why sleep gets the lock:</strong> if the waiter slept while holding <code>sem-&gt;lock</code>, the signaller could never take it to increment the value, and everyone would be stuck. <code>sleep()</code> releases it safely and takes it back before returning.</li>
+    <li><strong>Why <code>while</code>:</strong> <code>wakeup()</code> wakes every waiter on the channel, but one signal adds only 1. Whoever runs first takes it. The rest see 0 again and go back to sleep.</li>
+    <li><strong>Why getvalue locks:</strong> so it never reads <code>value</code> halfway through someone else's update.</li>
+  </ul>
+
+  <h3>What sem_basic does and doesn't check</h3>
+  <p>The basic test does <code>sem_init(1)</code>, then wait, then signal, and checks the value reads 1 → 0 → 1. It prints <code>[sem_basic] PASS: Basic semaphore operations work.</code></p>
+  <p>It never waits on a value of 0, so it never tests blocking, sleeping, waking or the re-check loop. You have to explain those from your code.</p>
+
+  <h3>When it's safe to free</h3>
+  <p><code>sem_free()</code> just marks the slot unused. It doesn't wake anyone sleeping on it and doesn't wait for users to finish. Freeing too early means a sleeper may never be woken, or the slot gets handed to a new <code>sem_init</code> while an old process still uses it. So: allocate before <code>fork()</code>, free only after every user has finished, which in the tests means after the parent's <code>wait()</code>.</p>
+
+  <div class="quiz"><div class="qlabel">Practice</div>
+    <div class="qtext">Three processes sleep in sem_wait on the same semaphore, whose value is 0. One process calls sem_signal once. What happens?</div>
+    <ol><li>Exactly one sleeper is made RUNNABLE, and it decrements the value</li><li class="ok">All three become RUNNABLE; one decrements the value and the other two go back to sleep</li><li>All three decrement the value, which ends at -2</li><li>No sleeper wakes until the value reaches 3</li></ol></div>
+  <p><code>wakeup()</code> wakes everyone on the channel. The <code>while</code> loop is what makes the other two sleep again, and the value never drops below 0 in this design.</p>
+</section>
+
+<!-- ================= PART 3 ================= -->
+<section id="p3">
+  <div class="meta">Part 3</div>
+  <h2>Protecting the shared counter</h2>
+  <p>Counter 0 lives in kernel memory (<code>ucnt[]</code> in <code>kernel/ucnt.c</code>). The test forks once, and parent and child each add 1 to it N = 1,000 times, so the total should be 2,000. Each increment in <code>do_work()</code> is two separate system calls:</p>
+<pre><code>int val = ucnt_get(0);   <span class="c">// read</span>
+ucnt_set(0, val + 1);    <span class="c">// write</span></code></pre>
+
+  <h3>How an update gets lost</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Step</th><th>Parent</th><th>Child</th><th>Counter</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td><code>ucnt_get</code> → 5</td><td></td><td>5</td></tr>
+      <tr><td>2</td><td></td><td><code>ucnt_get</code> → 5</td><td>5</td></tr>
+      <tr><td>3</td><td><code>ucnt_set(6)</code></td><td></td><td>6</td></tr>
+      <tr class="bad"><td>4</td><td></td><td><code>ucnt_set(6)</code></td><td>6</td></tr>
+    </tbody>
+  </table></div>
+  <p>Two increments happened, but the counter only went up by 1. Each call on its own is fine. The damage happens in the gap <strong>between</strong> the read and the write, when the other process reads the same old value.</p>
+  <div class="trap"><span>Trap</span><span>Entering the kernel doesn't make the pair atomic. Two system calls are two separate trips into the kernel, and the other process can run in between. And one run that happens to print 2,000 doesn't prove there's no race; the bad timing just didn't happen that time.</span></div>
+
+  <h3>The fix</h3>
+  <ul class="plain">
+    <li><strong>Create one semaphore with value 1</strong> in <code>race_test()</code>, <strong>before</strong> <code>fork()</code>. 1 means one process may be inside at a time, which is mutual exclusion.</li>
+    <li><strong>Wrap the whole read-then-write in wait and signal</strong>, so the get and the set happen together, with no other increment in between.</li>
+    <li><strong>Check the results</strong>: <code>sem_init</code> can return -1.</li>
+    <li><strong>Parent: <code>wait(0)</code>, then check, then free.</strong> The child might still be incrementing until it exits, and the semaphore can't be freed while the child might still use it.</li>
+  </ul>
+  <p>Wrapping each call on its own (wait, get, signal, then wait, set, signal) doesn't help: the gap between get and set is still unprotected, and that gap is exactly where the other process gets in.</p>
+
+  <h3>Why the child's semid still works</h3>
+  <p><code>fork()</code> copies user memory, so the child gets its own copy of the variable <code>semid</code>. But <code>semid</code> is just a number: an index into <code>semaphores[]</code> in <strong>kernel</strong> memory. Kernel memory isn't copied by fork. Parent and child pass the same number, so they reach the same kernel semaphore. The counter works the same way, which is why both processes see one shared counter.</p>
+
+  <div class="quiz"><div class="qlabel">Practice</div>
+    <div class="qtext">A student places sem_wait before ucnt_get and sem_signal right after it, and a second wait/signal pair around ucnt_set. The final count is sometimes below 2,000. Why?</div>
+    <ol><li>The semaphore must be initialised to 2 for two processes</li><li>sem_signal wakes the other process too early</li><li class="ok">The gap between the get and the set is still unprotected</li><li>The child has a different copy of the semaphore</li></ol></div>
+</section>
+
+<!-- ================= PART 4 ================= -->
+<section id="p4">
+  <div class="meta">Part 4</div>
+  <h2>Producers and a consumer</h2>
+  <p>The kernel buffer <code>ubuf</code> has <code>UBUF_SIZE</code> = 16 slots arranged in a circle. Two child processes produce, each writing the 48 characters of <code>msg</code>. The parent consumes, making 96 reads. The buffer functions check nothing: a write into a full buffer overwrites data, and a read from an empty one returns rubbish. So you need three separate guarantees:</p>
+  <ul class="plain">
+    <li>A producer waits when there's no <strong>empty slot</strong>.</li>
+    <li>The consumer waits when there's no <strong>filled slot</strong>.</li>
+    <li>Only one process touches the buffer's <strong>indices</strong> at a time.</li>
+  </ul>
+
+  <figure>
+    <svg class="dg" viewBox="0 0 360 132" role="img" aria-label="Circular buffer: ubuf_write uses tail, ubuf_read uses head, each calls yield before advancing its index">
+      <text class="h" x="0" y="14">ubuf.data[16], shown as a row that wraps around</text>
+      <g>
+        <rect class="lite" x="0" y="26" width="22" height="30"/><rect class="lite" x="22" y="26" width="22" height="30"/>
+        <rect class="own" x="44" y="26" width="22" height="30"/><rect class="own" x="66" y="26" width="22" height="30"/><rect class="own" x="88" y="26" width="22" height="30"/><rect class="own" x="110" y="26" width="22" height="30"/><rect class="own" x="132" y="26" width="22" height="30"/>
+        <rect class="lite" x="154" y="26" width="22" height="30"/><rect class="lite" x="176" y="26" width="22" height="30"/><rect class="lite" x="198" y="26" width="22" height="30"/><rect class="lite" x="220" y="26" width="22" height="30"/><rect class="lite" x="242" y="26" width="22" height="30"/><rect class="lite" x="264" y="26" width="22" height="30"/><rect class="lite" x="286" y="26" width="22" height="30"/><rect class="lite" x="308" y="26" width="22" height="30"/><rect class="lite" x="330" y="26" width="22" height="30"/>
+        <line class="rule" x1="0" y1="26" x2="352" y2="26"/><line class="rule" x1="0" y1="56" x2="352" y2="56"/>
+      </g>
+      <path class="ln" d="M55 92 V64"/><path class="ah" d="M55 60 l-4.5 9 h9 z"/>
+      <text class="m" x="20" y="108">head</text><text class="s" x="20" y="122">ubuf_read() reads here</text>
+      <path class="ln" d="M165 92 V64"/><path class="ah" d="M165 60 l-4.5 9 h9 z"/>
+      <text class="m" x="150" y="108">tail</text><text class="s" x="150" y="122">ubuf_write() writes here</text>
+      <text class="s" x="250" y="80">dark = filled,</text><text class="s" x="250" y="94">light = empty</text>
+    </svg>
+    <figcaption>Follow the function bodies: <code>ubuf_read()</code> uses <code>head</code> and <code>ubuf_write()</code> uses <code>tail</code>. The comment above <code>struct ubuf</code> says the reverse, and the manual confirms the comment is wrong.</figcaption>
+  </figure>
+
+  <h3>Three semaphores and their starting values</h3>
+  <p>At the start the buffer is empty, so:</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Semaphore</th><th>Counts</th><th>Starts at</th></tr></thead>
+    <tbody>
+      <tr><td>empty</td><td>free slots a producer may fill</td><td>16 (<code>UBUF_SIZE</code>)</td></tr>
+      <tr><td>full</td><td>filled slots the consumer may read</td><td>0</td></tr>
+      <tr><td>mutex</td><td>who may touch the buffer</td><td>1</td></tr>
+    </tbody>
+  </table></div>
+  <p>These go in <code>struct buf_sem</code> and are created in <code>producer_consumer()</code> <strong>before</strong> the fork loop, so both children inherit the same ids.</p>
+
+  <h3>The order of calls</h3>
+<pre><code>producer, for each character:      consumer, for each read:
+  wait(empty)                        wait(full)
+  wait(mutex)                        wait(mutex)
+  ubuf_write(c)                      ubuf_read()
+  signal(mutex)                      signal(mutex)
+  signal(full)                       signal(empty)</code></pre>
+  <p>The pattern: wait for a <strong>slot</strong> first, then take the <strong>mutex</strong>, do the operation, release the mutex, then announce the slot you've created for the other side.</p>
+
+  <h3>Why the order of the two waits matters</h3>
+  <p>Swap them in the consumer so it takes the mutex first, and start with an empty buffer:</p>
+  <ol class="steps">
+    <li><span>The consumer takes the mutex, then waits on full. It's 0, so the consumer sleeps <strong>while still holding the mutex</strong>.</span></li>
+    <li><span>A producer gets past wait(empty), then waits on mutex. The consumer holds it, so the producer sleeps.</span></li>
+    <li><span>The consumer needs a producer to signal full. The producer needs the consumer to release the mutex. Neither can move: <strong>deadlock</strong>.</span></li>
+  </ol>
+  <p>The rule: never sleep waiting for space or data while holding the mutex.</p>
+
+  <h3>Why counting slots isn't enough</h3>
+  <p>With 16 empty slots, both producers get past <code>wait(empty)</code> at once. Without the mutex, here's what the <code>yield()</code> inside <code>ubuf_write()</code> lets happen:</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Step</th><th>Producer A</th><th>Producer B</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>writes into <code>data[tail]</code>, then yields</td><td></td></tr>
+      <tr class="bad"><td>2</td><td></td><td>writes into the same <code>data[tail]</code>, overwriting A</td></tr>
+      <tr><td>3</td><td>advances tail</td><td></td></tr>
+      <tr><td>4</td><td></td><td>advances tail again, leaving a slot that was never written</td></tr>
+    </tbody>
+  </table></div>
+  <p>The empty/full counts only say <em>how many</em> slots are available. They don't stop two processes using the <em>same index</em> at once. That's the mutex's job. The <code>yield()</code> calls exist to force this interleaving to show up if your mutual exclusion is wrong.</p>
+
+  <h3>Cleanup and what the test proves</h3>
+  <p>The parent consumes all 96 characters, calls <code>wait(0)</code> twice to reap both producers, then frees all three semaphores. Success prints <code>[producer_consumer] PASS: message delivered</code>.</p>
+  <p>The consumer only checks that each byte it reads is one of the characters in <code>msg</code> (c, a, f or e). It doesn't compare the stream to an expected order. A lost byte replaced by an old one, a duplicate, or a reordering could all still pass. So the pass result only supports your argument about counts, mutual exclusion and order. It doesn't prove correctness on its own.</p>
+
+  <div class="quiz"><div class="qlabel">Practice</div>
+    <div class="qtext">The buffer starts empty. The consumer does wait(mutex) before wait(full). What happens?</div>
+    <ol><li>It works, because full starts at 0</li><li class="ok">The consumer sleeps holding the mutex, so no producer can write: deadlock</li><li>The consumer reads rubbish from an empty slot</li><li>The producers overwrite each other's characters</li></ol></div>
+  <div class="quiz"><div class="qlabel">Practice</div>
+    <div class="qtext">A student uses only empty (16) and full (0), with no mutex. What can go wrong with two producers?</div>
+    <ol><li>Nothing, because the counts already limit access</li><li>The consumer deadlocks waiting for full</li><li class="ok">Both producers write the same slot before either advances tail</li><li>empty goes negative</li></ol></div>
+</section>
+
+<!-- ================= SELF CHECK ================= -->
+<section id="check">
+  <div class="meta">Before the quiz</div>
+  <h2>Self-check</h2>
+  <p>Tap a question to reveal the answer.</p>
+  <div class="qs">
+    <details><summary><span class="qn">01</span><span class="qt">Why can't a spinlock use "read locked, then write 1"?</span><span class="tg">+</span></summary><div class="ans"><p>Two CPUs can both read 0 before either writes 1, so both enter. Test-and-set (<code>amoswap</code>) reads and writes in one indivisible step, so only one CPU can see 0.</p></div></details>
+    <details><summary><span class="qn">02</span><span class="qt">Why doesn't disabling interrupts keep other CPUs out?</span><span class="tg">+</span></summary><div class="ans"><p>Interrupts are per CPU. Disabling them only stops this CPU being interrupted, which prevents a deadlock with its own interrupt handlers. Other CPUs are kept out by the atomic swap.</p></div></details>
+    <details><summary><span class="qn">03</span><span class="qt">In sleep(chan, lk), what are lk and p-&gt;lock for?</span><span class="tg">+</span></summary><div class="ans"><p>lk is the condition lock, protecting the shared data being checked. p-&gt;lock protects the process's state and channel. sleep takes p-&gt;lock before releasing lk, so the waiter is always covered by one of them.</p></div></details>
+    <details><summary><span class="qn">04</span><span class="qt">How does that ordering prevent a lost wakeup?</span><span class="tg">+</span></summary><div class="ans"><p>wakeup must take the waiter's p-&gt;lock to check it. The waiter holds that lock from before it releases lk until it is SLEEPING and switched away, so wakeup can never see it "about to sleep".</p></div></details>
+    <details><summary><span class="qn">05</span><span class="qt">Does wakeup() run the woken process?</span><span class="tg">+</span></summary><div class="ans"><p>No. It only makes matching sleepers RUNNABLE. They run when the scheduler picks them, and nothing is reserved for them.</p></div></details>
+    <details><summary><span class="qn">06</span><span class="qt">Why must a woken process re-check its condition?</span><span class="tg">+</span></summary><div class="ans"><p>wakeup wakes every sleeper on the channel, and another process may take the resource before it runs. So it re-checks in a while loop and sleeps again if needed.</p></div></details>
+    <details><summary><span class="qn">07</span><span class="qt">Spin or sleep for 10 cycles? For 10,000?</span><span class="tg">+</span></summary><div class="ans"><p>Spin for 10, because a context switch costs far more. Sleep for 10,000, because spinning wastes the CPU. This assumes the holder runs on another CPU; the numbers are illustrations, not xv6 thresholds.</p></div></details>
+    <details><summary><span class="qn">08</span><span class="qt">seminit vs sem_init vs sem_alloc?</span><span class="tg">+</span></summary><div class="ans"><p>seminit: kernel, at boot, sets up the whole array. sem_init: the user system call. sem_alloc: the kernel function sem_init's handler calls to grab a free slot.</p></div></details>
+    <details><summary><span class="qn">09</span><span class="qt">Which lock and channel do sem_wait and sem_signal use?</span><span class="tg">+</span></summary><div class="ans"><p>The semaphore's own sem-&gt;lock, and the semaphore's own address as the channel. Both must use the same channel.</p></div></details>
+    <details><summary><span class="qn">10</span><span class="qt">How is this lab's semaphore different from the lecture's?</span><span class="tg">+</span></summary><div class="ans"><p>It never goes negative. Wait sleeps while the value is 0 and decrements only when positive, so the value doesn't count blocked processes.</p></div></details>
+    <details><summary><span class="qn">11</span><span class="qt">What does sem_basic leave untested?</span><span class="tg">+</span></summary><div class="ans"><p>Blocking. It never waits on 0, so sleeping, waking and the re-check loop aren't exercised.</p></div></details>
+    <details><summary><span class="qn">12</span><span class="qt">When is it safe to free a semaphore here?</span><span class="tg">+</span></summary><div class="ans"><p>Only after every user has finished, i.e. after the parent's wait(). sem_free doesn't wake sleepers or wait for users; it just marks the slot unused.</p></div></details>
+    <details><summary><span class="qn">13</span><span class="qt">Why is protecting ucnt_get and ucnt_set separately not enough?</span><span class="tg">+</span></summary><div class="ans"><p>The gap between them is still open. The other process can read the same old value there, and one update is lost.</p></div></details>
+    <details><summary><span class="qn">14</span><span class="qt">Why do parent and child share one semaphore after fork?</span><span class="tg">+</span></summary><div class="ans"><p>semid is just an index into the kernel's semaphores[] array. fork copies the number, not kernel memory, so both reach the same kernel semaphore.</p></div></details>
+    <details><summary><span class="qn">15</span><span class="qt">Initial values of empty, full and mutex?</span><span class="tg">+</span></summary><div class="ans"><p>empty = 16 (UBUF_SIZE), full = 0, mutex = 1, because the buffer starts empty.</p></div></details>
+    <details><summary><span class="qn">16</span><span class="qt">Why wait on empty/full before mutex?</span><span class="tg">+</span></summary><div class="ans"><p>Sleeping on empty/full while holding the mutex stops the other side from ever getting the mutex to change the count. That's a deadlock.</p></div></details>
+    <details><summary><span class="qn">17</span><span class="qt">Why isn't counting slots enough without a mutex?</span><span class="tg">+</span></summary><div class="ans"><p>Counts limit how many slots are used, not which index. Two producers can write the same data[tail] before either advances it; the yield() makes this show up.</p></div></details>
+    <details><summary><span class="qn">18</span><span class="qt">What does the producer_consumer pass prove?</span><span class="tg">+</span></summary><div class="ans"><p>Only that every byte read was one of c, a, f or e. It doesn't rule out loss, duplication or reordering.</p></div></details>
+  </div>
+</section>
+</div>
+
+</body></html>

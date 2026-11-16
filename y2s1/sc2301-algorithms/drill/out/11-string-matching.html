@@ -1,0 +1,2353 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>11. String matching</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="drill.css">
+</head><body data-page="11-string-matching">
+<nav class="top"><a href="index.html">All topics</a><span id="count"></span>
+<label><input type="checkbox" id="onlyshaky"> only shaky</label>
+<button id="export">Copy progress</button></nav>
+<main>
+<h1 id="string-matching">11. String matching</h1>
+<h2 id="facts">Facts</h2>
+<div class="q">
+<p>Define the string matching problem and the simple scan’s worst
+case.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Given a text <span class="math inline">T</span> of length <span
+class="math inline">n</span> and a pattern <span
+class="math inline">P</span> of length <span
+class="math inline">m</span>, find a position where <span
+class="math inline">P</span> occurs in <span
+class="math inline">T</span>. The simple scan puts <span
+class="math inline">P</span> at position 0, compares left to right, and
+on a mismatch shifts <span class="math inline">P</span> by
+<strong>one</strong> and restarts from the <strong>first</strong>
+pattern character. Worst case <span
+class="math inline">\Theta(m(n-m+1))</span>, for example <span
+class="math inline">P=\text{AAA..AB}</span> in <span
+class="math inline">T=\text{AAA..A}</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>What is Horner’s rule, and why is it used in Rabin-Karp?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>It evaluates a length-<span class="math inline">m</span> string as a
+base-<span class="math inline">d</span> number: <span
+class="math inline">t=(\dots((P_1d+P_2)d+P_3)\dots)d+P_m</span>, using
+<span class="math inline">m-1</span> multiplications and additions,
+<span class="math inline">\Theta(m)</span>. Each character is mapped to
+a digit <span class="math inline">0..d-1</span> first. Rabin-Karp
+compares numbers instead of strings.</p>
+</div>
+</details>
+<div class="q">
+<p>Write the rolling update that moves the window one character to the
+right.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span
+class="math inline">t_{s+1}=\big(d\,(t_s-T[s]\,d^{m-1})+T[s+m]\big)</span>,
+reduced mod <span class="math inline">q</span> at every step. Remove the
+leading digit, shift left by multiplying by <span
+class="math inline">d</span>, add the new digit. <span
+class="math inline">\Theta(1)</span> per window. Precompute <span
+class="math inline">dM=d^{m-1}\bmod q</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Why add <span class="math inline">q</span> in <code>rehash</code>,
+and why is <span class="math inline">dM=d^{m-1}</span> and not <span
+class="math inline">d^m</span>?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>After subtracting the old leading term the value mod <span
+class="math inline">q</span> can be negative, and <code>%</code> of a
+negative number may be negative in C/Java, so add <span
+class="math inline">q</span> first to keep it in range. <span
+class="math inline">dM</span> is <span
+class="math inline">d^{m-1}</span> because the leading digit has weight
+<span class="math inline">d^{m-1}</span> (the last digit has weight
+<span class="math inline">d^0</span>).</p>
+</div>
+</details>
+<div class="q">
+<p>What is a spurious hit, and what must Rabin-Karp do on every hash
+match?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>A window whose hash equals the pattern’s hash but whose characters
+differ. Different values can have the same remainder mod <span
+class="math inline">q</span>. On every hash match, compare the
+characters (<span class="math inline">\Theta(m)</span>) to confirm.
+<strong>Different hashes prove a mismatch; equal hashes prove
+nothing.</strong></p>
+</div>
+</details>
+<div class="q">
+<p>Running time of Rabin-Karp: preprocessing, expected, worst case.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Preprocessing <span class="math inline">\Theta(m)</span> (two
+hashes). Expected <span class="math inline">O(n+m)</span> with a large
+prime <span class="math inline">q</span> (few spurious hits). Worst case
+<span class="math inline">\Theta((n-m+1)m)</span> when every window is a
+hit, no better than the simple scan.</p>
+</div>
+</details>
+<div class="q">
+<p>What makes a good <span class="math inline">q</span> and a good
+hash?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">q</span> a <strong>large prime</strong>
+(few collisions; <span class="math inline">q</span> should share no
+factor with <span class="math inline">d</span>). The hash must use
+position (Horner’s rule gives each digit a different weight); a plain
+sum of characters gives every anagram the same value.</p>
+</div>
+</details>
+<div class="q">
+<p>Boyer-Moore: in which direction does it compare, and in which
+direction does the pattern move?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>It compares the pattern <strong>right to left</strong>, but moves the
+pattern along the text <strong>left to right</strong>. A mismatch at
+pattern position <span class="math inline">k</span> lets it jump ahead
+without examining the skipped text characters.</p>
+</div>
+</details>
+<div class="q">
+<p>Define <code>charJump</code> for a pattern <span
+class="math inline">P</span> of length <span
+class="math inline">m</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>For a character <span class="math inline">c</span>: <span
+class="math inline">\text{charJump}[c]=m-i</span> where <span
+class="math inline">i</span> is the position (from 1) of the
+<strong>rightmost</strong> occurrence of <span
+class="math inline">c</span> in <span class="math inline">P</span>;
+<span class="math inline">\text{charJump}[c]=m</span> if <span
+class="math inline">c</span> is not in <span
+class="math inline">P</span>. So the last pattern character has <span
+class="math inline">\text{charJump}=0</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>Define <code>matchJump[k]</code> and give its three slide cases.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>After a mismatch at position <span class="math inline">k</span> with
+the suffix <span class="math inline">P[k+1..m]</span> already matched,
+<span
+class="math inline">\text{matchJump}[k]=(m-k)+\text{Slide}[k]</span>
+(jump of <span class="math inline">j</span>). <span
+class="math inline">\text{Slide}[k]</span> is the smallest shift that is
+consistent with the matched suffix and <strong>does not</strong> pair
+the mismatched position with the same character:</p>
+<ol type="1">
+<li>the suffix reoccurs earlier in <span class="math inline">P</span>,
+preceded by a character <strong>different</strong> from <span
+class="math inline">P[k]</span>;</li>
+<li>otherwise a prefix of <span class="math inline">P</span> matches a
+tail of the suffix;</li>
+<li>otherwise <span class="math inline">\text{Slide}[k]=m</span>.</li>
+</ol>
+<p>Also <span class="math inline">\text{matchJump}[m]=1</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>How do the two tables combine, and what is the running time?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>On a mismatch, <span class="math inline">j\leftarrow
+j+\max(\text{charJump}[T[j]],\ \text{matchJump}[k])</span> and <span
+class="math inline">k\leftarrow m</span>. The scan is often
+<strong>sublinear</strong>: many text characters are never examined.
+Best case about <span class="math inline">n/m</span> comparisons. With
+both tables, worst case is <span class="math inline">O(n+m)</span> for
+the first occurrence (a known result, beyond the lecture); with charJump
+alone it can be <span class="math inline">\Theta(mn)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p>When would you choose each of the simple scan, Rabin-Karp and
+Boyer-Moore?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Simple scan for very short patterns (no preprocessing). Rabin-Karp
+when you must search for many patterns of the same length at once (hash
+them all) or for a tolerant variant (wildcards). Boyer-Moore for
+ordinary text and long patterns, where its large jumps help most. For
+small alphabets (such as binary strings) charJump values are tiny, so
+KMP is recommended.</p>
+</div>
+</details>
+<h2 id="problems">Problems</h2>
+<h3 id="problem-1-rabin-karp-by-hand">Problem 1: Rabin-Karp by hand</h3>
+<p>Pattern <span class="math inline">P=31415</span>, text <span
+class="math inline">T=2359023141526739921</span>, base <span
+class="math inline">d=10</span>, modulus <span
+class="math inline">q=13</span>.</p>
+<div class="q">
+<p><strong>(a)</strong> Compute the pattern hash <span
+class="math inline">h_p</span> and the hash of the first window <span
+class="math inline">23590</span>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">h_p=31415\bmod13=7</span> (since <span
+class="math inline">13\cdot2416=31408</span> and <span
+class="math inline">31415-31408=7</span>). The first window: <span
+class="math inline">23590\bmod13=8</span> (<span
+class="math inline">13\cdot1814=23582</span>, remainder 8). Since <span
+class="math inline">8\ne7</span>, no comparison is needed.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Which windows have hash 7, and which of them are
+real matches?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Two windows have hash 7: the window starting at index 6 (text <span
+class="math inline">31415</span>, a <strong>real match</strong>) and the
+window starting at index 12 (text <span
+class="math inline">67399</span>, a <strong>spurious hit</strong>: <span
+class="math inline">67399\bmod13=7</span> but the characters differ). So
+Rabin-Karp does two character comparisons of length 5 (the second one
+fails on its first character). All 15 windows were examined, and every
+other window was rejected by its hash alone. (Checked by computing all
+windows.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(c)</strong> The rolling update from window “36415” (hash 1,
+with <span class="math inline">q=7</span>) to “64152”. Compute the new
+hash.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>With <span class="math inline">q=7</span>, <span
+class="math inline">d=10</span>, <span class="math inline">m=5</span>:
+<span class="math inline">dM=10^4\bmod7=4</span>. The leading digit 3
+contributes <span class="math inline">3\cdot4\bmod7=5</span>. Remove it:
+<span class="math inline">(1+7-5)\bmod7=3</span>. Shift and add the new
+digit 2: <span class="math inline">(3\cdot10+2)\bmod7=4</span>. Direct
+check: <span class="math inline">64152\bmod7=4</span>.</p>
+</div>
+</details>
+<h3 id="problem-2-boyer-moore-tables">Problem 2: Boyer-Moore tables</h3>
+<div class="q">
+<p><strong>(a)</strong> Build <code>charJump</code> and
+<code>matchJump</code> for <span
+class="math inline">P=\text{BANANA}</span> over the alphabet A..Z.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">m=6</span>. charJump: A 0, B 5, N 1, every
+other letter 6.</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">k</span></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">P_k</span></td>
+<td>B</td>
+<td>A</td>
+<td>N</td>
+<td>A</td>
+<td>N</td>
+<td>A</td>
+</tr>
+<tr>
+<td>matchJump</td>
+<td>11</td>
+<td>10</td>
+<td>5</td>
+<td>8</td>
+<td>5</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>Check <span class="math inline">k=5</span>: suffix “A” is matched,
+the mismatch is against N. The nearest earlier A preceded by a letter
+other than N is the A at position 2 (preceded by B), so Slide is <span
+class="math inline">6-2=4</span> and matchJump is <span
+class="math inline">(6-5)+4=5</span>. (These agree with the tutorial
+solution.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(b)</strong> Use the tables from (a) to scan the text
+“BANANBANANA” for BANANA. Count the comparisons.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Text: B A N A N B A N A N A (<span class="math inline">n=11</span>,
+positions 1 to 11).</p>
+<ul>
+<li><span class="math inline">j=6</span>, <span
+class="math inline">k=6</span>: <span
+class="math inline">T[6]=\text{B}</span> against <span
+class="math inline">P[6]=\text{A}</span>: mismatch (1 comparison).
+charJump[B] <span class="math inline">=5</span>, matchJump[6] <span
+class="math inline">=1</span>, so jump 5 and <span
+class="math inline">j=11</span>.</li>
+<li><span class="math inline">j=11</span>: compare right to left. <span
+class="math inline">T[11..6]</span> read backwards (A, N, A, N, A, B)
+equals <span class="math inline">P[6..1]</span> (A, N, A, N, A, B): all
+six match (6 comparisons).</li>
+</ul>
+<p>The pattern is found at position 6 after <span
+class="math inline">1+6=7</span> comparisons. The simple scan needs 16
+comparisons on the same text (6 at shift 1, then 1 each at shifts 2 to
+5, then 6 at shift 6). (Both counts were also checked by running the
+scans.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(c)</strong> For <span
+class="math inline">P=\text{AAA...AB}</span> (<span
+class="math inline">m-1</span> A’s then one B) and text <span
+class="math inline">T=\text{AAA...A}</span> (<span
+class="math inline">n</span> A’s), give charJump, matchJump and the
+number of comparisons of the full Boyer-Moore scan.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>charJump: A 1, B 0, all others <span class="math inline">m</span>.
+matchJump for <span class="math inline">k=1..m</span>: <span
+class="math inline">2m-1,2m-2,\dots,m+2,m+1,1</span>. The first
+comparison, text A against pattern B at <span
+class="math inline">k=m</span>, fails, and charJump[A]=1 and
+matchJump[m]=1 give a jump of only 1. This repeats at every shift, so
+the number of comparisons is <strong><span
+class="math inline">n-m+1</span></strong>, the same as the simple scan.
+This is the case where Boyer-Moore does no better than brute force.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>(d)</strong> (Tutorial 11, Problem 3, second pattern.) Build
+<code>charJump</code> and <code>matchJump</code> for <span
+class="math inline">P=\text{POTATO}</span> over the alphabet A..Z.
+Compare with BANANA: which entries are the same, and why?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">m=6</span>. charJump: A 2, O 0, P 5, T 1,
+every other letter 6.</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">k</span></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">P_k</span></td>
+<td>P</td>
+<td>O</td>
+<td>T</td>
+<td>A</td>
+<td>T</td>
+<td>O</td>
+</tr>
+<tr>
+<td>matchJump</td>
+<td>11</td>
+<td>10</td>
+<td>9</td>
+<td>8</td>
+<td>5</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>Check <span class="math inline">k=5</span>: suffix “O” matched and
+the mismatch is against T. The earlier O (position 2) is preceded by P,
+not T, so it is a valid reoccurrence: Slide <span
+class="math inline">=6-2=4</span>, matchJump <span
+class="math inline">=(6-5)+4=5</span>. For <span
+class="math inline">k=1</span> to 4 the matched suffix (“OTATO”… down to
+“TO”) does not occur earlier and no prefix equals a tail, so Slide <span
+class="math inline">=m=6</span> and matchJump <span
+class="math inline">=(m-k)+6</span>: 11, 10, 9, 8.</p>
+<p>Compare BANANA (11, 10, 5, 8, 5, 1): both end in <span
+class="math inline">5,1</span>, and the two rows differ only at <span
+class="math inline">k=3</span> (BANANA 5, POTATO 9), because BANANA
+repeats inside itself. At <span class="math inline">k=3</span> the
+matched suffix “ANA” also occurs earlier, at positions 2 to 4 and
+preceded by B (not N), so Slide is <span
+class="math inline">6-4=2</span> and matchJump is <span
+class="math inline">3+2=5</span>. POTATO’s suffixes “ATO” and longer
+never reoccur, so those entries stay at the maximum <span
+class="math inline">(m-k)+m</span>. A repeat inside the pattern is what
+makes matchJump smaller than <span class="math inline">2m-k</span>.
+(Table computed by code; same function as validated on BANANA and
+WOWWOW.)</p>
+</div>
+</details>
+<h3 id="problem-3-wildcard-rabin-karp">Problem 3: wildcard
+Rabin-Karp</h3>
+<div class="q">
+<p>Modify Rabin-Karp so that the middle character of an odd-length
+pattern matches anything. State the hash and the rehash.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Replace the middle digit’s contribution by 0 in <strong>both</strong>
+the pattern hash and every window hash. In <code>hash</code>, at the
+middle index multiply by <span class="math inline">d</span> but add
+nothing. For <code>rehash</code> when the window moves one right: <span
+class="math display">h&#39;=\Big(\big(h-T[i]\,d^{m-1}+T[i+\lfloor
+m/2\rfloor]\,d^{\lfloor m/2\rfloor}\big)\,d-T[i+1+\lfloor
+m/2\rfloor]\,d^{\lfloor m/2\rfloor}+T[i+m]\Big)\bmod q.</span> Remove
+the leading digit, <strong>add back</strong> the old middle digit (so it
+was effectively 0 before), shift, then <strong>remove</strong> the new
+middle digit before adding the last digit. Example from the tutorial:
+window “36415” with the middle digit zeroed hashes to 0 mod 7. With
+<span class="math inline">d=10</span>, <span
+class="math inline">q=7</span>, <span class="math inline">dM=4</span>,
+<span class="math inline">d^{\lfloor m/2\rfloor}\bmod7=2</span>, the
+update gives 2, and “64152” with its middle digit zeroed (“64052”) also
+hashes to 2. Matching windows still need a character check on all
+positions except the middle.</p>
+</div>
+</details>
+<h2 id="past-year-questions">Past-year questions</h2>
+<p>Questions from past papers (SC2001/CZ2101/CE2001). Every answer was
+worked out and checked by code; where a circulated official solution
+exists it was compared, and disagreements are flagged.</p>
+<div class="q">
+<p><strong>AY25/26 S2 3(b)</strong> For SimpleScan (brute-force) string
+matching, give the time complexity of (i) the best case and (ii) the
+worst case. Describe the situation in which each occurs and give an
+example.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) Best case <span class="math inline">O(m)</span></strong>
+(precisely <span class="math inline">m</span> comparisons): the pattern
+occurs at the very start of the text. Example: <span
+class="math inline">T=\text{ABCDEF}</span>, <span
+class="math inline">P=\text{ABC}</span>: 3 comparisons. (If the pattern
+is absent but the first pattern character never matches, the cost is
+<span class="math inline">n-m+1</span>, also at most <span
+class="math inline">O(n)</span>.)</p>
+<p><strong>(ii) Worst case <span
+class="math inline">O(mn)</span></strong>, exactly <span
+class="math inline">m(n-m+1)</span> comparisons: at every shift all but
+the last pattern character match. Example: <span
+class="math inline">T=\text{AAAAAAAA}</span>, <span
+class="math inline">P=\text{AAAB}</span>: every shift compares 4
+characters before failing.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S2 3(c)</strong> Show the CharJump array for each
+pattern (alphabet A..Z): (i) SUCCESS, (ii) MACARONI, (iii) KANGAROO,
+(iv) BAGGAGE.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">\text{charJump}[c]=m-(\text{position of the
+rightmost }c)</span>; any letter not in the pattern has value <span
+class="math inline">m</span>.</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th><span class="math inline">m</span></th>
+<th>charJump (letters in the pattern)</th>
+<th>all others</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SUCCESS</td>
+<td>7</td>
+<td>S 0, U 5, C 3, E 2</td>
+<td>7</td>
+</tr>
+<tr>
+<td>MACARONI</td>
+<td>8</td>
+<td>M 7, A 4, C 5, R 3, O 2, N 1, I 0</td>
+<td>8</td>
+</tr>
+<tr>
+<td>KANGAROO</td>
+<td>8</td>
+<td>K 7, A 3, N 5, G 4, R 2, O 0</td>
+<td>8</td>
+</tr>
+<tr>
+<td>BAGGAGE</td>
+<td>7</td>
+<td>B 6, A 2, G 1, E 0</td>
+<td>7</td>
+</tr>
+</tbody>
+</table>
+<p>The rightmost occurrence counts: in SUCCESS, C last appears at
+position 4 so <span class="math inline">7-4=3</span> (not position 3),
+and S last appears at 7 so 0. In KANGAROO, O last appears at position 8,
+so 0, and A at 5 so 3. (Computed by code from the definition.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S2 3(d)</strong> Apply Rabin-Karp to find the pattern
+“35” in the text “624351”. Clearly show the hashing process.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Use <span class="math inline">d=10</span>, <span
+class="math inline">q=13</span>, <span class="math inline">m=2</span>.
+(Any prime works; show the working with your choice.)</p>
+<ul>
+<li><span class="math inline">dM=d^{m-1}\bmod q=10</span>.</li>
+<li>Pattern hash: <span class="math inline">h_p=35\bmod13=9</span>.</li>
+<li>First window “62”: <span
+class="math inline">62\bmod13=10</span>.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Window</th>
+<th>Text</th>
+<th>Hash <span class="math inline">t\bmod13</span></th>
+<th>Equals 9?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>62</td>
+<td>10</td>
+<td>no</td>
+</tr>
+<tr>
+<td>1</td>
+<td>24</td>
+<td>11</td>
+<td>no</td>
+</tr>
+<tr>
+<td>2</td>
+<td>43</td>
+<td>4</td>
+<td>no</td>
+</tr>
+<tr>
+<td>3</td>
+<td>35</td>
+<td>9</td>
+<td><strong>yes: compare characters, they match</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>51</td>
+<td>12</td>
+<td>not needed</td>
+</tr>
+</tbody>
+</table>
+<p>Rolling update from window 0 to 1: leading digit 6 contributes <span
+class="math inline">6\cdot10\bmod13=8</span>; remove it: <span
+class="math inline">(10+13-8)\bmod13=2</span>; shift and add the new
+digit 4: <span class="math inline">(2\cdot10+4)\bmod13=11</span>, equal
+to the direct hash of 24. The next updates give <span
+class="math inline">4</span>, <span class="math inline">9</span>, <span
+class="math inline">12</span> (each equals the direct hash). The pattern
+is found at index 3 (0-based) after one hash match and one verification
+of 2 characters. (All windows and updates checked by code.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S1 3(b)(i)</strong> The Boyer-Moore algorithm relies
+on two preprocessed arrays charJump and matchJump. For the pattern
+“GCTAGC” over <span class="math inline">\Sigma=\{A,C,G,T\}</span>, give
+both arrays.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">m=6</span>, <span
+class="math inline">P=\text{G C T A G C}</span>.</p>
+<p>charJump (distance from the rightmost occurrence to the end): C 0, G
+1, A 2, T 3. (No character in <span class="math inline">\Sigma</span> is
+absent from <span class="math inline">P</span>, so none gets <span
+class="math inline">m</span>.)</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">k</span></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">P_k</span></td>
+<td>G</td>
+<td>C</td>
+<td>T</td>
+<td>A</td>
+<td>G</td>
+<td>C</td>
+</tr>
+<tr>
+<td>matchJump</td>
+<td>9</td>
+<td>8</td>
+<td>7</td>
+<td>6</td>
+<td>7</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>Example <span class="math inline">k=5</span>: suffix “C” matched,
+mismatch against G. The only earlier C is at position 2, but it is
+preceded by G (the same character that just failed), so case 1 fails. No
+prefix of <span class="math inline">P</span> matches the tail “C”, so
+Slide <span class="math inline">=m=6</span> and matchJump <span
+class="math inline">=(6-5)+6=7</span>. Example <span
+class="math inline">k=4</span>: suffix “GC” reoccurs at positions 1 to 2
+(at the start of the pattern, so no preceding character to clash), shift
+4, matchJump <span class="math inline">=(6-4)+4=6</span>. (Table
+computed by code from the definition and validated on BANANA and
+WOWWOW.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY25/26 S1 3(b)(ii)</strong> A text has <span
+class="math inline">n</span> characters and a pattern <span
+class="math inline">m</span> characters. The pattern does
+<strong>not</strong> appear in the text. Fill in: A. The minimum number
+of character comparisons by the Simple Scan method is <strong><em>. B. …
+by the Rabin-Karp algorithm is </em></strong>. C. … by the Simple
+Boyer-Moore algorithm is <strong><em>. D. … by the Boyer-Moore algorithm
+is </em></strong>.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<ul>
+<li><strong>A. <span class="math inline">n-m+1</span>:</strong> at each
+of the <span class="math inline">n-m+1</span> shifts the first
+comparison can fail, one comparison per shift.</li>
+<li><strong>B. <span class="math inline">0</span>:</strong> the hash of
+every window differs from the pattern hash, so no character comparison
+is ever made.</li>
+<li><strong>C. about <span class="math inline">\lfloor
+n/m\rfloor</span>:</strong> every comparison hits a text character that
+is not in the pattern, so charJump <span class="math inline">=m</span>
+and the pattern jumps by <span class="math inline">m</span> each time
+(<span class="math inline">j=m,2m,\dots</span>).</li>
+<li><strong>D. about <span class="math inline">\lfloor
+n/m\rfloor</span>:</strong> the same, because matchJump is at most as
+large as charJump at the first comparison and <span
+class="math inline">\max</span> takes <span
+class="math inline">m</span>.</li>
+</ul>
+<p>Caution: that <span class="math inline">n/m</span> best case needs
+text characters that are not in the pattern. In this question’s alphabet
+every letter appears in “GCTAGC”, so the realistic jumps are at most 3
+at the first comparison; <span class="math inline">n/m</span> is the
+general best-case answer the question expects. (Boyer-Moore best case
+<span class="math inline">\approx n/m</span> is not in the lecture, but
+the lecture notes that the scan is often sublinear.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S2 3(b)(i)</strong> Apply the Rabin-Karp string
+matching algorithm (no hash) to search for the occurrence of the
+four-character pattern “1010” in the binary digit string “11010101”.
+Clearly state how you compute the number for each four-character text
+segment.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Treat each binary string as a number with base <span
+class="math inline">d=2</span>. Pattern: <span
+class="math inline">1010_2=10</span>. There are <span
+class="math inline">n-m+1=8-4+1=5</span> windows.</p>
+<p>First window: <span class="math inline">1101_2=13</span>. Rolling
+update when the window moves right by one: <span
+class="math display">t_{i+1}=2\,(t_i-\text{lead}\cdot2^{m-1})+\text{new}.</span>
+(Remove the leading bit times <span class="math inline">2^3=8</span>,
+shift left, add the new bit.)</p>
+<table>
+<thead>
+<tr>
+<th>window</th>
+<th>text</th>
+<th>computed</th>
+<th>direct value</th>
+<th>equals 10?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1101</td>
+<td>13</td>
+<td>13</td>
+<td>no</td>
+</tr>
+<tr>
+<td>1</td>
+<td>1010</td>
+<td><span class="math inline">2(13-8)+0=10</span></td>
+<td>10</td>
+<td><strong>yes</strong></td>
+</tr>
+<tr>
+<td>2</td>
+<td>0101</td>
+<td><span class="math inline">2(10-8)+1=5</span></td>
+<td>5</td>
+<td>no</td>
+</tr>
+<tr>
+<td>3</td>
+<td>1010</td>
+<td><span class="math inline">2(5-0)+0=10</span></td>
+<td>10</td>
+<td><strong>yes</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>0101</td>
+<td><span class="math inline">2(10-8)+1=5</span></td>
+<td>5</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p>Matches at shifts <strong>1 and 3</strong> (0-based). With no hash
+modulus the numbers are exact, so a number match is a true match and no
+character check is needed.</p>
+<p><strong>Link.</strong> The two matches overlap (shift 3 minus shift 1
+is 2): “1010” matches itself after a shift of 2. Boyer-Moore’s
+<code>matchJump</code> slide uses the same self-overlap of the pattern.
+With a modulus <span class="math inline">q</span> (as in the lectures),
+equal hashes need a character check, because different windows can
+collide.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S2 3(b)(ii)</strong> Show the values of the CharJump
+array for the following patterns, computed by the Boyer-Moore algorithm,
+assuming the alphabet is <span
+class="math inline">\{A,B,\dots,Z\}</span>. (1) <span
+class="math inline">P=</span> “ABCD” (2) <span
+class="math inline">P=</span> “BANANA”.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">\text{charJump}[c]=m-(\text{position of the
+rightmost }c\text{ in }P)</span>, and <span class="math inline">m</span>
+for letters not in <span class="math inline">P</span> (positions count
+from 1).</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th><span class="math inline">m</span></th>
+<th>charJump of letters in <span class="math inline">P</span></th>
+<th>all other letters</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ABCD</td>
+<td>4</td>
+<td>A 3, B 2, C 1, D 0</td>
+<td>4</td>
+</tr>
+<tr>
+<td>BANANA</td>
+<td>6</td>
+<td>B 5, A 0, N 1</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<p>BANANA: A occurs at positions 2, 4, 6. The rightmost is 6, so <span
+class="math inline">6-6=0</span>. N occurs at 3 and 5, the rightmost is
+5, so <span class="math inline">6-5=1</span>. B is at position 1, so
+<span class="math inline">6-1=5</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S2 3(b)(iii)</strong> What is the best-case time
+complexity of the Boyer-Moore string matching algorithm? Explain in what
+kind of situation the best case occurs, with an example.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong><span class="math inline">O(n/m)</span></strong> comparisons
+(<span class="math inline">n</span> text length, <span
+class="math inline">m</span> pattern length, excluding
+preprocessing).</p>
+<p>It occurs when the text character compared against the
+<strong>last</strong> pattern character is not in the pattern at all, at
+every shift. Then charJump <span class="math inline">=m</span> and the
+pattern jumps a whole <span class="math inline">m</span> positions after
+a single comparison. Example: <span class="math inline">P=</span> “ABC”
+(<span class="math inline">m=3</span>), <span
+class="math inline">T=</span> “XXXXXXXXX” (<span
+class="math inline">n=9</span>). Compare <span
+class="math inline">T[2]=X</span> with C: mismatch, charJump<span
+class="math inline">[X]=3</span>, jump to the next block. Only <span
+class="math inline">n/m=3</span> comparisons for 9 characters.</p>
+<p>(Flag: the <span class="math inline">n/m</span> best case needs text
+characters that do not occur in the pattern. If the text characters are
+in the pattern the jumps are smaller. Same remark as AY2526 S1
+3(b)(ii).)</p>
+<p><strong>Link.</strong> The opposite extreme is on the tutorial 11
+page: <span class="math inline">T=A^n</span> and <span
+class="math inline">P=A^{m-1}B</span> give jumps of only 1, so
+Boyer-Moore makes <span class="math inline">n-m+1</span> comparisons, no
+better than the simple scan. Its speed depends on how the text
+characters sit against the pattern’s characters, not on the sizes
+alone.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S1 3(b)</strong> The Boyer-Moore algorithm performs
+preprocessing to compute the two arrays charJump and matchJump. Find
+them for the string pattern “19191”.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">m=5</span>, <span
+class="math inline">P=1\,9\,1\,9\,1</span> (digits <span
+class="math inline">0</span> to <span class="math inline">9</span>).</p>
+<p>charJump: <span class="math inline">\text{&#39;1&#39;}\to0</span>,
+<span class="math inline">\text{&#39;9&#39;}\to1</span>, every other
+character <span class="math inline">\to5</span>.</p>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">k</span></th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="math inline">P_k</span></td>
+<td>1</td>
+<td>9</td>
+<td>1</td>
+<td>9</td>
+<td>1</td>
+</tr>
+<tr>
+<td>matchJump</td>
+<td>6</td>
+<td>5</td>
+<td>6</td>
+<td>5</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><span class="math inline">k=5</span>: the last character mismatched,
+nothing matched, so the shift is 1.</li>
+<li><span class="math inline">k=4</span>: suffix “1” matched and <span
+class="math inline">P_4=9</span> failed. “1” also occurs at position 3,
+but it is preceded by 9 (the same failing character), so that fails. It
+occurs at position 1 with nothing before it: slide 4, matchJump <span
+class="math inline">=(5-4)+4=5</span>.</li>
+<li><span class="math inline">k=3</span>: suffix “91”. It occurs at
+position 2 but is preceded by 1 (equal to the failing <span
+class="math inline">P_3</span>). No other copy, but the prefix “1”
+equals the tail “1”: slide 4, matchJump <span
+class="math inline">=(5-3)+4=6</span>.</li>
+<li><span class="math inline">k=2</span>: suffix “191” occurs at the
+very start, slide 2, matchJump <span
+class="math inline">=(5-2)+2=5</span>.</li>
+<li><span class="math inline">k=1</span>: the tail “191” is also a
+prefix, slide 2, matchJump <span
+class="math inline">=(5-1)+2=6</span>.</li>
+</ul>
+<p>(Computed by code from the definition; same function as validated on
+BANANA and WOWWOW.)</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S1 3(c)</strong> Pattern <span
+class="math inline">P=\text{&quot;19191&quot;}</span>. Text <span
+class="math inline">T</span> has 20 characters, all ‘3’. Apply the
+simple string matching (brute force) algorithm, the Rabin-Karp algorithm
+and the Boyer-Moore algorithm to search for an occurrence of <span
+class="math inline">P</span> in <span class="math inline">T</span>. Use
+<span class="math inline">10^2</span> in the hash function in
+Rabin-Karp, e.g. hash(“19191”) = 91. How many character comparisons do
+the three algorithms make, respectively?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>16, 0 and 4.</strong></p>
+<ul>
+<li><strong>Simple scan:</strong> there are <span
+class="math inline">n-m+1=20-5+1=16</span> shifts, and at each one the
+first comparison (‘1’ against ‘3’) fails: <strong>16</strong>.</li>
+<li><strong>Rabin-Karp:</strong> the pattern hash is <span
+class="math inline">19191\bmod100=91</span>. Every window “33333” hashes
+to <span class="math inline">33\ne91</span>, so no window ever matches
+the hash and the characters are <strong>never compared: 0</strong> (the
+16 hash comparisons are not character comparisons).</li>
+<li><strong>Boyer-Moore:</strong> the text character ‘3’ is not in the
+pattern, so charJump <span class="math inline">=5</span> and the pattern
+jumps 5 places after each mismatch. It compares at text positions 5, 10,
+15, 20: <strong>4</strong> <span class="math inline">=\lfloor
+n/m\rfloor</span>.</li>
+</ul>
+</div>
+</details>
+<div class="q">
+<p><strong>AY24/25 S1 3(d)</strong> If the hash() and rehash() functions
+in the Rabin-Karp algorithm are changed from the ones on the left to the
+ones on the right, what are the advantage and disadvantage? The idea on
+the right is to perform hash() and rehash() on the <strong>sum</strong>
+of the digits.</p>
+<figure>
+<img src="img/pyp/2425s1_q3d.png"
+alt="hash and rehash, left: standard, right: sum of digits (clipped from the paper)" />
+<figcaption aria-hidden="true">hash and rehash, left: standard, right:
+sum of digits (clipped from the paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>Advantage:</strong> simpler and faster per step. The right
+version drops the multiplications by <span class="math inline">d</span>
+and by <span class="math inline">dM</span> (and needs no <span
+class="math inline">d^{m-1}\bmod q</span>), so each hash and rehash is a
+couple of additions.</p>
+<p><strong>Disadvantage:</strong> the sum ignores digit
+<strong>order</strong>, so any rearrangement of the same digits has the
+same hash (“19191” and “11199” collide, as would every permutation).
+Also the hash values lie in a tiny range (at most <span
+class="math inline">9m</span>), so many windows collide even when they
+are different strings. Each false match costs a full <span
+class="math inline">O(m)</span> comparison, and the expected linear time
+degrades towards the simple scan’s <span
+class="math inline">O(mn)</span> on texts where many windows have equal
+digit sums.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S2 3(b)</strong> For the Boyer-Moore string matching
+algorithm, what is the time complexity of each case below? Describe the
+situation in which each case occurs, and give an example. (i) Best case.
+(ii) Worst case.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Let <span class="math inline">n</span> be the text length and <span
+class="math inline">m</span> the pattern length.</p>
+<p><strong>(i) Best case: <span
+class="math inline">O(n/m)</span></strong> comparisons (excluding
+preprocessing). It occurs when the text character compared with the
+<strong>last</strong> pattern character is <strong>not in the pattern at
+all</strong>, at every alignment: charJump <span
+class="math inline">=m</span>, so the pattern jumps a whole <span
+class="math inline">m</span> places after one comparison. Example: <span
+class="math inline">P=</span> “ABC” (<span
+class="math inline">m=3</span>), <span class="math inline">T=</span>
+“XXXXXXXXX” (<span class="math inline">n=9</span>): the comparisons are
+at <span class="math inline">T[3],T[6],T[9]</span>, so 3 <span
+class="math inline">=n/m</span> in total.</p>
+<p><strong>(ii) Worst case: <span
+class="math inline">O(mn)</span></strong> comparisons. It occurs on a
+near match: most of the pattern matches at every alignment, but the
+shift is only 1. Example: <span class="math inline">P=</span> “ABB”,
+<span class="math inline">T=</span> “BBBBBBBBBB” (<span
+class="math inline">n=10</span>). At every alignment <span
+class="math inline">B</span> and <span class="math inline">B</span>
+match, then <span class="math inline">B</span> against <span
+class="math inline">B</span> matches, then <span
+class="math inline">B</span> against <span class="math inline">A</span>
+fails, and the jump moves the pattern one place. For the simplified
+version (charJump only) the count is <span
+class="math inline">(n-m+1)\,m=8\cdot3=24</span> (checked by code, also
+for <span class="math inline">n=12</span>: 30). When
+<strong>all</strong> occurrences are wanted, <span
+class="math inline">P=\text{A}^m</span> in <span
+class="math inline">T=\text{A}^n</span> needs <span
+class="math inline">(n-m+1)\,m</span> comparisons for any scan that
+verifies each occurrence character by character.</p>
+<p>(Flags. The lecture slides give no formulas for either case, only
+“often sublinear”. The worst case <span class="math inline">O(mn)</span>
+is what a course expects. A finer fact <strong>beyond the
+lecture</strong>: with matchJump included, the search for the first
+occurrence of <span class="math inline">P</span> (or for its absence) is
+linear in <span class="math inline">n+m</span>: on the same input “ABB”
+in <span class="math inline">B^{10}</span> the full algorithm needs only
+9 comparisons, and in an exhaustive check over all binary texts of
+length 10 and 12 and patterns of length 3 and 4, the full algorithm
+never needed more than 16 comparisons.)</p>
+<p><strong>Link.</strong> The best case needs the text and the pattern
+to <strong>disagree</strong> (the characters never match), the worst
+case needs them to <strong>almost agree</strong>. Rabin-Karp’s worst
+case is also a near match (many equal hashes), so near matches are the
+hard instances for every string-matching method in the course.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S2 3(c)</strong> Show the values of the CharJump
+array for each of the following patterns, which are computed by the
+Boyer-Moore string matching algorithm, assuming the alphabet is <span
+class="math inline">\{A,B,\dots,Z\}</span>. (i) <span
+class="math inline">P=</span> “POTATO” (ii) <span
+class="math inline">P=</span> “ELEPHANT” (iii) <span
+class="math inline">P=</span> “SCIENCE” (iv) <span
+class="math inline">P=</span> “COFFEE”</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">\text{charJump}[c]=m-(\text{position of the
+rightmost }c\text{ in }P)</span> (positions from 1), and <span
+class="math inline">m</span> for a letter not in <span
+class="math inline">P</span>.</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th><span class="math inline">m</span></th>
+<th>charJump for the letters in <span class="math inline">P</span></th>
+<th>every other letter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>POTATO</td>
+<td>6</td>
+<td>P 5, O 0, T 1, A 2</td>
+<td>6</td>
+</tr>
+<tr>
+<td>ELEPHANT</td>
+<td>8</td>
+<td>E 5, L 6, P 4, H 3, A 2, N 1, T 0</td>
+<td>8</td>
+</tr>
+<tr>
+<td>SCIENCE</td>
+<td>7</td>
+<td>S 6, C 1, I 4, E 0, N 2</td>
+<td>7</td>
+</tr>
+<tr>
+<td>COFFEE</td>
+<td>6</td>
+<td>C 5, O 4, F 2, E 0</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<p>Where a letter repeats the <strong>rightmost</strong> copy decides:
+in POTATO, O is at positions 2 and 6, so <span
+class="math inline">6-6=0</span> (not 4) and T is at 3 and 5, so <span
+class="math inline">6-5=1</span>. In ELEPHANT, E is at positions 1 and
+3, so <span class="math inline">8-3=5</span>. In SCIENCE, C is at 2 and
+6 giving 1, and E at 4 and 7 giving 0. In COFFEE, F is at 3 and 4 giving
+<span class="math inline">6-4=2</span>, and E is at 5 and 6 giving 0.
+(Computed by code.)</p>
+<p><strong>Link.</strong> charJump is 0 exactly for the <strong>last
+letter of the pattern</strong>; and a large charJump (like <span
+class="math inline">L=6</span> in ELEPHANT, or <span
+class="math inline">S=6</span> in SCIENCE) means that the letter sits
+near the front. A letter that repeats keeps only its last copy, so no
+letter of <span class="math inline">P</span> gets more than <span
+class="math inline">m-1</span>. The matchJump table is what handles the
+repeats inside the pattern (see Tutorial 11).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S2 3(d)</strong> Apply the Rabin-Karp string matching
+algorithm to search for the occurrence of the pattern “26” in the text
+“315265”. Clearly show the hashing process.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Treat each digit string as a base-<span
+class="math inline">d=10</span> number. Pattern: <span
+class="math inline">\text{hash}(26)=2\cdot10+6=26</span>. The text has
+<span class="math inline">n-m+1=6-2+1=5</span> windows. Compute the
+first window directly and then <strong>roll</strong>: drop the leading
+digit, shift, add the new digit: <span
+class="math display">h_{i+1}=10\,(h_i-10\cdot T[i])+T[i+2].</span></p>
+<table>
+<thead>
+<tr>
+<th>window</th>
+<th>text</th>
+<th>computed</th>
+<th>equals 26?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>31</td>
+<td><span class="math inline">3\cdot10+1=31</span></td>
+<td>no</td>
+</tr>
+<tr>
+<td>1</td>
+<td>15</td>
+<td><span class="math inline">10\,(31-30)+5=15</span></td>
+<td>no</td>
+</tr>
+<tr>
+<td>2</td>
+<td>52</td>
+<td><span class="math inline">10\,(15-10)+2=52</span></td>
+<td>no</td>
+</tr>
+<tr>
+<td>3</td>
+<td>26</td>
+<td><span class="math inline">10\,(52-50)+6=26</span></td>
+<td><strong>yes</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>65</td>
+<td><span class="math inline">10\,(26-20)+5=65</span></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>The first occurrence is at index <strong>3</strong> (0-based;
+position 4 counting from 1). Window 3 is checked character by character,
+which confirms “26”, and the search stops (or goes on to window 4 if all
+occurrences are wanted: 65, no).</p>
+<p><strong>With a modulus</strong> (the lecture’s version keeps numbers
+small by working mod a prime <span class="math inline">q</span>): take
+<span class="math inline">q=13</span>. The pattern hashes to <span
+class="math inline">26\bmod13=0</span> and the windows hash to <span
+class="math inline">5,2,0,0,0</span>. Now windows 2 (52), 3 (26)
+<strong>and</strong> 4 (65) all collide with the pattern’s hash, so
+windows 2 and 4 are <strong>spurious hits</strong>: each costs a full
+character comparison that fails. Only window 3 is real. With <span
+class="math inline">q=7</span> (pattern hash 5, windows 3, 1, 3,
+<strong>5</strong>, 2) the only hit is the real one.</p>
+<p><strong>Link.</strong> The exact version never has false hits but
+needs numbers that grow as <span class="math inline">d^m</span>. The
+modular version keeps numbers small at the price of spurious hits, and a
+bad choice of <span class="math inline">q</span> (here 13 divides both
+26 and 52 and 65) makes the algorithm slow. That is why <span
+class="math inline">q</span> is chosen as a large prime: the expected
+time is <span class="math inline">O(n+m)</span>, but the worst case with
+many collisions is <span class="math inline">O(mn)</span>.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S1 3(b)</strong> During the preprocessing step in the
+Boyer-Moore algorithm, the arrays charJump and matchJump for the pattern
+“WOWWOW” are computed. It is found that charJump[‘O’]=1,
+charJump[‘W’]=0, charJump[x]=6 where <span class="math inline">x</span>
+is any character in the alphabet that is not ‘O’ and ‘W’. The matchJump
+is <span class="math inline">[8,7,6,7,3,1]</span>. The simple
+Boyer-Moore algorithm and the Boyer-Moore algorithm are applied
+respectively to search for the pattern in the text “BOWNOWOWWWOLOWL”.
+How many character comparisons are done in each case?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Pattern <span class="math inline">P=</span> WOWWOW, <span
+class="math inline">m=6</span>. Text <span class="math inline">T</span>
+(1-indexed): B O W N O W O W W W O L O W L (<span
+class="math inline">n=15</span>). Matching goes right to left: <span
+class="math inline">j</span> indexes the text, <span
+class="math inline">k</span> the pattern. On a mismatch:</p>
+<ul>
+<li><strong>simple</strong> (charJump only, lecture slide 32): <span
+class="math inline">j\leftarrow
+j+\max(\text{charJump}[T[j]],\,m-k+1)</span> and <span
+class="math inline">k\leftarrow m</span>;</li>
+<li><strong>full</strong>: <span class="math inline">j\leftarrow
+j+\max(\text{charJump}[T[j]],\,\text{matchJump}[k])</span> and <span
+class="math inline">k\leftarrow m</span>.</li>
+</ul>
+<p><strong>Simple Boyer-Moore: 7 comparisons.</strong></p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th><span class="math inline">j</span></th>
+<th><span class="math inline">k</span></th>
+<th><span class="math inline">T[j]</span> vs <span
+class="math inline">P[k]</span></th>
+<th>result</th>
+<th>jump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>6</td>
+<td>6</td>
+<td>W vs W</td>
+<td>match</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>5</td>
+<td>5</td>
+<td>O vs O</td>
+<td>match</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+<td>N vs W</td>
+<td>mismatch</td>
+<td><span class="math inline">\max(6,\,3)=6</span>, so <span
+class="math inline">j=10</span></td>
+</tr>
+<tr>
+<td>4</td>
+<td>10</td>
+<td>6</td>
+<td>W vs W</td>
+<td>match</td>
+<td></td>
+</tr>
+<tr>
+<td>5</td>
+<td>9</td>
+<td>5</td>
+<td>W vs O</td>
+<td>mismatch</td>
+<td><span class="math inline">\max(0,\,2)=2</span>, so <span
+class="math inline">j=11</span></td>
+</tr>
+<tr>
+<td>6</td>
+<td>11</td>
+<td>6</td>
+<td>O vs W</td>
+<td>mismatch</td>
+<td><span class="math inline">\max(1,\,1)=1</span>, so <span
+class="math inline">j=12</span></td>
+</tr>
+<tr>
+<td>7</td>
+<td>12</td>
+<td>6</td>
+<td>L vs W</td>
+<td>mismatch</td>
+<td><span class="math inline">\max(6,\,1)=6</span>, so <span
+class="math inline">j=18&gt;15</span>: stop</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Boyer-Moore with matchJump: 5 comparisons.</strong></p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>#</th>
+<th><span class="math inline">j</span></th>
+<th><span class="math inline">k</span></th>
+<th><span class="math inline">T[j]</span> vs <span
+class="math inline">P[k]</span></th>
+<th>result</th>
+<th>jump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>6</td>
+<td>6</td>
+<td>W vs W</td>
+<td>match</td>
+<td></td>
+</tr>
+<tr>
+<td>2</td>
+<td>5</td>
+<td>5</td>
+<td>O vs O</td>
+<td>match</td>
+<td></td>
+</tr>
+<tr>
+<td>3</td>
+<td>4</td>
+<td>4</td>
+<td>N vs W</td>
+<td>mismatch</td>
+<td><span class="math inline">\max(6,\,\text{matchJump}[4]=7)=7</span>,
+so <span class="math inline">j=11</span></td>
+</tr>
+<tr>
+<td>4</td>
+<td>11</td>
+<td>6</td>
+<td>O vs W</td>
+<td>mismatch</td>
+<td><span class="math inline">\max(1,\,1)=1</span>, so <span
+class="math inline">j=12</span></td>
+</tr>
+<tr>
+<td>5</td>
+<td>12</td>
+<td>6</td>
+<td>L vs W</td>
+<td>mismatch</td>
+<td><span class="math inline">\max(6,\,1)=6</span>, so <span
+class="math inline">j=18&gt;15</span>: stop</td>
+</tr>
+</tbody>
+</table>
+<p>The pattern does not occur in the text. The two tables were also
+produced by running both scans (and the given matchJump <span
+class="math inline">[8,7,6,7,3,1]</span> was reproduced by code), and
+they match the official count of 7 and 5.</p>
+<p><strong>Link.</strong> The only difference is the third mismatch:
+matchJump[4]=7 knows that the matched suffix “OW” cannot reappear soon,
+so it jumps 7 instead of 6 and also skips the wasted comparisons 4 and
+5. The simple version’s extra work (the second and third mismatch)
+happens because charJump[‘W’]=0 and ‘W’ is the last pattern character,
+so the pattern slides only one place.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY23/24 S1 3(c)</strong> The Rabin-Karp text matching
+algorithm that outputs the position of the first occurrence of pattern
+<span class="math inline">P</span> in text <span
+class="math inline">T</span> is given in Figure Q3. Modify the algorithm
+to give <code>RKscan(P1,P2,P3,T)</code> which outputs all positions of
+three patterns of equal length, <span class="math inline">P1</span>,
+<span class="math inline">P2</span> and <span
+class="math inline">P3</span>, in text <span
+class="math inline">T</span>. You only need to write the lines that you
+want to change.</p>
+<figure>
+<img src="img/pyp/2324s1_q3.png"
+alt="Figure Q3 (clipped from the paper)" />
+<figcaption aria-hidden="true">Figure Q3 (clipped from the
+paper)</figcaption>
+</figure>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Changes (all other lines stay):</p>
+<pre><code>5.  hp1 = hash(P1, m, d);  hp2 = hash(P2, m, d);  hp3 = hash(P3, m, d);   // three pattern hashes
+    found1 = found2 = found3 = 0;
+8.  if (hp1 == ht &amp;&amp; equal_string(P1, T, 0, j, m)) { output j;  found1 = 1; }
+8a. if (hp2 == ht &amp;&amp; equal_string(P2, T, 0, j, m)) { output j;  found2 = 1; }
+8b. if (hp3 == ht &amp;&amp; equal_string(P3, T, 0, j, m)) { output j;  found3 = 1; }
+9.  (deleted: no return inside the loop)
+11. if (!found1) output &quot;P1 not found&quot;;  if (!found2) output &quot;P2 not found&quot;;  if (!found3) output &quot;P3 not found&quot;;</code></pre>
+<ul>
+<li>One text hash <code>ht</code> and one <span
+class="math inline">dM</span> are enough, because the three patterns
+have the same length <span class="math inline">m</span> (lines 1-4, 6, 7
+and 10 stay).</li>
+<li>The <code>return</code> in line 9 must go: the question wants
+<strong>all</strong> positions, and the loop must run to the end.
+Without removing it the function would stop at the first hit.</li>
+<li>Each pattern needs its own <code>equal_string</code> check, because
+equal hashes only suggest a match (collisions).</li>
+<li>To say which pattern matched, output the pair (pattern number, <span
+class="math inline">j</span>).</li>
+</ul>
+<p>A Python version of this was tested against a naive search on 300
+random cases (all positions and the not-found flags agreed).</p>
+<p><strong>Link.</strong> This is why Rabin-Karp is chosen for
+<strong>many patterns of the same length</strong>: the text is rolled
+once (cost <span class="math inline">O(n)</span>), and each extra
+pattern adds one hash comparison per window instead of another scan of
+the text. Boyer-Moore would need a separate preprocessing and scan for
+each pattern.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 3(b)(i)</strong> Apply the Rabin-Karp string
+matching algorithm to search for the occurrence of the binary string
+pattern “01101” in the text “01001101”. Clearly state how you compute
+the number for each five-character text segment.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Treat each binary string as a base-2 number. Pattern: <span
+class="math inline">01101_2=13</span>. There are <span
+class="math inline">8-5+1=4</span> windows. First window: <span
+class="math inline">01001_2=9</span>. Rolling update when the window
+moves right by one: remove the leading bit times <span
+class="math inline">2^{m-1}=16</span>, shift left, add the new bit:
+<span
+class="math display">t_{i+1}=2\,(t_i-16\cdot\text{lead})+\text{new}.</span></p>
+<table>
+<thead>
+<tr>
+<th>window</th>
+<th>text</th>
+<th>computed</th>
+<th>direct value</th>
+<th>equals 13?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>01001</td>
+<td>9</td>
+<td>9</td>
+<td>no</td>
+</tr>
+<tr>
+<td>1</td>
+<td>10011</td>
+<td><span class="math inline">2(9-0)+1=19</span></td>
+<td>19</td>
+<td>no</td>
+</tr>
+<tr>
+<td>2</td>
+<td>00110</td>
+<td><span class="math inline">2(19-16)+0=6</span></td>
+<td>6</td>
+<td>no</td>
+</tr>
+<tr>
+<td>3</td>
+<td>01101</td>
+<td><span class="math inline">2(6-0)+1=13</span></td>
+<td>13</td>
+<td><strong>yes</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The pattern occurs at index <strong>3</strong> (0-based). With no
+modulus the numbers are exact, so equal numbers mean a true match; no
+character check is needed.</p>
+<p><strong>Link.</strong> Compare AY2425 S2 3(b)(i): the same procedure
+for “1010” in “11010101”, which had two (overlapping) matches. Here
+“01101” overlaps itself by two characters (its prefix 01 equals its tail
+01), so after a match the next one could start 3 places later at the
+earliest; this text is too short for that.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 3(b)(ii)</strong> Show the values of the CharJump
+array for the following patterns, which are computed by the Boyer-Moore
+string matching algorithm, assuming the alphabet is <span
+class="math inline">\{A,B,\dots,Z\}</span>. (1) <span
+class="math inline">P=</span> “TEST” (2) <span
+class="math inline">P=</span> “TOMATO”.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">\text{charJump}[c]=m-(\text{position of the
+rightmost }c\text{ in }P)</span> (positions from 1), and <span
+class="math inline">m</span> for a letter not in <span
+class="math inline">P</span>.</p>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th><span class="math inline">m</span></th>
+<th>charJump of the letters in <span class="math inline">P</span></th>
+<th>every other letter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TEST</td>
+<td>4</td>
+<td>T 0, E 2, S 1</td>
+<td>4</td>
+</tr>
+<tr>
+<td>TOMATO</td>
+<td>6</td>
+<td>T 1, O 0, M 3, A 2</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<p>TEST: T is at positions 1 and 4, the rightmost is 4, so <span
+class="math inline">4-4=0</span> (not 3). E is at 2 giving 2, and S at 3
+giving 1. TOMATO: T is at positions 1 and 5, so <span
+class="math inline">6-5=1</span>; O is at positions 2 and 6, so <span
+class="math inline">6-6=0</span>; M at 3 gives 3; A at 4 gives 2.
+(Computed by code.)</p>
+<p><strong>Link.</strong> Both patterns start and end with the same
+letter. The repeated letter keeps only its <strong>rightmost</strong>
+entry (the smallest jump), which is the safe choice: jumping by the
+larger value would skip a possible match.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S2 3(b)(iii)</strong> What is the worst case time
+complexity of the Boyer-Moore string matching algorithm to find
+<strong>all</strong> occurrences? In what situation does the worst case
+occur?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong><span class="math inline">O(mn)</span></strong> (<span
+class="math inline">n</span> text length, <span
+class="math inline">m</span> pattern length). It occurs when many
+alignments are <strong>almost or fully matches</strong>, so most pattern
+characters are compared at every alignment and the pattern advances by
+only one place. Example: <span
+class="math inline">T=\text{AAAA...A}</span> (<span
+class="math inline">n</span> letters) and <span
+class="math inline">P=\text{AAA}</span> (<span
+class="math inline">m</span> letters): every alignment is a full match,
+there are <span class="math inline">n-m+1</span> of them, and each is
+verified with <span class="math inline">m</span> character comparisons,
+so <span class="math inline">(n-m+1)\,m</span> comparisons. Another
+example for the simplified (charJump-only) version is <span
+class="math inline">P=\text{ABB}</span> in <span
+class="math inline">T=\text{BBBB...B}</span>: at every alignment two
+characters match and the third fails, and the pattern moves one place
+(24 comparisons for <span class="math inline">n=10</span>, checked by
+code).</p>
+<p>(Flag: the lecture does not state the worst case. <span
+class="math inline">O(mn)</span> is the standard textbook answer. With
+matchJump and a refinement that avoids re-comparing known characters,
+the <em>all occurrences</em> search is linear, but that is beyond the
+lecture.)</p>
+<p><strong>Link.</strong> The best case (<span
+class="math inline">O(n/m)</span>) needs the text to <strong>share no
+letters</strong> with the pattern, and the worst case needs the text to
+<strong>be</strong> the pattern repeated. These are the two ends of the
+same spectrum: the more the text looks like the pattern, the slower
+Boyer-Moore, Rabin-Karp and the plain scan all become.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S1 3(b)</strong> The Boyer-Moore algorithm performs
+preprocessing to compute the two arrays charJump and matchJump. Find
+them for the string pattern “tgaga”.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><span class="math inline">m=5</span>, <span
+class="math inline">P=</span> t g a g a (positions 1 to 5).</p>
+<p><strong>charJump</strong> <span class="math inline">=m-</span>
+(rightmost position of the letter): t at position 1 gives 4; g
+(rightmost position 4) gives 1; a (rightmost position 5) gives 0; every
+other letter gives 5.</p>
+<p><strong>matchJump[<span class="math inline">k</span>]</strong> <span
+class="math inline">=(m-k)+\text{Slide}[k]</span> for the mismatch at
+position <span class="math inline">k</span> after the suffix <span
+class="math inline">P[k+1..5]</span> matched. Slide is the smallest
+shift that makes the matched suffix reappear and <strong>does
+not</strong> put the same character under the mismatched position (or,
+failing that, lines a prefix of <span class="math inline">P</span> up
+with a tail of the matched suffix); if nothing works the slide is <span
+class="math inline">m</span>. Also matchJump<span
+class="math inline">[m]=1</span>.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th><span class="math inline">k</span></th>
+<th>matched suffix</th>
+<th>other place where it fits</th>
+<th>Slide</th>
+<th>matchJump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>gaga</td>
+<td>none; no prefix equals a tail</td>
+<td>5</td>
+<td><span class="math inline">4+5=9</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td>aga</td>
+<td>none; no prefix equals a tail</td>
+<td>5</td>
+<td><span class="math inline">3+5=8</span></td>
+</tr>
+<tr>
+<td>3</td>
+<td>ga</td>
+<td>positions 2-3, preceded by t (not a, the failing letter)</td>
+<td>2</td>
+<td><span class="math inline">2+2=4</span></td>
+</tr>
+<tr>
+<td>4</td>
+<td>a</td>
+<td>position 3 is preceded by g, the same letter that just failed, so it
+is rejected; no other copy</td>
+<td>5</td>
+<td><span class="math inline">1+5=6</span></td>
+</tr>
+<tr>
+<td>5</td>
+<td>(nothing matched)</td>
+<td></td>
+<td></td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>charJump:</strong> a <span class="math inline">=0</span>, g
+<span class="math inline">=1</span>, t <span
+class="math inline">=4</span>, others <span
+class="math inline">=5</span>. <strong>matchJump:</strong> <span
+class="math inline">[9,8,4,6,1]</span>, which is the answer printed in
+the circulated solution (also reproduced by code).</p>
+<p><strong>Link.</strong> Entry <span class="math inline">k=4</span>
+shows why matchJump is “strong”: the earlier “a” exists, but it sits
+after a “g” like the letter that just failed, so sliding to it would
+repeat the same mismatch. Compare BANANA on the Tutorial 11 page, where
+the repeated “ana” produced a smaller entry.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S1 3(c)(i)</strong> Apply the Rabin-Karp string
+matching algorithm to search for the occurrence of the pattern “00101”
+in the text “00100000101”. How many <strong>character
+comparisons</strong> are done between the pattern and the text if 11 is
+used in the hash operation?</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>Read each 5-bit window as a binary number and hash it with 11 (a
+modulus, <span class="math inline">q=11</span>). The pattern is <span
+class="math inline">00101_2=5</span>, with hash <span
+class="math inline">5\bmod11=5</span>. There are <span
+class="math inline">11-5+1=7</span> windows:</p>
+<table>
+<thead>
+<tr>
+<th>window</th>
+<th>text</th>
+<th>value</th>
+<th>hash mod 11</th>
+<th>equals 5?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>00100</td>
+<td>4</td>
+<td>4</td>
+<td>no</td>
+</tr>
+<tr>
+<td>1</td>
+<td>01000</td>
+<td>8</td>
+<td>8</td>
+<td>no</td>
+</tr>
+<tr>
+<td>2</td>
+<td>10000</td>
+<td>16</td>
+<td><strong>5</strong></td>
+<td>hit: characters compared (spurious)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>00000</td>
+<td>0</td>
+<td>0</td>
+<td>no</td>
+</tr>
+<tr>
+<td>4</td>
+<td>00001</td>
+<td>1</td>
+<td>1</td>
+<td>no</td>
+</tr>
+<tr>
+<td>5</td>
+<td>00010</td>
+<td>2</td>
+<td>2</td>
+<td>no</td>
+</tr>
+<tr>
+<td>6</td>
+<td>00101</td>
+<td>5</td>
+<td><strong>5</strong></td>
+<td>hit: characters compared, match</td>
+</tr>
+</tbody>
+</table>
+<p>Characters are compared only at the two hash hits, windows 2 and 6.
+The pattern is found at index 6.</p>
+<ul>
+<li><strong>Counting a full equality test as <span
+class="math inline">m=5</span> comparisons</strong> (the lecture’s
+<code>equal_string</code> called for each hash hit, and the way the
+circulated solution counts): <span class="math inline">5+5=</span>
+<strong>10</strong>.</li>
+<li>If the string comparison <strong>stops at the first different
+character</strong>, window 2 (“10000” against “00101”) fails at the
+first character, so it costs 1, and the true match costs 5: <span
+class="math inline">1+5=6</span>.</li>
+</ul>
+<p>(Flag: the question does not say how <code>equal_string</code> stops.
+Answer 10 and state that the spurious hit at window 2 is what costs an
+extra comparison, or give both counts.)</p>
+<p><strong>Link.</strong> The spurious hit exists because <span
+class="math inline">16\equiv5\pmod{11}</span>: two different bit strings
+(10000 and 00101) collide. A different prime would avoid this one. With
+a prime larger than every window value (here <span
+class="math inline">q&gt;31</span>) there are no collisions at all.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY22/23 S1 3(c)(ii)</strong> The worst case number of
+character comparisons for the straightforward string matching algorithm
+and for the Rabin-Karp algorithm are both <span
+class="math inline">m(n-m+1)</span>, where <span
+class="math inline">m</span> is the pattern length and <span
+class="math inline">n</span> the text length. Explain this statement and
+the advantage of the Rabin-Karp algorithm.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p>There are <span class="math inline">n-m+1</span> possible alignments
+(windows) of the pattern in the text.</p>
+<ul>
+<li><strong>Straightforward scan.</strong> At each alignment it compares
+up to <span class="math inline">m</span> characters. The worst case is a
+near match everywhere (for example <span
+class="math inline">P=\text{AAAAC}</span> in <span
+class="math inline">T=\text{AAAA...A}</span>): every alignment matches
+<span class="math inline">m-1</span> characters before failing, so about
+<span class="math inline">m(n-m+1)</span> comparisons.</li>
+<li><strong>Rabin-Karp.</strong> It compares <strong>characters</strong>
+only when the hash values are equal. The worst case is when
+<strong>every</strong> window has the same hash as the pattern but is
+not the pattern (all hits are spurious, as happens with a very small
+modulus <span class="math inline">q</span>). Then every window costs a
+full <span class="math inline">m</span>-character comparison, <span
+class="math inline">m(n-m+1)</span> again.</li>
+</ul>
+<p><strong>Advantage.</strong> Normally almost no windows collide, so
+Rabin-Karp does only <strong>one hash comparison per window</strong> and
+character comparisons only at real hits. With the rolling hash each
+window’s hash costs <span class="math inline">O(1)</span> from the
+previous one, so the expected time is <span
+class="math inline">O(n+m)</span> for a good large prime <span
+class="math inline">q</span>, against <span
+class="math inline">O(mn)</span> for the plain scan in bad cases. It
+also extends naturally to searching for several patterns of the same
+length at once (see AY2324 S1 3(c)).</p>
+<p><strong>Link.</strong> Both worst cases are triggered by the same
+thing: near matches. Rabin-Karp changes <em>which</em> text patterns
+count as near matches (equal hash instead of equal prefix), so a text
+that is bad for brute force is usually harmless for Rabin-Karp, and the
+reverse.</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S2 3(c)</strong> To find all DNA pattern <span
+class="math inline">P=</span> “ATTAT” in DNA sequence <span
+class="math inline">T=</span> “GCTATACATTATCGT”: (i) How does the
+Boyer-Moore (BM) algorithm construct charJump and matchJump? (ii) How
+many comparisons are needed by the Boyer-Moore algorithm? (iii) Give an
+example of the worst case of the BM algorithm with the pattern/string
+size identical to <span class="math inline">P/T</span>. Is it also the
+worst case of the Rabin-Karp algorithm? If not, give a worst-case
+example for Rabin-Karp. (iv) What is the time complexity of these two
+algorithms on their worst case? (v) Which algorithm do you think will
+run slower in practice on its worst case? Justify your answers.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i) Construction</strong> (<span
+class="math inline">m=|P|=5</span>, positions from 1).</p>
+<ul>
+<li><strong>charJump</strong> is indexed by the alphabet. Start with
+<span class="math inline">m</span> for every letter, then scan <span
+class="math inline">P</span> from left to right and set <span
+class="math inline">\text{charJump}[P[k]]=m-k</span>; a later copy of a
+letter overwrites an earlier one, so the value comes from the
+<strong>rightmost</strong> occurrence. It says how far to jump when the
+text letter that failed occurs in the pattern. For “ATTAT”: A (rightmost
+position 4) gives 1, T (position 5) gives 0, and C and G give 5.</li>
+<li><strong>matchJump</strong> has one entry per pattern position <span
+class="math inline">k</span> for a mismatch at <span
+class="math inline">k</span> after the suffix <span
+class="math inline">P[k+1..m]</span> matched: <span
+class="math inline">\text{matchJump}[k]=(m-k)+\text{Slide}[k]</span>,
+where Slide is the smallest shift that makes the matched suffix reappear
+<strong>under a different letter than the one that failed</strong> (or a
+prefix of <span class="math inline">P</span> line up with a tail of that
+suffix), and <span class="math inline">m</span> if neither exists. <span
+class="math inline">\text{matchJump}[m]=1</span>.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><span class="math inline">k</span></th>
+<th>matched suffix</th>
+<th>other fit</th>
+<th>Slide</th>
+<th>matchJump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>TTAT</td>
+<td>none; prefix AT equals the tail AT</td>
+<td>3</td>
+<td><span class="math inline">4+3=7</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td>TAT</td>
+<td>none; prefix AT equals the tail AT</td>
+<td>3</td>
+<td><span class="math inline">3+3=6</span></td>
+</tr>
+<tr>
+<td>3</td>
+<td>AT</td>
+<td>positions 1-2 (nothing before them)</td>
+<td>3</td>
+<td><span class="math inline">2+3=5</span></td>
+</tr>
+<tr>
+<td>4</td>
+<td>T</td>
+<td>position 3, preceded by T not A</td>
+<td>2</td>
+<td><span class="math inline">1+2=3</span></td>
+</tr>
+<tr>
+<td>5</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>So charJump: A 1, T 0, C 5, G 5; matchJump: <span
+class="math inline">[7,6,5,3,1]</span> (computed by code).</p>
+<p><strong>(ii) Comparisons.</strong> <span class="math inline">T</span>
+(1-indexed): G C T A T A C A T T A T C G T (<span
+class="math inline">n=15</span>). Matching goes right to left. The
+pattern occurs once, at position 8.</p>
+<table style="width:100%;">
+<colgroup>
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+<col style="width: 16%" />
+</colgroup>
+<thead>
+<tr>
+<th>#</th>
+<th><span class="math inline">j</span></th>
+<th><span class="math inline">k</span></th>
+<th><span class="math inline">T[j]</span> vs <span
+class="math inline">P[k]</span></th>
+<th>result</th>
+<th>jump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1-3</td>
+<td>5, 4, 3</td>
+<td>5, 4, 3</td>
+<td>T=T, A=A, T=T</td>
+<td>match</td>
+<td></td>
+</tr>
+<tr>
+<td>4</td>
+<td>2</td>
+<td>2</td>
+<td>C vs T</td>
+<td>mismatch</td>
+<td><span class="math inline">\max(5,\ \text{matchJump}[2]=6)=6</span>,
+so <span class="math inline">j=8</span></td>
+</tr>
+<tr>
+<td>5</td>
+<td>8</td>
+<td>5</td>
+<td>A vs T</td>
+<td>mismatch</td>
+<td><span class="math inline">\max(1,\,1)=1</span>, so <span
+class="math inline">j=9</span></td>
+</tr>
+<tr>
+<td>6-7</td>
+<td>9, 8</td>
+<td>5, 4</td>
+<td>T=T, A=A</td>
+<td>match</td>
+<td></td>
+</tr>
+<tr>
+<td>8</td>
+<td>7</td>
+<td>3</td>
+<td>C vs T</td>
+<td>mismatch</td>
+<td><span class="math inline">\max(5,\,5)=5</span>, so <span
+class="math inline">j=12</span></td>
+</tr>
+<tr>
+<td>9-13</td>
+<td>12, 11, 10, 9, 8</td>
+<td>5, 4, 3, 2, 1</td>
+<td>T, A, T, T, A</td>
+<td>all match</td>
+<td>found at position 8</td>
+</tr>
+</tbody>
+</table>
+<p><strong>13 comparisons</strong> for Boyer-Moore with both tables
+(finding the first occurrence). The simple version (charJump only) needs
+10 here (jumps of 5 and 5 land it on the right alignment sooner), and
+the brute-force scan needs 20. If the search has to <strong>continue to
+the end</strong> to prove there is no second occurrence, after the match
+the pattern can move by <span class="math inline">m-2=3</span> places
+(the border “AT”), and 2 more comparisons (<span
+class="math inline">T=T</span>, then <span class="math inline">G\ne
+A</span>) finish the text: 15 for Boyer-Moore and 12 for the simple
+version. (The lecture code stops at the first match; the continuation is
+beyond the lecture.)</p>
+<p><strong>(iii) Worst case.</strong> For Boyer-Moore take the text
+<span class="math inline">T=\text{A}^{15}</span> and the pattern <span
+class="math inline">P=\text{AAAAA}</span>: every one of the <span
+class="math inline">15-5+1=11</span> alignments is a full match, and
+each costs <span class="math inline">5</span> comparisons, so <span
+class="math inline">11\times5=55</span> comparisons <span
+class="math inline">=m(n-m+1)</span>. For the simplified Boyer-Moore
+also <span class="math inline">P=\text{BAAAA}</span> in <span
+class="math inline">T=\text{A}^{15}</span>: five comparisons at each of
+11 alignments, again 55.</p>
+<p><strong>Is it also a worst case for Rabin-Karp?</strong> For <span
+class="math inline">P=\text{AAAAA}</span> in <span
+class="math inline">\text{A}^{15}</span> with <em>all</em> occurrences
+required, yes: every window hashes equal to <span
+class="math inline">P</span> and is a real match, so each window costs
+<span class="math inline">m</span> character comparisons: 55. If only
+the first occurrence is wanted, <span
+class="math inline">\text{A}^{15}</span> is not a worst case for
+Rabin-Karp (the first window already matches). And <span
+class="math inline">P=\text{BAAAA}</span> is not a worst case for
+Rabin-Karp at all: the hash of BAAAA differs from the hash of AAAAA, so
+no window triggers a character comparison (0 comparisons). A Rabin-Karp
+worst case needs <strong>many windows with the same hash as <span
+class="math inline">P</span> but different from <span
+class="math inline">P</span></strong> (spurious hits), which depends on
+the hash function and a bad modulus <span class="math inline">q</span>
+(for example <span class="math inline">q=2</span> with a base-4 value,
+which makes every window ending in C or T collide with ATTAT).</p>
+<p><strong>(iv) Worst-case time.</strong> Both are <span
+class="math inline">O(mn)</span> (in comparisons; for <span
+class="math inline">m=5</span>, <span class="math inline">n=15</span>
+this is 55).</p>
+<p><strong>(v) Slower in practice: Rabin-Karp.</strong> On its worst
+case, Rabin-Karp does the same <span class="math inline">m(n-m+1)</span>
+character comparisons as the brute force <strong>plus</strong> a hash
+and a rehash for every window (multiplications and <code>mod</code>,
+which are slow operations), while Boyer-Moore’s worst case costs only
+character comparisons. The lecture’s own experiment agrees: Rabin-Karp
+“behaved much worse” because of function calls, division and
+character-to-number conversion, while brute force and Boyer-Moore did
+better than their worst-case bounds suggest because worst cases are
+rare.</p>
+<p><strong>Link.</strong> Boyer-Moore’s worst case needs the text to
+<strong>look like the pattern</strong> (every alignment almost or fully
+matches), and Rabin-Karp’s needs the <strong>hash</strong> to look like
+the pattern’s. Compare AY2223 S1 3(c)(ii) and AY2324 S2 3(b).</p>
+</div>
+</details>
+<div class="q">
+<p><strong>AY21/22 S1 3(c)</strong> (i) The Boyer-Moore algorithm
+performs preprocessing to compute the two arrays charJump and matchJump.
+Find them for the string pattern “BAAAA”. (ii) When the simple
+Boyer-Moore algorithm and the Boyer-Moore algorithm are applied
+respectively to search for the pattern “BAAAA” in the text that has 20
+’A’s, how many character comparisons are done in each case? You only
+need to give the total number of comparisons but you may give your
+reasoning in a couple of lines as well.</p>
+</div>
+<details class="qa box">
+<summary>
+<strong>Answer</strong> <span class="qa-caret"
+aria-hidden="true"></span>
+</summary>
+<div class="qa-answer">
+<p><strong>(i)</strong> <span class="math inline">m=5</span>, <span
+class="math inline">P=</span> B A A A A. <span
+class="math inline">\text{charJump}[c]=m-</span> (rightmost position of
+<span class="math inline">c</span>): A (rightmost position 5) gives 0; B
+(position 1) gives 4; every other letter gives 5.</p>
+<p>matchJump<span class="math inline">[k]=(m-k)+\text{Slide}[k]</span>,
+where after a mismatch at position <span class="math inline">k</span>
+the suffix <span class="math inline">P[k+1..5]</span> has matched, and
+Slide is the smallest shift that reuses the matched suffix
+<strong>without</strong> putting the same letter under the mismatched
+position (or, failing that, uses a prefix that equals a tail), and <span
+class="math inline">m</span> if nothing works.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr>
+<th><span class="math inline">k</span></th>
+<th>matched suffix</th>
+<th>other fit</th>
+<th>Slide</th>
+<th>matchJump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>AAAA</td>
+<td>none (B is not an A)</td>
+<td>5</td>
+<td><span class="math inline">4+5=9</span></td>
+</tr>
+<tr>
+<td>2</td>
+<td>AAA</td>
+<td>positions 2-4, preceded by B (the failing letter is A)</td>
+<td>1</td>
+<td><span class="math inline">3+1=4</span></td>
+</tr>
+<tr>
+<td>3</td>
+<td>AA</td>
+<td>positions 2-3, preceded by B</td>
+<td>2</td>
+<td><span class="math inline">2+2=4</span></td>
+</tr>
+<tr>
+<td>4</td>
+<td>A</td>
+<td>position 3 is preceded by A (the failing letter), rejected; position
+2 is preceded by B</td>
+<td>3</td>
+<td><span class="math inline">1+3=4</span></td>
+</tr>
+<tr>
+<td>5</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p><strong>charJump:</strong> A <span class="math inline">=0</span>, B
+<span class="math inline">=4</span>, others <span
+class="math inline">=5</span>. <strong>matchJump:</strong> <span
+class="math inline">[9,4,4,4,1]</span> (matches the circulated solution;
+reproduced by code).</p>
+<p><strong>(ii)</strong> Text <span class="math inline">T=A^{20}</span>,
+<span class="math inline">n=20</span>, <span
+class="math inline">P=</span> BAAAA (<span
+class="math inline">m=5</span>). The first comparison of every alignment
+is at the end of the pattern (<span class="math inline">A</span> against
+<span class="math inline">A</span>) and four more A’s match, then the
+first letter <span class="math inline">B</span> fails against <span
+class="math inline">A</span>: <strong>5 comparisons per
+alignment</strong>.</p>
+<ul>
+<li><strong>Simple Boyer-Moore</strong> (<span
+class="math inline">j\leftarrow
+j+\max(\text{charJump}[T[j]],\,m-k+1)</span>): the mismatch is at <span
+class="math inline">k=1</span> after <span class="math inline">j</span>
+had moved back 4 places, so the jump is <span
+class="math inline">\max(0,5)=5</span> and the pattern moves forward by
+only <strong>1</strong> place. There are <span
+class="math inline">n-m+1=16</span> alignments, so <span
+class="math inline">16\times5=\mathbf{80}</span> comparisons.</li>
+<li><strong>Boyer-Moore with matchJump</strong> (<span
+class="math inline">j\leftarrow
+j+\max(\text{charJump}[T[j]],\,\text{matchJump}[k])</span>): at <span
+class="math inline">k=1</span> the jump is <span
+class="math inline">\max(0,9)=9</span>, so the pattern moves forward by
+<span class="math inline">9-4=</span> <strong>5</strong> places. The
+alignments are at starts 1, 6, 11 and 16: <strong>4</strong> alignments,
+<span class="math inline">4\times5=\mathbf{20}</span> comparisons.</li>
+</ul>
+<p>(The circulated solution writes charJump[‘A’] <span
+class="math inline">=2</span> in this part; the correct value is 0, and
+the counts 80 and 20 are unaffected.)</p>
+<p><strong>Link.</strong> The brute-force scan (left to right) needs
+only <strong>16</strong> comparisons here: at each alignment the first
+comparison B against A fails at once. Boyer-Moore compares from the
+<strong>right</strong>, so it matches four letters before reaching the
+mismatch at the <em>front</em>, and the simple version costs 5 times
+more than brute force. This is the input on which the simple version is
+at its worst, and it shows what matchJump buys: it learns from the four
+matched A’s and skips 5 places instead of 1.</p>
+</div>
+</details>
+<h2 id="tutorials">Tutorials</h2>
+<p>(Tutorial 11 is Problem 3 above; its Boyer-Moore questions are
+Problem 2.)</p>
+
+</main>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="drill.js"></script>
+</body></html>
